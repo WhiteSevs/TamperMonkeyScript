@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.11
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
@@ -41,29 +41,65 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, pops, Utils, hljs, Viewer) {
+(function (qmsg, _whitesev_domutils, _whitesev_pops, _whitesev_utils, highlight_js, viewerjs) {
   "use strict";
-
-  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
-  const GM_RESOURCE_MAPPING = {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __copyProps = (to, from, except, desc) => {
+    if ((from && typeof from === "object") || typeof from === "function")
+      for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+        key = keys[i];
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, {
+            get: ((k) => from[k]).bind(null, key),
+            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+          });
+      }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
+    __copyProps(
+      isNodeMode || !mod || !mod.__esModule
+        ? __defProp(target, "default", {
+            value: mod,
+            enumerable: true,
+          })
+        : target,
+      mod
+    )
+  );
+  qmsg = __toESM(qmsg);
+  _whitesev_domutils = __toESM(_whitesev_domutils);
+  _whitesev_pops = __toESM(_whitesev_pops);
+  _whitesev_utils = __toESM(_whitesev_utils);
+  highlight_js = __toESM(highlight_js);
+  viewerjs = __toESM(viewerjs);
+  var _GM = typeof GM != "undefined" ? GM : void 0;
+  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
+  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
+  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
+  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
+  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
+  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
+  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
+  var _GM_removeValueChangeListener =
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
+  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
+  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
+  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
+  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
+  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
+  var _monkeyWindow = window;
+  var GM_RESOURCE_MAPPING = {
+    ElementPlus: {
+      keyName: "ElementPlusResourceCSS",
+      url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css",
+    },
     Viewer: {
       keyName: "ViewerCSS",
       url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
@@ -73,7 +109,7 @@
       url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
     },
   };
-  const PanelSettingConfig = {
+  var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom",
@@ -95,61 +131,43 @@
       defaultValue: false,
     },
   };
-  const CommonUtil = {
+  var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
-        if (typeof selector !== "string") {
-          return;
-        }
-        DOMUtils.waitNodeList(selector).then((nodeList) => {
+        if (typeof selector !== "string") return;
+        _whitesev_domutils.default.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
     },
     createBlockCSSNode(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return DOMUtils.createElement("style", {
+      return _whitesev_domutils.default.createElement("style", {
         type: "text/css",
         innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
     addBlockCSS(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+      if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
-      if (typeof cssText === "string" && cssText) {
-        return addStyle(cssText);
-      } else {
-        return CommonUtil.loadStyleLink(resourceMapData.url);
-      }
+      if (typeof cssText === "string" && cssText) return addStyle(cssText);
+      else return CommonUtil.loadStyleLink(resourceMapData.url);
     },
     async loadStyleLink(url) {
       let $link = document.createElement("link");
@@ -157,7 +175,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.onReady(() => {
+        _whitesev_domutils.default.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -175,32 +193,21 @@
     },
     fixUrl(url) {
       url = url.trim();
-      if (url.startsWith("data:")) {
-        return url;
-      }
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else if (url.startsWith("//")) {
-        if (url.startsWith("///"));
-        else {
-          url = window.location.protocol + url;
-        }
+      if (url.startsWith("data:")) return url;
+      if (url.match(/^http(s|):\/\//i)) return url;
+      else if (url.startsWith("//")) {
+        if (url.startsWith("///")) {
+        } else url = window.location.protocol + url;
         return url;
       } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
+        if (!url.startsWith("/")) url += "/";
         url = window.location.origin + url;
         return url;
       }
     },
     fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
+      if (url.startsWith("https://")) return url;
+      if (!url.startsWith("http://")) return url;
       try {
         let urlInstance = new URL(url);
         urlInstance.protocol = "https:";
@@ -244,9 +251,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions
-          .query({
-            name: "clipboard-read",
-          })
+          .query({ name: "clipboard-read" })
           .then(() => {
             readClipboardText(resolve);
           })
@@ -256,12 +261,8 @@
           });
       }
       function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
+        if (typeof navigator?.clipboard?.readText !== "function") return false;
+        if (typeof navigator?.permissions?.query !== "function") return false;
         return true;
       }
       return new Promise((resolve) => {
@@ -269,19 +270,15 @@
           resolve("");
           return;
         }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard(resolve);
-        } else {
+        if (document.hasFocus()) requestPermissionsWithClipboard(resolve);
+        else
           window.addEventListener(
             "focus",
             () => {
               requestPermissionsWithClipboard(resolve);
             },
-            {
-              once: true,
-            }
+            { once: true }
           );
-        }
       });
     },
     escapeHtml(unsafe) {
@@ -330,66 +327,44 @@
     },
     findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
-        let $parent = DOMUtils.closest($el, parentSelector);
-        if ($parent) {
-          let $target = $parent.querySelector(selector);
-          return $target;
-        }
+        let $parent = _whitesev_domutils.default.closest($el, parentSelector);
+        if ($parent) return $parent.querySelector(selector);
       } else {
-        if (DOMUtils.matches($el, selector)) {
-          return $el;
-        }
-        let $parent = DOMUtils.closest($el, selector);
-        return $parent;
+        if (_whitesev_domutils.default.matches($el, selector)) return $el;
+        return _whitesev_domutils.default.closest($el, selector);
       }
     },
     toStr(data, space = 2) {
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
-      const dataStr = JSON.stringify(
+      return JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
         space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
-      return dataStr;
     },
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
     },
     isMobileDevice(size = 768) {
-      const isVerticalScreen = this.isVerticalScreen();
-      if (isVerticalScreen) {
-        return globalThis.innerWidth < size;
-      } else {
-        return globalThis.innerHeight < size;
-      }
+      if (this.isVerticalScreen()) return globalThis.innerWidth < size;
+      else return globalThis.innerHeight < size;
     },
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
     formatVideoDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
       const zeroPadding = function (num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
+        if (num < 10) return `0${num}`;
+        else return num;
       };
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
-        return `${minutes}:${zeroPadding(seconds)}`;
-      } else {
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else {
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor(duration / 60) % 60;
         const seconds = duration % 60;
@@ -398,78 +373,64 @@
     },
     formatTimeStamp(time, endTime) {
       if (typeof time === "number") {
-        if (time < 1e12) {
+        if (time < 0xe8d4a51000) {
           const padZeroLength = String(Date.now()).length - String(time).length;
           time = time * Math.pow(10, padZeroLength);
         }
       }
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
-      let currentTime = new Date(endTime ?? Date.now());
-      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
       let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0) {
-        if (days > 7) {
-          result = utils.formatTime(oldTime.getTime());
-        } else {
-          result = days + "天前";
-        }
-      } else {
+      if (days > 0)
+        if (days > 7) result = utils.formatTime(oldTime.getTime());
+        else result = days + "天前";
+      else {
         let leave1 = timeDifference % (24 * 3600 * 1e3);
         let hours = Math.floor(leave1 / (3600 * 1e3));
-        if (hours > 0) {
-          result = hours + "小时前";
-        } else {
+        if (hours > 0) result = hours + "小时前";
+        else {
           let leave2 = leave1 % (3600 * 1e3);
           let minutes = Math.floor(leave2 / (60 * 1e3));
-          if (minutes > 0) {
-            result = minutes + "分钟前";
-          } else {
+          if (minutes > 0) result = minutes + "分钟前";
+          else {
             let leave3 = leave2 % (60 * 1e3);
-            let seconds = Math.round(leave3 / 1e3);
-            result = seconds + "秒前";
+            result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
       }
       return result;
     },
   };
-  const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.fn.Utils.AnyTouch();
+  var utils = _whitesev_utils.default.noConflict();
+  var domUtils = _whitesev_domutils.default.noConflict();
+  var __pops__ = _whitesev_pops.default;
+  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
     tag: true,
   });
-  const getPageMaxZIndex = () => {
+  var getPageMaxZIndex = () => {
     const deviation = 100;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
     const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-    const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
-    return maxZIndex;
+    return Math.max(deviation, popsZIndex, pointZIndex);
   };
-  Qmsg.config({
+  qmsg.default.config({
     isHTML: true,
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
+      if (qmsgType === "loading") return false;
       const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
+      if (qmsgType === "warning") log.warn(content);
+      else if (qmsgType === "error") log.error(content);
+      else log.info(content);
       return false;
     },
     get position() {
@@ -507,13 +468,13 @@
     },
     drag: true,
   });
-  const MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  const httpx = new utils.Httpx({
+  var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
     logDetails: false,
   });
@@ -526,94 +487,75 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") {
-        Qmsg.warning("请求取消", { consoleLogContent: true });
-      } else if (data.type === "onerror") {
-        Qmsg.error("请求异常", { consoleLogContent: true });
-      } else if (data.type === "ontimeout") {
-        Qmsg.error("请求超时", { consoleLogContent: true });
-      } else {
-        Qmsg.error("其它错误", { consoleLogContent: true });
-      }
+      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
+      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
+      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
+      else qmsg.default.error("其它错误", { consoleLogContent: true });
       return data;
     }
   );
-  ({
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty,
-      keys: _unsafeWindow.Object.keys,
-      values: _unsafeWindow.Object.values,
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call,
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
-    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
-    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
-    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
-    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-  });
-  const addStyle = domUtils.addStyle.bind(domUtils);
+  (_unsafeWindow.Object.defineProperty,
+    _unsafeWindow.Object.keys,
+    _unsafeWindow.Object.values,
+    _unsafeWindow.Function.prototype.apply,
+    _unsafeWindow.Function.prototype.call,
+    _unsafeWindow.Element.prototype.appendChild,
+    _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    _unsafeWindow.setInterval.bind(_unsafeWindow),
+    _unsafeWindow.clearInterval.bind(_unsafeWindow));
+  var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.CookieManagerService({
-    baseCookieHandler: "GM_cookie",
-  });
-  if (!cookieManager.isSupportGM_cookie) {
-    if (cookieManager.isSupportCookieStore) {
-      cookieManager.setOptions({
-        baseCookieHandler: "cookieStore",
-      });
-    } else {
-      cookieManager.setOptions({
-        baseCookieHandler: "document.cookie",
-      });
-    }
-  }
+  var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
+  var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
+  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  if (!cookieManager.isSupportGM_cookie)
+    if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
+    else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils.DocumentCookieHandler();
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelSizeUtil = {
+  var KEY = "GM_Panel";
+  var ATTRIBUTE_INIT = "data-init";
+  var ATTRIBUTE_KEY = "data-key";
+  var ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  var ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  var ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+  var PROPS_STORAGE_API = "data-storage-api";
+  var PanelSizeUtil = {
+    followBrowserSize: false,
     get width() {
-      return globalThis.innerWidth;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
     },
     get height() {
-      return globalThis.innerHeight;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
     },
   };
-  const PanelUISize = {
+  var PanelUISize = {
     setting: {
       get width() {
-        if (PanelSizeUtil.width < 550) {
-          return "88vw";
-        } else if (PanelSizeUtil.width < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
+        if (PanelSizeUtil.width < 550) return "88vw";
+        else if (PanelSizeUtil.width < 700) return "550px";
+        else return "700px";
       },
       get height() {
-        if (PanelSizeUtil.height < 450) {
-          return "70vh";
-        } else if (PanelSizeUtil.height < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
+        if (PanelSizeUtil.height < 450) return "70vh";
+        else if (PanelSizeUtil.height < 550) return "450px";
+        else return "550px";
       },
     },
     settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
+      },
+    },
+    settingBig: {
+      get width() {
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       },
     },
     info: {
@@ -625,21 +567,17 @@
       },
     },
   };
-  const PanelContent = {
+  var PanelContent = {
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) {
-          this.__contentConfig = new utils.Dictionary();
-        }
+        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) {
-        configList = [configList];
-      }
+      if (!Array.isArray(configList)) configList = [configList];
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
@@ -650,34 +588,28 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig(config) {
-      if (this.$data.__defaultBottomContentConfig.length) {
-        return this.$data.__defaultBottomContentConfig;
-      }
+      if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
       let isDoubleClick = false;
       let timer = void 0;
       const translateCallback = (text, translateMap) => {
-        if (config && typeof config.translateCallback === "function") {
+        if (config && typeof config.translateCallback === "function")
           return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const exportToFile = (fileName, fileData) => {
-        if (typeof fileData !== "string") {
-          fileData = CommonUtil.toStr(fileData);
-        }
+        if (typeof fileData !== "string") fileData = CommonUtil.toStr(fileData);
         const blob = new Blob([fileData]);
         const blobUrl = globalThis.URL.createObjectURL(blob);
-        const $anchor = domUtils.createElement("a", {
-          href: blobUrl,
-          download: fileName,
-        });
-        $anchor.click();
+        domUtils
+          .createElement("a", {
+            href: blobUrl,
+            download: fileName,
+          })
+          .click();
         utils.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
@@ -706,9 +638,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -730,43 +660,29 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm(
-              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
-            );
-            if (clearLocalStorage) {
-              if (typeof _GM_listValues === "function") {
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
+              if (typeof _GM_listValues === "function")
                 if (typeof _GM_deleteValue === "function") {
-                  const localStorageKeys = _GM_listValues();
-                  localStorageKeys.forEach((key) => {
+                  _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
-                } else {
-                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-                }
-              } else {
-                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
-              }
-            }
-            if (typeof _GM_setValues === "function") {
-              _GM_setValues(data);
-            } else {
-              const keys = Object.keys(data);
-              keys.forEach((key) => {
+                  qmsg.default.success(translateCallback("已清空脚本存储的配置"));
+                } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
+              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            if (typeof _GM_setValues === "function") _GM_setValues(data);
+            else
+              Object.keys(data).forEach((key) => {
                 const value = data[key];
                 _GM_setValue(key, value);
               });
-            }
-            Qmsg.success(translateCallback("配置导入完毕"));
+            qmsg.default.success(translateCallback("配置导入完毕"));
+            importEndCallBack?.();
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
-              if (Object.keys(data).length === 0) {
-                Qmsg.warning(translateCallback("解析为空配置，不导入"));
-              } else {
-                await updateConfigToStorage(data);
-              }
+              if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
+              else await updateConfigToStorage(data);
               resolve(true);
             });
           };
@@ -778,9 +694,7 @@
               accept: ".json",
             });
             domUtils.on($input, ["propertychange", "input"], () => {
-              if (!$input.files?.length) {
-                return;
-              }
+              if (!$input.files?.length) return;
               const uploadFile = $input.files[0];
               const fileReader = new FileReader();
               fileReader.onload = () => {
@@ -815,53 +729,37 @@
                   callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error(translateCallback("请填入完整的url"));
+                      qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
-                    const response = await httpx.get(url, {
-                      allowInterceptConfig: false,
-                    });
+                    const $loading = qmsg.default.loading(translateCallback("正在获取配置..."));
+                    const response = await httpx.get(url, { allowInterceptConfig: false });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
+                      qmsg.default.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
-                    const flag = await importFile(response.data.responseText);
-                    if (!flag) {
-                      return;
-                    }
+                    if (!(await importFile(response.data.responseText))) return;
                     details.close();
                   },
                 },
-                cancel: {
-                  enable: false,
-                },
+                cancel: { enable: false },
               },
               drag: true,
-              mask: {
-                enable: true,
-              },
+              mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
             domUtils.on($promptInput, ["input", "propertychange"], () => {
-              const value = domUtils.val($promptInput);
-              if (value === "") {
-                domUtils.attr($promptOk, "disabled", "true");
-              } else {
-                domUtils.removeAttr($promptOk, "disabled");
-              }
+              if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+              else domUtils.removeAttr($promptOk, "disabled");
             });
             domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
-                const value = domUtils.val($promptInput);
-                if (value !== "") {
-                  domUtils.emit($promptOk, "click");
-                }
+                if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
               }
             });
             domUtils.emit($promptInput, "input");
@@ -871,13 +769,10 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
+              qmsg.default.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
-            const flag = await importFile(clipboardText);
-            if (!flag) {
-              return;
-            }
+            if (!(await importFile(clipboardText))) return;
           });
         };
         const exportConfig = (
@@ -906,9 +801,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -934,48 +827,46 @@
               exportToFile(fileName, fileData);
               $alert.close();
             } catch (error) {
-              Qmsg.error(error.toString(), { consoleLogContent: true });
+              qmsg.default.error(error.toString(), { consoleLogContent: true });
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            const result = await utils.copy(fileData);
-            if (result) {
-              Qmsg.success(translateCallback("复制成功"));
+            if (await utils.copy(fileData)) {
+              qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
-            } else {
-              Qmsg.error(translateCallback("复制失败"));
-            }
+            } else qmsg.default.error(translateCallback("复制失败"));
           });
         };
-        const $dialog = __pops__.confirm({
-          title: {
-            text: translateCallback("配置"),
-            position: "center",
-          },
-          content: {
-            text: `<textarea name="config-value" id="config" readonly></textarea>`,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              type: "primary",
-              text: translateCallback("导入"),
-              callback() {
-                importConfig();
+        const $textarea = __pops__
+          .confirm({
+            title: {
+              text: translateCallback("配置"),
+              position: "center",
+            },
+            content: {
+              text: `<textarea name="config-value" id="config" readonly></textarea>`,
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                type: "primary",
+                text: translateCallback("导入"),
+                callback() {
+                  importConfig();
+                },
+              },
+              cancel: {
+                enable: true,
+                text: translateCallback("导出"),
+                callback() {
+                  exportConfig(void 0, configDataStr);
+                },
               },
             },
-            cancel: {
-              enable: true,
-              text: translateCallback("导出"),
-              callback() {
-                exportConfig(void 0, configDataStr);
-              },
-            },
-          },
-          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
-          height: "auto",
-          style: `
+            width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+            height: "auto",
+            style: `
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -1007,17 +898,16 @@
             --textarea-bd-color: #c0c4cc;
           }
         `,
-        });
-        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+          })
+          .$shadowRoot.querySelector("textarea");
         const configData = {};
-        if (typeof _GM_listValues === "function") {
-          const LocalKeys = _GM_listValues();
-          LocalKeys.forEach((key) => {
+        if (typeof _GM_listValues === "function")
+          _GM_listValues().forEach((key) => {
             const value = _GM_getValue(key);
             Reflect.set(configData, key, value);
           });
-        } else {
-          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
+        else {
+          qmsg.default.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1026,9 +916,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-          window.open(supportURL, "_blank");
-        }
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -1041,9 +929,8 @@
           clickFirstCallback() {
             return false;
           },
-          afterRender(config2) {
-            const anyTouch = new AnyTouch(config2.$asideLiElement);
-            anyTouch.on("tap", function () {
+          afterRender(config) {
+            new AnyTouch(config.$asideLiElement).on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1065,7 +952,7 @@
       this.$data.__defaultBottomContentConfig = config;
     },
   };
-  const PanelMenu = {
+  var PanelMenu = {
     $data: {
       __menuOption: [
         {
@@ -1089,28 +976,20 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!CommonUtil.isTopWindow()) {
-        return;
-      }
+      if (!CommonUtil.isTopWindow()) return;
       MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       this.$data.menuOption.push(...option);
     },
     updateMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       option.forEach((optionItem) => {
         let findIndex = this.$data.menuOption.findIndex((it) => {
           return it.key === optionItem.key;
         });
-        if (findIndex !== -1) {
-          this.$data.menuOption[findIndex] = optionItem;
-        }
+        if (findIndex !== -1) this.$data.menuOption[findIndex] = optionItem;
       });
     },
     getMenuOption(index = 0) {
@@ -1120,7 +999,7 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
-  class PanelMenuResultsHandler {
+  var PanelMenuResultsHandler = class {
     data = {
       storeNodeList: [],
       destoryFnList: [],
@@ -1133,40 +1012,26 @@
       const dynamicMenuStoreNodeList = [];
       const dynamicDestoryFnList = [];
       let resultValueList = [];
-      if (Array.isArray(args)) {
-        resultValueList = resultValueList.concat(args);
-      } else {
+      if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
+      else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null) {
-            if (obj instanceof Element) {
-              resultValueList.push(obj);
-            } else {
-              if (Array.isArray(obj)) {
-                handleArgs(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else if ($css instanceof Element) {
-                    resultValueList.push($css);
-                  } else;
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
+          if (typeof obj === "object" && obj != null)
+            if (obj instanceof Element) resultValueList.push(obj);
+            else if (Array.isArray(obj)) handleArgs(obj);
+            else {
+              const { $css, destory } = obj;
+              if ($css != null) {
+                if (Array.isArray($css)) resultValueList = resultValueList.concat($css);
+                else if ($css instanceof Element) resultValueList.push($css);
               }
+              if (typeof destory === "function") resultValueList.push(destory);
             }
-          } else {
-            resultValueList.push(obj);
-          }
+          else resultValueList.push(obj);
         };
         handleArgs(args);
       }
       const handleResult = (it) => {
-        if (it == null) {
-          return;
-        }
+        if (it == null) return;
         if (it instanceof Element) {
           dynamicMenuStoreNodeList.push(it);
           return;
@@ -1178,17 +1043,12 @@
       };
       for (const it of resultValueList) {
         const flag = handleResult(it);
-        if (typeof flag === "boolean" && !flag) {
-          break;
-        }
-        if (Array.isArray(it)) {
+        if (typeof flag === "boolean" && !flag) break;
+        if (Array.isArray(it))
           for (const it2 of it) {
             const flag2 = handleResult(it2);
-            if (typeof flag2 === "boolean" && !flag2) {
-              break;
-            }
+            if (typeof flag2 === "boolean" && !flag2) break;
           }
-        }
       }
       this.clearStoreNodeList();
       this.execDestoryFnAndClear();
@@ -1203,8 +1063,7 @@
     }
     clearStoreNodeList = () => {
       for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
-        const $css = this.data.storeNodeList[index];
-        $css?.remove();
+        this.data.storeNodeList[index]?.remove();
         this.data.storeNodeList.splice(index, 1);
       }
     };
@@ -1217,15 +1076,12 @@
     };
     checkMenuExec() {
       let flag = false;
-      if (typeof this.option.checkExec === "function") {
-        flag = this.option.checkExec(this.option.keyList);
-      } else {
-        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
-      }
+      if (typeof this.option.checkExec === "function") flag = this.option.checkExec(this.option.keyList);
+      else flag = this.option.keyList.every((key) => this.getEnableStatus(key));
       return flag;
     }
-  }
-  class StorageUtils {
+  };
+  var StorageUtils = class {
     storageKey;
     listenerData;
     cacheData;
@@ -1233,14 +1089,10 @@
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key can not be empty string");
-        }
+        if (trimKey == "") throw new Error("key can not be empty string");
         this.storageKey = trimKey;
-      } else {
-        throw new TypeError("key must be a string");
-      }
-      this.listenerData = new Utils.Dictionary();
+      } else throw new TypeError("key must be a string");
+      this.listenerData = new _whitesev_utils.default.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
       this.setLocalValue = this.setLocalValue.bind(this);
       this.destory = this.destory.bind(this);
@@ -1287,9 +1139,7 @@
           _GM_removeValueChangeListener(listenerId);
         });
         return localValue;
-      } else {
-        return this.cacheData;
-      }
+      } else return this.cacheData;
     }
     setLocalValue(value) {
       this.cacheData = null;
@@ -1308,8 +1158,7 @@
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
+      return this.getLocalValue();
     }
     delete(key) {
       const oldValue = this.get(key);
@@ -1365,19 +1214,16 @@
     }
     async emitValueChangeListener(...args) {
       const [key, newValue, oldValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
+      if (!this.listenerData.has(key)) return;
       const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
           let __newValue;
           let __oldValue;
-          if (args.length === 1);
-          else if (args.length === 2) {
-            __newValue = newValue;
-          } else if (args.length === 3) {
+          if (args.length === 1) {
+          } else if (args.length === 2) __newValue = newValue;
+          else if (args.length === 3) {
             __newValue = newValue;
             __oldValue = oldValue;
           }
@@ -1385,9 +1231,9 @@
         }
       }
     }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
-  const Panel = {
+  };
+  var PopsPanelStorageApi = new StorageUtils(KEY);
+  var Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
       __onceExecMenuData: null,
@@ -1397,28 +1243,20 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) {
-          this.__contentConfigInitDefaultValue = new utils.Dictionary();
-        }
+        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) {
-          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
-        }
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
+        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -1440,19 +1278,13 @@
     },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
-          return;
-        }
+        if (!config.attributes) return;
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") return;
         const attributes = config.attributes;
         const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           const __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) return;
         }
         const menuDefaultConfig = new Map();
         const key = attributes[ATTRIBUTE_KEY];
@@ -1461,56 +1293,46 @@
           menuDefaultConfig.set(key, defaultValue);
         }
         const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
-          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            const defaultValue = moreMenuDefaultConfig[key2];
-            menuDefaultConfig.set(key2, defaultValue);
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig)
+          Object.keys(moreMenuDefaultConfig).forEach((key) => {
+            const defaultValue = moreMenuDefaultConfig[key];
+            menuDefaultConfig.set(key, defaultValue);
           });
-        }
         if (!menuDefaultConfig.size) {
           log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
           const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
-          if (typeof disabled === "boolean" && disabled) {
+          if (typeof disabled === "boolean" && disabled)
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
-          }
         }
-        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
-          this.setDefaultValue(__key, __defaultValue);
-        }
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) this.setDefaultValue(__key, __defaultValue);
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           const configItem = configList[index];
           initDefaultValue(configItem);
           const childViews = configItem.views;
-          if (childViews && Array.isArray(childViews)) {
-            loopInitDefaultValue(childViews);
-          }
+          if (childViews && Array.isArray(childViews)) loopInitDefaultValue(childViews);
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         const leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.views) {
-          continue;
-        }
+        if (!leftContentConfigItem.views) continue;
         const rightContentConfigList = leftContentConfigItem.views;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+        if (rightContentConfigList && Array.isArray(rightContentConfigList))
           loopInitDefaultValue(rightContentConfigList);
-        }
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     setDefaultValue(key, defaultValue) {
-      if (this.$data.contentConfigInitDefaultValue.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key))
         log.warn("该key已存在，初始化默认值失败: ", {
           key,
           initValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
-      }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     getDefaultValue(key) {
@@ -1522,9 +1344,7 @@
     getValue(key, defaultValue) {
       const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.contentConfigInitDefaultValue.has(key)) {
-          return this.$data.contentConfigInitDefaultValue.get(key);
-        }
+        if (this.$data.contentConfigInitDefaultValue.has(key)) return this.$data.contentConfigInitDefaultValue.get(key);
         return defaultValue;
       }
       return localValue;
@@ -1539,11 +1359,8 @@
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       if (option?.immediate || option?.immediateAll) {
         const value = this.getValue(key);
-        if (option?.immediate) {
-          callback(key, value, value);
-        } else if (option?.immediateAll) {
-          Panel.emitMenuValueChange(key, value, value);
-        }
+        if (option?.immediate) callback(key, value, value);
+        else if (option?.immediateAll) Panel.emitMenuValueChange(key, value, value);
       }
       return listenerId;
     },
@@ -1555,20 +1372,15 @@
     },
     async exec(queryKey, callback, checkExec, once = true) {
       let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) queryKeyFn = () => queryKey;
+      else queryKeyFn = queryKey;
       let isArrayKey = false;
       const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
         keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
+      } else keyList.push(queryKeyResult);
       const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -1576,9 +1388,7 @@
       }
       const storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return this.$data.onceExecMenuData.get(storageKey);
-        }
+        if (this.$data.onceExecMenuData.has(storageKey)) return this.$data.onceExecMenuData.get(storageKey);
       }
       const listenerIdList = [];
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1587,13 +1397,10 @@
           const value = this.getValue(key);
           return Boolean(value);
         },
-        checkExec(keyList2) {
+        checkExec(keyList) {
           let flag = false;
-          if (typeof checkExec === "function") {
-            flag = checkExec(keyList2);
-          } else {
-            flag = keyList2.every((key) => this.getValue(key));
-          }
+          if (typeof checkExec === "function") flag = checkExec(keyList);
+          else flag = keyList.every((key) => this.getValue(key));
           return flag;
         },
       });
@@ -1613,16 +1420,17 @@
         }
         panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
-      if (once) {
+      if (once)
         keyList.forEach((key) => {
-          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
             return valueChangeCallback({
-              key: key2,
+              key,
+              newValue,
+              oldValue,
             });
           });
           listenerIdList.push(listenerId);
         });
-      }
       await valueChangeCallback();
       const result = {
         checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
@@ -1646,9 +1454,7 @@
           });
         },
         clearOnceExecMenuData() {
-          if (once) {
-            Panel.$data.onceExecMenuData.delete(storageKey);
-          }
+          if (once) Panel.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1661,19 +1467,15 @@
           return await callback(...args);
         },
         (keyList) => {
-          const execFlag = keyList.every((__key__) => {
+          return keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            if (isReverse) {
-              flag = !flag;
-            }
+            if (isReverse) flag = !flag;
             return flag;
           });
-          return execFlag;
         },
         once
       );
@@ -1694,16 +1496,14 @@
     async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
       const results = await Promise.all(
         menus.map(async ([key, callback]) => {
-          const menuResult = await this.execMenu(
+          return await this.execMenu(
             key,
             (...args) => {
-              const result = callback(...args);
-              return result;
+              return callback(...args);
             },
             isReverse,
             once
           );
-          return menuResult;
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1718,23 +1518,14 @@
         panelMenuResultsHandler.clearStoreNodeList();
         panelMenuResultsHandler.execDestoryFnAndClear();
         if (removeListener) {
-          for (const listenerId of listenerIdList) {
-            this.removeValueChangeListener(listenerId);
-          }
-          for (const result of results) {
-            if (result) {
-              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
-            }
-          }
+          for (const listenerId of listenerIdList) this.removeValueChangeListener(listenerId);
+          for (const result of results) if (result) this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
         }
       };
       const __allExecCallback__ = () => {
         const allExecFlag = results.every((result) => {
-          if (result) {
-            return result.checkMenuExec();
-          } else {
-            return true;
-          }
+          if (result) return result.checkMenuExec();
+          else return true;
         });
         __destory__(false);
         if (allExecFlag) {
@@ -1743,7 +1534,7 @@
         }
       };
       __allExecCallback__();
-      for (const result of results) {
+      for (const result of results)
         if (result) {
           const listenerId = this.addValueChangeListener(result.keyList[0], () => {
             __allExecCallback__();
@@ -1757,58 +1548,42 @@
             this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
           }
         }
-      }
       return {
         clear() {
-          for (const result of results) {
-            result?.clear();
-          }
+          for (const result of results) result?.clear();
           this.execDestoryFnAndClear();
           this.removeValueChangeListener();
         },
         execDestoryFnAndClear() {
-          for (const result of results) {
-            result?.execDestoryFnAndClear();
-          }
+          for (const result of results) result?.execDestoryFnAndClear();
           __destory__(false);
         },
         removeValueChangeListener() {
-          for (const result of results) {
-            result?.removeValueChangeListener();
-          }
+          for (const result of results) result?.removeValueChangeListener();
           __destory__(true);
         },
       };
     },
     async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
-      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
-      return results;
+      return await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
+      return PopsPanelStorageApi.removeValueChangeListener(key);
     },
     onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
+      if (typeof key !== "string") throw new TypeError("key 必须是字符串");
+      if (this.$data.onceExecData.has(key)) return;
       if (runWithMenuEnable) {
-        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
-          const menuEnable = !!Panel.getValue(it);
-          if (!menuEnable) {
-            return true;
-          }
-        });
-        if (findIndex !== -1) {
+        if (
+          (Array.isArray(key) ? key : [key]).findIndex((it) => {
+            if (!!!Panel.getValue(it)) return true;
+          }) !== -1
+        )
           return;
-        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1836,9 +1611,7 @@
     },
     async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
-      for (const callback of values) {
-        await callback(config);
-      }
+      for (const callback of values) await callback(config);
     },
     showPanel(
       content,
@@ -1850,12 +1623,12 @@
       this.$data.panelContent = [];
       const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-          return isBottom && it.id === "script-version";
+          return (
+            (typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom)) && it.id === "script-version"
+          );
         }) !== -1;
-      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
+      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig)
         content.push(...PanelContent.getDefaultBottomContentConfig());
-      }
       const $panel = __pops__.panel({
         title: {
           text: title,
@@ -1901,33 +1674,30 @@
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
-      if (!preventRegisterSearchPlugin) {
-        this.registerConfigSearch({ $panel, content });
-      }
-      return { $panel, content };
+      if (!preventRegisterSearchPlugin)
+        this.registerConfigSearch({
+          $panel,
+          content,
+        });
+      return {
+        $panel,
+        content,
+      };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
       const translateCallback = (text, translateMap) => {
-        if (typeof config.translateCallback === "function") {
-          return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        if (typeof config.translateCallback === "function") return config.translateCallback(text, translateMap);
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const asyncQueryProperty = async (target, handler) => {
-        if (target == null) {
-          return;
-        }
+        if (target == null) return;
         const handleResult = await handler(target);
-        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-          return handleResult.data;
-        }
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) return handleResult.data;
         return await asyncQueryProperty(handleResult.data, handler);
       };
       const scrollToElementAndListen = ($el, callback) => {
@@ -1946,7 +1716,10 @@
           }
         );
         observer.observe($el);
-        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+        $el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
@@ -1956,9 +1729,7 @@
         $el.classList.add(flashingClassName);
       };
       const dbclick_callback = (evt) => {
-        if (evt.type === "dblclick" && isMobileTouch) {
-          return;
-        }
+        if (evt.type === "dblclick" && isMobileTouch) return;
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
@@ -1974,14 +1745,8 @@
 					`,
             html: true,
           },
-          btn: {
-            ok: { enable: false },
-          },
-          mask: {
-            clickEvent: {
-              toClose: true,
-            },
-          },
+          btn: { ok: { enable: false } },
+          mask: { clickEvent: { toClose: true } },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
@@ -2034,17 +1799,16 @@
         };
         const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
-            if (target?.next) {
+            if (target?.next)
               return {
                 isFind: false,
                 data: target.next,
               };
-            } else {
+            else
               return {
                 isFind: true,
                 data: target,
               };
-            }
           });
           const $item = domUtils.createElement("div", {
             className: "search-result-item",
@@ -2055,16 +1819,11 @@
           });
           const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
-            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
+            const $targetAsideItem = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
-            );
-            const $targetAsideItem = $asideItems2[pathInfo.index];
+            )[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(
-                translateCallback(`左侧项下标{{index}}不存在`, {
-                  index: pathInfo.index,
-                })
-              );
+              qmsg.default.error(translateCallback(`左侧项下标{{index}}不存在`, { index: pathInfo.index }));
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -2082,10 +1841,9 @@
                     }
                   );
                 }, 2500);
-                if ($findDeepMenu) {
-                  $findDeepMenu.click();
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
+                if ($findDeepMenu) $findDeepMenu.click();
+                else {
+                  qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -2099,8 +1857,10 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
-                      return viewConfig === target.matchedData?.formConfig;
+                      return (
+                        Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey) ===
+                        target.matchedData?.formConfig
+                      );
                     }
                   );
                 }, 2500);
@@ -2108,16 +1868,13 @@
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
-                    $foldWrapper.click();
+                    $fold.querySelector(".pops-panel-forms-fold-container").click();
                     await utils.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
                   });
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的菜单项"));
-                }
+                } else qmsg.default.error(translateCallback("未找到对应的菜单项"));
                 return {
                   isFind: true,
                   data: target,
@@ -2138,21 +1895,18 @@
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
-                  deepNext.next = {
-                    name: configItem.text,
-                  };
+                  deepNext.next = { name: configItem.text };
                 }
                 loopContentConfig(childViewConfig, deepMenuPath);
               } else {
@@ -2161,15 +1915,9 @@
                 if (configItem.type === "own") {
                   let searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                   if (searchConfig) {
-                    if (typeof searchConfig === "function") {
-                      searchConfig = searchConfig();
-                    }
-                    if (typeof searchConfig.text === "string") {
-                      text = searchConfig.text;
-                    }
-                    if (typeof searchConfig.desc === "string") {
-                      description = searchConfig.desc;
-                    }
+                    if (typeof searchConfig === "function") searchConfig = searchConfig();
+                    if (typeof searchConfig.text === "string") text = searchConfig.text;
+                    if (typeof searchConfig.desc === "string") description = searchConfig.desc;
                   }
                 } else {
                   text = configItem.text;
@@ -2177,25 +1925,22 @@
                 }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
-                  if (typeof configText !== "string") {
-                    return;
-                  }
+                  if (typeof configText !== "string") return;
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
                   const matchedPath = utils.deepClone(path);
                   const deepNext = utils.queryProperty(matchedPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   deepNext.next = {
                     name: text,
@@ -2209,20 +1954,17 @@
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
-                    if (typeof name === "string" && name.trim() !== "") {
-                      pathList.push(name);
-                    }
-                    if (target?.next) {
+                    if (typeof name === "string" && name.trim() !== "") pathList.push(name);
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
                   deepNext.next.matchedData.path = pathStr;
@@ -2233,18 +1975,12 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.views) {
-              continue;
-            }
-            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
-              continue;
-            }
+            if (!leftContentConfigItem.views) continue;
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") continue;
             const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
-              if (typeof text === "function") {
-                text = text();
-              }
+              if (typeof text === "function") text = text();
               loopContentConfig(rightContentConfigList, {
                 index,
                 name: text,
@@ -2273,12 +2009,11 @@
           }, 200)
         );
       };
-      const $asideItems = $panel.$shadowRoot.querySelectorAll(
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
-      );
-      $asideItems.forEach(($asideItem) => {
-        domUtils.on($asideItem, "dblclick", dbclick_callback);
-      });
+      $panel.$shadowRoot
+        .querySelectorAll(`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`)
+        .forEach(($asideItem) => {
+          domUtils.on($asideItem, "dblclick", dbclick_callback);
+        });
       const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
@@ -2303,9 +2038,7 @@
             clickMap.set($selector, evt);
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
@@ -2336,16 +2069,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key)) {
+      if (Array.isArray(key))
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
-        } else {
-          return key[0];
-        }
-      } else {
-        return key;
-      }
+        } else return key[0];
+      else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2367,7 +2096,7 @@
       };
     },
   };
-  class HttpxCookieManager {
+  var HttpxCookieManager = class {
     $data = {
       get enable() {
         return Panel.getValue(
@@ -2384,77 +2113,53 @@
       cookieRule: [],
     };
     constructor(cookieRule) {
-      if (Array.isArray(cookieRule)) {
-        this.$data.cookieRule = cookieRule;
-      }
+      if (Array.isArray(cookieRule)) this.$data.cookieRule = cookieRule;
     }
     fixCookieSplit(str) {
-      if (utils.isNotNull(str) && !str.trim().endsWith(";")) {
-        str += ";";
-      }
+      if (utils.isNotNull(str) && !str.trim().endsWith(";")) str += ";";
       return str;
     }
     concatCookie(targetCookie, newCookie) {
-      if (utils.isNull(targetCookie)) {
-        return newCookie;
-      }
+      if (utils.isNull(targetCookie)) return newCookie;
       targetCookie = targetCookie.trim();
       newCookie = newCookie.trim();
       targetCookie = this.fixCookieSplit(targetCookie);
-      if (newCookie.startsWith(";")) {
-        newCookie = newCookie.substring(1);
-      }
+      if (newCookie.startsWith(";")) newCookie = newCookie.substring(1);
       return targetCookie.concat(newCookie);
     }
     handle(details) {
-      if (details.fetch) {
-        return;
-      }
-      if (!this.$data.enable) {
-        return;
-      }
+      if (details.fetch) return;
+      if (!this.$data.enable) return;
       let ownCookie = "";
       let url = details.url;
-      if (url.startsWith("//")) {
-        url = window.location.protocol + url;
-      }
+      if (url.startsWith("//")) url = window.location.protocol + url;
       let urlObj = new URL(url);
       if (
         this.$data.useDocumentCookie &&
         urlObj.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))
-      ) {
+      )
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
-      }
       for (let index = 0; index < this.$data.cookieRule.length; index++) {
         let rule = this.$data.cookieRule[index];
         if (urlObj.hostname.match(rule.hostname)) {
           let cookie = Panel.getValue(rule.key);
-          if (utils.isNull(cookie)) {
-            break;
-          }
+          if (utils.isNull(cookie)) break;
           ownCookie = this.concatCookie(ownCookie, cookie);
         }
       }
       if (utils.isNotNull(ownCookie)) {
-        if (details.headers && details.headers["Cookie"]) {
+        if (details.headers && details.headers["Cookie"])
           details.headers.Cookie = this.concatCookie(details.headers.Cookie, ownCookie);
-        } else {
-          details.headers["Cookie"] = ownCookie;
-        }
+        else details.headers["Cookie"] = ownCookie;
         log.info("Httpx => 设置cookie:", details);
       }
-      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie)) {
+      if (details.headers && details.headers.Cookie != null && utils.isNull(details.headers.Cookie))
         delete details.headers.Cookie;
-      }
     }
-  }
-  {
-    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-  }
-  {
-    CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
-  }
-  const httpxCookieManager = new HttpxCookieManager([
+  };
+  CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
+  CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
+  var httpxCookieManager = new HttpxCookieManager([
     {
       key: "httpx-cookie-bbs.binmt.cc",
       hostname: /bbs.binmt.cc/g,
@@ -2465,16 +2170,14 @@
     return data;
   });
   __pops__.GlobalConfig.setGlobalConfig({
-    mask: {
-      enable: true,
-    },
+    mask: { enable: true },
     drag: true,
   });
-  Qmsg.config({
+  qmsg.default.config({
     isLimitWidth: true,
     limitWidthWrap: "wrap",
   });
-  const ElementUtils = {
+  var ElementUtils = {
     registerLeftMenu(config) {
       domUtils.waitNode(".comiis_sidenv_box .sidenv_li .comiis_left_Touch", 1e4).then(($leftTouch) => {
         if (!$leftTouch) {
@@ -2491,23 +2194,13 @@
 						`,
         });
         let $icon = $setting.querySelector(".comiis_font");
-        if (typeof config.style === "string") {
-          $icon.style.cssText = config.style;
-        }
-        if (typeof config.icon === "string") {
-          $icon.innerHTML = config.icon;
-        }
-        if (typeof config.iconColor === "string") {
-          $icon.style.color = config.iconColor;
-        }
-        if (typeof config.iconSize === "string") {
-          $icon.style.fontSize = config.iconSize;
-        }
+        if (typeof config.style === "string") $icon.style.cssText = config.style;
+        if (typeof config.icon === "string") $icon.innerHTML = config.icon;
+        if (typeof config.iconColor === "string") $icon.style.color = config.iconColor;
+        if (typeof config.iconSize === "string") $icon.style.fontSize = config.iconSize;
         domUtils.on($setting, "click", (event) => {
           domUtils.preventEvent(event);
-          if (typeof config.callback === "function") {
-            config.callback();
-          }
+          if (typeof config.callback === "function") config.callback();
         });
         domUtils.append($leftTouch, $setting);
       });
@@ -2522,51 +2215,42 @@
       return document.querySelectorAll(".comiis_mmlist");
     },
   };
-  const blackHomeCSS =
+  var black_home_default =
     ".pops-confirm-content {\n  display: flex;\n  flex-direction: column;\n}\n.blackhome-user-filter input {\n  width: -moz-available;\n  width: -webkit-fill-available;\n  height: 30px;\n  margin: 8px 20px;\n  border: 0;\n  border-bottom: 1px solid;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  white-space: nowrap;\n}\n.blackhome-user-filter input:focus-within {\n  outline: none;\n}\n.blackhome-user-list {\n  flex: 1;\n  overflow-y: auto;\n}\n.blackhome-user-list .blackhome-user-item {\n  margin: 15px 10px;\n  padding: 10px;\n  border-radius: 8px;\n  box-shadow:\n    0 0 0.6rem #c8d0e7,\n    -0.2rem -0.2rem 0.5rem #fff;\n}\n.blackhome-user {\n  display: flex;\n}\n.blackhome-user img {\n  width: 45px;\n  height: 45px;\n  border-radius: 45px;\n}\n.blackhome-user-info {\n  margin-left: 10px;\n}\n.blackhome-user-info p:nth-child(1) {\n  margin-bottom: 5px;\n}\n.blackhome-user-info p:nth-child(2) {\n  font-size: 14px;\n}\n.blackhome-user-action {\n  display: flex;\n  margin: 10px 0;\n}\n.blackhome-user-action p:nth-child(1),\n.blackhome-user-action p:nth-child(2) {\n  border: 1px solid red;\n  color: red;\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n  place-self: center;\n}\n.blackhome-user-action p:nth-child(2) {\n  border: 1px solid #ff4b4b;\n  color: #ff4b4b;\n  margin-left: 8px;\n}\n.blackhome-user-uuid {\n  border: 1px solid #ff7600;\n  color: #ff7600;\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n  width: fit-content;\n  width: -moz-fit-content;\n  margin: 10px 0;\n}\n.blackhome-operator {\n  padding: 10px;\n  background-color: #efefef;\n  border-radius: 6px;\n}\n.blackhome-operator-user {\n  display: flex;\n}\n.blackhome-operator-user img {\n  width: 35px;\n  height: 35px;\n  border-radius: 35px;\n}\n.blackhome-operator-user p {\n  align-self: center;\n  margin-left: 10px;\n}\n.blackhome-operator-user-info {\n  margin: 10px 0;\n  font-weight: 500;\n}\n";
-  const MTRegExp = {
+  var MTRegExp = {
     formhash: /formhash=([0-9a-zA-Z]+)/,
+    hash: /hash=(.+)&/,
     uid: /uid(=|-)(\d+)/,
     fontSpecial: /<font.*?>|<\/font>|<strike>|<strong>|<i>|<u>|align=".*?"|<br>[\s]*<br>[\s]*<br>/g,
     ptid: /&ptid=([\d]+)/i,
     pid: /&pid=([\d]+)/i,
     tid: /&tid=([\d]+)/i,
   };
-  const MTUtils = {
+  var MTUtils = {
     getAvatar: (uid, size = "middle") => {
       return `/uc_server/avatar.php?uid=${uid}&size=${size}&ts=1`;
     },
     getCurrentUID() {
       let discuz_uid = _unsafeWindow.discuz_uid;
-      if (typeof discuz_uid === "string") {
-        return discuz_uid;
-      }
+      if (typeof discuz_uid === "string") return discuz_uid;
       let $exit = document.querySelector('.sidenv_exit a[href*="uid="]');
       if ($exit) {
         let uidMatch = $exit.href.match(/uid=([0-9]+)/);
-        if (uidMatch) {
-          return uidMatch[uidMatch.length - 1];
-        }
+        if (uidMatch) return uidMatch[uidMatch.length - 1];
       }
     },
     async getFormHash() {
       let $inputFormHashList = Array.from((top || globalThis).document.querySelectorAll("input[name=formhash]"));
       for (let index = 0; index < $inputFormHashList.length; index++) {
-        const $input = $inputFormHashList[index];
-        let formHash = $input.value;
-        if (formHash) {
-          return formHash;
-        }
+        let formHash = $inputFormHashList[index].value;
+        if (formHash) return formHash;
       }
       let $anchorFormHashList = Array.from((top || globalThis).document.querySelectorAll('a[href*="formhash="]'));
       for (let index = 0; index < $anchorFormHashList.length; index++) {
-        const $anchorFormHash = $anchorFormHashList[index];
-        let anchorFormHashMatch = $anchorFormHash.href.match(MTRegExp.formhash);
+        let anchorFormHashMatch = $anchorFormHashList[index].href.match(MTRegExp.formhash);
         if (anchorFormHashMatch) {
           let formHash = anchorFormHashMatch[anchorFormHashMatch.length - 1];
-          if (formHash) {
-            return formHash;
-          }
+          if (formHash) return formHash;
         }
       }
       let homeResponse = await httpx.get("/home.php?mod=spacecp", {
@@ -2575,17 +2259,12 @@
       });
       if (homeResponse.status) {
         let homeText = homeResponse.data.responseText;
-        let homeDoc = domUtils.toElement(homeText, true, true);
-        let $formhash = homeDoc.querySelector("input[name=formhash]");
+        let $formhash = domUtils.toElement(homeText, true, true).querySelector("input[name=formhash]");
         if ($formhash) {
           let formHash = $formhash.value;
-          if (utils.isNotNull(formHash)) {
-            return formHash;
-          }
+          if (utils.isNotNull(formHash)) return formHash;
         }
-      } else {
-        log.error("请求个人主页获取formhash失败", homeResponse);
-      }
+      } else log.error("请求个人主页获取formhash失败", homeResponse);
     },
     envIsMobile() {
       return (_unsafeWindow.STYLEID || window.STYLEID || (typeof STYLEID !== "undefined" && STYLEID)) === "3";
@@ -2594,33 +2273,24 @@
       let urlMatch = url.match(/thread-([\d]+)-|&tid=([\d]+)/i);
       if (urlMatch) {
         let forumIdList = urlMatch.filter(Boolean);
-        let forumId = forumIdList[forumIdList.length - 1];
-        return forumId;
+        return forumIdList[forumIdList.length - 1];
       }
     },
     getForumId(url) {
       let urlMatch = url.match(/&fid=([\d]+)/i);
-      if (urlMatch) {
-        return urlMatch[urlMatch.length - 1];
-      }
+      if (urlMatch) return urlMatch[urlMatch.length - 1];
     },
     getPostId(url) {
       let urlMatch = url.match(/&pid=([\d]+)/i);
-      if (urlMatch) {
-        return urlMatch[urlMatch.length - 1];
-      }
+      if (urlMatch) return urlMatch[urlMatch.length - 1];
     },
     getRepquote(url) {
       let urlMatch = url.match(/&repquote=([\d]+)/i);
-      if (urlMatch) {
-        return urlMatch[urlMatch.length - 1];
-      }
+      if (urlMatch) return urlMatch[urlMatch.length - 1];
     },
   };
-  const MTBlackHome = {
-    $data: {
-      cid: "",
-    },
+  var MTBlackHome = {
+    $data: { cid: "" },
     init() {
       this.registerMenu();
     },
@@ -2635,14 +2305,12 @@
       });
     },
     async showBlackHome() {
-      let $loading = Qmsg.loading("正在获取小黑屋名单中...");
+      let $loading = qmsg.default.loading("正在获取小黑屋名单中...");
       let blackListInfo = await this.getBlackListInfo("");
       $loading.close();
-      if (!blackListInfo) {
-        return;
-      }
+      if (!blackListInfo) return;
       if (blackListInfo.data.length === 0) {
-        Qmsg.error("获取小黑屋名单为空");
+        qmsg.default.error("获取小黑屋名单为空");
         return;
       }
       this.$data.cid = blackListInfo.next_cid;
@@ -2664,33 +2332,26 @@
           ok: {
             text: "下一页",
             callback: async () => {
-              let $loading2 = Qmsg.loading("正在获取小黑屋名单中...");
+              let $loading = qmsg.default.loading("正在获取小黑屋名单中...");
               log.info("下一页的cid: ", this.$data.cid);
-              let nextBlackListInfo2 = await this.getBlackListInfo(this.$data.cid);
-              $loading2.close();
-              if (!nextBlackListInfo2) {
-                return;
-              }
-              this.$data.cid = nextBlackListInfo2.next_cid;
-              nextBlackListInfo2.data.forEach((item) => {
+              let nextBlackListInfo = await this.getBlackListInfo(this.$data.cid);
+              $loading.close();
+              if (!nextBlackListInfo) return;
+              this.$data.cid = nextBlackListInfo.next_cid;
+              nextBlackListInfo.data.forEach((item) => {
                 let $item = this.createListViewItem(item);
                 $list.appendChild($item);
               });
-              if (nextBlackListInfo2.data.length === 0) {
-                Qmsg.error("获取小黑屋名单为空");
-              } else {
-                Qmsg.success(`成功获取 ${nextBlackListInfo2.data.length}条数据`);
-              }
+              if (nextBlackListInfo.data.length === 0) qmsg.default.error("获取小黑屋名单为空");
+              else qmsg.default.success(`成功获取 ${nextBlackListInfo.data.length}条数据`);
               domUtils.emit($filterInput, "input");
             },
           },
-          cancel: {
-            text: "关闭",
-          },
+          cancel: { text: "关闭" },
         },
         width: "88vw",
         height: "82vh",
-        style: blackHomeCSS,
+        style: black_home_default,
       });
       let $list = $confirm.$shadowRoot.querySelector(".blackhome-user-list");
       let $filterInput = $confirm.$shadowRoot.querySelector(".blackhome-user-filter input");
@@ -2698,16 +2359,14 @@
         let $item = this.createListViewItem(item);
         $list.appendChild($item);
       });
-      Qmsg.success(`成功获取 ${blackListInfo.data.length}条数据`);
+      qmsg.default.success(`成功获取 ${blackListInfo.data.length}条数据`);
       let isSeaching = false;
       domUtils.on(
         $filterInput,
         ["input", "propertychange"],
         utils.debounce(() => {
           let inputText = $filterInput.value.trim();
-          if (isSeaching) {
-            return;
-          }
+          if (isSeaching) return;
           isSeaching = true;
           if (inputText == "") {
             $confirm.$shadowRoot.querySelectorAll(".blackhome-user-item").forEach((item) => {
@@ -2721,19 +2380,15 @@
               item.getAttribute("data-name").match(new RegExp(inputText, "ig")) ||
               item.getAttribute("data-uid").trim().match(new RegExp(inputText, "ig")) ||
               item.getAttribute("data-operator").match(new RegExp(inputText, "ig"))
-            ) {
+            )
               item.removeAttribute("style");
-            } else {
-              item.setAttribute("style", "display:none;");
-            }
+            else item.setAttribute("style", "display:none;");
           });
           isSeaching = false;
         })
       );
       let nextBlackListInfo = await this.getBlackListInfo(this.$data.cid);
-      if (!nextBlackListInfo) {
-        return;
-      }
+      if (!nextBlackListInfo) return;
       this.$data.cid = nextBlackListInfo.next_cid;
     },
     async getBlackListInfo(cid = "") {
@@ -2744,14 +2399,10 @@
         ajaxdata: "json",
       };
       let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-        },
+        headers: { "User-Agent": utils.getRandomPCUA() },
         responseType: "json",
       });
-      if (!response.status) {
-        return;
-      }
+      if (!response.status) return;
       let data = utils.toJSON(response.data.responseText);
       let cidSplit = data["message"].split("|");
       let next_cid = cidSplit[cidSplit.length - 1];
@@ -2806,9 +2457,7 @@
           item["time"] = parseInt(_time_after_count_.toString()) * 1e3;
           new_blackListData = new_blackListData.concat(item);
           return;
-        } else {
-          date = date[0];
-        }
+        } else date = date[0];
         item["time"] = utils.formatToTimeStamp(date);
         new_blackListData = new_blackListData.concat(item);
       });
@@ -2865,9 +2514,7 @@
         function () {
           window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
       domUtils.on(
         $item,
@@ -2876,16 +2523,14 @@
         function () {
           window.open(`home.php?mod=space&uid=${userInfo.operatorid}&do=profile`, "_blank");
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
       return $item;
     },
   };
-  const onlineUserCSS =
+  var online_user_default =
     '.pops-alert-content {\n  display: flex;\n  flex-direction: column;\n}\n.pops-alert-content > .online-user-info {\n  text-align: center;\n  padding: 0px 6px;\n}\n.online-user-filter input {\n  width: -webkit-fill-available;\n  width: -moz-available;\n  height: 30px;\n  margin: 8px 20px;\n  border: 0;\n  border-bottom: 1px solid;\n}\n.online-user-filter input:focus-within {\n  outline: none;\n}\n.online-user-list {\n  flex: 1;\n  overflow-y: auto;\n}\n.online-user-list li {\n  margin: 18px 0;\n}\n.online-user {\n  display: flex;\n  margin: 2px 20px;\n  align-items: center;\n}\n.online-user img[data-avatar] {\n  width: 45px;\n  height: 45px;\n  border-radius: 45px;\n}\n.online-user-list .online-user-info {\n  margin: 2px 14px;\n}\n.online-user-list .online-user-info p[data-name] {\n  margin-bottom: 4px;\n}\n.online-user-list .online-user-info span[data-sf] {\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n}\n.online-user-list .online-user-info span[data-uid] {\n  border: 1px solid #ff7600;\n  color: #ff7600;\n  border-radius: 4px;\n  padding: 2px 4px;\n  font-weight: 500;\n  font-size: 14px;\n  width: fit-content;\n  width: -moz-fit-content;\n  margin: 10px 0;\n}\n.online-user-list .online-user-info span[data-sf="会员"] {\n  color: #88b500;\n  border: 1px solid #88b500;\n}\n.online-user-list .online-user-info span[data-sf="版主"] {\n  color: #2db5e3;\n  border: 1px solid #2db5e3;\n}\n.online-user-list .online-user-info span[data-sf="超级版主"] {\n  color: #e89e38;\n  border: 1px solid #e89e38;\n}\n.online-user-list .online-user-info span[data-sf="管理员"] {\n  color: #ff5416;\n  border: 1px solid #ff5416;\n}\n';
-  const MTOnlineUser = {
+  var MTOnlineUser = {
     $data: {},
     init() {
       this.registerMenu();
@@ -2901,12 +2546,10 @@
       });
     },
     async showOnlineUser() {
-      let $loading = Qmsg.loading("正在获取在线用户名单中...");
+      let $loading = qmsg.default.loading("正在获取在线用户名单中...");
       let onlineUserInfo = await this.getOnlineUserListInfo();
       $loading.close();
-      if (!onlineUserInfo) {
-        return;
-      }
+      if (!onlineUserInfo) return;
       let $alert = __pops__.alert({
         title: {
           text: "在线用户",
@@ -2929,7 +2572,7 @@
         },
         width: "88vw",
         height: "82vh",
-        style: onlineUserCSS,
+        style: online_user_default,
       });
       let $list = $alert.$shadowRoot.querySelector(".online-user-list");
       let $filterInput = $alert.$shadowRoot.querySelector(".online-user-filter input");
@@ -2937,16 +2580,14 @@
         let $item = this.createListViewItem(item);
         $list.appendChild($item);
       });
-      Qmsg.success(`成功获取 ${onlineUserInfo.data.length}条数据`);
+      qmsg.default.success(`成功获取 ${onlineUserInfo.data.length}条数据`);
       let isSeaching = false;
-      DOMUtils.on(
+      _whitesev_domutils.default.on(
         $filterInput,
         ["propertychange", "input"],
         utils.debounce(() => {
           let inputText = $filterInput.value.trim();
-          if (isSeaching) {
-            return;
-          }
+          if (isSeaching) return;
           isSeaching = true;
           if (inputText == "") {
             $alert.$shadowRoot.querySelectorAll(".online-user-list .online-item").forEach((item) => {
@@ -2960,28 +2601,19 @@
               item.getAttribute("data-name").match(new RegExp(inputText, "ig")) ||
               item.getAttribute("data-sf").match(new RegExp(inputText, "ig")) ||
               item.getAttribute("data-uid").match(new RegExp(inputText, "ig"))
-            ) {
+            )
               item.removeAttribute("style");
-            } else {
-              item.setAttribute("style", "display:none;");
-            }
+            else item.setAttribute("style", "display:none;");
           });
           isSeaching = false;
         })
       );
     },
     async getOnlineUserListInfo() {
-      let searchParamsData = {
-        showoldetails: "yes",
-      };
-      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-        },
+      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr({ showoldetails: "yes" })}`, {
+        headers: { "User-Agent": utils.getRandomPCUA() },
       });
-      if (!response.status) {
-        return;
-      }
+      if (!response.status) return;
       let pageHTML = utils.parseFromString(response.data.responseText, "text/html");
       let result = {
         data: [],
@@ -2990,25 +2622,18 @@
         noRegisterUser: 0,
         invisibleUser: 0,
       };
-      let onlineList = pageHTML.querySelectorAll("#onlinelist ul li");
-      onlineList.forEach((item) => {
+      pageHTML.querySelectorAll("#onlinelist ul li").forEach((item) => {
         let uid = item.querySelector("a").getAttribute("href").match("uid-(.+?).html")[1];
         let avatar = MTUtils.getAvatar(uid, "middle");
         let name = item.querySelector("a").innerText;
         let sf = "";
         let space = item.querySelector("a").getAttribute("href");
         let memberSrc = item.querySelector("img").src;
-        if (memberSrc.indexOf("online_member") != -1) {
-          sf = "会员";
-        } else if (memberSrc.indexOf("online_moderator") != -1) {
-          sf = "版主";
-        } else if (memberSrc.indexOf("online_supermod") != -1) {
-          sf = "超级版主";
-        } else if (memberSrc.indexOf("online_admin") != -1) {
-          sf = "管理员";
-        } else {
-          sf = "未知身份";
-        }
+        if (memberSrc.indexOf("online_member") != -1) sf = "会员";
+        else if (memberSrc.indexOf("online_moderator") != -1) sf = "版主";
+        else if (memberSrc.indexOf("online_supermod") != -1) sf = "超级版主";
+        else if (memberSrc.indexOf("online_admin") != -1) sf = "管理员";
+        else sf = "未知身份";
         result.data.push({
           uid,
           avatar,
@@ -3025,7 +2650,7 @@
       return result;
     },
     createListViewItem(userInfo) {
-      let $item = DOMUtils.createElement(
+      let $item = _whitesev_domutils.default.createElement(
         "div",
         {
           className: "online-item",
@@ -3046,22 +2671,20 @@
           "data-sf": userInfo.sf,
         }
       );
-      DOMUtils.on(
+      _whitesev_domutils.default.on(
         $item,
         "click",
         ".online-user-avatar",
         (event) => {
-          DOMUtils.preventEvent(event);
+          _whitesev_domutils.default.preventEvent(event);
           window.open(`home.php?mod=space&uid=${userInfo.uid}&do=profile`, "_blank");
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
       return $item;
     },
   };
-  const MTIdentifyLinks = () => {
+  var MTIdentifyLinks = () => {
     const HANDLER_CLASS_NAME = "texttolink";
     const url_regexp =
       /((https?:\/\/|www\.)[\x21-\x7e]+[\w\/]|(\w[\w._-]+\.(com|cn|org|net|info|tv|cc))(\/[\x21-\x7e]*[\w\/])?|ed2k:\/\/[\x21-\x7e]+\|\/|thunder:\/\/[\x21-\x7e]+=)/gi;
@@ -3077,19 +2700,14 @@
           0 !== url.indexOf("http") &&
           0 !== url.indexOf("ed2k://") &&
           0 !== url.indexOf("thunder://"))
-      ) {
+      )
         return targetElement.setAttribute("href", "http://" + targetElement);
-      }
     };
     const setLink = function (textNode) {
-      if (typeof textNode != "object" || textNode == null) {
-        return;
-      }
+      if (typeof textNode != "object" || textNode == null) return;
       const textContent = textNode?.textContent;
       const $parent = textNode?.parentNode;
-      if ($parent == null) {
-        return;
-      }
+      if ($parent == null) return;
       if (
         -1 === $parent?.className?.indexOf?.(HANDLER_CLASS_NAME) &&
         "#cdata-section" !== textNode.nodeName &&
@@ -3105,12 +2723,8 @@
           const $url = spanElement.querySelector("a");
           const url = $url.href;
           console.log(`识别: ${url}`);
-          const isSpanParent = $parent.nodeName.toLowerCase() === "span";
-          if (isSpanParent) {
-            return $parent.replaceChild($url, textNode);
-          } else {
-            return $parent.replaceChild(spanElement, textNode);
-          }
+          if ($parent.nodeName.toLowerCase() === "span") return $parent.replaceChild($url, textNode);
+          else return $parent.replaceChild(spanElement, textNode);
         }
       }
     };
@@ -3128,9 +2742,8 @@
           endIndex = startIndex + 1e4;
           startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex;
           start = startIndex <= endIndex ? ++currentIndex : --currentIndex
-        ) {
+        )
           setLink(textNodesSnapshot.snapshotItem(start));
-        }
         setTimeout(function () {
           return processLinksInBatches(textNodesSnapshot, startIndex + 1e4);
         }, 15);
@@ -3140,34 +2753,31 @@
           start = currentIndex = startIndex, endIndex = textNodesSnapshot.snapshotLength;
           startIndex <= endIndex ? currentIndex <= endIndex : currentIndex >= endIndex;
           start = startIndex <= endIndex ? ++currentIndex : --currentIndex
-        ) {
+        )
           setLink(textNodesSnapshot.snapshotItem(start));
-        }
       }
     };
     const linkifyText = function (element) {
-      const textNodesSnapshot = document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-      return processLinksInBatches(textNodesSnapshot, 0);
+      return processLinksInBatches(
+        document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null),
+        0
+      );
     };
     const observePageChanges = function (rootElement) {
       for (
         const treeWalker = document.createTreeWalker(rootElement, NodeFilter.SHOW_TEXT, {
           acceptNode: function (node) {
             const localName = node?.parentNode?.localName;
-            if (!filter.test(localName)) {
-              return NodeFilter.FILTER_ACCEPT;
-            } else {
-              return NodeFilter.FILTER_SKIP;
-            }
+            if (!filter.test(localName)) return NodeFilter.FILTER_ACCEPT;
+            else return NodeFilter.FILTER_SKIP;
           },
         });
         treeWalker.nextNode();
-      ) {
+      )
         setLink(treeWalker.currentNode);
-      }
     };
     let lockFn = new utils.LockFunction((mutations) => {
-      for (const mutation of mutations) {
+      for (const mutation of mutations)
         if ("childList" === mutation.type) {
           const addedNodes = mutation.addedNodes;
           for (let nodeIndex = 0; nodeIndex < addedNodes.length; nodeIndex++) {
@@ -3175,11 +2785,10 @@
             observePageChanges(node);
           }
         }
-      }
     });
     const initLinkProcessing = function () {
       linkifyText(document.body);
-      const mutationObserver = utils.mutationObserver(document.body, {
+      return utils.mutationObserver(document.body, {
         config: {
           subtree: true,
           childList: true,
@@ -3188,7 +2797,6 @@
           lockFn.run(mutations);
         },
       });
-      return mutationObserver;
     };
     const clearLinkHelper = function (linkElement) {
       const url = linkElement.getAttribute("href");
@@ -3197,36 +2805,28 @@
         0 !== url.indexOf("http") &&
         0 !== url.indexOf("ed2k://") &&
         0 !== url.indexOf("thunder://")
-      ) {
+      )
         return linkElement.setAttribute("href", "http://" + url);
-      }
     };
     const clearAllLinks = function () {
       const linkElements = Array.from(document.getElementsByClassName(HANDLER_CLASS_NAME));
-      for (const $link of linkElements) {
-        clearLinkHelper($link);
-      }
+      for (const $link of linkElements) clearLinkHelper($link);
     };
     document.addEventListener("mouseover", handleClearLink);
     setTimeout(clearAllLinks, 1500);
     setTimeout(initLinkProcessing, 100);
   };
-  const MTAutoSignIn = {
-    $key: {
-      sign: "mt-sign-time",
-    },
+  var MTAutoSignIn = {
+    $key: { sign: "mt-sign-time" },
     init() {
       this.sign();
     },
     checkSignInfo() {
-      let signInfo = this.getSignInfo();
-      let findValue = signInfo.find((it) => {
+      let findValue = this.getSignInfo().find((it) => {
         return it.hostName === window.location.hostname;
       });
       if (findValue) {
-        if (utils.formatTime(Date.now(), "yyyyMMdd") !== utils.formatTime(findValue.time, "yyyyMMdd")) {
-          return false;
-        }
+        if (utils.formatTime(Date.now(), "yyyyMMdd") !== utils.formatTime(findValue.time, "yyyyMMdd")) return false;
         return true;
       }
       return false;
@@ -3240,9 +2840,7 @@
       let findIndex = localSignInfo.findIndex((it) => {
         return it.hostName === signInfo.hostName;
       });
-      if (findIndex !== -1) {
-        localSignInfo.splice(findIndex, 1);
-      }
+      if (findIndex !== -1) localSignInfo.splice(findIndex, 1);
       localSignInfo.push(signInfo);
       _GM_setValue(this.$key.sign, localSignInfo);
     },
@@ -3255,8 +2853,7 @@
       return localSignInfo;
     },
     getHostNameSignInfo(hostName = window.location.hostname) {
-      let localSignInfo = this.getSignInfo();
-      return localSignInfo.find((it) => {
+      return this.getSignInfo().find((it) => {
         return it.hostName === hostName;
       });
     },
@@ -3266,13 +2863,9 @@
         let findIndex = signInfo.findIndex((it) => {
           return it.hostName === hostName;
         });
-        if (findIndex !== -1) {
-          signInfo.splice(findIndex, 1);
-        }
+        if (findIndex !== -1) signInfo.splice(findIndex, 1);
         _GM_setValue(this.$key.sign, signInfo);
-      } else {
-        _GM_deleteValue(this.$key.sign);
-      }
+      } else _GM_deleteValue(this.$key.sign);
     },
     checkLogin() {
       if (MTUtils.envIsMobile()) {
@@ -3295,9 +2888,7 @@
           return;
         }
         this.clearSignInfo(window.location.hostname);
-        Qmsg.error("自动签到：获取账号formhash失败", {
-          consoleLogContent: true,
-        });
+        qmsg.default.error("自动签到：获取账号formhash失败", { consoleLogContent: true });
         return;
       }
       let useFetch = Boolean(Panel.getValue("mt-auto-sign-useFetch"));
@@ -3309,19 +2900,20 @@
         this.clearSignInfo(window.location.hostname);
       };
       let unknownSignContentCallback = (content) => {
-        let $alert = pops.alert({
-          title: {
-            text: "未知签到内容",
-            position: "center",
-          },
-          content: {
-            text: "",
-            html: false,
-          },
-          width: "88vw",
-          height: "300px",
-        });
-        let $content = $alert.$shadowRoot.querySelector(".pops-alert-content");
+        let $content = _whitesev_pops.default
+          .alert({
+            title: {
+              text: "未知签到内容",
+              position: "center",
+            },
+            content: {
+              text: "",
+              html: false,
+            },
+            width: "88vw",
+            height: "300px",
+          })
+          .$shadowRoot.querySelector(".pops-alert-content");
         $content.innerText = content;
       };
       let sign_plugin = [
@@ -3337,15 +2929,11 @@
             };
             let response = await httpx.get(`/k_misign-sign.html?${utils.toSearchParamsStr(searchParamsData)}`, {
               fetch: useFetch,
-              headers: {
-                "User-Agent": userAgent,
-              },
+              headers: { "User-Agent": userAgent },
               allowInterceptConfig: false,
             });
             if (!response.status) {
-              Qmsg.error("签到：网络异常，请求失败", {
-                consoleLogContent: true,
-              });
+              qmsg.default.error("签到：网络异常，请求失败", { consoleLogContent: true });
               return;
             }
             signSuccessCallBack();
@@ -3355,7 +2943,7 @@
             let CDATAElement = domUtils.toElement(`<div>${CDATA}</div>`, true, false);
             let content = domUtils.text(CDATAElement);
             if (content.includes("需要先登录")) {
-              Qmsg.error("签到：请先登录账号", {
+              qmsg.default.error("签到：请先登录账号", {
                 timeout: 3e3,
                 consoleLogContent: true,
               });
@@ -3367,20 +2955,16 @@
               content.includes("绑定手机号后才可以签到") ||
               content.includes("您所在用户组不允许使用")
             ) {
-              Qmsg.error("签到：" + content, {
-                timeout: 5e3,
-              });
+              qmsg.default.error("签到：" + content, { timeout: 5e3 });
               return;
             } else if (content.includes("今日已签") || content.includes("今日已经签到")) {
-              Qmsg.info("签到：" + content);
+              qmsg.default.info("签到：" + content);
               return;
             } else if (responseText.includes("您当前的访问请求当中含有非法字符，已经被系统拒绝")) {
-              Qmsg.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", {
-                timeout: 6e3,
-              });
+              qmsg.default.error("签到: 您当前的访问请求当中含有非法字符，已经被系统拒绝", { timeout: 6e3 });
               return;
             } else if (useFetch && "location" in utils.toJSON(responseText)) {
-              Qmsg.success("签到: 签到成功");
+              qmsg.default.success("签到: 签到成功");
               return;
             }
             let signIn_con = CDATAElement.querySelector(".con");
@@ -3391,7 +2975,7 @@
               let con = conMatch[conMatch.length - 1];
               let line = lineMatch[lineMatch.length - 1];
               log.success(`金币${con}，排名${line}`);
-              Qmsg.info(
+              qmsg.default.info(
                 `
 							<div style="display: flex;${!MTUtils.envIsMobile() ? "padding: 20px;" : ""}">
 								<div style="align-self: center;margin-right: 20px;">签到</div>
@@ -3410,43 +2994,43 @@
         {
           checkPluginEnableUrl: "/plugin.php?id=dsu_paulsign:sign",
           async sign() {
-            let searchParamsData = {
-              id: "dsu_paulsign:sign",
-              operation: "qiandao",
-              infloat: 1,
-              inajax: 1,
-            };
-            let response = await httpx.post(`/plugin.php?${utils.toSearchParamsStr(searchParamsData)}`, {
-              data: {
-                formhash: formHash,
-                qdxq: "kx",
-                qdmode: 3,
-                todaysay: "",
-                fastreply: 0,
-              },
-              processData: true,
-              fetch: useFetch,
-              headers: {
-                "User-Agent": userAgent,
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              allowInterceptConfig: false,
-            });
+            let response = await httpx.post(
+              `/plugin.php?${utils.toSearchParamsStr({
+                id: "dsu_paulsign:sign",
+                operation: "qiandao",
+                infloat: 1,
+                inajax: 1,
+              })}`,
+              {
+                data: {
+                  formhash: formHash,
+                  qdxq: "kx",
+                  qdmode: 3,
+                  todaysay: "",
+                  fastreply: 0,
+                },
+                processData: true,
+                fetch: useFetch,
+                headers: {
+                  "User-Agent": userAgent,
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+                allowInterceptConfig: false,
+              }
+            );
             if (!response.status) {
-              Qmsg.error("签到：网络异常，请求失败", {
-                consoleLogContent: true,
-              });
+              qmsg.default.error("签到：网络异常，请求失败", { consoleLogContent: true });
               return;
             }
             signSuccessCallBack();
             log.info("签到信息：", response);
             let responseText = response.data.responseText;
             if (responseText.includes("签到成功")) {
-              Qmsg.success("签到：签到成功");
+              qmsg.default.success("签到：签到成功");
               return;
             }
             if (responseText.includes("今日已经签到")) {
-              Qmsg.info("签到：您今日已经签到，请明天再来！");
+              qmsg.default.info("签到：您今日已经签到，请明天再来！");
               return;
             }
             unknownSignContentCallback(responseText);
@@ -3457,17 +3041,17 @@
         const signPluginItem = sign_plugin[index];
         let checkResponse = await httpx.get(signPluginItem.checkPluginEnableUrl, {
           fetch: useFetch,
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-          },
+          headers: { "User-Agent": utils.getRandomPCUA() },
           allowInterceptConfig: false,
         });
         if (!checkResponse.status) {
           log.error("签到：检查签到插件是否启用的请求失败", checkResponse);
           continue;
         }
-        let pluginDoc = domUtils.toElement(checkResponse.data.responseText, true, true);
-        if (pluginDoc.querySelector("#messagetext") || checkResponse.data.responseText.includes("插件不存在或已关闭")) {
+        if (
+          domUtils.toElement(checkResponse.data.responseText, true, true).querySelector("#messagetext") ||
+          checkResponse.data.responseText.includes("插件不存在或已关闭")
+        ) {
           log.error(`插件：${signPluginItem.checkPluginEnableUrl} 未启用或不存在`);
           continue;
         }
@@ -3476,7 +3060,7 @@
       }
     },
   };
-  class RouterBuilder {
+  var RouterBuilder = class RouterBuilder {
     __href__;
     get __href() {
       return this.__href__ || globalThis.location.href;
@@ -3498,14 +3082,10 @@
       value: void 0,
       type: "same",
     };
-    __searchParams = {
-      value: new Set(),
-    };
+    __searchParams = { value: new Set() };
     otherInstResultWithOr = false;
     constructor(href) {
-      if (typeof href === "string") {
-        this.href(href);
-      }
+      if (typeof href === "string") this.href(href);
     }
     href(url) {
       this.__href__ = url;
@@ -3744,27 +3324,19 @@
       return this;
     }
     build() {
-      if (!this.__host.value) {
-        throw new TypeError("host or hostName should be required");
-      }
-      const protocol = this.__protocol.value || "https";
-      const host = this.__host.value;
-      const pathname = this.__pathname.value || "/";
-      let url = `${protocol}://${host}${pathname}`;
+      if (!this.__host.value) throw new TypeError("host or hostName should be required");
+      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`;
       if (this.__searchParams.value.size > 0) {
         const searhList = [];
         this.__searchParams.value.forEach((it) => {
           if (typeof it.name === "string") {
             let value = "";
-            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean") {
+            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean")
               value = it.value.toString();
-            }
             searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
           }
         });
-        if (searhList.length) {
-          url += `?${searhList.join("&")}`;
-        }
+        if (searhList.length) url += `?${searhList.join("&")}`;
       }
       return url;
     }
@@ -3775,319 +3347,195 @@
       return routerBuilder;
     }
     r() {
-      if (this.otherInstResultWithOr) {
-        return this.otherInstResultWithOr;
-      }
+      if (this.otherInstResultWithOr) return this.otherInstResultWithOr;
       const urlInst = new URL(this.__href);
-      const flag = [
+      return [
         () => {
-          if (this.__origin.value) {
-            if (this.__origin.type === "same") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin === this.__origin.value;
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "startsWith") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin.startsWith(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "endsWith") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin.endsWith(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "includes") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin.includes(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "match") {
-              if (this.__origin.value instanceof RegExp) {
-                return this.__origin.value.test(urlInst.origin);
-              } else if (typeof this.__origin.value === "string") {
-                return urlInst.origin.match(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-              }
-            } else {
-              throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-            }
-          } else {
-            return true;
-          }
+          if (this.__origin.value)
+            if (this.__origin.type === "same")
+              if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "startsWith")
+              if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "endsWith")
+              if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "includes")
+              if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "match")
+              if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
+              else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
+              else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
+            else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+          else return true;
         },
         () => {
-          if (this.__protocol.value) {
-            if (this.__protocol.type === "same") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol === this.__protocol.value;
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "startsWith") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.startsWith(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "endsWith") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.endsWith(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "includes") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.includes(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "match") {
-              if (this.__protocol.value instanceof RegExp) {
-                return this.__protocol.value.test(urlInst.protocol);
-              } else if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.match(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-              }
-            } else {
-              throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-            }
-          } else {
-            return true;
-          }
+          if (this.__protocol.value)
+            if (this.__protocol.type === "same")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "startsWith")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "endsWith")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "includes")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "match")
+              if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
+              else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
+              else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
+            else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+          else return true;
         },
-
         () => {
           if (this.__host.value) {
             const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same") {
-              if (typeof this.__host.value === "string") {
-                return this.__host.value === host;
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "startsWith") {
-              if (typeof this.__host.value === "string") {
-                return host.startsWith(this.__host.value);
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "endsWith") {
-              if (typeof this.__host.value === "string") {
-                return host.endsWith(this.__host.value);
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "includes") {
-              if (typeof this.__host.value === "string") {
-                return host.includes(this.__host.value);
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "match") {
-              if (this.__host.value instanceof RegExp) {
-                return this.__host.value.test(host);
-              } else if (typeof this.__host.value === "string") {
-                return host.match(this.__host.value);
-              } else {
-                throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-              }
-            } else {
-              throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
-            }
-          } else {
-            return true;
-          }
+            if (this.__host.type === "same")
+              if (typeof this.__host.value === "string") return this.__host.value === host;
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "startsWith")
+              if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "endsWith")
+              if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "includes")
+              if (typeof this.__host.value === "string") return host.includes(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "match")
+              if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
+              else if (typeof this.__host.value === "string") return host.match(this.__host.value);
+              else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
+            else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
-          if (this.__pathname.value) {
-            if (this.__pathname.type === "same") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname === this.__pathname.value;
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "startsWith") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.startsWith(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "endsWith") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.endsWith(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "includes") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.includes(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "match") {
-              if (this.__pathname.value instanceof RegExp) {
-                return this.__pathname.value.test(urlInst.pathname);
-              } else if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.match(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-              }
-            } else {
-              throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-            }
-          } else {
-            return true;
-          }
+          if (this.__pathname.value)
+            if (this.__pathname.type === "same")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "startsWith")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "endsWith")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "includes")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "match")
+              if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
+              else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
+              else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
+            else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+          else return true;
         },
-
         () => {
-          let flag2 = true;
+          let flag = true;
           const searchParamsList = [];
           this.__searchParams.value.forEach((item) => {
             searchParamsList.push(item);
           });
           for (let index = 0; index < searchParamsList.length; index++) {
             const item = searchParamsList[index];
-            if (item.type) {
-              if (item.type === "same") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+            if (item.type)
+              if (item.type === "same")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search === item.value.toString();
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "startsWith") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "startsWith")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.startsWith(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "endsWith") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "endsWith")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.endsWith(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "includes") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "includes")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.includes(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "match") {
-                if (item.value instanceof RegExp) {
-                  return item.value.test(urlInst.search);
-                } else if (
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "match")
+                if (item.value instanceof RegExp) return item.value.test(urlInst.search);
+                else if (
                   typeof item.value === "string" ||
                   typeof item.value === "number" ||
                   typeof item.value === "boolean"
-                ) {
+                )
                   return urlInst.search.match(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
-                }
-              } else {
-                throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
-              }
-            } else {
-              if (typeof item.name === "string") {
-                let value = item.value;
-                if (
-                  value == null ||
-                  typeof value === "string" ||
-                  typeof value === "number" ||
-                  typeof value === "boolean"
-                ) {
-                  value = value == null ? void 0 : value.toString();
-                  if (!urlInst.searchParams.has(item.name, value)) {
-                    flag2 = false;
-                    break;
-                  }
-                } else if (value instanceof RegExp) {
-                  const targetValue = urlInst.searchParams.get(item.name);
-                  if (targetValue) {
-                    if (!value.test(targetValue)) {
-                      flag2 = false;
-                      break;
-                    }
-                  } else {
-                    flag2 = false;
-                    break;
-                  }
-                } else {
-                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
-                }
-              } else if (item.name instanceof RegExp) {
-                let targetKey = void 0;
-                let targetValue = void 0;
-                urlInst.searchParams.forEach((__value__, __key__) => {
-                  if (!targetKey && __key__.match(item.name)) {
-                    targetKey = __key__;
-                    targetValue = __value__;
-                  }
-                });
-                if (targetKey) {
-                  let value = item.value;
-                  if (value == null);
-                  else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-                    value = value.toString();
-                    flag2 = value === targetValue;
-                    if (!flag2) {
-                      break;
-                    }
-                  } else if (value instanceof RegExp) {
-                    if (targetValue) {
-                      if (!value.test(targetValue)) {
-                        flag2 = false;
-                        break;
-                      }
-                    } else {
-                      flag2 = false;
-                      break;
-                    }
-                  } else {
-                    throw new TypeError(
-                      "searchParams value should be string, RegExp, boolean, number, null, undefined"
-                    );
-                  }
-                } else {
-                  flag2 = false;
+                else throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+              else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            else if (typeof item.name === "string") {
+              let value = item.value;
+              if (
+                value == null ||
+                typeof value === "string" ||
+                typeof value === "number" ||
+                typeof value === "boolean"
+              ) {
+                value = value == null ? void 0 : value.toString();
+                if (!urlInst.searchParams.has(item.name, value)) {
+                  flag = false;
                   break;
                 }
+              } else if (value instanceof RegExp) {
+                const targetValue = urlInst.searchParams.get(item.name);
+                if (targetValue) {
+                  if (!value.test(targetValue)) {
+                    flag = false;
+                    break;
+                  }
+                } else {
+                  flag = false;
+                  break;
+                }
+              } else
+                throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
+            } else if (item.name instanceof RegExp) {
+              let targetKey = void 0;
+              let targetValue = void 0;
+              urlInst.searchParams.forEach((__value__, __key__) => {
+                if (!targetKey && __key__.match(item.name)) {
+                  targetKey = __key__;
+                  targetValue = __value__;
+                }
+              });
+              if (targetKey) {
+                let value = item.value;
+                if (value == null) {
+                } else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                  value = value.toString();
+                  flag = value === targetValue;
+                  if (!flag) break;
+                } else if (value instanceof RegExp)
+                  if (targetValue) {
+                    if (!value.test(targetValue)) {
+                      flag = false;
+                      break;
+                    }
+                  } else {
+                    flag = false;
+                    break;
+                  }
+                else
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
               } else {
-                throw new TypeError("searchParams name should be string or RegExp");
+                flag = false;
+                break;
               }
-            }
+            } else throw new TypeError("searchParams name should be string or RegExp");
           }
-          return flag2;
+          return flag;
         },
       ].every((it) => it());
-      return flag;
     }
-  }
-  const RouterUtil = {
+  };
+  var RouterUtil = {
     host(host, href) {
       return RouterUtil.builder(href).host(host);
     },
@@ -4110,7 +3558,7 @@
       return new RouterBuilder(href);
     },
   };
-  const MTRouter = {
+  var MTRouter = {
     isKMiSign() {
       return RouterUtil.builder().pathnameStartsWith("/k_misign-sign.html").r();
     },
@@ -4196,14 +3644,12 @@
       return this.isPostPublish() && RouterUtil.seachParams("action", "reply").r();
     },
   };
-  const optimizationCSS$1 =
+  var editor_optimization_default$1 =
     '#comiis_foot_menu_beautify {\n  position: fixed;\n  display: inline-flex;\n  z-index: 90;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100%;\n  height: 48px;\n  overflow: hidden;\n  align-content: center;\n  justify-content: center;\n  align-items: center;\n}\n#comiis_foot_menu_beautify_big {\n  position: fixed;\n  display: inline-flex;\n  flex-direction: column;\n  z-index: 92;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100%;\n  min-height: 120px;\n  overflow: hidden;\n  align-content: center;\n  justify-content: center;\n  align-items: center;\n}\n#comiis_foot_menu_beautify input.bg_e.f_c::-webkit-input-placeholder {\n  padding-left: 10px;\n  color: #999;\n}\n#comiis_foot_menu_beautify input.bg_e.f_c::-moz-input-placeholder {\n  padding-left: 10px;\n  color: #999;\n}\n#comiis_foot_menu_beautify .reply_area ul li a {\n  display: block;\n  width: 22px;\n  height: 22px;\n  padding: 4px 8px;\n  margin: 8px 0;\n  position: relative;\n}\n#comiis_foot_menu_beautify .reply_area ul {\n  display: inline-flex;\n  align-content: center;\n  align-items: center;\n  justify-content: center;\n}\n#comiis_foot_menu_beautify .reply_area,\n#comiis_foot_menu_beautify .reply_area ul {\n  width: 100%;\n}\n#comiis_foot_menu_beautify .reply_area li a i {\n  width: 22px;\n  height: 22px;\n  line-height: 22px;\n  font-size: 22px;\n}\n#comiis_foot_menu_beautify .reply_area li a span {\n  position: absolute;\n  display: block;\n  font-size: 10px;\n  height: 14px;\n  line-height: 14px;\n  padding: 0 6px;\n  right: -8px;\n  top: 4px;\n  overflow: hidden;\n  border-radius: 20px;\n}\n#comiis_foot_menu_beautify li[data-attr="回帖"] input {\n  border: transparent;\n  border-radius: 15px;\n  height: 30px;\n  width: 100%;\n}\n#comiis_foot_menu_beautify_big .comiis_smiley_box {\n  padding: 6px 6px 0;\n}\n#comiis_foot_menu_beautify_big .reply_area {\n  margin: 10px 0 5px 0;\n}\n#comiis_foot_menu_beautify_big .reply_area ul {\n  display: inline-flex;\n  align-content: center;\n  justify-content: center;\n  align-items: flex-end;\n}\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] {\n  width: 75vw;\n  margin-right: 15px;\n}\n#comiis_foot_menu_beautify_big .reply_user_content {\n  width: 75vw;\n  word-wrap: break-word;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  margin: 8px 10px;\n}\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new {\n  text-align: center;\n  margin-bottom: 28px;\n}\n#comiis_foot_menu_beautify_big li[data-attr="发表"] .fastpostform_new i {\n  font-size: 22px;\n}\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input {\n  width: 60px;\n  height: 30px;\n  border: transparent;\n  color: #fff;\n  background: #d1c9fc;\n  border-radius: 30px;\n  margin-bottom: 6px;\n}\n#comiis_foot_menu_beautify_big li[data-attr="发表"] input[data-text="true"] {\n  background: #7a61fb;\n}\n#comiis_foot_menu_beautify_big li[data-attr="回帖"] textarea {\n  padding: 10px 10px 10px 10px;\n  border: transparent;\n  border-radius: 6px;\n  min-height: 70px;\n  max-height: 180px;\n  background: #e9e8ec;\n  overflow-y: auto;\n  width: -webkit-fill-available;\n  width: -moz-available;\n}\n#comiis_foot_menu_beautify .reply_area li[data-attr="回帖"] {\n  width: 65%;\n  margin: 0 3%;\n  text-align: center;\n}\n#comiis_foot_menu_beautify .reply_area li:not(first-child) {\n  width: 7%;\n  text-align: -webkit-center;\n  text-align: center;\n}\n#comiis_foot_menu_beautify_big .other_area {\n  width: 100%;\n  text-align: center;\n}\n#comiis_foot_menu_beautify_big .other_area .menu_icon a {\n  margin: 0 20px;\n}\n#comiis_foot_menu_beautify_big .other_area i {\n  font-size: 24px;\n}\n#comiis_foot_menu_beautify_big .other_area #comiis_insert_ubb_tab i {\n  font-size: 16px;\n}\n#comiis_foot_menu_beautify_big .other_area .menu_body {\n  background: #f4f4f4;\n}\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .comiis_optimization {\n  max-height: 140px;\n  overflow-y: auto;\n  flex-direction: column;\n}\n#comiis_foot_menu_beautify_big .other_area .menu_body .comiis_smiley_box .bqbox_t {\n  background: #fff;\n}\n#comiis_foot_menu_beautify_big\n  .other_area\n  .menu_body\n  .comiis_smiley_box\n  .bqbox_t\n  ul#comiis_smilies_key\n  li\n  a.bg_f.b_l.b_r {\n  background: #f4f4f4 !important;\n}\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key {\n  display: -webkit-box;\n  top: 0;\n  left: 0;\n  height: 42px;\n  line-height: 42px;\n  overflow: hidden;\n  overflow-x: auto;\n}\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #comiis_pictitle_key li {\n  padding: 0 10px;\n}\n#comiis_foot_menu_beautify_big .menu_body #comiis_insert_ubb_tab .comiis_input_style,\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab .comiis_upbox {\n  height: 140px;\n  overflow-y: auto;\n  flex-direction: column;\n}\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_hello,\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_kggzs,\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_mt,\n#comiis_foot_menu_beautify_big .menu_body #comiis_pictitle_tab #filedata_z4a {\n  display: none;\n}\n@media screen and (max-width: 350px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 14.5%;\n  }\n}\n@media screen and (min-width: 350px) and (max-width: 400px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 12.5%;\n  }\n}\n@media screen and (min-width: 400px) and (max-width: 450px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 11%;\n  }\n}\n@media screen and (min-width: 450px) and (max-width: 500px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 10%;\n  }\n}\n@media screen and (min-width: 500px) and (max-width: 550px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 9.5%;\n  }\n}\n@media screen and (min-width: 550px) and (max-width: 600px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 9%;\n  }\n}\n@media screen and (min-width: 600px) and (max-width: 650px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 8.5%;\n  }\n}\n@media screen and (min-width: 650px) and (max-width: 700px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 8%;\n  }\n}\n@media screen and (min-width: 700px) and (max-width: 750px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 7.5%;\n  }\n}\n@media screen and (min-width: 750px) and (max-width: 800px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 7%;\n  }\n}\n@media screen and (min-width: 800px) and (max-width: 850px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 6.5%;\n  }\n}\n@media screen and (min-width: 850px) and (max-width: 1200px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 6%;\n  }\n}\n@media screen and (min-width: 1200px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 4.5%;\n  }\n}\n#imglist_settings button {\n  font-size: 13.333px;\n  color: #9baacf;\n  outline: 0;\n  border: none;\n  height: 35px;\n  width: 80px;\n  border-radius: 10px;\n  box-shadow:\n    0.3rem 0.3rem 0.6rem #c8d0e7,\n    -0.2rem -0.2rem 0.5rem #fff;\n  font-weight: 800;\n  line-height: 40px;\n  background: #efefef;\n  padding: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n#imglist_settings button:active {\n  box-shadow:\n    inset 0.2rem 0.2rem 0.5rem #c8d0e7,\n    inset -0.2rem -0.2rem 0.5rem #fff !important;\n  color: #638ffb !important;\n}\n\n#comiis_head .header_y {\n  display: flex;\n  align-content: center;\n  align-items: center;\n  justify-content: flex-end;\n  height: 100%;\n}\n#comiis_head .header_y input {\n  border: transparent;\n  background: 0 0;\n  text-align: center;\n  margin: 0 5px;\n}\n#comiis_head .header_y input[value="删除"] {\n  color: #d00;\n}\n#comiis_head .header_y input[value="保存"] {\n  color: #b0ff6a;\n}\n#comiis_head .header_y input[value="保存草稿"] {\n  color: #f90;\n}\n#comiis_head .header_y input[value="发表"] {\n  color: #b0ff6a;\n}\n#comiis_head .header_y input[value="回复"] {\n  color: #b0ff6a;\n}\n#comiis_post_tab {\n  color: #000;\n}\n#comiis_pictitle_tab #imglist input {\n  display: none;\n}\n\n.comiis_post_imglist .delImg {\n  position: absolute;\n  top: -5px;\n  left: -5px;\n}\n\n.comiis_post_imglist .p_img a {\n  float: left;\n  height: 36px;\n}\n#imglist .p_img a {\n  float: left;\n  height: 36px;\n}\n#imglist .del a {\n  padding: 0;\n}\n';
-  const GlobalImageDelete = [];
-  class MTEditorImageBed {
+  var GlobalImageDelete = [];
+  var MTEditorImageBed = class {
     option;
-    $data = {
-      STORAGE_KEY: "mt-image-bed-upload-history",
-    };
+    $data = { STORAGE_KEY: "mt-image-bed-upload-history" };
     constructor(option) {
       this.option = option;
       GlobalImageDelete.push({
@@ -4212,10 +3658,8 @@
       });
       this.addTab();
       domUtils.on(`.comiis_post_imglist[data-chartbed="${this.option.name}"] .up_btn a`, "click", async (event) => {
-        let result = await this.option.uploadBtnClickEvent(event);
-        if (result) {
+        if (await this.option.uploadBtnClickEvent(event))
           $(`.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`).click();
-        }
       });
       domUtils.on(
         `.comiis_post_imglist[data-chartbed="${this.option.name}"] input[type="file"]`,
@@ -4228,19 +3672,18 @@
           let upload_callback = async (uploadFiles) => {
             let uploadInfo = await this.option.fileChangeEvent(event, uploadFiles);
             clear_input();
-            if (uploadInfo.success) {
+            if (uploadInfo.success)
               uploadInfo.data.forEach((imageInfo) => {
                 this.addImage(imageInfo);
                 let $thumbImage = this.createImageBtnElement("插入", imageInfo.url);
                 this.setImageBtnDeleteEvent($thumbImage, imageInfo);
                 domUtils.append(`.comiis_post_imglist[data-chartbed="${this.option.name}"]`, $thumbImage);
               });
-            }
           };
           if ($file.files && $file.files.length) {
             let chooseImage = $file.files;
             if (Panel.getValue("mt-image-bed-watermark-enable")) {
-              let $loading = Qmsg.loading("处理水印中...");
+              let $loading = qmsg.default.loading("处理水印中...");
               let needUploadImageArray = [];
               let needUploadImageFileArray = [];
               await Promise.all(
@@ -4250,7 +3693,7 @@
                     needUploadImageArray.push(image_base64);
                     needUploadImageFileArray.push(item);
                   } else {
-                    Qmsg.info(`添加水印 ${index + 1}/${chooseImage.length}`);
+                    qmsg.default.info(`添加水印 ${index + 1}/${chooseImage.length}`);
                     var watermark = new window.Watermark();
                     await watermark.setFile(item);
                     watermark.addText({
@@ -4271,9 +3714,8 @@
               );
               $loading.close();
               chooseImage = needUploadImageFileArray;
-              if (Panel.getValue("mt-image-bed-watermark-autoAddWaterMark")) {
-                await upload_callback(chooseImage);
-              } else {
+              if (Panel.getValue("mt-image-bed-watermark-autoAddWaterMark")) await upload_callback(chooseImage);
+              else
                 __pops__.confirm({
                   title: {
                     text: "水印预览",
@@ -4293,19 +3735,19 @@
                   btn: {
                     ok: {
                       text: "继续上传",
-                      async callback(eventDetails, event2) {
+                      async callback(eventDetails, event) {
                         eventDetails.close();
                         await upload_callback(chooseImage);
                       },
                     },
                     close: {
-                      callback(details, event2) {
+                      callback(details, event) {
                         details.close();
                         clear_input();
                       },
                     },
                     cancel: {
-                      callback(eventDetails, event2) {
+                      callback(eventDetails, event) {
                         eventDetails.close();
                         clear_input();
                       },
@@ -4322,10 +3764,7 @@
 								}
 								`,
                 });
-              }
-            } else {
-              await upload_callback(chooseImage);
-            }
+            } else await upload_callback(chooseImage);
           }
         }
       );
@@ -4367,9 +3806,7 @@
             className: "comiis_upbox bg_f cl",
             innerHTML: `<ul class="comiis_post_imglist cl" id="imglist_history"></ul>`,
           },
-          {
-            style: "display: none;",
-          }
+          { style: "display: none;" }
         );
         domUtils.before($box, $historyBox);
         $historyBox = Array.from($$("#comiis_pictitle_tab .comiis_upbox")).find((item) =>
@@ -4393,7 +3830,7 @@
       );
     }
     createImageBtnElement(labelName, url) {
-      let $li = domUtils.createElement("li", {
+      return domUtils.createElement("li", {
         innerHTML: `
       <span class="delImg" data-id="${this.option.id}" data-name="${this.option.name}">
           <a href="javascript:;">
@@ -4411,7 +3848,6 @@
                   class="vm b_ok"></a>
       </span>`,
       });
-      return $li;
     }
     initHistoryUploadImageList() {
       let $imglist_history = $("#comiis_pictitle_tab #imglist_history");
@@ -4427,12 +3863,8 @@
     setImageBtnDeleteEvent($ele, data) {
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
-        let result = await this.option.delImageEvent(event, data);
-        if (result) {
-          let deleteStorageStatus = this.deleteImage(this.option.id, data);
-          if (deleteStorageStatus) {
-            domUtils.remove($ele);
-          }
+        if (await this.option.delImageEvent(event, data)) {
+          if (this.deleteImage(this.option.id, data)) domUtils.remove($ele);
         }
       });
     }
@@ -4440,15 +3872,9 @@
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
         let findValue = GlobalImageDelete.find((item) => item.id === data.id);
-        if (!findValue) {
-          return;
-        }
-        let result = await findValue.callback(event, data.data);
-        if (result) {
-          let deleteStorageStatus = this.deleteImage(data.id, data.data);
-          if (deleteStorageStatus) {
-            domUtils.remove($ele);
-          }
+        if (!findValue) return;
+        if (await findValue.callback(event, data.data)) {
+          if (this.deleteImage(data.id, data.data)) domUtils.remove($ele);
         }
       });
     }
@@ -4463,8 +3889,7 @@
       _GM_setValue(this.$data.STORAGE_KEY, allData);
     }
     getAllImage() {
-      let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
-      return allData;
+      return _GM_getValue(this.$data.STORAGE_KEY, []);
     }
     deleteImage(id, data) {
       let allData = this.getAllImage();
@@ -4473,12 +3898,10 @@
         allData.splice(findIndex, 1);
         _GM_setValue(this.$data.STORAGE_KEY, allData);
         return true;
-      } else {
-        return false;
-      }
+      } else return false;
     }
-  }
-  const MTEditorImageBed_Hello = {
+  };
+  var MTEditorImageBed_Hello = {
     $data: {
       get account() {
         return Panel.getValue("mt-image-bed-hello-account");
@@ -4516,7 +3939,7 @@
         },
         async fileChangeEvent(event, fileList) {
           let uploadList = [];
-          let $loading = Qmsg.loading("上传中...");
+          let $loading = qmsg.default.loading("上传中...");
           let flag = true;
           for (let index = 0; index < Array.from(fileList).length; index++) {
             const file = Array.from(fileList)[index];
@@ -4527,9 +3950,7 @@
                 data: result.data,
               });
               flag = flag && true;
-            } else {
-              flag = flag && false;
-            }
+            } else flag = flag && false;
           }
           $loading.close();
           return {
@@ -4541,29 +3962,26 @@
           return data.data;
         },
         async delImageEvent(event, data) {
-          let isLogin = await that.checkLogin();
-          if (isLogin) {
-            let $loading = Qmsg.loading("正在删除图片...");
+          if (await that.checkLogin()) {
+            let $loading = qmsg.default.loading("正在删除图片...");
             let deleteResult = (await that.deleteImage(data.data.key)) ?? false;
             $loading.close();
             return deleteResult;
-          } else {
-            return false;
-          }
+          } else return false;
         },
       });
     },
     async checkLogin() {
       if (!this.$data.account) {
-        Qmsg.error(`${this.$config.TAG}请先配置账号`);
+        qmsg.default.error(`${this.$config.TAG}请先配置账号`);
         return false;
       }
       if (!this.$data.password) {
-        Qmsg.error(`${this.$config.TAG}请先配置密码`);
+        qmsg.default.error(`${this.$config.TAG}请先配置密码`);
         return false;
       }
       if (!this.$data.token) {
-        Qmsg.error(`${this.$config.TAG}请先配置token`);
+        qmsg.default.error(`${this.$config.TAG}请先配置token`);
         return false;
       }
       return true;
@@ -4587,31 +4005,29 @@
       });
       if (!response.status) {
         log.error(response);
-        Qmsg.error(this.$config.TAG + "网络异常，上传图片失败");
+        qmsg.default.error(this.$config.TAG + "网络异常，上传图片失败");
         return;
       }
       if (response.data.status in this.$code) {
         log.error(response);
-        Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
+        qmsg.default.error(this.$config.TAG + this.$code[response.data.status]);
         return;
       }
       let data = utils.toJSON(response.data.responseText);
       log.info(data);
       if (!data.status) {
-        Qmsg.error(this.$config.TAG + data.message);
+        qmsg.default.error(this.$config.TAG + data.message);
         return;
       }
-      Qmsg.success(this.$config.TAG + "上传成功");
+      qmsg.default.success(this.$config.TAG + "上传成功");
       let file_reader = new FileReader();
       file_reader.readAsDataURL(imageFile);
       return await new Promise((resolve) => {
         file_reader.onload = function () {
-          let imageUri = this.result;
-          let result = {
-            imageUri,
+          resolve({
+            imageUri: this.result,
             data: data.data,
-          };
-          resolve(result);
+          });
         };
       });
     },
@@ -4628,22 +4044,20 @@
         allowInterceptConfig: false,
       });
       if (response.data.status in this.$code) {
-        Qmsg.error(this.$config.TAG + this.$code[response.data.status]);
+        qmsg.default.error(this.$config.TAG + this.$code[response.data.status]);
         return false;
       }
       let data = utils.toJSON(response.data.responseText);
       if (!data.status) {
-        Qmsg.error(this.$config.TAG + data.message);
+        qmsg.default.error(this.$config.TAG + data.message);
         return false;
       }
-      Qmsg.success(this.$config.TAG + "删除成功");
+      qmsg.default.success(this.$config.TAG + "删除成功");
       return true;
     },
   };
-  const MTEditorImageBed_MT = {
-    $data: {
-      csrf_token: null,
-    },
+  var MTEditorImageBed_MT = {
+    $data: { csrf_token: null },
     $config: {
       TAG: "MT图床：",
       base_url: "https://img.binmt.cc",
@@ -4664,7 +4078,7 @@
         },
         async fileChangeEvent(event, fileList) {
           let uploadList = [];
-          let $loading = Qmsg.loading("上传中...");
+          let $loading = qmsg.default.loading("上传中...");
           let flag = true;
           for (let index = 0; index < Array.from(fileList).length; index++) {
             const file = Array.from(fileList)[index];
@@ -4675,9 +4089,7 @@
                 data: result.data,
               });
               flag = flag && true;
-            } else {
-              flag = flag && false;
-            }
+            } else flag = flag && false;
           }
           $loading.close();
           return {
@@ -4695,12 +4107,10 @@
     },
     async checkLogin() {
       if (!this.$data.csrf_token) {
-        let $loading = Qmsg.loading("正在获取CSRF Token中...");
+        let $loading = qmsg.default.loading("正在获取CSRF Token中...");
         let csrf_token = await this.getCSRFToken();
         $loading.close();
-        if (!csrf_token) {
-          return false;
-        }
+        if (!csrf_token) return false;
         this.$data.csrf_token = csrf_token;
       }
       return true;
@@ -4715,16 +4125,16 @@
         },
       });
       if (!response.status) {
-        Qmsg.error(this.$config.TAG + "获取CSRF Token失败，网络异常");
+        qmsg.default.error(this.$config.TAG + "获取CSRF Token失败，网络异常");
         return;
       }
-      let doc = domUtils.toElement(response.data.responseText, true, true);
-      let metaCSRFToken = doc.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
-      if (!metaCSRFToken) {
-        return;
-      }
+      let metaCSRFToken = domUtils
+        .toElement(response.data.responseText, true, true)
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute("content");
+      if (!metaCSRFToken) return;
       log.info("获取的CSRF token：", metaCSRFToken);
-      Qmsg.success(this.$config.TAG + "获取CSRF Token成功");
+      qmsg.default.success(this.$config.TAG + "获取CSRF Token成功");
       return metaCSRFToken;
     },
     async uploadImage(imageFile) {
@@ -4749,32 +4159,30 @@
       });
       if (!response.status) {
         log.error(response);
-        Qmsg.error(this.$config.TAG + "网络异常，上传图片失败");
+        qmsg.default.error(this.$config.TAG + "网络异常，上传图片失败");
         return;
       }
       let data = utils.toJSON(response.data.responseText);
       log.info(data);
       if (!data.status) {
         log.error(response);
-        Qmsg.error(this.$config.TAG + data.message || JSON.stringify(data));
+        qmsg.default.error(this.$config.TAG + data.message || JSON.stringify(data));
         return;
       }
-      Qmsg.success(this.$config.TAG + "上传成功");
+      qmsg.default.success(this.$config.TAG + "上传成功");
       let file_reader = new FileReader();
       file_reader.readAsDataURL(imageFile);
       return await new Promise((resolve) => {
         file_reader.onload = function () {
-          let imageUri = this.result;
-          let result = {
-            imageUri,
+          resolve({
+            imageUri: this.result,
             data: data.data,
-          };
-          resolve(result);
+          });
         };
       });
     },
   };
-  const MTEditorSmilies = () => {
+  var MTEditorSmilies = () => {
     return [
       {
         "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
@@ -5039,7 +4447,7 @@
       },
     ];
   };
-  const MTQuickUBB = () => {
+  var MTQuickUBB = () => {
     return {
       rainbow1: {
         key: "转普通彩虹",
@@ -5195,16 +4603,17 @@
       },
     };
   };
-  const MTUBB_Rainbow = (num, text) => {
-    if (text == "") {
-      return "";
-    }
-    var wr_text = text;
-    var wr_code, wr_rgb, r, g, b, i, j, istep;
-    r = 0;
-    g = 0;
-    b = 0;
-    istep = 0;
+  var MTUBB_Rainbow = (num, text) => {
+    if (text == "") return "";
+    var wr_text = text,
+      wr_code,
+      wr_rgb,
+      r = 0,
+      g = 0,
+      b = 0,
+      i,
+      j,
+      istep = 0;
     wr_code = "";
     if (num == 1) {
       istep = 40;
@@ -5255,14 +4664,12 @@
           wr_rgb += parseInt(b).toString(16).length == 1 ? 0 + parseInt(b).toString(16) : parseInt(b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(j)}[/color]`;
-        } else {
-          wr_code += wr_text.charAt(j);
-        }
+        } else wr_code += wr_text.charAt(j);
         j++;
       } while (j < wr_text.length);
     } else if (num == 2) {
       istep = 255 / wr_text.length;
-      for (i = 1; i < wr_text.length + 1; i++) {
+      for (i = 1; i < wr_text.length + 1; i++)
         if (wr_text.charCodeAt(i - 1) != 32) {
           r += istep;
           g += istep;
@@ -5276,13 +4683,10 @@
           wr_rgb += parseInt(b).toString(16).length == 1 ? 0 + parseInt(b).toString(16) : parseInt(b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
-        } else {
-          wr_code += wr_text.charAt(i - 1);
-        }
-      }
+        } else wr_code += wr_text.charAt(i - 1);
     } else if (num == 3) {
       istep = 255 / wr_text.length;
-      for (i = 1; i < wr_text.length + 1; i++) {
+      for (i = 1; i < wr_text.length + 1; i++)
         if (wr_text.charCodeAt(i - 1) != 32) {
           r += istep;
           g = 29;
@@ -5296,13 +4700,10 @@
           wr_rgb += parseInt(b).toString(16).length == 1 ? 0 + parseInt(b).toString(16) : parseInt(b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
-        } else {
-          wr_code += wr_text.charAt(i - 1);
-        }
-      }
+        } else wr_code += wr_text.charAt(i - 1);
     } else if (num == 4) {
       istep = 255 / wr_text.length;
-      for (i = 1; i < wr_text.length + 1; i++) {
+      for (i = 1; i < wr_text.length + 1; i++)
         if (wr_text.charCodeAt(i - 1) != 32) {
           r = 0;
           g = 174;
@@ -5319,14 +4720,11 @@
               : parseInt(255 - b).toString(16);
           wr_rgb = wr_rgb.toUpperCase();
           wr_code += `[color=#${wr_rgb}]${wr_text.charAt(i - 1)}[/color]`;
-        } else {
-          wr_code += wr_text.charAt(i - 1);
-        }
-      }
+        } else wr_code += wr_text.charAt(i - 1);
     }
     return wr_code;
   };
-  const ExtendJQueryFn = function () {
+  var ExtendJQueryFn = function () {
     _unsafeWindow.$.fn.extend({
       insertAtCaret: function (myValue) {
         var $t = _unsafeWindow.$(this)[0];
@@ -5350,16 +4748,13 @@
         }
       },
       selectRange: function (start, end) {
-        if (end === void 0) {
-          end = start;
-        }
+        if (end === void 0) end = start;
         return this.each(function () {
           if ("selectionStart" in this) {
             this.selectionStart = start;
             this.selectionEnd = end;
-          } else if (this.setSelectionRange) {
-            this.setSelectionRange(start, end);
-          } else if (this.createTextRange) {
+          } else if (this.setSelectionRange) this.setSelectionRange(start, end);
+          else if (this.createTextRange) {
             var range = this.createTextRange();
             range.collapse(true);
             range.moveEnd("character", end);
@@ -5371,9 +4766,8 @@
       getCursorPosition: function () {
         var el = _unsafeWindow.$(this)[0];
         var pos = 0;
-        if ("selectionStart" in el) {
-          pos = el.selectionStart;
-        } else if ("selection" in document) {
+        if ("selectionStart" in el) pos = el.selectionStart;
+        else if ("selection" in document) {
           el.focus();
           var Sel = document.selection.createRange();
           var SelLength = document.selection.createRange().text.length;
@@ -5397,28 +4791,24 @@
       moveCursorToCenterByTextWithLeft: function (leftMatchText, _length_) {
         var el = _unsafeWindow.$(this)[0];
         var el_text = el.value;
-        for (let index = el.selectionStart - 1; index > 0; index--) {
-          let lTexts = el_text.substring(index - _length_, index);
-          if (lTexts == leftMatchText) {
+        for (let index = el.selectionStart - 1; index > 0; index--)
+          if (el_text.substring(index - _length_, index) == leftMatchText) {
             this.selectRange(index);
             break;
           }
-        }
       },
       moveCursorToCenterByTextWithRight: function (rightMatchText, _length_) {
         var el = _unsafeWindow.$(this)[0];
         var el_text = el.value;
-        for (let i = el.selectionStart - 1; i > 0; i--) {
-          let rTexts = el_text.substring(i, i + _length_);
-          if (rTexts == rightMatchText) {
+        for (let i = el.selectionStart - 1; i > 0; i--)
+          if (el_text.substring(i, i + _length_) == rightMatchText) {
             this.selectRange(i + _length_);
             break;
           }
-        }
       },
     });
   };
-  const ErrorCodeMapList = [
+  var ErrorCodeMapList = [
     {
       match: "抱歉，您填写的内容包含敏感词而无法提交",
       msg: "{$0}",
@@ -5436,12 +4826,12 @@
       msg: "抱歉，您的帖子小于 {$1} 个字符的限制",
     },
   ];
-  let tempReplyBtnNode = null;
-  const MTEditorOptimizationNormal = {
+  var tempReplyBtnNode = null;
+  var MTEditorOptimizationNormal = {
     $data: {
       isUBBCodeInsertClick: false,
       isPosting: false,
-      db: new Utils.indexedDB("mt_reply_record", "input_text"),
+      db: new _whitesev_utils.default.indexedDB("mt_reply_record", "input_text"),
       forum_action: null,
       get tid() {
         return MTUtils.getThreadId(window.location.href);
@@ -5456,7 +4846,7 @@
     },
     init() {
       log.info(`编辑器优化-简略版`);
-      addStyle(optimizationCSS$1);
+      addStyle(editor_optimization_default$1);
       this.overridePageEditor();
     },
     overridePageEditor() {
@@ -5475,16 +4865,13 @@
       domUtils.hide($footMenu, false);
       let smiliesList = MTEditorSmilies();
       let first_smilies = Object.keys(smiliesList[0]).map((key) => {
-        let smilies_url = smiliesList[0][key];
-        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`;
+        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smiliesList[0][key]}" class="vm"></a></li>`;
       });
       let second_smilies = Object.keys(smiliesList[1]).map((key) => {
-        let smilies_url = smiliesList[1][key];
-        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`;
+        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smiliesList[1][key]}" class="vm"></a></li>`;
       });
       let third_smilies = Object.keys(smiliesList[2]).map((key) => {
-        let smilies_url = smiliesList[2][key];
-        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smilies_url}" class="vm"></a></li>`;
+        return `<li><a href="javascript:;" onclick="comiis_addsmilies('${key}');"><img loading="lazy" data-src="${smiliesList[2][key]}" class="vm"></a></li>`;
       });
       domUtils.after(
         $footMenu,
@@ -5592,12 +4979,11 @@
       this.$el.$input = $("#comiis_foot_menu_beautify_big textarea");
       this.$el.$fastpostsubmit = $("#fastpostsubmit");
       _unsafeWindow.textarea_scrollHeight = () => {};
-      if (typeof _unsafeWindow.comiis_addsmilies == "function") {
+      if (typeof _unsafeWindow.comiis_addsmilies == "function")
         _unsafeWindow.comiis_addsmilies = (smilies_text) => {
           _unsafeWindow.$("#needmessage").comiis_insert(smilies_text);
           _unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("propertychange"));
         };
-      }
       _unsafeWindow.$("#imglist .up_btn").append(_unsafeWindow.$("#filedata"));
       _unsafeWindow.$(document).on("click", "#imglist .up_btn a", function () {
         _unsafeWindow.$(this).next().click();
@@ -5636,9 +5022,7 @@
     handle_error(text) {
       let flag = false;
       const messagetext = domUtils.text(domUtils.toElement(text, false, false).querySelector("#messagetext"));
-      if (!messagetext || (typeof messagetext === "string" && messagetext.trim() == "")) {
-        return flag;
-      }
+      if (!messagetext || (typeof messagetext === "string" && messagetext.trim() == "")) return flag;
       ErrorCodeMapList.forEach((item) => {
         const pattern = item.match instanceof RegExp ? item.match : new RegExp(item.match);
         const matcher = messagetext.match(pattern);
@@ -5648,7 +5032,7 @@
             matcher.forEach((matchText, index) => {
               msg = msg.replace(`{$${index}}`, matchText);
             });
-            Qmsg.error(msg);
+            qmsg.default.error(msg);
           }
           flag = true;
           return;
@@ -5659,8 +5043,7 @@
     setInputChangeEvent() {
       const that = this;
       domUtils.on(this.$el.$input, ["input", "propertychange"], function () {
-        let inputText = that.$el.$input.value;
-        if (inputText === "") {
+        if (that.$el.$input.value === "") {
           that.$el.$btn_submit.setAttribute("data-text", "false");
           $("#comiis_foot_menu_beautify li[data-attr='回帖'] input")?.setAttribute(
             "placeholder",
@@ -5678,8 +5061,10 @@
       const that = this;
       domUtils.on(this.$el.$input, ["input", "propertychange"], async () => {
         const inputText = that.$el.$input.value;
-        const $reply = that.$el.$input.closest(".reply_area").querySelector(".reply_user_content");
-        const replyUrl = $reply.getAttribute("data-reply-url");
+        const replyUrl = that.$el.$input
+          .closest(".reply_area")
+          .querySelector(".reply_user_content")
+          .getAttribute("data-reply-url");
         const data = {
           url: window.location.href,
           text: inputText,
@@ -5694,41 +5079,26 @@
         let localDataIndex = result.data.findIndex((item) => {
           return item.forumId === data.forumId && item.repquote === data.repquote;
         });
-        if (localDataIndex !== -1) {
-          if (inputText == null || inputText === "") {
-            result.data.splice(localDataIndex, 1);
-          } else {
-            result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
-              text: data.text,
-            });
-          }
-        } else {
-          result.data.push(data);
-        }
+        if (localDataIndex !== -1)
+          if (inputText == null || inputText === "") result.data.splice(localDataIndex, 1);
+          else result.data[localDataIndex] = utils.assign(result.data[localDataIndex], { text: data.text });
+        else result.data.push(data);
         await that.$data.db.save("data", result.data);
       });
     },
     async initReplyText(isUserReply = false, replyUrl = void 0) {
       const that = this;
-      let initResult = await this.$data.db.get("data");
-      if (initResult.code === 201) {
-        await this.$data.db.save("data", []);
-      }
+      if ((await this.$data.db.get("data")).code === 201) await this.$data.db.save("data", []);
       let queryResult = await this.$data.db.get("data");
       if (!queryResult.success || queryResult.code === 201) {
         console.warn(queryResult);
         return;
       }
       let repquote = void 0;
-      if (replyUrl) {
-        repquote = MTUtils.getRepquote(replyUrl);
-      }
+      if (replyUrl) repquote = MTUtils.getRepquote(replyUrl);
       let localReplyData = queryResult.data.find((item) => {
-        if (isUserReply) {
-          return item.forumId === that.$data.tid && item.repquote == repquote;
-        } else {
-          return item.forumId === that.$data.tid && item.repquote == null;
-        }
+        if (isUserReply) return item.forumId === that.$data.tid && item.repquote == repquote;
+        else return item.forumId === that.$data.tid && item.repquote == null;
       });
       if (localReplyData) {
         domUtils.val(this.$el.$input, localReplyData.text);
@@ -5741,9 +5111,7 @@
         if (_unsafeWindow.comiis_recommend_key == 0) {
           _unsafeWindow.comiis_recommend_key = 1;
           let response = await httpx.get(this.$el.$like.href + "&inajax=1", {
-            headers: {
-              Accept: "application/xml, text/xml, */*; q=0.01",
-            },
+            headers: { Accept: "application/xml, text/xml, */*; q=0.01" },
             fetch: true,
             allowInterceptConfig: false,
           });
@@ -5754,31 +5122,29 @@
             }, 500);
             return;
           }
-          let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-          let resultText = xmlDoc.lastChild?.firstChild?.nodeValue;
+          let resultText = utils.parseFromString(response.data.responseText, "text/xml").lastChild?.firstChild
+            ?.nodeValue;
           if (resultText.includes("您已评价过本主题")) {
             let tid = this.$el.$like.href.match(MTRegExp.tid)[1];
-            let response2 = await httpx.get(`plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`, {
-              headers: {
-                Accept: "application/xml, text/xml, */*; q=0.01",
-              },
-              fetch: true,
-              allowInterceptConfig: false,
-            });
-            if (!response2.status) {
-              Qmsg.error("取消点赞失败，网络异常");
+            if (
+              !(
+                await httpx.get(`plugin.php?id=comiis_app&comiis=re_recommend&tid=${tid}&inajax=1`, {
+                  headers: { Accept: "application/xml, text/xml, */*; q=0.01" },
+                  fetch: true,
+                  allowInterceptConfig: false,
+                })
+              ).status
+            ) {
+              qmsg.default.error("取消点赞失败，网络异常");
               return;
             }
             var recommend_num = Number(domUtils.text("#comiis_recommend_num"));
-            if (document.querySelectorAll(".comiis_recommend_list_a").length > 0) {
+            if (document.querySelectorAll(".comiis_recommend_list_a").length > 0)
               domUtils.remove("#comiis_recommend_list_a" + _unsafeWindow.uid);
-            }
-            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0) {
+            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0)
               domUtils.remove("#comiis_recommend_list_s" + _unsafeWindow.uid);
-            }
-            if (document.querySelectorAll(".comiis_recommend_list_t").length > 0) {
+            if (document.querySelectorAll(".comiis_recommend_list_t").length > 0)
               domUtils.remove("#comiis_recommend_list_t" + _unsafeWindow.uid);
-            }
             if (recommend_num > 1) {
               domUtils.text(".comiis_recommend_num", recommend_num - Number(_unsafeWindow.allowrecommend));
               domUtils.text(".comiis_recommend_nums", "+" + (recommend_num - Number(_unsafeWindow.allowrecommend)));
@@ -5789,49 +5155,35 @@
                 domUtils.empty(".comiis_recommend_list_a");
                 domUtils.removeClass(".comiis_recommend_list_a", "comiis_recommend_list_on");
               }
-              if (document.querySelectorAll(".comiis_recommend_list_t").length > 0) {
+              if (document.querySelectorAll(".comiis_recommend_list_t").length > 0)
                 domUtils.removeClass(".comiis_recommend_list_t", "comiis_recommend_list_on");
-              }
             }
             domUtils.html(".comiis_recommend_addkey i", "&#xe63b;");
             domUtils.removeClass(".comiis_recommend_color", "f_a");
             domUtils.addClass(".comiis_recommend_color", "f_b");
-            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0) {
-              if (document.querySelectorAll(".comiis_recommend_list_s li").length < 7) {
+            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0)
+              if (document.querySelectorAll(".comiis_recommend_list_s li").length < 7)
                 domUtils.hide(".txshow_more", false);
-              } else {
-                domUtils.show(".txshow_more", false);
-              }
-            }
-            Qmsg.success("已取消点赞");
-          } else if (resultText.includes("您不能评价自己的帖子")) {
-            Qmsg.error("不能点赞自己的帖子");
-          } else if (resultText.includes("今日评价机会已用完")) {
-            Qmsg.warning("您今日的点赞机会已用完");
-          } else if (resultText.includes("'recommendv':'+" + _unsafeWindow.allowrecommend + "'")) {
+              else domUtils.show(".txshow_more", false);
+            qmsg.default.success("已取消点赞");
+          } else if (resultText.includes("您不能评价自己的帖子")) qmsg.default.error("不能点赞自己的帖子");
+          else if (resultText.includes("今日评价机会已用完")) qmsg.default.warning("您今日的点赞机会已用完");
+          else if (resultText.includes("'recommendv':'+" + _unsafeWindow.allowrecommend + "'")) {
             var recommendcList = {
                 recommendc: 0,
                 daycount: 0,
               },
-              recommendc;
-            recommendc = resultText.match(/\'recommendc\':\'(.*?)\'/);
-            if (recommendc != null) {
-              recommendcList["recommendc"] = parseInt(recommendc[1]);
-            } else {
-              recommendcList["recommendc"] = 0;
-            }
+              recommendc = resultText.match(/\'recommendc\':\'(.*?)\'/);
+            if (recommendc != null) recommendcList["recommendc"] = parseInt(recommendc[1]);
+            else recommendcList["recommendc"] = 0;
             recommendc = resultText.match(/\'daycount\':\'(.*?)\'/);
-            if (recommendc != null) {
-              recommendcList["daycount"] = parseInt(recommendc[1]);
-            } else {
-              recommendcList["daycount"] = 0;
-            }
-            if (document.querySelectorAll(".comiis_recommend_new span").length < 1) {
+            if (recommendc != null) recommendcList["daycount"] = parseInt(recommendc[1]);
+            else recommendcList["daycount"] = 0;
+            if (document.querySelectorAll(".comiis_recommend_new span").length < 1)
               domUtils.append(
                 ".comiis_recommend_new",
                 '<span class="bg_del f_f comiis_kmvnum comiis_recommend_num" id="comiis_recommend_num">0</span>'
               );
-            }
             var comiis_recommend_num = Number(domUtils.text("#comiis_recommend_num"));
             if ($$(".comiis_recommend_list_a").length > 0) {
               let $list_a = $$(".comiis_recommend_list_a");
@@ -5891,21 +5243,15 @@
             domUtils.html(".comiis_recommend_addkey i", "&#xe654;");
             domUtils.removeClass(".comiis_recommend_color", "f_b");
             domUtils.addClass(".comiis_recommend_color", "f_a");
-            if ($$(".comiis_recommend_list_s").length > 0) {
-              if ($$(".comiis_recommend_list_s li").length < 7) {
-                domUtils.hide(".txshow_more", false);
-              } else {
-                domUtils.show(".txshow_more", false);
-              }
-            }
-            Qmsg.success(
+            if ($$(".comiis_recommend_list_s").length > 0)
+              if ($$(".comiis_recommend_list_s li").length < 7) domUtils.hide(".txshow_more", false);
+              else domUtils.show(".txshow_more", false);
+            qmsg.default.success(
               "点赞成功" + (recommendcList["daycount"] ? `, 您今天还能点赞 ${recommendcList["daycount"] - 1} 次` : "")
             );
-          } else if (resultText.indexOf("window.location.href = 'member.php?mod=logging&action=login&mobile=2'") >= 0) {
+          } else if (resultText.indexOf("window.location.href = 'member.php?mod=logging&action=login&mobile=2'") >= 0)
             window.location.href = "member.php?mod=logging&action=login&mobile=2";
-          } else {
-            Qmsg.error("没有点赞权限或帖子不存在");
-          }
+          else qmsg.default.error("没有点赞权限或帖子不存在");
           setTimeout(function () {
             _unsafeWindow.comiis_recommend_key = 0;
           }, 500);
@@ -5921,12 +5267,10 @@
         const $message = $("#needmessage");
         let message = domUtils.val($message);
         message = encodeURIComponent(message);
-        if (message == null || message === "") {
-          return;
-        }
+        if (message == null || message === "") return;
         try {
           if (domUtils.val(that.$el.$fastpostsubmit) == "发表") {
-            let $loading = Qmsg.loading("发表中，请稍后...");
+            let $loading = qmsg.default.loading("发表中，请稍后...");
             let data = "message=" + message;
             $$("#imglist input[type='hidden']").forEach(($ele) => {
               let key = $ele.getAttribute("name");
@@ -5938,24 +5282,18 @@
               data,
               fetch: true,
               allowInterceptConfig: false,
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
             $loading.close();
             if (!response.status) {
-              Qmsg.error("发表失败，网络异常");
+              qmsg.default.error("发表失败，网络异常");
               return;
             }
-            let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-            let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
+            let xmlText = utils.parseFromString(response.data.responseText, "text/xml").lastChild?.firstChild
+              ?.nodeValue;
             _unsafeWindow.evalscript(xmlText);
-            if (this.handle_error(xmlText)) {
-              return;
-            }
-            window.scrollTo({
-              top: domUtils.height(document),
-            });
+            if (this.handle_error(xmlText)) return;
+            window.scrollTo({ top: domUtils.height(document) });
             domUtils.val("#needmessage", "");
             $("#comiis_head")?.click();
             domUtils.hide("#comiis_foot_menu_beautify_big .reply_user_content", false);
@@ -5977,21 +5315,17 @@
               allowInterceptConfig: false,
               fetch: true,
               data,
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
             });
             if (!response.status) {
-              Qmsg.error("回复失败，网络异常");
+              qmsg.default.error("回复失败，网络异常");
               return;
             }
-            let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-            let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
+            let xmlText = utils.parseFromString(response.data.responseText, "text/xml").lastChild?.firstChild
+              ?.nodeValue;
             log.info(xmlText);
             _unsafeWindow.evalscript(xmlText);
-            if (this.handle_error(xmlText)) {
-              return;
-            }
+            if (this.handle_error(xmlText)) return;
             $(xmlText)?.click();
             domUtils.val("#needmessage", "");
             $("#comiis_head").click();
@@ -6002,9 +5336,7 @@
               "placeholder",
               "发帖千百度，文明第一步"
             );
-            window.scrollTo({
-              top: domUtils.height(document),
-            });
+            window.scrollTo({ top: domUtils.height(document) });
             await this.deleteReplyTextStorage(true, replyUrl);
           }
         } catch (error) {
@@ -6029,14 +5361,11 @@
             allowInterceptConfig: false,
           });
           if (!response.status) {
-            Qmsg.error("网络异常，获取回复参数失败");
+            qmsg.default.error("网络异常，获取回复参数失败");
             return;
           }
-          let xmlDoc = utils.parseFromString(response.data.responseText, "text/xml");
-          let xmlText = xmlDoc.lastChild?.firstChild?.nodeValue;
-          if (this.handle_error(xmlText)) {
-            return;
-          }
+          let xmlText = utils.parseFromString(response.data.responseText, "text/xml").lastChild?.firstChild?.nodeValue;
+          if (this.handle_error(xmlText)) return;
           let requestDOM = domUtils.toElement(`<div>${xmlText}</div>`, true, false);
           let reply_url = requestDOM.querySelector(".comiis_tip .tip_tit a")?.getAttribute("href");
           let reply_user = domUtils.text(requestDOM.querySelector(".comiis_tip span.f_0"));
@@ -6106,11 +5435,10 @@
               );
             }
           }
-          if (domUtils.val(that.$el.$input) === "" && !that.$data.isPosting) {
+          if (domUtils.val(that.$el.$input) === "" && !that.$data.isPosting)
             Panel.execMenu("mt-forum-post-editorOptimizationNormal-recordInputText", async () => {
               await that.initReplyText();
             });
-          }
         }
       });
     },
@@ -6148,9 +5476,7 @@
             .eq(_unsafeWindow.$($click).index())
             .fadeIn();
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
     },
     setMenuSmileClickEvent() {
@@ -6163,9 +5489,7 @@
           domUtils.attr(smileDOM, "data-isLoaded", 1);
           smileDOM.querySelectorAll("img").forEach((item) => {
             let data_src = item.getAttribute("data-src");
-            if (data_src) {
-              item.setAttribute("src", data_src);
-            }
+            if (data_src) item.setAttribute("src", data_src);
           });
         }
       });
@@ -6191,12 +5515,8 @@
     },
     async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
-      if (result.success) {
-        let size = utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
-        return size;
-      } else {
-        return utils.formatByteToSize(0);
-      }
+      if (result.success) return utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
+      else return utils.formatByteToSize(0);
     },
     async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
@@ -6211,11 +5531,9 @@
           return false;
         }
         let localDataIndex = queryData.data.findIndex((item) => {
-          if (isUserReply) {
+          if (isUserReply)
             return item.forumId === that.$data.tid && replyUrl && item.repquote === MTUtils.getRepquote(replyUrl);
-          } else {
-            return item.forumId === that.$data.tid && utils.isNull(item.repquote);
-          }
+          else return item.forumId === that.$data.tid && utils.isNull(item.repquote);
         });
         let flag = false;
         if (localDataIndex !== -1) {
@@ -6293,16 +5611,13 @@
                 type: "primary",
                 callback: (details) => {
                   if (details.text.trim() === "") {
-                    Qmsg.error("输入框不能为空或纯空格");
+                    qmsg.default.error("输入框不能为空或纯空格");
                     return;
                   }
-                  if (value["isFunc"]) {
-                    _unsafeWindow.comiis_addsmilies(MTUBB_Rainbow(value["num"], details.text));
-                  } else if (value["quickUBBReplace"]) {
+                  if (value["isFunc"]) _unsafeWindow.comiis_addsmilies(MTUBB_Rainbow(value["num"], details.text));
+                  else if (value["quickUBBReplace"])
                     _unsafeWindow.comiis_addsmilies(value["quickUBBReplace"].replaceAll("replace", details.text));
-                  } else {
-                    _unsafeWindow.comiis_addsmilies(details.text);
-                  }
+                  else _unsafeWindow.comiis_addsmilies(details.text);
                   $prompt.close();
                 },
               },
@@ -6321,10 +5636,8 @@
       });
     },
   };
-  const MTForumPost = {
-    $flag: {
-      isSetHljsCSS: false,
-    },
+  var MTForumPost = {
+    $flag: { isSetHljsCSS: false },
     init() {
       Panel.execMenuOnce("mt-forum-post-autoExpandContent", () => {
         return this.autoExpandContent();
@@ -6361,28 +5674,22 @@
     },
     autoExpandContent() {
       log.info(`自动展开帖子内容`);
-      return addStyle(
-        `
+      return addStyle(`
         div.comiis_message.bg_f.view_one.b_b.cl.message>div.comiis_messages.comiis_aimg_show.cl{max-height:inherit!important;overflow-y:inherit!important;position:inherit!important}
         .comiis_lookfulltext_bg,.comiis_lookfulltext_key{display:none!important} 
-        `
-      );
+        `);
     },
     repairImageWidth() {
       log.info(`修复图片宽度`);
-      return addStyle(
-        `
+      return addStyle(`
         .comiis_messages img{
             max-width: 100% !important;
-        }`
-      );
+        }`);
     },
     removeFontStyle() {
       log.info(`移除帖子字体效果`);
       let $messageTable = $(".comiis_a.comiis_message_table");
-      if (!$messageTable) {
-        return;
-      }
+      if (!$messageTable) return;
       domUtils.html($messageTable, domUtils.html($messageTable).replace(MTRegExp.fontSpecial, ""));
     },
     removeCommentFontStyle() {
@@ -6401,17 +5708,15 @@
           if ($postForumMainContent.includes($message.innerHTML)) {
             $message.innerHTML = $message.innerHTML.replace(MTRegExp.fontSpecial, "");
             let $next = $message.nextElementSibling;
-            if ($next && $next.localName === "strike") {
+            if ($next && $next.localName === "strike")
               $next.outerHTML = $next.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
-            }
           }
         });
       }
       $$(".comiis_postli.comiis_list_readimgs.nfqsqi").forEach((item) => {
         let $parent = item.parentElement;
-        if ($parent && $parent.localName === "strike") {
+        if ($parent && $parent.localName === "strike")
           $parent.outerHTML = $parent.outerHTML.replace(/^<strike>(\n|)/g, "").replace(/<\/strike>$/g, "");
-        }
       });
     },
     addCommentOnBtn() {
@@ -6420,14 +5725,10 @@
         $bottomZhanList.forEach(($bottmZhan) => {
           $bottmZhan.setAttribute("data-isaddreviews", "true");
           var replyNode = $bottmZhan.querySelector("a");
-          if (!replyNode) {
-            return;
-          }
+          if (!replyNode) return;
           var replyUrl =
             replyNode.getAttribute("datahref") || replyNode.getAttribute("data-href") || replyNode.href || "";
-          var rewardUrl = replyUrl.replace("mod=post&", "mod=misc&").replace("action=reply&", "action=comment&");
-          var reviewPage = replyUrl?.match(/&page=([\w]+)/i)?.[1];
-          var reviewsUrl = `${rewardUrl}&extra=page%3D1&page=${reviewPage}`;
+          var reviewsUrl = `${replyUrl.replace("mod=post&", "mod=misc&").replace("action=reply&", "action=comment&")}&extra=page%3D1&page=${replyUrl?.match(/&page=([\w]+)/i)?.[1]}`;
           var $postli = $bottmZhan?.closest(".comiis_postli[id]");
           var reviewsPID = $postli.getAttribute("id")?.replace("pid", "&pid=");
           reviewsUrl = reviewsUrl + reviewsPID;
@@ -6456,9 +5757,7 @@
     },
     loadNextPageComment() {
       log.info(`自动加载下一页评论`);
-      if (document.title.includes("提示信息 - MT论坛")) {
-        return;
-      }
+      if (document.title.includes("提示信息 - MT论坛")) return;
       function getLoadingCommentTip() {
         return $("#loading-comment-tip");
       }
@@ -6469,10 +5768,9 @@
         let $loadingCommentTip = getLoadingCommentTip();
         let $loadingCommentTipParent = getLoadingCommentTipParent();
         domUtils.css($loadingCommentTipParent, "display", "");
-        let $nextPage = Array.from(post_comments_list.querySelectorAll("a[href]")).find((item) => {
+        let next_page_url = Array.from(post_comments_list.querySelectorAll("a[href]")).find((item) => {
           return item.textContent?.trim() === "下一页";
-        });
-        let next_page_url = $nextPage.href;
+        }).href;
         log.info("获取下一页url：", next_page_url);
         if (next_page_url.includes("javascript:;")) {
           log.info("暂无下一页的评论");
@@ -6490,12 +5788,8 @@
           domUtils.css($loadingCommentTipParent, "display", "");
           log.info(`请求下一页评论：` + next_page_url);
           let url = next_page_url;
-          let response = await httpx.get(url, {
-            fetch: true,
-          });
-          if (!response.status) {
-            return;
-          }
+          let response = await httpx.get(url, { fetch: true });
+          if (!response.status) return;
           let nextPageDoc = domUtils.toElement(response.data.responseText, true, true);
           let $kqide = $(".comiis_postlist.kqide");
           let $nextPage_kqide = nextPageDoc.querySelector(".comiis_postlist.kqide");
@@ -6518,9 +5812,7 @@
             let $pageSelect = $("#select_a");
             if ($pageSelect) {
               let $pageText = Array.from($pageSelect.childNodes).find((item) => item.nodeName === "#text");
-              if ($pageText) {
-                $pageText.textContent = `第 ${$pageStrong.textContent} 页`;
-              }
+              if ($pageText) $pageText.textContent = `第 ${$pageStrong.textContent} 页`;
             }
           }
           Panel.execMenu("mt-forum-post-syncNextPageUrl", () => {
@@ -6534,20 +5826,21 @@
           MTForumPost.init();
         }
         var lockFn = new utils.LockFunction(async () => {
-          if (utils.isNearBottom(50)) {
-            await loadNextComments();
-          }
+          if (utils.isNearBottom(50)) await loadNextComments();
         });
         domUtils.text($loadingCommentTip, "请上下滑动或点击加载");
         domUtils.on(window, "scroll", lockFn.run);
         domUtils.on($loadingCommentTip, "click", loadNextComments);
         lockFn.run();
       }
-      let tip_html = `
+      let $tip = domUtils.toElement(
+        `
 		<div class="comiis_multi_box bg_f b_t">
 			<label class="comiis_loadbtn bg_e f_d" id="loading-comment-tip">正在等待页面加载完毕</label>
-		</div>`;
-      let $tip = domUtils.toElement(tip_html, true, false);
+		</div>`,
+        true,
+        false
+      );
       let $bodybox = $(".comiis_bodybox");
       domUtils.append($bodybox, $tip);
       let commentsEle = $(".comiis_pltit span.f_d") || $("#comiis_foot_memu .comiis_kmvnum");
@@ -6556,19 +5849,18 @@
         log.info("暂无评论");
         return;
       }
-      let commentsNum = parseInt(commentsEle.textContent);
-      if (commentsNum >= 10) {
+      if (parseInt(commentsEle.textContent) >= 10)
         domUtils.waitNode(".comiis_page.bg_f").then(($nextPage) => {
           autoLoadNextPageComments($nextPage);
         });
-      } else {
+      else {
         domUtils.remove(getLoadingCommentTipParent());
         log.info("无多页评论");
       }
     },
     codeQuoteOptimization() {
       log.info(`代码块优化`);
-      function hljs_smali(hljs2) {
+      function hljs_smali(hljs) {
         var smali_instr_low_prio = [
           "add",
           "and",
@@ -6600,38 +5892,6 @@
           "ushr",
           "xor",
         ];
-        var smali_instr_high_prio = [
-          "aget",
-          "aput",
-          "array",
-          "check",
-          "execute",
-          "fill",
-          "filled",
-          "goto/16",
-          "goto/32",
-          "iget",
-          "instance",
-          "invoke",
-          "iput",
-          "monitor",
-          "packed",
-          "sget",
-          "sparse",
-        ];
-        var smali_keywords = [
-          "transient",
-          "constructor",
-          "abstract",
-          "final",
-          "synthetic",
-          "public",
-          "private",
-          "protected",
-          "static",
-          "bridge",
-          "system",
-        ];
         return {
           aliases: ["smali"],
           contains: [
@@ -6641,30 +5901,70 @@
               end: '"',
               relevance: 0,
             },
-            hljs2.COMMENT("#", "$", {
-              relevance: 0,
-            }),
+            hljs.COMMENT("#", "$", { relevance: 0 }),
             {
               className: "keyword",
               variants: [
                 { begin: "\\s*\\.end\\s[a-zA-Z0-9]*" },
-                { begin: "^[ ]*\\.[a-zA-Z]*", relevance: 0 },
-                { begin: "\\s:[a-zA-Z_0-9]*", relevance: 0 },
-                { begin: "\\s(" + smali_keywords.join("|") + ")" },
+                {
+                  begin: "^[ ]*\\.[a-zA-Z]*",
+                  relevance: 0,
+                },
+                {
+                  begin: "\\s:[a-zA-Z_0-9]*",
+                  relevance: 0,
+                },
+                {
+                  begin:
+                    "\\s(" +
+                    [
+                      "transient",
+                      "constructor",
+                      "abstract",
+                      "final",
+                      "synthetic",
+                      "public",
+                      "private",
+                      "protected",
+                      "static",
+                      "bridge",
+                      "system",
+                    ].join("|") +
+                    ")",
+                },
               ],
             },
             {
               className: "built_in",
               variants: [
-                {
-                  begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s",
-                },
+                { begin: "\\s(" + smali_instr_low_prio.join("|") + ")\\s" },
                 {
                   begin: "\\s(" + smali_instr_low_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)+\\s",
                   relevance: 10,
                 },
                 {
-                  begin: "\\s(" + smali_instr_high_prio.join("|") + ")((\\-|/)[a-zA-Z0-9]+)*\\s",
+                  begin:
+                    "\\s(" +
+                    [
+                      "aget",
+                      "aput",
+                      "array",
+                      "check",
+                      "execute",
+                      "fill",
+                      "filled",
+                      "goto/16",
+                      "goto/32",
+                      "iget",
+                      "instance",
+                      "invoke",
+                      "iput",
+                      "monitor",
+                      "packed",
+                      "sget",
+                      "sparse",
+                    ].join("|") +
+                    ")((\\-|/)[a-zA-Z0-9]+)*\\s",
                   relevance: 10,
                 },
               ],
@@ -6674,29 +5974,23 @@
               begin: "L[^(;:\n]*;",
               relevance: 0,
             },
-            {
-              begin: "[vp][0-9]+",
-            },
+            { begin: "[vp][0-9]+" },
           ],
         };
       }
       if (!this.$flag.isSetHljsCSS) {
-        hljs.registerLanguage("smali", hljs_smali);
-        addStyle(
-          `
+        highlight_js.default.registerLanguage("smali", hljs_smali);
+        addStyle(`
 			.hljs ol{margin:0 0 0 10px;padding:10px 10px 10px 25px}
 			.hljs li{padding-left:10px;list-style-type:decimal-leading-zero;font-family:Monaco,Consolas,'Lucida Console','Courier New',serif;font-size:12px;line-height:1.8em}
 			.hljs li:hover{background:#2c313c}
 			.hljs li::marker{unicode-bidi:isolate;font-variant-numeric:tabular-nums;text-transform:none;text-indent:0!important;text-align:start!important;text-align-last:start!important}
 			select.code-select-language{height:40px;line-height:40px;font-size:14px;border:1px solid #5c5c5c;border-radius:5px;text-align:center;outline:0;margin-left:10px}
-			`
-        );
-        addStyle(
-          `
+			`);
+        addStyle(`
 			.reader-copy-button{background:#000;background-size:cover;background-repeat:no-repeat;background-position:0;color:#fff;line-height:40px;display:block;text-align:center;border-radius:5px;cursor:pointer;font-size:15px;width:70px;user-select:none}
 			.reader-copy-button i{display:inline-block;margin-right:6px;width:16px;height:16px;background-size:cover;vertical-align:sub;user-select:none}
-			`
-        );
+			`);
         domUtils.on(
           document,
           "click",
@@ -6705,19 +5999,14 @@
             domUtils.preventEvent(event);
             const codeElement = $($click.getAttribute("data-code-selector"));
             await utils.copy(codeElement.outerText || codeElement.innerText);
-            Qmsg.success("已复制到剪贴板");
+            qmsg.default.success("已复制到剪贴板");
             return false;
           },
-          {
-            overrideTarget: false,
-          }
+          { overrideTarget: false }
         );
       }
-      let comiis_blockcode = $$(".comiis_blockcode.comiis_bodybg");
-      comiis_blockcode.forEach(($comiis_bodybg) => {
-        if ($comiis_bodybg.getAttribute("data-copy")) {
-          return;
-        }
+      $$(".comiis_blockcode.comiis_bodybg").forEach(($comiis_bodybg) => {
+        if ($comiis_bodybg.getAttribute("data-copy")) return;
         $comiis_bodybg.setAttribute("data-copy", "true");
         let $temp = domUtils.createElement(
           "div",
@@ -6745,29 +6034,23 @@
 					复制
 					</span>`,
           },
-          {
-            style: "height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;",
-          }
+          { style: "height: 34px;margin: 14px 0px;display: inline-flex;align-items: flex-end;" }
         );
         domUtils.before($comiis_bodybg, $temp);
         function setElementHighlight(ele, language = "java") {
-          if (!ele.oldValue) {
-            ele.oldValue = ele.textContent;
-          }
-          ele.innerHTML = hljs.highlight(ele.oldValue, { language }).value.replace(/\\n$/gi, "");
+          if (!ele.oldValue) ele.oldValue = ele.textContent;
+          ele.innerHTML = highlight_js.default.highlight(ele.oldValue, { language }).value.replace(/\\n$/gi, "");
         }
-        let codeLanguage = hljs.highlightAuto($comiis_bodybg.textContent).language;
+        let codeLanguage = highlight_js.default.highlightAuto($comiis_bodybg.textContent).language;
         let selectElementParentDiv = document.createElement("div");
         let selectElement = document.createElement("select");
-        let selectLanguageList = hljs.listLanguages().sort();
+        let selectLanguageList = highlight_js.default.listLanguages().sort();
         selectLanguageList = selectLanguageList.concat("自动检测");
         let selectInnerHTML = "";
         selectLanguageList.forEach((languageName) => {
-          if (languageName.startsWith("自动检测")) {
+          if (languageName.startsWith("自动检测"))
             selectInnerHTML += `<option data-value="${codeLanguage}" selected="selected">${languageName}(${codeLanguage})</option>`;
-          } else {
-            selectInnerHTML += `<option data-value="${languageName}">${languageName}</option>`;
-          }
+          else selectInnerHTML += `<option data-value="${languageName}">${languageName}</option>`;
         });
         selectElement.className = "code-select-language";
         selectElement.innerHTML = selectInnerHTML;
@@ -6797,10 +6080,7 @@
         imgList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
-        let viewerULNode = domUtils.createElement("ul", {
-          innerHTML: viewerULNodeHTML,
-        });
-        let viewer = new Viewer(viewerULNode, {
+        let viewer = new viewerjs.default(domUtils.createElement("ul", { innerHTML: viewerULNodeHTML }), {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,
@@ -6842,23 +6122,18 @@
               let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
               let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
               let imgParentNode = $img.parentElement;
-              if (imgParentNode.nodeName.toLowerCase() === "span") {
-                imgParentNode.removeAttribute("onclick");
-              }
+              if (imgParentNode.nodeName.toLowerCase() === "span") imgParentNode.removeAttribute("onclick");
               if (imgParentNode.nodeName.toLowerCase() === "a" && imgParentNode.getAttribute("href") === IMG_URL) {
                 imgParentNode.setAttribute("href", "javascript:;");
                 imgParentNode.removeAttribute("target");
               }
               let isMatching = false;
-              for (let item2 of blackListNoViewIMG) {
-                if (IMG_URL_HOSTNAME.indexOf(item2["hostName"]) != -1 && IMG_URL_PATHNAME.match(item2["pathName"])) {
+              for (let item of blackListNoViewIMG)
+                if (IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 && IMG_URL_PATHNAME.match(item["pathName"])) {
                   isMatching = true;
                   break;
                 }
-              }
-              if (isMatching) {
-                return;
-              }
+              if (isMatching) return;
               clickShowIMGList = [...clickShowIMGList, IMG_URL];
               domUtils.on($img, "click", function () {
                 log.info("点击图片", $img);
@@ -6868,9 +6143,7 @@
                 viewIMG(clickShowIMGList, _index_);
               });
             });
-            if (clickShowIMGList.length) {
-              log.info("处理的图片", clickShowIMGList);
-            }
+            if (clickShowIMGList.length) log.info("处理的图片", clickShowIMGList);
           });
         });
     },
@@ -6881,9 +6154,7 @@
           let attachmentURL = $ele.getAttribute("href");
           let attachmentNameNode = $ele.querySelector("span.f_ok");
           let attachmentDownloadInfo = $ele.querySelector(".attach_size");
-          if (domUtils.text(attachmentDownloadInfo).indexOf("金币") === -1) {
-            return;
-          }
+          if (domUtils.text(attachmentDownloadInfo).indexOf("金币") === -1) return;
           log.info("发现附件", $ele);
           log.info("该附件是金币附件，拦截！");
           let attachmentName = domUtils.text(attachmentNameNode);
@@ -6909,9 +6180,7 @@
                   },
                 },
               },
-              mask: {
-                enable: true,
-              },
+              mask: { enable: true },
               width: "88vw",
               height: "200px",
             });
@@ -6927,7 +6196,10 @@
             handleClick(item);
           });
         },
-        config: { childList: true, subtree: true },
+        config: {
+          childList: true,
+          subtree: true,
+        },
       });
       domUtils.waitNodeList(".attnm a").then((nodeList) => {
         nodeList.forEach((item) => {
@@ -6941,10 +6213,9 @@
       });
     },
   };
-  const MTSearch = {
+  var MTSearch = {
     init() {
-      addStyle(
-        `
+      addStyle(`
 		/* 去除搜索框的蒙版 */
         #comiis_search_noe{
             display: none !important;
@@ -6953,9 +6224,8 @@
         #comiis_search_two{
             display: block !important;
         }
-        `
-      );
-      DOMUtils.onReady(() => {
+        `);
+      _whitesev_domutils.default.onReady(() => {
         Panel.execMenuOnce("mt-search-showSearchHistory", () => {
           this.showSearchHistory();
         });
@@ -6977,7 +6247,7 @@
           value: item,
           enableDeleteButton: true,
           deleteButtonClickCallback(event, $dataItem, dataItem, config) {
-            let findIndex = searchHistoryList.findIndex((item2) => item2 === dataItem.value);
+            let findIndex = searchHistoryList.findIndex((item) => item === dataItem.value);
             if (findIndex !== -1) {
               searchHistoryList.splice(findIndex, 1);
               _GM_setValue("search_history", searchHistoryList);
@@ -7006,14 +6276,13 @@
       suggestion.init();
       suggestion.setAllEvent();
       function search_event() {
-        let $submit2 = document.querySelector("#scform_submit");
-        DOMUtils.on($submit2, "click", function () {
+        let $submit = document.querySelector("#scform_submit");
+        _whitesev_domutils.default.on($submit, "click", function () {
           let searchText = $input.value;
           if (searchText != "") {
             let localHistorySearchText = _GM_getValue("search_history", []);
-            if (localHistorySearchText.includes(searchText)) {
-              log.info(`已有该搜索历史记录`);
-            } else {
+            if (localHistorySearchText.includes(searchText)) log.info(`已有该搜索历史记录`);
+            else {
               log.info(`无该记录，追加`);
               localHistorySearchText.push(searchText);
             }
@@ -7022,10 +6291,9 @@
         });
       }
       function add_clear_history() {
-        let localHistorySearchText = _GM_getValue("search_history", []);
         let clear_history_innerHTML =
           `<div class="comiis_p12 f14 bg_f f_c b_b cl" style="padding-bottom:10px">搜索记录个数: ` +
-          localHistorySearchText.length +
+          _GM_getValue("search_history", []).length +
           `<button class="btn_clear_search_history" style="
                     border: none;
                     float: right;
@@ -7036,10 +6304,10 @@
                     min-width: 20vw;
                     width: 20vw;
                 ">清理记录</button></div>`;
-        DOMUtils.before(document.querySelector(".comiis_p12"), clear_history_innerHTML);
+        _whitesev_domutils.default.before(document.querySelector(".comiis_p12"), clear_history_innerHTML);
         let $searchHistory = document.querySelector(".btn_clear_search_history");
-        DOMUtils.on($searchHistory, "click", (event) => {
-          DOMUtils.preventEvent(event);
+        _whitesev_domutils.default.on($searchHistory, "click", (event) => {
+          _whitesev_domutils.default.preventEvent(event);
           _GM_deleteValue("search_history");
           window.location.reload();
         });
@@ -7048,37 +6316,29 @@
       add_clear_history();
     },
     repairClearBtn() {
-      DOMUtils.waitNode("a.ssclose").then(($empty) => {
+      _whitesev_domutils.default.waitNode("a.ssclose").then(($empty) => {
         log.info(`修复清空按钮`);
-        DOMUtils.on(
+        _whitesev_domutils.default.on(
           $empty,
           "click",
           () => {
             let $input = document.querySelector("#scform_srchtxt");
-            if ($input) {
-              $input.value = "";
-            } else {
-              Qmsg.error("获取输入框失败");
-            }
+            if ($input) $input.value = "";
+            else qmsg.default.error("获取输入框失败");
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       });
     },
     searchInputAutoFocus() {
-      let searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.has("kw")) {
-        return;
-      }
-      DOMUtils.waitNode("#scform_srchtxt").then(($input) => {
+      if (new URLSearchParams(window.location.search).has("kw")) return;
+      _whitesev_domutils.default.waitNode("#scform_srchtxt").then(($input) => {
         log.info(`搜索框自动获取焦点`);
         $input.focus();
       });
     },
   };
-  const MTSign = {
+  var MTSign = {
     init() {
       domUtils.onReady(() => {
         Panel.execMenuOnce("mt-sign-showTodaySignStar", () => {
@@ -7093,50 +6353,31 @@
       log.info(`显示【今日签到之星】`);
       let todayStarParent = document.querySelector(".pg_k_misign .comiis_qdinfo");
       let todayStar = document.createElement("ul");
-      let response = await httpx.get("/k_misign-sign.html", {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-        },
-      });
-      if (!response.status) {
-        return;
-      }
-      let doc = domUtils.toElement(response.data.responseText, true, true);
-      let todatastarele = doc.querySelector("#pt span.xg1");
-      if (!todatastarele) {
-        return;
-      }
-      let todaypeople = domUtils.text(todatastarele).replace("今日签到之星：", "");
+      let response = await httpx.get("/k_misign-sign.html", { headers: { "User-Agent": utils.getRandomPCUA() } });
+      if (!response.status) return;
+      let todatastarele = domUtils.toElement(response.data.responseText, true, true).querySelector("#pt span.xg1");
+      if (!todatastarele) return;
       todayStar.innerHTML = `
 		<li class="f_f" style="display: flex;flex-direction: column;width: 100%;">
 			<span class="comiis_tm">今日签到之星</span>
-			${todaypeople}
+			${domUtils.text(todatastarele).replace("今日签到之星：", "")}
 		</li>
 		`;
       let $comiisSpaceBox = document.querySelector(".comiis_space_box");
-      let comiis_space_box_height = parseInt(getComputedStyle($comiisSpaceBox, null)["height"].replace("px", ""));
-      let comiis_space_box_padding_bottom = parseInt(
-        getComputedStyle($comiisSpaceBox, null)["paddingBottom"].replace("px", "")
-      );
-      let total_height = comiis_space_box_height + comiis_space_box_padding_bottom + 50;
-      addStyle(
-        `
+      addStyle(`
 		.comiis_space_box{
-			height: ${total_height}px;
+			height: ${parseInt(getComputedStyle($comiisSpaceBox, null)["height"].replace("px", "")) + parseInt(getComputedStyle($comiisSpaceBox, null)["paddingBottom"].replace("px", "")) + 50}px;
 			background-size: 100% 100%;
 		}
 		.pg_k_misign .comiis_qdinfo{
 			height: 110px !important;
-		}`
-      );
+		}`);
       todayStarParent.append(todayStar);
     },
     showTodayRanking() {
       log.info(`显示【今日最先】`);
       let today_ranking_ele = document.querySelector(".comiis_topnv .comiis_flex .flex");
-      let $li = domUtils.createElement("li", {
-        className: "flex",
-      });
+      let $li = domUtils.createElement("li", { className: "flex" });
       let $todayLatest = domUtils.createElement(
         "a",
         {
@@ -7144,51 +6385,37 @@
           href: "javascript:;",
           innerHTML: "今日最先",
         },
-        {
-          onclick: "ajaxlist('todayLatest');",
-        }
+        { onclick: "ajaxlist('todayLatest');" }
       );
       $li.appendChild($todayLatest);
       domUtils.after(today_ranking_ele, $li);
-      let getMaxPage = async (urlextra2) => {
-        let response = await httpx.get(`/k_misign-sign.html?operation=${urlextra2}`, {
+      let getMaxPage = async (urlextra) => {
+        let response = await httpx.get(`/k_misign-sign.html?operation=${urlextra}`, {
           responseType: "html",
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-          },
+          headers: { "User-Agent": utils.getRandomPCUA() },
         });
-        if (!response.status) {
-          return;
-        }
-        let doc = domUtils.toElement(response.data.responseText, true, true);
-        let last_page = doc.querySelector("#J_list_detail .pg span");
+        if (!response.status) return;
+        let last_page = domUtils
+          .toElement(response.data.responseText, true, true)
+          .querySelector("#J_list_detail .pg span");
         if (last_page && typeof last_page.title != "undefined") {
           let last_page_match = last_page.title.match(/([0-9]+)/);
-          if (last_page_match && last_page_match.length == 2) {
+          if (last_page_match && last_page_match.length == 2)
             return parseInt(last_page_match[last_page_match.length - 1]);
-          } else {
-            Qmsg.error("获取页失败");
-          }
-        } else {
-          Qmsg.error("请求最先签到的页失败");
-        }
+          else qmsg.default.error("获取页失败");
+        } else qmsg.default.error("请求最先签到的页失败");
       };
       let getPagePeople = async (page) => {
         let response = await httpx.get(`/k_misign-sign.html?operation=list&op=&page=${page}`, {
           responseType: "html",
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-          },
+          headers: { "User-Agent": utils.getRandomPCUA() },
         });
-        if (!response.status) {
-          return;
-        }
-        let doc = domUtils.toElement(response.data.responseText, true, true);
-        let peoples = doc.querySelectorAll("#J_list_detail tbody tr");
+        if (!response.status) return;
+        let peoples = domUtils
+          .toElement(response.data.responseText, true, true)
+          .querySelectorAll("#J_list_detail tbody tr");
         let ret_array = [];
-        if (peoples.length == 2 && peoples[0].textContent.indexOf("暂无内容") != -1) {
-          return ret_array;
-        }
+        if (peoples.length == 2 && peoples[0].textContent.indexOf("暂无内容") != -1) return ret_array;
         for (let index = 1; index <= peoples.length - 2; index++) {
           let people = peoples[index];
           let ret_json = {
@@ -7201,8 +6428,7 @@
             reward: "",
           };
           let user_name = people.children[0].getElementsByTagName("a")[0].textContent;
-          let space_url = people.children[0].getElementsByTagName("a")[0].href;
-          let uid = space_url.match(/space-uid-([0-9]*)/)[1];
+          let uid = people.children[0].getElementsByTagName("a")[0].href.match(/space-uid-([0-9]*)/)[1];
           let sign_all_days = people.children[1].textContent;
           let sign_month_days = people.children[2].textContent;
           let sign_time = people.children[3].textContent;
@@ -7245,9 +6471,7 @@
           loadingdelay = false;
           urlextra = "list&op=&page=0";
           let maxPage = await getMaxPage(urlextra);
-          if (!maxPage) {
-            return;
-          }
+          if (!maxPage) return;
           let latestPeople = await getPagePeople(maxPage);
           latestPeople.reverse();
           if (latestPeople.length < 10) {
@@ -7281,7 +6505,8 @@
 							</tr>
 			  			</tbody>`;
           });
-          let latestHTML = `
+          changeRankList(
+            `
 					<li class="styli_h bg_e"></li>
 					<div class="comiis_topnv bg_f b_t b_b">
 						<ul class="comiis_flex">
@@ -7299,9 +6524,10 @@
 							${peopleHTML}
 							</table>
 						</div>
-					</div>`;
-          changeRankList(latestHTML, listtype);
-        } else {
+					</div>`,
+            listtype
+          );
+        } else
           httpx
             .get(`plugin.php?id=k_misign:sign&operation=${urlextra}`, {
               responseType: "html",
@@ -7316,7 +6542,7 @@
 								<a href="javascript:;" id="k_misignlist_today_latest" onclick="ajaxlist('todayLatest');" class="f_c">今日最先</a>
 							</li>`
               );
-              if (listtype == "today") {
+              if (listtype == "today")
                 data = data.replace(
                   `<li class="flex"><a href="javascript:;" id="k_misignlist_today" onclick="ajaxlist('today');">今日排行</a></li>`,
                   `
@@ -7326,14 +6552,12 @@
 								</li>
 								`
                 );
-              }
               changeRankList(data, listtype);
             });
-        }
       };
     },
   };
-  const MTSpace = {
+  var MTSpace = {
     init() {
       Panel.execMenuOnce("mt-space-repairEnterSpace", () => {
         this.repairEnterSpace();
@@ -7349,10 +6573,12 @@
       if (MTRouter.isSpace()) {
         let hrefParamsMatchArray = window.location.href.match(/home.php\?(.+)/gi);
         let href_params = hrefParamsMatchArray[hrefParamsMatchArray.length - 1];
-        let params_split = href_params.split("&");
-        if (params_split.length == 2 && href_params.indexOf("uid=") != -1 && href_params.indexOf("mod=space") != -1) {
+        if (
+          href_params.split("&").length == 2 &&
+          href_params.indexOf("uid=") != -1 &&
+          href_params.indexOf("mod=space") != -1
+        )
           window.location.href = window.location.href + "&do=profile";
-        }
       } else if (MTRouter.isSpaceWithAt()) {
         let hrefParamsMatchArray = window.location.href.match(/space-uid-(.+).html/i);
         let href_params = hrefParamsMatchArray[hrefParamsMatchArray.length - 1];
@@ -7361,21 +6587,13 @@
     },
     async showCommentContent() {
       log.info(`显示帖子回复内容`);
-      addStyle(
-        `
+      addStyle(`
 		div.contrete-reply{padding:5px 10px;border-top:1px solid #f3f3f3}
 		div.contrete-reply a{margin:0 10px}
-		`
-      );
+		`);
       async function getPCReply() {
-        let response = await httpx.get(window.location.href, {
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-          },
-        });
-        if (!response.status) {
-          return;
-        }
+        let response = await httpx.get(window.location.href, { headers: { "User-Agent": utils.getRandomPCUA() } });
+        if (!response.status) return;
         let doc = domUtils.toElement(response.data.responseText, true, true);
         let resultList = [];
         doc.querySelectorAll("#delform tr.bw0_all+tr").forEach((item) => {
@@ -7386,9 +6604,7 @@
           let nextHTML = domUtils.next(item);
           let $tr = doc.querySelectorAll("#delform tr");
           for (let index = 0; index < $tr.length; index++) {
-            if (!nextHTML || domUtils.attr(nextHTML, "class") === "bw0_all") {
-              break;
-            }
+            if (!nextHTML || domUtils.attr(nextHTML, "class") === "bw0_all") break;
             let nextTdHTML = nextHTML.querySelector("td");
             let nextValue = domUtils.html(nextTdHTML).replace(/^&nbsp;/, "");
             replyData = replyData.concat(nextValue);
@@ -7408,67 +6624,53 @@
       function formatPCReply(dataList) {
         let resultJSON = {};
         dataList.forEach((item) => {
-          let divItem = domUtils.createElement("div", {
-            innerHTML: item,
-          });
-          let url = divItem.querySelector("a")?.getAttribute("href");
+          let url = domUtils.createElement("div", { innerHTML: item }).querySelector("a")?.getAttribute("href");
           let paramPtidMatch = url.match(MTRegExp.ptid);
           let paramPidMatch = url.match(MTRegExp.pid);
           if (!paramPtidMatch) {
-            Qmsg.error("获取ptid失败");
+            qmsg.default.error("获取ptid失败");
             return;
           }
           if (!paramPidMatch) {
-            Qmsg.error("获取pid失败");
+            qmsg.default.error("获取pid失败");
             return;
           }
           let paramPtid = paramPtidMatch[paramPtidMatch.length - 1];
           let paramPid = paramPidMatch[paramPidMatch.length - 1];
-          if (resultJSON[paramPtid]) {
-            resultJSON[paramPtid]["data"].push(item);
-          } else {
+          if (resultJSON[paramPtid]) resultJSON[paramPtid]["data"].push(item);
+          else
             resultJSON[paramPtid] = {
               ptid: paramPtid,
               pid: paramPid,
               data: [item],
             };
-          }
         });
         return resultJSON;
       }
       var pcReplyArray = await getPCReply();
-      if (pcReplyArray == null) {
-        return;
-      }
+      if (pcReplyArray == null) return;
       var pcReplyJSON = formatPCReply(pcReplyArray);
-      let forumList = getForumList();
-      forumList.forEach((forumListItem, forumListItemIndex) => {
-        let praiseNode = forumListItem.querySelector(".comiis_xznalist_bottom a");
-        let forumTid = praiseNode.getAttribute("tid");
+      getForumList().forEach((forumListItem, forumListItemIndex) => {
+        let forumTid = forumListItem.querySelector(".comiis_xznalist_bottom a").getAttribute("tid");
         if (!forumTid) {
-          Qmsg.error("获取帖子tid失败");
+          qmsg.default.error("获取帖子tid失败");
           log.error(forumListItem);
           return;
         }
-        if (!pcReplyJSON[forumTid]) {
-          return;
-        }
+        if (!pcReplyJSON[forumTid]) return;
         pcReplyJSON[forumTid]["data"].forEach((forumListReplyHTMLItem) => {
           domUtils.append(forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
         });
       });
     },
   };
-  const MTPaidThemePost = {
-    $key: {
-      tipData: "tipToFreeSubjectForumPost",
-    },
+  var MTPaidThemePost = {
+    $key: { tipData: "tipToFreeSubjectForumPost" },
     init() {
       this.registerMenu();
       let setTipForumPostList = this.getTipData();
       if (MTRouter.isPost()) {
-        let $kmren = document.querySelector("span.kmren");
-        if ($kmren) {
+        if (document.querySelector("span.kmren")) {
           log.info("当前帖子存在需要购买主题");
           let isAddTip = false;
           let $tipBtn;
@@ -7506,10 +6708,8 @@
                       if (findIndex !== -1) {
                         setTipForumPostList.splice(findIndex, 1);
                         MTPaidThemePost.setTipData(setTipForumPostList);
-                        Qmsg.success("移除成功");
-                      } else {
-                        Qmsg.error("移除失败");
-                      }
+                        qmsg.default.success("移除成功");
+                      } else qmsg.default.error("移除失败");
                     },
                   },
                 },
@@ -7534,7 +6734,7 @@
                 .replace(/\t|\n/g, "")
                 .match(/[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}[\s]{1}[0-9]{1,2}:[0-9]{1,2}/);
               if (!expirationTimeMatch || expirationTimeMatch.length == 0) {
-                Qmsg.error("获取付费主题到期时间失败");
+                qmsg.default.error("获取付费主题到期时间失败");
                 return;
               }
               let expirationTime = expirationTimeMatch[0];
@@ -7547,7 +6747,7 @@
                 isVisited: false,
               });
               _GM_setValue("tipToFreeSubjectForumPost", setTipForumPostList);
-              Qmsg.success("添加成功");
+              qmsg.default.success("添加成功");
               setTimeout(function () {
                 window.location.reload();
               }, 1500);
@@ -7560,25 +6760,19 @@
       function getTipNums() {
         let needTipNums = 0;
         Array.from(MTPaidThemePost.getTipData()).forEach((item, index) => {
-          if (new Date().getTime() > item["expirationTimeStamp"] && item["isVisited"] == false) {
-            needTipNums += 1;
-          }
+          if (new Date().getTime() > item["expirationTimeStamp"] && item["isVisited"] == false) needTipNums += 1;
         });
         return needTipNums;
       }
       if (MTRouter.isMySpace() || MTRouter.isGuide() || MTRouter.isForumList() || MTRouter.isPlate()) {
-        let redBtn2 = document.querySelector(".icon_msgs.bg_del.f_f");
-        let tipNums2 = 0;
-        if (redBtn2) {
-          tipNums2 = parseInt(domUtils.text(redBtn2));
-          domUtils.html(redBtn2, (tipNums2 + getTipNums()).toString());
+        let redBtn = document.querySelector(".icon_msgs.bg_del.f_f");
+        let tipNums = 0;
+        if (redBtn) {
+          tipNums = parseInt(domUtils.text(redBtn));
+          domUtils.html(redBtn, (tipNums + getTipNums()).toString());
           domUtils.append(".comiis_head .header_z .kmuser em", `<span class="icon_msgs bg_del"></span>`);
-        } else {
-          let tipnums = getTipNums();
-          if (tipnums) {
-            domUtils.append(".comiis_head .header_z .kmuser em", `<span class="icon_msgs bg_del"></span>`);
-          }
-        }
+        } else if (getTipNums())
+          domUtils.append(".comiis_head .header_z .kmuser em", `<span class="icon_msgs bg_del"></span>`);
       }
       let redBtn = document.querySelector(".sidenv_num.bg_del.f_f");
       let tipNums = 0;
@@ -7587,11 +6781,9 @@
         domUtils.html(".sidenv_num.bg_del.f_f", (tipNums + getTipNums()).toString());
       } else {
         let tipnums = getTipNums();
-        if (tipnums) {
-          domUtils.before(".sidenv_user em", `<span class="sidenv_num bg_del f_f">${tipnums}</span>`);
-        }
+        if (tipnums) domUtils.before(".sidenv_user em", `<span class="sidenv_num bg_del f_f">${tipnums}</span>`);
       }
-      if (getTipNums()) {
+      if (getTipNums())
         domUtils.append(
           ".comiis_left_Touch .paymentsubjectreminder div.flex",
           `
@@ -7605,7 +6797,6 @@
                     bottom: 8px;
                 "></span>`
         );
-      }
     },
     registerMenu() {
       ElementUtils.registerLeftMenu({
@@ -7650,8 +6841,8 @@
         let leftRedBtn = "";
         if (new Date().getTime() > item["expirationTimeStamp"]) {
           timeColor = "#1e90ff";
-          if (item["isVisited"]);
-          else {
+          if (item["isVisited"]) {
+          } else {
             leftRedBtn = `
                         <span class="icon_msgs bg_del" style="position: fixed;width: 10px;height: 10px;border-radius: 50%;margin: 10px 0px 0px -15px;"></span>
                     `;
@@ -7679,15 +6870,10 @@
                 </tbody>`,
           timestamp: item["expirationTimeStamp"],
         };
-        if (new Date().getTime() > item["expirationTimeStamp"]) {
-          if (leftRedBtn != "") {
-            isFreeNotVisitedContentList.push(contentInfo);
-          } else {
-            isFreeContentList.push(contentInfo);
-          }
-        } else {
-          isPaidContentList.push(contentInfo);
-        }
+        if (new Date().getTime() > item["expirationTimeStamp"])
+          if (leftRedBtn != "") isFreeNotVisitedContentList.push(contentInfo);
+          else isFreeContentList.push(contentInfo);
+        else isPaidContentList.push(contentInfo);
       });
       log.info("可白嫖但未访问：", isFreeNotVisitedContentList);
       log.info("可白嫖：", isFreeContentList);
@@ -7702,7 +6888,7 @@
         utils.mergeArrayToString(isFreeNotVisitedContentList, "content") +
         utils.mergeArrayToString(isFreeContentList, "content");
       isPaidContent = utils.mergeArrayToString(isPaidContentList, "content");
-      if (notVisitedNums > 0) {
+      if (notVisitedNums > 0)
         notVisitedTipContent = `
             <span class="icon_msgs bg_del f_f" style="
                 display: inline-block;
@@ -7715,7 +6901,6 @@
                 text-align: center;
                 margin: 3px 0px 0px 10px;
             ">${notVisitedNums}</span>`;
-      }
       let dialogIsFreeContent = `
             <details class="subjectcanvisit" open="">
                 <summary>可白嫖${notVisitedTipContent}</summary>
@@ -7777,9 +6962,7 @@
           MTPaidThemePost.setTipData(data);
           window.open(tHref, "_blank");
           $click.setAttribute("style", "color: #000000;");
-          if ($click?.parentElement?.parentElement?.children[0].className != "icon_msgs bg_del") {
-            return;
-          }
+          if ($click?.parentElement?.parentElement?.children[0].className != "icon_msgs bg_del") return;
           $click.parentElement.parentElement.children[0].remove();
           domUtils.append(
             $paymentSubjectReminderIsFreeList,
@@ -7787,16 +6970,11 @@
           );
           const $del = document.querySelector(".subjectcanvisit summary span.icon_msgs.bg_del.f_f");
           const notVisitedNumsStr = domUtils.text($del);
-          const notVisitedNums2 = parseInt(notVisitedNumsStr) - 1;
-          if (notVisitedNums2 > 0) {
-            domUtils.html($del, notVisitedNums2.toString());
-          } else {
-            $del.remove();
-          }
+          const notVisitedNums = parseInt(notVisitedNumsStr) - 1;
+          if (notVisitedNums > 0) domUtils.html($del, notVisitedNums.toString());
+          else $del.remove();
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
       const $paymentSubjectReminderIsPaidList = document.querySelector("paymentSubjectReminderIsPaidList");
       domUtils.on(
@@ -7810,9 +6988,7 @@
           window.open(t_href, "_blank");
           $click.setAttribute("style", "color: #000000;");
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
     },
     getTipData() {
@@ -7822,7 +6998,7 @@
       _GM_setValue(this.$key.tipData, data);
     },
   };
-  class GestureBack {
+  var GestureBack = class {
     isBacking = false;
     config;
     constructor(config) {
@@ -7830,48 +7006,37 @@
       this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
       this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
       this.popStateEvent = this.popStateEvent.bind(this);
-      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime))
         this.config.backDelayTime = 150;
-      }
-      if (this.config.win == null) {
-        this.config.win = self;
-      }
+      if (this.config.win == null) this.config.win = self;
     }
     popStateEvent(event) {
       domUtils.preventEvent(event);
-      if (this.isBacking) {
-        return;
-      }
+      if (this.isBacking) return;
       this.quitGestureBackMode(true);
     }
     enterGestureBackMode() {
       log.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
-        if (!pushUrl.startsWith("/")) {
-          pushUrl = "/" + pushUrl;
-        }
+        if (!pushUrl.startsWith("/")) pushUrl = "/" + pushUrl;
         pushUrl = "#" + pushUrl;
       }
-      if (this.config.useUrl) {
+      if (this.config.useUrl)
         pushUrl =
           this.config.win.location.origin +
           this.config.win.location.pathname +
           this.config.win.location.search +
           pushUrl;
-      }
       this.config.win.history.pushState({}, "", pushUrl);
       log.success("监听popstate事件");
-      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
+      domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
     }
     async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log.success("退出手势模式");
-      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+      if (typeof this.config.beforeHistoryBackCallBack === "function")
         this.config.beforeHistoryBackCallBack(isUrlChange);
-      }
       let maxDate = Date.now() + 1e3 * 5;
       while (true) {
         if (Date.now() > maxDate) {
@@ -7881,24 +7046,18 @@
         if (this.config.win.location.hash.endsWith(this.config.hash)) {
           log.info("history.back()");
           this.config.win.history.back();
-          await Utils.sleep(this.config.backDelayTime || 150);
-        } else {
-          break;
-        }
+          await _whitesev_utils.default.sleep(this.config.backDelayTime || 150);
+        } else break;
       }
       log.success("移除popstate事件");
-      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
+      domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
       this.isBacking = false;
-      if (typeof this.config.afterHistoryBackCallBack === "function") {
-        this.config.afterHistoryBackCallBack(isUrlChange);
-      }
+      if (typeof this.config.afterHistoryBackCallBack === "function") this.config.afterHistoryBackCallBack(isUrlChange);
     }
-  }
-  const smallWindowCSS =
+  };
+  var small_window_default =
     ".pops {\n  --icon-width: 24px;\n  --right-btn-width: 115px;\n}\n\n.small-window-drag {\n  width: 100%;\n  position: relative;\n  height: 10px;\n}\n.small-window-drag div {\n  width: 50px;\n  margin: 0 auto;\n  height: 4px;\n  background: #d9d9d9;\n  border-radius: 15px;\n  bottom: 3px;\n  position: relative;\n}\n\n.pops[type-value] .pops-drawer-title {\n  display: block;\n  background: #fff;\n  width: 100%;\n  box-sizing: border-box;\n  padding: 16px 0px;\n  border-bottom: 1px solid #d6d6d6;\n}\n\n.small-window-title-container {\n  display: flex;\n  justify-content: space-between;\n  padding: 0px 16px;\n}\n.small-window-website-icon {\n  width: var(--icon-width);\n  height: var(--icon-width);\n  align-self: center;\n  border-radius: 3px;\n}\n.small-window-title-text-container {\n  margin-right: auto;\n  max-width: calc(100% - var(--icon-width) - var(--right-btn-width));\n  display: flex;\n  flex-direction: column;\n  gap: 4px;\n  padding: 0px 16px;\n}\n.small-window-title-text,\n.small-window-website-host {\n  min-width: 150px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.xtiper_sheet_tit.xtiper_sheet_left {\n  display: block;\n  background: #fff;\n  width: 100%;\n  box-sizing: border-box;\n}\n.small-window-protocol-info {\n  display: flex;\n  align-items: center;\n}\n.small-window-control {\n  display: flex;\n  align-items: center;\n  align-content: center;\n  width: var(--right-btn-width);\n  justify-content: center;\n  gap: 12px;\n}\n.small-window-control-image-view,\n.small-window-control-open-blank,\n.small-window-control-close {\n  width: 2rem;\n  height: 2rem;\n  text-align: center;\n  margin: 0 0;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.refresh-icon {\n  width: 40px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0px 16px;\n}\n.refresh-icon-in,\n.refresh-icon-out {\n  position: absolute;\n  border: 5px solid rgba(0, 183, 229, 0.9);\n  opacity: 0.9;\n  border-radius: 50px;\n  box-shadow: 0 0 15px #2187e7;\n  width: 20px;\n  height: 20px;\n  margin: 0 auto;\n}\n.refresh-icon-out {\n  background-color: rgba(0, 0, 0, 0);\n  border-right: 5px solid transparent;\n  border-left: 5px solid transparent;\n  -moz-animation: spinPulse 1s infinite ease-in-out;\n  -webkit-animation: spinPulse 1s infinite ease-in-out;\n  -o-animation: spinPulse 1s infinite ease-in-out;\n  -ms-animation: spinPulse 1s infinite ease-in-out;\n}\n.refresh-icon-in {\n  background: rgba(0, 0, 0, 0) no-repeat center center;\n  border-top: 5px solid transparent;\n  border-bottom: 5px solid transparent;\n  -moz-animation: spinoffPulse 3s infinite linear;\n  -webkit-animation: spinoffPulse 3s infinite linear;\n  -o-animation: spinoffPulse 3s infinite linear;\n  -ms-animation: spinoffPulse 3s infinite linear;\n}\n@-moz-keyframes spinPulse {\n  0% {\n    -moz-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -moz-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -moz-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-moz-keyframes spinoffPulse {\n  0% {\n    -moz-transform: rotate(0);\n  }\n  100% {\n    -moz-transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes spinPulse {\n  0% {\n    -webkit-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -webkit-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -webkit-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-webkit-keyframes spinoffPulse {\n  0% {\n    -webkit-transform: rotate(0);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n  }\n}\n@-o-keyframes spinPulse {\n  0% {\n    -o-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -o-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -o-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-o-keyframes spinoffPulse {\n  0% {\n    -o-transform: rotate(0);\n  }\n  100% {\n    -o-transform: rotate(360deg);\n  }\n}\n@-ms-keyframes spinPulse {\n  0% {\n    -ms-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -ms-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -ms-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-ms-keyframes spinoffPulse {\n  0% {\n    -ms-transform: rotate(0);\n  }\n  100% {\n    -ms-transform: rotate(360deg);\n  }\n}\n@-moz-keyframes spinPulse {\n  0% {\n    -moz-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -moz-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -moz-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-moz-keyframes spinoffPulse {\n  0% {\n    -moz-transform: rotate(0);\n  }\n  100% {\n    -moz-transform: rotate(360deg);\n  }\n}\n@-webkit-keyframes spinPulse {\n  0% {\n    -webkit-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -webkit-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -webkit-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-webkit-keyframes spinoffPulse {\n  0% {\n    -webkit-transform: rotate(0);\n  }\n  100% {\n    -webkit-transform: rotate(360deg);\n  }\n}\n@-o-keyframes spinPulse {\n  0% {\n    -o-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -o-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -o-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-o-keyframes spinoffPulse {\n  0% {\n    -o-transform: rotate(0);\n  }\n  100% {\n    -o-transform: rotate(360deg);\n  }\n}\n@-ms-keyframes spinPulse {\n  0% {\n    -ms-transform: rotate(160deg);\n    opacity: 0;\n    box-shadow: 0 0 1px #505050;\n  }\n  50% {\n    -ms-transform: rotate(145deg);\n    opacity: 1;\n  }\n  100% {\n    -ms-transform: rotate(-320deg);\n    opacity: 0;\n  }\n}\n@-ms-keyframes spinoffPulse {\n  0% {\n    -ms-transform: rotate(0);\n  }\n  100% {\n    -ms-transform: rotate(360deg);\n  }\n}\n";
-  const MTSmallWindowIcon = {
+  var MTSmallWindowIcon = {
     https: `
 		<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="12" height="12" style="margin: 0px 6px 0px 2px;">
 			<path fill="#000000" d="M842.666667 384h-74.666667V277.333333a234.666667 234.666667 0 1 0-469.333333 0v106.666667H224a53.393333 53.393333 0 0 0-53.333333 53.333333v490.666667a53.393333 53.393333 0 0 0 53.333333 53.333333h618.666667a53.393333 53.393333 0 0 0 53.333333-53.333333V437.333333a53.393333 53.393333 0 0 0-53.333333-53.333333zM341.333333 277.333333c0-105.866667 86.133333-192 192-192s192 86.133333 192 192v106.666667H341.333333z"></path>
@@ -7925,10 +7084,8 @@
 			<path d="M979.622067 257.689317c22.828607 10.592474 32.873194 37.804173 22.280721 60.63278l-166.009631 359.778848c-10.592474 22.828607-37.804173 32.873194-60.63278 22.280721l-292.3888-134.780097c-22.828607-10.592474-32.873194-37.804173-22.280721-60.63278l166.009631-359.778848c10.592474-22.828607 37.804173-32.873194 60.632781-22.28072l292.388799 134.780096z" fill="#FFBA02" p-id="1715"></path><path d="M658.743166 46.205101v467.529873c0 25.202782-20.637061 45.657214-45.657214 45.657214H145.556078c-25.202782 0-45.657214-20.637061-45.657214-45.657214v-467.529873c0-25.202782 20.637061-45.657214 45.657214-45.657214h467.529874c25.202782 0 45.657214 20.454432 45.657214 45.657214z" fill="#E2E0E2" p-id="1716"></path><path d="M204.910457 236.50437a177.149991 175.871589 0 1 0 354.299982 0 177.149991 175.871589 0 1 0-354.299982 0Z" fill="#3D82FF" p-id="1717"></path><path d="M245.636692 42.369895a9.861958 9.679329 0 1 0 19.723916 0 9.861958 9.679329 0 1 0-19.723916 0Z" fill="#3D82FF" p-id="1718"></path><path d="M501.864978 43.10041a10.409845 10.409845 0 1 0 20.81969 0 10.409845 10.409845 0 1 0-20.81969 0Z" fill="#3D82FF" p-id="1719"></path><path d="M454.774127 104.071054l48.495267-66.347237 16.807334 12.285443-48.495267 66.347237zM248.102182 48.730858l15.77548-11.220717 50.279551 70.691978-15.775481 11.21889zM204.910457 231.390762h354.299982v193.586588h-354.299982z" fill="#3D82FF" p-id="1720"></path><path d="M280.701432 171.853754a26.115927 25.202782 0 1 0 52.231854 0 26.115927 25.202782 0 1 0-52.231854 0Z" fill="#FFFFFF" p-id="1721"></path><path d="M434.109672 171.671125a25.385411 25.202782 0 1 0 50.770822 0 25.385411 25.202782 0 1 0-50.770822 0Z" fill="#FFFFFF" p-id="1722"></path><path d="M394.844468 1023.817371H50.589073c-25.202782 0-45.657214-20.637061-45.657214-45.657214v-686.684502c0-25.202782 20.637061-45.657214 45.657214-45.657214h344.255395c25.202782 0 45.657214 20.637061 45.657214 45.657214v686.684502c0 25.202782-20.454432 45.657214-45.657214 45.657214z" fill="#303030" p-id="1723"></path><path d="M973.230057 342.976993H50.589073c-25.202782 0-45.657214 20.637061-45.657214 45.657214v589.708579c0 25.202782 20.637061 45.657214 45.657214 45.657214h922.640984c25.202782 0 45.657214-20.637061 45.657215-45.657214V388.634207c0-25.202782-20.637061-45.657214-45.657215-45.657214z" fill="#303030" p-id="1724"></path><path d="M392.287664 488.89745L295.311741 394.843588c-18.080257-17.53237-18.445515-46.570358-1.095773-64.650615l68.303192-70.677368c17.53237-18.080257 46.570358-18.445515 64.650616-1.095773l97.158551 94.053862c18.080257 17.53237 18.445515 46.570358 1.095774 64.650615l-68.303193 70.677367c-17.714999 18.080257-46.752987 18.628143-64.833244 1.095774z" fill="#303030" p-id="1725"></path><path d="M266.273753 628.060638v-13.331906l-54.240771-77.434635v316.495808c0 7.305154-2.556804 13.514535-7.670412 18.628144-5.113608 5.113608-11.322989 7.670412-18.628143 7.670412-7.305154 0-13.514535-2.556804-18.628143-7.853041-5.113608-5.113608-7.670412-11.322989-7.670412-18.445515V465.155698h67.755305l64.467987 94.053861 66.476904-94.053861H424.978229v388.634207c0 7.305154-2.739433 13.514535-8.035669 18.628144-5.296237 5.113608-11.688247 7.670412-18.810773 7.670412-7.122525 0-13.149278-2.556804-18.445514-7.853041-5.113608-5.113608-7.853041-11.322989-7.853041-18.445515V538.572499l-53.144997 74.877831v14.610308c0 7.122525-2.556804 13.149278-7.853041 18.445515-5.113608 5.113608-11.322989 7.853041-18.445515 7.853041-7.305154 0-13.514535-2.556804-18.628143-7.853041-4.930979-5.296237-7.487783-11.322989-7.487783-18.445515z" fill="#FFFFFF" p-id="1726"></path><path d="M600.301932 536.563581V465.703585h264.811842v71.407883c0 7.305154-2.556804 13.514535-7.853041 18.628143-5.113608 5.113608-11.322989 7.670412-18.445514 7.670412-7.305154 0-13.514535-2.556804-18.810772-7.853041-5.296237-5.113608-8.03567-11.322989-8.03567-18.445514v-18.993401h-53.144997v335.48921c0 7.305154-2.556804 13.514535-7.853041 18.628143-5.113608 5.113608-11.322989 7.670412-18.445515 7.670412-7.487783 0-13.879793-2.556804-18.993401-7.670412-5.113608-5.113608-7.853041-11.322989-7.853041-18.628143V518.300696h-53.144997v18.445514c0 7.305154-2.556804 13.514535-7.670412 18.628143-5.113608 5.113608-11.322989 7.670412-18.628143 7.670412-7.305154 0-13.514535-2.556804-18.628144-7.670412-4.74835-5.296237-7.305154-11.505618-7.305154-18.810772z" fill="#FFFFFF"></path>
 		</svg>`,
   };
-  const MTSmallWindow = {
-    $key: {
-      smallWindow: "smallWindow",
-    },
+  var MTSmallWindow = {
+    $key: { smallWindow: "smallWindow" },
     $el: {
       $refreshIcon: null,
       $webSiteIcon: null,
@@ -7936,15 +7093,16 @@
     init() {
       let lockFn = new utils.LockFunction(() => {
         let forumlist = this.getForumList();
-        if (forumlist.length) {
-          this.handleForumPost(forumlist);
-        }
+        if (forumlist.length) this.handleForumPost(forumlist);
       });
       utils.mutationObserver(document.documentElement, {
         callback: (mutations, observer) => {
           lockFn.run();
         },
-        config: { subtree: true, childList: true },
+        config: {
+          subtree: true,
+          childList: true,
+        },
       });
     },
     getForumList() {
@@ -8013,28 +7171,20 @@
         },
         mask: {
           enable: true,
-          clickEvent: {
-            toClose: true,
-          },
+          clickEvent: { toClose: true },
           clickCallBack(originalRun, config) {
             getureBack.quitGestureBackMode();
           },
         },
         btn: {
-          ok: {
-            enable: false,
-          },
-          cancel: {
-            enable: false,
-          },
-          close: {
-            enable: false,
-          },
+          ok: { enable: false },
+          cancel: { enable: false },
+          close: { enable: false },
         },
         direction: "bottom",
         size: "92%",
         borderRadius: 18,
-        style: smallWindowCSS,
+        style: small_window_default,
       });
       let $webSiteIcon = $drawer.$shadowRoot.querySelector(".small-window-website-icon");
       let $refreshIcon = $drawer.$shadowRoot.querySelector(".refresh-icon");
@@ -8046,8 +7196,7 @@
       this.$el.$webSiteIcon = $webSiteIcon;
       let $iframe = $drawer.$shadowRoot.querySelector("iframe");
       let $drag = $drawer.$shadowRoot.querySelector(".small-window-drag");
-      let AnyTouch2 = __pops__.fn.Utils.AnyTouch();
-      let dragNode = new AnyTouch2($drag);
+      let dragNode = new (__pops__.fn.Utils.AnyTouch())($drag);
       let smallWidowNode = $drawer.$pops;
       let smallWidowNormalHeight = domUtils.height(smallWidowNode);
       dragNode.on("pan", (event) => {
@@ -8057,11 +7206,9 @@
         }
         if (event.isEnd) {
           smallWidowNode.style["transition"] = "0.2s ease-in";
-          if (parseInt(smallWidowNode.style["height"]) > window.innerHeight / 2) {
+          if (parseInt(smallWidowNode.style["height"]) > window.innerHeight / 2)
             smallWidowNode.style["height"] = smallWidowNormalHeight + "px";
-          } else {
-            $drawer.close();
-          }
+          else $drawer.close();
         }
       });
       let getureBack = new GestureBack({
@@ -8076,7 +7223,7 @@
       domUtils.on($titleText, "click", (event) => {
         domUtils.preventEvent(event);
         utils.copy(`『${title}』 - ${url}`);
-        Qmsg.success("已复制链接");
+        qmsg.default.success("已复制链接");
       });
       domUtils.on($imageIcon, "click", (event) => {
         domUtils.preventEvent(event);
@@ -8085,13 +7232,10 @@
         imagesList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
-        var viewerULNode = domUtils.toElement(`<ul>${viewerULNodeHTML}</ul>`, false, false);
-        let viewer = new Viewer(viewerULNode, {
+        let viewer = new viewerjs.default(domUtils.toElement(`<ul>${viewerULNodeHTML}</ul>`, false, false), {
           inline: false,
           url: "data-src",
-          zIndex: (() => {
-            return getPageMaxZIndex();
-          })(),
+          zIndex: getPageMaxZIndex(),
           hidden: () => {
             viewer.destroy();
           },
@@ -8116,13 +7260,9 @@
     },
     async handleForumPost(forumlist) {
       forumlist.forEach(($forum) => {
-        if ($forum.getAttribute("data-injection-small-window")) {
-          return;
-        }
+        if ($forum.getAttribute("data-injection-small-window")) return;
         let title = domUtils.text($forum.querySelector(".mmlist_li_box h2 a"));
-        if (title == "" || title == null) {
-          title = domUtils.text($forum.querySelector(".mmlist_li_box a"));
-        }
+        if (title == "" || title == null) title = domUtils.text($forum.querySelector(".mmlist_li_box a"));
         title = title.trim();
         let url = $forum.querySelector(".mmlist_li_box a").href;
         var imagesList = [];
@@ -8142,11 +7282,8 @@
         let $mmlist_li_box = $forum.querySelector(".mmlist_li_box");
         domUtils.on($mmlist_li_box, "click", function (event) {
           var mouseClickPosX = Number(event.clientX);
-          if (document.body.offsetWidth / 2 > mouseClickPosX) {
-            window.location.href = url;
-          } else {
-            MTSmallWindow.showSmallWindow(title, url, imagesList);
-          }
+          if (document.body.offsetWidth / 2 > mouseClickPosX) window.location.href = url;
+          else MTSmallWindow.showSmallWindow(title, url, imagesList);
         });
       });
     },
@@ -8155,17 +7292,18 @@
       let intervalId = setInterval(() => {
         if (iframe.contentWindow) {
           clearInterval(intervalId);
-          let iframeDOMUtils = domUtils.createDOMUtils({
-            document: iframe.contentWindow.document,
-            window: iframe.contentWindow,
-            globalThis: iframe.contentWindow,
-            self: iframe.contentWindow,
-            top,
-          });
-          iframeDOMUtils.onReady(() => {
-            log.success("小窗内容已加载完毕");
-            this.hideRefreshIcon();
-          });
+          domUtils
+            .createDOMUtils({
+              document: iframe.contentWindow.document,
+              window: iframe.contentWindow,
+              globalThis: iframe.contentWindow,
+              self: iframe.contentWindow,
+              top,
+            })
+            .onReady(() => {
+              log.success("小窗内容已加载完毕");
+              this.hideRefreshIcon();
+            });
         }
       }, 400);
     },
@@ -8178,9 +7316,9 @@
       this.$el.$webSiteIcon.style.display = "none";
     },
   };
-  const MTGuide = {
+  var MTGuide = {
     init() {
-      DOMUtils.onReady(() => {
+      _whitesev_domutils.default.onReady(() => {
         Panel.execMenuOnce("mt-guide-showLatestPost", () => {
           this.showLatestPost();
         });
@@ -8194,17 +7332,18 @@
           allowInterceptConfig: false,
         });
         if (!response.status) {
-          Qmsg.error("获取轮播失败");
+          qmsg.default.error("获取轮播失败");
           return;
         }
         if (response.data.responseText.indexOf('<script src="/_guard/auto.js"><\/script>') !== -1) {
-          Qmsg.error("获取轮播失败 未知的/_guard/auto.js文件");
+          qmsg.default.error("获取轮播失败 未知的/_guard/auto.js文件");
           return;
         }
-        var doc = DOMUtils.toElement(response.data.responseText, true, true);
-        var postForumList = doc.querySelectorAll('div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul');
+        var postForumList = _whitesev_domutils.default
+          .toElement(response.data.responseText, true, true)
+          .querySelectorAll('div.comiis_mh_kxtxt div[id*="comiis_mh_kxtxt"] ul');
         if (postForumList.length === 0) {
-          Qmsg.error("获取轮播失败");
+          qmsg.default.error("获取轮播失败");
           return;
         } else {
           var result = [];
@@ -8218,11 +7357,8 @@
         return result;
       }
       getLatestPostForum().then((postInfoList) => {
-        if (!postInfoList) {
-          return;
-        }
-        addStyle(
-          `
+        if (!postInfoList) return;
+        addStyle(`
             div.comiis_mh_kxtxt_owm{
                 margin-top: 10px;
             }
@@ -8258,15 +7394,13 @@
                 white-space: nowrap;
                 margin-right: 10px;
             }
-            `
-        );
+            `);
         var latestPostForumHTML = "";
         utils.sortListByProperty(
           postInfoList,
           (item) => {
             var forumPostNumMatch = item["href"].match(/thread-(.+?)-/i);
-            let forumPostNum = parseInt(forumPostNumMatch[forumPostNumMatch.length - 1]);
-            return forumPostNum;
+            return parseInt(forumPostNumMatch[forumPostNumMatch.length - 1]);
           },
           true
         );
@@ -8279,14 +7413,14 @@
                 </li>`;
         });
         let $comiis_xznlist = document.querySelector(".comiis_forumlist.comiis_xznlist");
-        DOMUtils.before(
+        _whitesev_domutils.default.before(
           $comiis_xznlist,
           `<div class="comiis_mh_kxtxt bg_f comiis_mh_kxtxt_owm"><ul>${latestPostForumHTML}</ul></div>`
         );
       });
     },
   };
-  const UIButton = function (
+  var UIButton = function (
     text,
     description,
     buttonText,
@@ -8310,18 +7444,16 @@
       buttonType,
       buttonText,
       callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
+        if (typeof clickCallBack === "function") clickCallBack(event);
       },
       afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(disable);
+      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
     });
     return result;
   };
-  const UIInputNumber = function (
+  var UIInputNumber = function (
     text,
     key,
     defaultValue,
@@ -8341,27 +7473,30 @@
       placeholder,
       afterAddToUListCallBack,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value, valueAsNumber) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (valueAsNumber === null || valueAsNumber === void 0) valueAsNumber = Number(defaultValue);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value, valueAsNumber)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value, valueAsNumber);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UIInputPassword = function (
+  var UIInputPassword = function (
     text,
     key,
     defaultValue,
@@ -8381,43 +7516,44 @@
       placeholder,
       afterAddToUListCallBack,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+  var UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
     const result = {
       type: "own",
-      attributes: {},
-      props: {},
+      attributes: attr || {},
+      props: props || {},
       createLIElement,
       afterAddToUListCallBack,
     };
-    {
-      Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
-    }
-    if (typeof searchConfig === "object" && searchConfig !== null) {
+    if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0)
+      Reflect.set(result.attributes, ATTRIBUTE_INIT_MORE_VALUE, initConfig);
+    else Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    if (typeof searchConfig === "object" && searchConfig !== null)
       Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
-    }
     return result;
   };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     const result = {
       text,
       type: "select",
@@ -8425,39 +7561,33 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
+        if (isSelectedInfo == null) return;
         const value = isSelectedInfo.value;
         log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
+          if (selectCallBack(isSelectedInfo)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
       },
       data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISwitch = function (
+  var UISwitch = function (
     text,
     key,
     defaultValue = false,
@@ -8468,6 +7598,14 @@
     valueChangeCallBack,
     shortCutOption
   ) {
+    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
+      const shortCutKey = shortCutOption.key ?? key;
+      shortCutOption.handler.add({
+        key: shortCutKey,
+        name: text,
+      });
+      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
+    }
     const result = {
       text,
       type: "switch",
@@ -8476,31 +7614,122 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        return value;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, __value) {
         const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
-      afterAddToUListCallBack: (...args) => {},
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+        if (shortCutOption) {
+          const shortCut = shortCutOption.handler.shortCut;
+          const shortCutKey = shortCutOption.key ?? key;
+          const [_, container] = args;
+          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
+          if (!$leftMainText) return;
+          const renderKeyboard = () => {
+            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
+            const $wrapper = domUtils.createElement(
+              "div",
+              {
+                className: "pops-switch-shortcut-wrapper",
+                innerHTML: `
+              <i class="pops-bottom-icon" is-loading="false">
+                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
+                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
+                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
+                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
+                </svg>
+              </i>
+            `,
+              },
+              { style: "margin-right: 5px;display: inline-flex;" }
+            );
+            const $icon = $wrapper.querySelector(".pops-bottom-icon");
+            domUtils.on(
+              $icon,
+              "click",
+              function (evt) {
+                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
+                $tooltip.toolTip.offEvent();
+                $tooltip.toolTip.close();
+                $tooltip.toolTip.destory();
+                $wrapper.remove();
+              },
+              { once: true }
+            );
+            const $tooltip = __pops__.tooltip({
+              $target: $icon,
+              content: () => {
+                return tooltipShowText;
+              },
+              className: "github-tooltip",
+              isFixed: true,
+              only: true,
+            });
+            domUtils.empty($leftMainText);
+            domUtils.append($leftMainText, $wrapper, text);
+          };
+          __pops__.rightClickMenu({
+            $target: $leftMainText,
+            only: true,
+            data: [
+              {
+                text: () => {
+                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
+                  else return "添加快捷键";
+                },
+                icon: __pops__.config.iconSVG.keyboard,
+                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
+                  if (shortCut.isWaitKeyboardPress()) {
+                    qmsg.default.warning("请先执行当前的录入操作");
+                    return;
+                  }
+                  const $loading = qmsg.default.loading("请按下快捷键...", {
+                    showClose: true,
+                    onClose() {
+                      shortCut.cancelEnterShortcutKeys();
+                    },
+                  });
+                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
+                    $loading.close();
+                    if (status) {
+                      log.success("录入快捷键", option);
+                      qmsg.default.success("录入成功");
+                      renderKeyboard();
+                    } else
+                      qmsg.default.error(
+                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
+                      );
+                  });
+                },
+              },
+            ],
+          });
+          if (!shortCut.hasOption(shortCutKey)) return;
+          renderKeyboard();
+        }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UITextArea = function (
+  var UITextArea = function (
     text,
     key,
     defaultValue,
@@ -8519,44 +7748,40 @@
       placeholder,
       disabled,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        if (Array.isArray(value)) {
-          return value.join("\n");
-        }
+        const value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) return value.join("\n");
         return value;
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const PanelComponents = {
+  var PanelComponents = {
     $data: {
       __storeApiFn: null,
       get storeApiValue() {
-        if (!this.__storeApiFn) {
-          this.__storeApiFn = new Utils.Dictionary();
-        }
+        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
         return this.__storeApiFn;
       },
     },
     getStorageApi(type) {
-      if (!this.hasStorageApi(type)) {
-        return;
-      }
+      if (!this.hasStorageApi(type)) return;
       return this.$data.storeApiValue.get(type);
     },
     hasStorageApi(type) {
@@ -8567,18 +7792,15 @@
     },
     initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
-      if (this.hasStorageApi(type)) {
-        propsStorageApi = this.getStorageApi(type);
-      } else {
-        propsStorageApi = storageApiValue;
-      }
+      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
+      else propsStorageApi = storageApiValue;
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
     setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  const UIInput = function (
+  var UIInput = function (
     text,
     key,
     defaultValue,
@@ -8599,29 +7821,30 @@
       placeholder,
       afterAddToUListCallBack,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        const isValid = event.target.validity.valid;
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value, isValid)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value, isValid);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  class RuleEditView {
+  var RuleEditView = class {
     option;
     constructor(option) {
       this.option = option;
@@ -8653,9 +7876,7 @@
           true
         ),
         drag: true,
-        mask: {
-          enable: true,
-        },
+        mask: { enable: true },
         style: `
       ${__pops__.config.cssText.panelCSS}
       
@@ -8721,19 +7942,14 @@
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        const result = await this.option.onsubmit($form, await this.option.data());
-        if (!result.success) {
-          return;
-        }
+        if (!(await this.option.onsubmit($form, await this.option.data())).success) return;
         $dialog.close();
-        if (typeof this.option.dialogCloseCallBack === "function") {
-          await this.option.dialogCloseCallBack(true);
-        }
+        if (typeof this.option.dialogCloseCallBack === "function") await this.option.dialogCloseCallBack(true);
       };
       return $dialog;
     }
-  }
-  class RuleView {
+  };
+  var RuleView = class {
     option;
     constructor(option) {
       this.option = option;
@@ -8844,9 +8060,7 @@
               $popsConfirm.close();
             },
           },
-          cancel: {
-            enable: false,
-          },
+          cancel: { enable: false },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
             type: "xiaomi-primary",
@@ -8866,16 +8080,12 @@
                     enable: true,
                     callback: async () => {
                       log.success("清空所有");
-                      if (typeof this.option?.bottomControls?.clear?.callback === "function") {
+                      if (typeof this.option?.bottomControls?.clear?.callback === "function")
                         this.option.bottomControls.clear.callback();
-                      }
-                      const data = await this.option.data();
-                      if (data.length) {
-                        Qmsg.error("清理失败");
+                      if ((await this.option.data()).length) {
+                        qmsg.default.error("清理失败");
                         return;
-                      } else {
-                        Qmsg.success("清理成功");
-                      }
+                      } else qmsg.default.success("清理成功");
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
@@ -8893,9 +8103,7 @@
             },
           },
         },
-        mask: {
-          enable: true,
-        },
+        mask: { enable: true },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
       });
@@ -8905,45 +8113,35 @@
       if (this.option.bottomControls?.filter?.enable) {
         let externalSelectInfo = null;
         let ruleValueSelectInfo = null;
-        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+        if (Array.isArray(this.option.bottomControls?.filter?.option))
           domUtils.append(
             $externalSelect,
             this.option.bottomControls?.filter?.option.map((option) => {
-              const $option = domUtils.createElement("option", {
-                innerText: option.name,
-              });
+              const $option = domUtils.createElement("option", { innerText: option.name });
               Reflect.set($option, "data-value", option);
               return $option;
             })
           );
-        }
-        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption))
           domUtils.append(
             $ruleValueSelect,
             this.option.bottomControls?.filter?.inputOption.map((option) => {
-              const $option = domUtils.createElement("option", {
-                innerText: option.name,
-              });
+              const $option = domUtils.createElement("option", { innerText: option.name });
               Reflect.set($option, "data-value", option);
               return $option;
             })
           );
-        }
         domUtils.on($externalSelect, "change", async () => {
           const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") {
-            selectInfo.selectedCallBack(selectInfo);
-          }
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
           externalSelectInfo = selectInfo;
           await execFilter(false);
         });
         domUtils.on($ruleValueSelect, "change", async () => {
           const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") {
-            selectInfo.selectedCallBack(selectInfo);
-          }
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
           ruleValueSelectInfo = selectInfo;
           await execFilter(false);
         });
@@ -8961,9 +8159,7 @@
         };
         const execFilter = async (isUpdateSelectData) => {
           this.clearContent($popsConfirm.$shadowRoot);
-          if (isUpdateSelectData) {
-            updateSelectData();
-          }
+          if (isUpdateSelectData) updateSelectData();
           const allData = await this.option.data();
           const filteredData = [];
           const searchText = domUtils.val($searchInput);
@@ -8971,29 +8167,18 @@
             const item = allData[index];
             if (typeof filterCallBack === "function") {
               const flag = await filterCallBack(item);
-              if (typeof flag === "boolean" && !flag) {
-                continue;
-              }
+              if (typeof flag === "boolean" && !flag) continue;
             }
             if (externalSelectInfo) {
               const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
-                continue;
-              }
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) continue;
             }
             if (ruleValueSelectInfo) {
               let flag = true;
-              if (searchText === "") {
-                flag = true;
-              } else {
-                flag = false;
-              }
-              if (!flag) {
-                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-              }
-              if (!flag) {
-                continue;
-              }
+              if (searchText === "") flag = true;
+              else flag = false;
+              if (!flag) flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              if (!flag) continue;
             }
             filteredData.push(item);
           }
@@ -9001,53 +8186,33 @@
         };
         if (typeof filterCallBack === "object" && filterCallBack != null) {
           let externalIndex;
-          if (typeof filterCallBack.external === "number") {
-            externalIndex = filterCallBack.external;
-          } else {
+          if (typeof filterCallBack.external === "number") externalIndex = filterCallBack.external;
+          else
             externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-              const data = Reflect.get(option, "data-value");
-              return data.value === filterCallBack.external;
+              return Reflect.get(option, "data-value").value === filterCallBack.external;
             });
-          }
-          if (externalIndex !== -1) {
-            $externalSelect.selectedIndex = externalIndex;
-          }
+          if (externalIndex !== -1) $externalSelect.selectedIndex = externalIndex;
           let ruleIndex;
-          if (typeof filterCallBack.rule === "number") {
-            ruleIndex = filterCallBack.rule;
-          } else {
+          if (typeof filterCallBack.rule === "number") ruleIndex = filterCallBack.rule;
+          else
             ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-              const data = Reflect.get(option, "data-value");
-              return data.value === filterCallBack.rule;
+              return Reflect.get(option, "data-value").value === filterCallBack.rule;
             });
-          }
-          if (ruleIndex !== -1) {
-            $ruleValueSelect.selectedIndex = ruleIndex;
-          }
+          if (ruleIndex !== -1) $ruleValueSelect.selectedIndex = ruleIndex;
         }
         await execFilter(true);
-      } else {
-        domUtils.hide($searchContainer, false);
-      }
+      } else domUtils.hide($searchContainer, false);
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
-          if (typeof submitCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            submitCallBack(newData);
-          }
+          if (typeof submitCallBack === "function") submitCallBack(await this.option.getData(editData));
         } else {
-          if (!isEdit) {
-            await this.option.deleteData(editData);
-          }
-          if (typeof updateDataCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            updateDataCallBack(newData);
-          }
+          if (!isEdit) await this.option.deleteData(editData);
+          if (typeof updateDataCallBack === "function") updateDataCallBack(await this.option.getData(editData));
         }
       };
-      let editView = new RuleEditView({
+      new RuleEditView({
         title: isEdit ? "编辑" : "添加",
         data: () => {
           return editData;
@@ -9078,58 +8243,40 @@
           let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
-              Qmsg.success("修改成功");
-              if ($parentShadowRoot) {
+              qmsg.default.success("修改成功");
+              if ($parentShadowRoot)
                 await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
-              }
-            } else {
-              if ($parentShadowRoot) {
-                await this.appendRuleItemElement($parentShadowRoot, result.data);
-              }
-            }
-          } else {
-            if (isEdit) {
-              log.error("修改失败");
-            }
-          }
+            } else if ($parentShadowRoot) await this.appendRuleItemElement($parentShadowRoot, result.data);
+          } else if (isEdit) log.error("修改失败");
           return result;
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
         height: this.option.itemControls.edit.height,
-      });
-      editView.showView();
+      }).showView();
     }
     parseViewElement($shadowRoot) {
       const $container = $shadowRoot.querySelector(".rule-view-container");
       const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
-      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
-      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
-      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
         $searchContainer,
-        $externalSelect,
-        $ruleValueSelect,
-        $searchInput,
+        $externalSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-status"),
+        $ruleValueSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-value"),
+        $searchInput: $searchContainer.querySelector(".pops-panel-input input"),
       };
     }
     parseRuleItemElement($ruleElement) {
       const $enable = $ruleElement.querySelector(".rule-controls-enable");
-      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      const $edit = $ruleElement.querySelector(".rule-controls-edit");
-      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
-        $enableSwitch,
-        $enableSwitchInput,
-        $enableSwitchCore,
-        $edit,
-        $delete,
+        $enableSwitch: $enable.querySelector(".pops-panel-switch"),
+        $enableSwitchInput: $enable.querySelector(".pops-panel-switch__input"),
+        $enableSwitchCore: $enable.querySelector(".pops-panel-switch__core"),
+        $edit: $ruleElement.querySelector(".rule-controls-edit"),
+        $delete: $ruleElement.querySelector(".rule-controls-delete"),
         data: Reflect.get($ruleElement, "data-rule"),
       };
     }
@@ -9175,13 +8322,9 @@
           $enableSwitchInput.checked = isChecked;
           await this.option.itemControls.enable.callback(data, isChecked);
         });
-        if (await this.option.itemControls.enable.getEnable(data)) {
-          $enableSwitch.classList.add(switchCheckedClassName);
-        }
-      } else {
-        $enable.remove();
-      }
-      if (this.option.itemControls.edit.enable) {
+        if (await this.option.itemControls.enable.getEnable(data)) $enableSwitch.classList.add(switchCheckedClassName);
+      } else $enable.remove();
+      if (this.option.itemControls.edit.enable)
         domUtils.on($edit, "click", (event) => {
           domUtils.preventEvent(event);
           this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
@@ -9189,10 +8332,8 @@
             data = newData;
           });
         });
-      } else {
-        $edit.remove();
-      }
-      if (this.option.itemControls.delete.enable) {
+      else $edit.remove();
+      if (this.option.itemControls.delete.enable)
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
           const $askDialog = __pops__.confirm({
@@ -9209,15 +8350,12 @@
                 enable: true,
                 callback: async () => {
                   log.success("删除数据");
-                  const flag = await this.option.itemControls.delete.deleteCallBack(data);
-                  if (flag) {
-                    Qmsg.success("成功删除该数据");
+                  if (await this.option.itemControls.delete.deleteCallBack(data)) {
+                    qmsg.default.success("成功删除该数据");
                     $ruleItem.remove();
                     await this.updateDeleteAllBtnText($shadowRoot);
                     $askDialog.close();
-                  } else {
-                    Qmsg.error("删除该数据失败");
-                  }
+                  } else qmsg.default.error("删除该数据失败");
                 },
               },
               cancel: {
@@ -9225,16 +8363,12 @@
                 enable: true,
               },
             },
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: "300px",
             height: "200px",
           });
         });
-      } else {
-        $delete.remove();
-      }
+      else $delete.remove();
       return $ruleItem;
     }
     async appendRuleItemElement($shadowRoot, data) {
@@ -9267,24 +8401,17 @@
     }
     setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
-      if (isHTML) {
-        domUtils.html($deleteBtn, text);
-      } else {
-        domUtils.text($deleteBtn, text);
-      }
+      if (isHTML) domUtils.html($deleteBtn, text);
+      else domUtils.text($deleteBtn, text);
     }
     async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
-  }
-  const MTOwnBlock = {
-    $key: {
-      STORAGE_KEY: "mt-own-block-rule",
-    },
-    $data: {
-      isRegister: false,
-    },
+  };
+  var MTOwnBlock = {
+    $key: { STORAGE_KEY: "mt-own-block-rule" },
+    $data: { isRegister: false },
     init() {
       this.registerMenu();
       const lockFn = new utils.LockFunction(() => {
@@ -9302,9 +8429,7 @@
       });
     },
     registerMenu() {
-      if (this.$data.isRegister) {
-        return;
-      }
+      if (this.$data.isRegister) return;
       this.$data.isRegister = true;
       ElementUtils.registerLeftMenu({
         name: "我的屏蔽",
@@ -9343,7 +8468,7 @@
           },
         };
       }
-      const ruleView = new RuleView({
+      new RuleView({
         title: "我的屏蔽",
         data: () => {
           return this.getData();
@@ -9361,9 +8486,7 @@
           return this.deleteData(data);
         },
         getData: (data) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
-          return findValue ?? data;
+          return this.getData().find((item) => item.uuid === data.uuid) ?? data;
         },
         itemControls: {
           enable: {
@@ -9380,9 +8503,7 @@
             enable: true,
             getView: (data, isEdit) => {
               let $fragment = document.createDocumentFragment();
-              if (!isEdit) {
-                data = this.getTemplateData();
-              }
+              if (!isEdit) data = this.getTemplateData();
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
@@ -9428,9 +8549,7 @@
             onsubmit: ($form, isEdit, editData) => {
               let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
-              if (isEdit) {
-                data.uuid = editData.uuid;
-              }
+              if (isEdit) data.uuid = editData.uuid;
               $ulist_li.forEach(($li) => {
                 let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
                 let attrs = Reflect.get(viewConfig, "attributes");
@@ -9438,32 +8557,27 @@
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                 let value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) {
-                  Reflect.set(data, key, value);
-                } else if (Reflect.has(data.data, key)) {
-                  Reflect.set(data.data, key, value);
-                } else {
-                  log.error(`${key}不在数据中`);
-                }
+                if (Reflect.has(data, key)) Reflect.set(data, key, value);
+                else if (Reflect.has(data.data, key)) Reflect.set(data.data, key, value);
+                else log.error(`${key}不在数据中`);
               });
               if (data.name.trim() === "") {
-                Qmsg.error("规则名称不能为空");
+                qmsg.default.error("规则名称不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
-              if (isEdit) {
+              if (isEdit)
                 return {
                   success: this.updateData(data),
                   data,
                 };
-              } else {
+              else
                 return {
                   success: this.addData(data),
                   data,
                 };
-              }
             },
           },
           delete: {
@@ -9510,33 +8624,32 @@
             ],
           },
         },
-      });
-      ruleView.showView();
+      }).showView();
     },
     execRule() {
       const shieldUserList = this.getData();
       function checkIsFilter(postForumInfo) {
         for (const shieldItem of shieldUserList) {
           const shieldOption = shieldItem["data"];
-          const findValue = Object.keys(shieldOption).find((keyName) => {
-            const value = shieldOption[keyName];
-            if (utils.isNotNull(value)) {
-              const regExpValue = new RegExp(value, "i");
-              const postForumValue = Reflect.get(postForumInfo, keyName);
-              if (
-                typeof postForumValue === "string" &&
-                utils.isNotNull(postForumValue) &&
-                postForumValue.match(regExpValue)
-              ) {
-                log.info(`屏蔽`, [shieldOption, postForumValue]);
-                return true;
+          if (
+            Object.keys(shieldOption).find((keyName) => {
+              const value = shieldOption[keyName];
+              if (utils.isNotNull(value)) {
+                const regExpValue = new RegExp(value, "i");
+                const postForumValue = Reflect.get(postForumInfo, keyName);
+                if (
+                  typeof postForumValue === "string" &&
+                  utils.isNotNull(postForumValue) &&
+                  postForumValue.match(regExpValue)
+                ) {
+                  log.info(`屏蔽`, [shieldOption, postForumValue]);
+                  return true;
+                }
               }
-            }
-            return false;
-          });
-          if (findValue) {
+              return false;
+            })
+          )
             return true;
-          }
         }
         return false;
       }
@@ -9560,50 +8673,46 @@
               .replace(/\s*/g, "")
               .replace(/来自/g, ""),
           };
-          if (utils.isNull(postForumInfo.postPlateName)) {
+          if (utils.isNull(postForumInfo.postPlateName))
             postForumInfo.postPlateName = $("#comiis_wx_title_box").innerText;
-          }
-          if (checkIsFilter(postForumInfo)) {
-            item.remove();
-          }
+          if (checkIsFilter(postForumInfo)) item.remove();
         });
         $$(".comiis_postlist .comiis_postli").forEach((item) => {
           let $topUser = item.querySelector("a.top_user");
           let uidMatch = $topUser.href.match(MTRegExp.uid);
-          let postForumInfo = {
-            userName: $topUser.innerText,
-            userUID: uidMatch[uidMatch.length - 1].trim(),
-            userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
-            postUrl: void 0,
-            postTitle: void 0,
-            postContent: item.querySelector(".comiis_message_table").innerText,
-            postPlateName: void 0,
-          };
-          if (checkIsFilter(postForumInfo)) {
+          if (
+            checkIsFilter({
+              userName: $topUser.innerText,
+              userUID: uidMatch[uidMatch.length - 1].trim(),
+              userLevel: item.querySelector("a.top_lev").innerText.replace("Lv.", ""),
+              postUrl: void 0,
+              postTitle: void 0,
+              postContent: item.querySelector(".comiis_message_table").innerText,
+              postPlateName: void 0,
+            })
+          )
             item.remove();
-          }
         });
       }
-      if (MTRouter.isMessageList()) {
+      if (MTRouter.isMessageList())
         $$(".comiis_pms_box .comiis_pmlist ul li").forEach((item) => {
           let uidMatch = item.querySelector("a.b_b").href.match(MTRegExp.uid);
-          let postForumInfo = {
-            userName: item
-              .querySelector("h2")
-              .innerText.replace(item.querySelector("h2 span").innerText, "")
-              .replace(/\s*/, ""),
-            userUID: uidMatch[uidMatch.length - 1].trim(),
-            userLevel: void 0,
-            postUrl: item.querySelector("a.b_b").href,
-            postTitle: void 0,
-            postContent: item.querySelector("p.f_c").innerText.trim(),
-            postPlateName: void 0,
-          };
-          if (checkIsFilter(postForumInfo)) {
+          if (
+            checkIsFilter({
+              userName: item
+                .querySelector("h2")
+                .innerText.replace(item.querySelector("h2 span").innerText, "")
+                .replace(/\s*/, ""),
+              userUID: uidMatch[uidMatch.length - 1].trim(),
+              userLevel: void 0,
+              postUrl: item.querySelector("a.b_b").href,
+              postTitle: void 0,
+              postContent: item.querySelector("p.f_c").innerText.trim(),
+              postPlateName: void 0,
+            })
+          )
             item.remove();
-          }
         });
-      }
     },
     getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
@@ -9613,14 +8722,11 @@
     },
     addData(data) {
       let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
-      if (findIndex === -1) {
+      if (localData.findIndex((item) => item.uuid == data.uuid) === -1) {
         localData.push(data);
         _GM_setValue(this.$key.STORAGE_KEY, localData);
         return true;
-      } else {
-        return false;
-      }
+      } else return false;
     },
     updateData(data) {
       let localData = this.getData();
@@ -9648,20 +8754,14 @@
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
   };
-  const MTCommentFilter = {
-    $el: {
-      isFilterElementHTML: [],
-    },
-    $key: {
-      STORAGE_KEY: "mt-post-comment-filter-rule",
-    },
+  var MTCommentFilter = {
+    $el: { isFilterElementHTML: [] },
+    $key: { STORAGE_KEY: "mt-post-comment-filter-rule" },
     init() {
       this.registerMenu();
       if (MTRouter.isPost()) {
         let allData = this.getData();
-        if (!allData.enable) {
-          return;
-        }
+        if (!allData.enable) return;
         let lockFn = new utils.LockFunction(() => {
           this.runFilter(allData);
         });
@@ -9688,27 +8788,23 @@
     },
     runFilter(filterData) {
       let isBlackListUser = function (postForumInfo) {
-        for (const userName of filterData["userBlackList"]) {
+        for (const userName of filterData["userBlackList"])
           if (userName == postForumInfo.userName || userName == postForumInfo.userUID) {
             log.success("评论过滤器：黑名单用户", postForumInfo);
             return true;
           }
-        }
         return false;
       };
       let isWhiteListUser = function (postForumInfo) {
-        for (const userName of filterData["userWhiteList"]) {
+        for (const userName of filterData["userWhiteList"])
           if (userName === postForumInfo.userName || userName === postForumInfo.userUID) {
             log.success("评论过滤器：白名单用户", postForumInfo);
             return true;
           }
-        }
         return false;
       };
       $$(".comiis_postlist .comiis_postli").forEach((item) => {
-        if (item.querySelector("#comiis_allreplies")) {
-          return;
-        }
+        if (item.querySelector("#comiis_allreplies")) return;
         let $topUser = item.querySelector("a.top_user");
         let uidMatch = $topUser.href.match(MTRegExp.uid);
         let postForumInfo = {
@@ -9717,35 +8813,27 @@
           content: item.querySelector(".comiis_message_table")?.innerText?.trim() || "",
           isAuthor: Boolean(item.querySelector("span.top_lev")),
         };
-        if (isWhiteListUser(postForumInfo)) {
-          return;
-        }
+        if (isWhiteListUser(postForumInfo)) return;
         if (filterData["replyFlag"] && item.querySelector(".comiis_quote")) {
           let comiis_quote_Element = item.querySelector(".comiis_quote");
           this.$el.isFilterElementHTML.push(comiis_quote_Element.outerHTML);
           comiis_quote_Element.remove();
         }
-        if (postForumInfo.isAuthor && !filterData["avatarFlag"]) {
-          return;
-        }
+        if (postForumInfo.isAuthor && !filterData["avatarFlag"]) return;
         if (isBlackListUser(postForumInfo)) {
           this.$el.isFilterElementHTML.push(item.outerHTML);
           item.remove();
           return;
         }
-        if (typeof filterData["minLength"] === "number" && filterData["minLength"] > postForumInfo.content.length) {
+        if (typeof filterData["minLength"] === "number" && filterData["minLength"] > postForumInfo.content.length)
           return;
-        }
         if (
           typeof filterData["keywordLength"] === "number" &&
           filterData["keywordLength"] < postForumInfo.content.length
-        ) {
+        )
           return;
-        }
         for (const keywordItem of filterData["keywords"]) {
-          if (typeof keywordItem !== "string") {
-            continue;
-          }
+          if (typeof keywordItem !== "string") continue;
           let keywordPattern = new RegExp(keywordItem);
           if (postForumInfo.content.match(keywordPattern)) {
             console.log("评论过滤器：", postForumInfo);
@@ -9763,22 +8851,19 @@
           get(key, defaultValue) {
             let localData = that.getData();
             let value = Reflect.get(localData, key, defaultValue);
-            if (key === "keywords" || key === "userWhiteList" || key === "userBlackList") {
-              value = value.join("\n");
-            }
+            if (key === "keywords" || key === "userWhiteList" || key === "userBlackList") value = value.join("\n");
             return value;
           },
           set(key, value) {
-            if (key === "keywords" || key === "userWhiteList" || key === "userBlackList") {
+            if (key === "keywords" || key === "userWhiteList" || key === "userBlackList")
               value = value.split("\n").filter((item) => item.trim() != "");
-            }
             Reflect.set(data, key, value);
             that.setData(data);
           },
         };
       }
       let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
-      let view = new RuleEditView({
+      new RuleEditView({
         title: "评论过滤器",
         data: () => {
           return this.getData();
@@ -9817,13 +8902,13 @@
           );
           Reflect.set(keywordLength.props, PROPS_STORAGE_API, generateStorageApi(data));
           let $keywordLength = panelHandlerComponents.createSectionContainerItem_input(keywordLength).$el;
-          let keywords_template = UITextArea("评论关键字", "keywords", "", "多个关键字换行分割");
+          let keywords_template = UITextArea("评论关键字", "keywords", "", "多个关键字换行分割", void 0);
           Reflect.set(keywords_template.props, PROPS_STORAGE_API, generateStorageApi(data));
           let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
-          let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割");
+          let userBlackList_template = UITextArea("黑名单用户", "userBlackList", "", "多个用户换行分割", void 0);
           Reflect.set(userBlackList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
           let $userBlackList = panelHandlerComponents.createSectionContainerItem_textarea(userBlackList_template).$el;
-          let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割");
+          let userWhiteList_template = UITextArea("白名单用户", "userWhiteList", "", "多个用户换行分割", void 0);
           Reflect.set(userWhiteList_template.props, PROPS_STORAGE_API, generateStorageApi(data));
           let $userWhiteList = panelHandlerComponents.createSectionContainerItem_textarea(userWhiteList_template).$el;
           $fragment.append(
@@ -9842,9 +8927,7 @@
         btn: {
           merge: true,
           position: "space-between",
-          ok: {
-            enable: false,
-          },
+          ok: { enable: false },
           cancel: {
             enable: true,
             text: "关闭",
@@ -9907,8 +8990,7 @@
 				height: auto;
 			}
             `,
-      });
-      view.showView();
+      }).showView();
     },
     getTemplateData() {
       return {
@@ -9930,10 +9012,8 @@
       _GM_setValue(this.$key.STORAGE_KEY, data);
     },
   };
-  const MTProductListingReminder = {
-    $key: {
-      STORAGE_KEY: "mt-productListingReminder-rule",
-    },
+  var MTProductListingReminder = {
+    $key: { STORAGE_KEY: "mt-productListingReminder-rule" },
     init() {
       this.registerMenu();
       this.runRule();
@@ -9955,38 +9035,34 @@
           allowInterceptConfig: false,
         });
         if (!response.status) {
-          Qmsg.error("【积分商城】获取数据失败");
+          qmsg.default.error("【积分商城】获取数据失败");
           return;
         }
         let productInfoList = [];
-        let doc = domUtils.toElement(response.data.responseText, true, true);
-        doc.querySelectorAll(".task-list-wrapper li.col-xs-12").forEach(($taskList) => {
-          productInfoList.push({
-            name:
-              domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) ||
-              domUtils.text($taskList.querySelector(".mall-info a")),
-            price: domUtils.text($taskList.querySelector(".mall-info span.discount-price i")),
-            endTime: domUtils.text($taskList.querySelector(".mall-info #time_hz span.time")),
-            remainingQuantity: parseInt(
-              $taskList.querySelector(".mall-info .mall-count .count-r")?.innerText?.replace(/仅剩|件/gi, "") || "0"
-            ),
+        domUtils
+          .toElement(response.data.responseText, true, true)
+          .querySelectorAll(".task-list-wrapper li.col-xs-12")
+          .forEach(($taskList) => {
+            productInfoList.push({
+              name:
+                domUtils.text($taskList.querySelector(".mall-info a > *:first-child")) ||
+                domUtils.text($taskList.querySelector(".mall-info a")),
+              price: domUtils.text($taskList.querySelector(".mall-info span.discount-price i")),
+              endTime: domUtils.text($taskList.querySelector(".mall-info #time_hz span.time")),
+              remainingQuantity: parseInt(
+                $taskList.querySelector(".mall-info .mall-count .count-r")?.innerText?.replace(/仅剩|件/gi, "") || "0"
+              ),
+            });
           });
-        });
         return productInfoList;
       }
-      if (MTRouter.isPointsMall()) {
-        return;
-      }
+      if (MTRouter.isPointsMall()) return;
       let allData = this.getData();
-      if (!allData.length) {
-        return;
-      }
+      if (!allData.length) return;
       let productList = await getCurrentProduct();
-      if (!productList) {
-        return;
-      }
-      for (const productItem of productList) {
-        for (const reminderOption of allData) {
+      if (!productList) return;
+      for (const productItem of productList)
+        for (const reminderOption of allData)
           if (
             reminderOption.enable &&
             productItem["name"].match(new RegExp(reminderOption["productName"], "i")) &&
@@ -10014,12 +9090,8 @@
                   type: "danger",
                   text: "删除提醒",
                   callback: () => {
-                    let status = this.deleteData(reminderOption);
-                    if (status) {
-                      Qmsg.success("删除成功");
-                    } else {
-                      Qmsg.error("删除失败");
-                    }
+                    if (this.deleteData(reminderOption)) qmsg.default.success("删除成功");
+                    else qmsg.default.error("删除失败");
                   },
                 },
                 ok: {
@@ -10034,8 +9106,6 @@
             });
             return;
           }
-        }
-      }
     },
     getTemplateData() {
       return {
@@ -10057,7 +9127,7 @@
           },
         };
       }
-      let ruleView = new RuleView({
+      new RuleView({
         title: "商品上架提醒",
         data: () => {
           return this.getData();
@@ -10075,9 +9145,7 @@
           return this.deleteData(data);
         },
         getData: (data) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
-          return findValue ?? data;
+          return this.getData().find((item) => item.uuid === data.uuid) ?? data;
         },
         itemControls: {
           enable: {
@@ -10094,9 +9162,7 @@
             enable: true,
             getView: (data, isEdit) => {
               let $fragment = document.createDocumentFragment();
-              if (!isEdit) {
-                data = this.getTemplateData();
-              }
+              if (!isEdit) data = this.getTemplateData();
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
@@ -10112,9 +9178,7 @@
             onsubmit: ($form, isEdit, editData) => {
               let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
-              if (isEdit) {
-                data.uuid = editData.uuid;
-              }
+              if (isEdit) data.uuid = editData.uuid;
               $ulist_li.forEach(($li) => {
                 let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
                 let attrs = Reflect.get(viewConfig, "attributes");
@@ -10122,30 +9186,26 @@
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                 let value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) {
-                  Reflect.set(data, key, value);
-                } else {
-                  log.error(`${key}不在数据中`);
-                }
+                if (Reflect.has(data, key)) Reflect.set(data, key, value);
+                else log.error(`${key}不在数据中`);
               });
               if (data.name.trim() === "") {
-                Qmsg.error("规则名称不能为空");
+                qmsg.default.error("规则名称不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
-              if (isEdit) {
+              if (isEdit)
                 return {
                   success: this.updateData(data),
                   data,
                 };
-              } else {
+              else
                 return {
                   success: this.addData(data),
                   data,
                 };
-              }
             },
           },
           delete: {
@@ -10199,8 +9259,7 @@
             ],
           },
         },
-      });
-      ruleView.showView();
+      }).showView();
     },
     getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
@@ -10210,14 +9269,11 @@
     },
     addData(data) {
       let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
-      if (findIndex === -1) {
+      if (localData.findIndex((item) => item.uuid == data.uuid) === -1) {
         localData.push(data);
         _GM_setValue(this.$key.STORAGE_KEY, localData);
         return true;
-      } else {
-        return false;
-      }
+      } else return false;
     },
     updateData(data) {
       let localData = this.getData();
@@ -10245,10 +9301,8 @@
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
   };
-  const MTCustomizeUserLabels = {
-    $key: {
-      STORAGE_KEY: "mt-customizeUserLabels-rule",
-    },
+  var MTCustomizeUserLabels = {
+    $key: { STORAGE_KEY: "mt-customizeUserLabels-rule" },
     init() {
       this.registerMenu();
       if (
@@ -10260,9 +9314,7 @@
         MTRouter.isSpace()
       ) {
         let allData = this.getData();
-        if (!allData.length) {
-          return;
-        }
+        if (!allData.length) return;
         let lockFn = new utils.LockFunction(() => {
           this.runRule(allData);
         });
@@ -10299,7 +9351,7 @@
           },
         };
       }
-      let ruleView = new RuleView({
+      new RuleView({
         title: "自定义用户标签",
         data: () => {
           return this.getData();
@@ -10317,9 +9369,7 @@
           return this.deleteData(data);
         },
         getData: (data) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
-          return findValue ?? data;
+          return this.getData().find((item) => item.uuid === data.uuid) ?? data;
         },
         itemControls: {
           enable: {
@@ -10336,9 +9386,7 @@
             enable: true,
             getView: (data, isEdit) => {
               let $fragment = document.createDocumentFragment();
-              if (!isEdit) {
-                data = this.getTemplateData();
-              }
+              if (!isEdit) data = this.getTemplateData();
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
@@ -10351,7 +9399,7 @@
               let labelName_template = UIInput("标签名", "labelName", "", "", void 0, "必填");
               Reflect.set(labelName_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $labelName = panelHandlerComponents.createSectionContainerItem_input(labelName_template).$el;
-              let labelColor_template = UIInput("标签颜色", "labelColor", "", "");
+              let labelColor_template = UIInput("标签颜色", "labelColor", "", "", void 0);
               Reflect.set(labelColor_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $labelColor = panelHandlerComponents.createSectionContainerItem_input(labelColor_template).$el;
               let $labelColor_input = $labelColor.querySelector("input");
@@ -10362,10 +9410,10 @@
                 padding: "unset",
                 width: "80px",
               });
-              let labelStyle_template = UIInput("标签CSS", "labelStyle", "", "");
+              let labelStyle_template = UIInput("标签CSS", "labelStyle", "", "", void 0);
               Reflect.set(labelStyle_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $labelStyle = panelHandlerComponents.createSectionContainerItem_input(labelStyle_template).$el;
-              let labelClickEvent_template = UITextArea("标签点击事件", "labelClickEvent", "", "");
+              let labelClickEvent_template = UITextArea("标签点击事件", "labelClickEvent", "", "", void 0);
               Reflect.set(labelClickEvent_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $labelClickEvent =
                 panelHandlerComponents.createSectionContainerItem_textarea(labelClickEvent_template).$el;
@@ -10375,9 +9423,7 @@
             onsubmit: ($form, isEdit, editData) => {
               let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
-              if (isEdit) {
-                data.uuid = editData.uuid;
-              }
+              if (isEdit) data.uuid = editData.uuid;
               $ulist_li.forEach(($li) => {
                 let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
                 let attrs = Reflect.get(viewConfig, "attributes");
@@ -10385,44 +9431,40 @@
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                 let value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) {
-                  Reflect.set(data, key, value);
-                } else {
-                  log.error(`${key}不在数据中`);
-                }
+                if (Reflect.has(data, key)) Reflect.set(data, key, value);
+                else log.error(`${key}不在数据中`);
               });
               if (data.name.trim() === "") {
-                Qmsg.error("规则名称不能为空");
+                qmsg.default.error("规则名称不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
               if (data.userUID.trim() === "") {
-                Qmsg.error("用户UID不能为空");
+                qmsg.default.error("用户UID不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
               if (data.labelName.trim() === "") {
-                Qmsg.error("标签名不能为空");
+                qmsg.default.error("标签名不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
-              if (isEdit) {
+              if (isEdit)
                 return {
                   success: this.updateData(data),
                   data,
                 };
-              } else {
+              else
                 return {
                   success: this.addData(data),
                   data,
                 };
-              }
             },
             style: `
                     .pops-panel-textarea textarea{
@@ -10481,8 +9523,7 @@
             ],
           },
         },
-      });
-      ruleView.showView();
+      }).showView();
     },
     runRule(ruleDataList) {
       let forumList = utils.getNodeListValue(
@@ -10490,29 +9531,20 @@
         ElementUtils.comiisPostli(),
         ElementUtils.comiisMmlist()
       );
-      if (!forumList.length) {
-        return;
-      }
+      if (!forumList.length) return;
       forumList.forEach(($post) => {
-        if ($post.hasAttribute("data-custom-label")) {
-          return;
-        }
+        if ($post.hasAttribute("data-custom-label")) return;
         $post.setAttribute("data-custom-label", "true");
         let mt_uid_array = Array.from($post.querySelectorAll("a"))
           .map((item) => {
-            let url = item.href;
-            let uid = url.match(MTRegExp.uid);
-            if (uid) {
-              return uid[uid.length - 1];
-            }
+            let uid = item.href.match(MTRegExp.uid);
+            if (uid) return uid[uid.length - 1];
           })
           .filter((item) => item != null);
         if (mt_uid_array.length) {
           let mt_uid = mt_uid_array[0];
           let ownLabelList = ruleDataList.filter((item) => item.enable && mt_uid.match(new RegExp(item.userUID)));
-          if (!ownLabelList.length) {
-            return;
-          }
+          if (!ownLabelList.length) return;
           let $label = document.createElement("a");
           let $topLev = $post.querySelector(".top_lev");
           ownLabelList.forEach((labelOption) => {
@@ -10523,9 +9555,7 @@
             $label.innerHTML = labelOption.labelName;
             domUtils.on($label, "click", async (event) => {
               domUtils.preventEvent(event);
-              if (utils.isNotNull(labelOption.labelClickEvent)) {
-                _unsafeWindow.eval(labelOption.labelClickEvent);
-              }
+              if (utils.isNotNull(labelOption.labelClickEvent)) _unsafeWindow.eval(labelOption.labelClickEvent);
             });
             $topLev.parentElement.append($label);
           });
@@ -10552,14 +9582,11 @@
     },
     addData(data) {
       let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data.uuid);
-      if (findIndex === -1) {
+      if (localData.findIndex((item) => item.uuid == data.uuid) === -1) {
         localData.push(data);
         _GM_setValue(this.$key.STORAGE_KEY, localData);
         return true;
-      } else {
-        return false;
-      }
+      } else return false;
     },
     updateData(data) {
       let localData = this.getData();
@@ -10587,9 +9614,9 @@
       _GM_deleteValue(this.$key.STORAGE_KEY);
     },
   };
-  const optimizationCSS =
+  var editor_optimization_default =
     '.f_c,\n.f_c a,\n.ntc_body {\n  color: #000 !important;\n}\ninput::placeholder,\ntextarea::placeholder {\n  color: #cfcfcf;\n}\n#needsubject::placeholder {\n  font-weight: 700;\n}\n#postform #comiis_mh_sub {\n  height: 60px;\n  display: flex;\n  align-items: center;\n}\n#postform #comiis_post_tab {\n  display: inherit;\n  width: 100%;\n}\n#postform .comiis_sendbtn {\n  padding: 0 12px;\n  display: flex !important;\n  -webkit-box-align: center;\n  -moz-box-align: center;\n  align-items: center;\n}\n#postform .f_f {\n  color: #fff !important;\n}\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:hover,\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:link,\n#postform #comiis_post_tab .bg_f.b_b.cl:nth-child(2) .comiis_atlist a:visited {\n  color: #333 !important;\n}\n#postform .comiis_post_from .comiis_post_ico.comiis_minipost_icot {\n  position: fixed;\n  display: inline-table;\n  z-index: 90;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  width: 100%;\n  overflow: hidden;\n  padding: 0;\n}\n#postform .comiis_post_from #comiis_post_tab .comiis_bqbox {\n  height: 200px;\n}\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box {\n  height: 150px;\n}\n#postform .comiis_post_from #comiis_post_tab .comiis_input_style .comiis_post_urlico {\n  overflow-y: auto;\n  height: 110px;\n}\n#postform .comiis_post_from #comiis_post_tab .comiis_smiley_box .comiis_optimization {\n  display: block;\n  overflow-y: auto;\n  height: 100%;\n}\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont {\n  width: -webkit-fill-available;\n  width: -moz-available;\n}\n#postform #comiis_post_tab .comiis_input_style .comiis_xifont i.comiis_font {\n  font-size: 16px;\n  line-height: inherit;\n  padding-top: 0;\n}\n#postform #comiis_post_tab .comiis_input_style .styli_h10 {\n  display: none;\n}\n.gm_plugin_chartbed .comiis_chartbed_hello,\n.gm_plugin_chartbed .comiis_chartbed_history,\n.gm_plugin_chartbed .comiis_chartbed_kggzs,\n.gm_plugin_chartbed .comiis_chartbed_luntan,\n.gm_plugin_chartbed .comiis_chartbed_mt,\n.gm_plugin_chartbed .comiis_chartbed_z4a {\n  height: 140px;\n  overflow-y: auto;\n  flex-direction: column;\n}\n#comiis_pictitle_key {\n  display: -webkit-box;\n  top: 0;\n  left: 0;\n  height: 42px;\n  line-height: 42px;\n  overflow: hidden;\n  overflow-x: auto;\n  background: #f8f8f8;\n}\n#comiis_pictitle_key a {\n  color: #333 !important;\n  padding: 0 10px;\n}\n#comiis_mh_sub {\n  height: auto !important;\n}\n#comiis_mh_sub .swiper-wrapper.comiis_post_ico {\n  flex-flow: wrap;\n}\n#comiis_mh_sub a {\n  margin: 5px 0;\n}\n#comiis_post_tab .comiis_over_box {\n  max-height: 225px;\n}\n@media screen and (max-width: 350px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 14.5%;\n  }\n}\n@media screen and (min-width: 350px) and (max-width: 400px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 12.5%;\n  }\n}\n@media screen and (min-width: 400px) and (max-width: 450px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 11%;\n  }\n}\n@media screen and (min-width: 450px) and (max-width: 500px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 10%;\n  }\n}\n@media screen and (min-width: 500px) and (max-width: 550px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 9.5%;\n  }\n}\n@media screen and (min-width: 550px) and (max-width: 600px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 9%;\n  }\n}\n@media screen and (min-width: 600px) and (max-width: 650px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 8.5%;\n  }\n}\n@media screen and (min-width: 650px) and (max-width: 700px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 8%;\n  }\n}\n@media screen and (min-width: 700px) and (max-width: 750px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 7.5%;\n  }\n}\n@media screen and (min-width: 750px) and (max-width: 800px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 7%;\n  }\n}\n@media screen and (min-width: 800px) and (max-width: 850px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 6.5%;\n  }\n}\n@media screen and (min-width: 850px) and (max-width: 1200px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 6%;\n  }\n}\n@media screen and (min-width: 1200px) {\n  .comiis_bqbox .bqbox_c li {\n    width: 4.5%;\n  }\n}\n\n#comiis_head .header_y {\n  display: flex;\n  align-content: center;\n  align-items: center;\n  justify-content: flex-end;\n  height: 100%;\n}\n#comiis_head .header_y input {\n  border: transparent;\n  background: 0 0;\n  text-align: center;\n  margin: 0 5px;\n}\n#comiis_head .header_y input[value="删除"] {\n  color: #d00;\n}\n#comiis_head .header_y input[value="保存"] {\n  color: #b0ff6a;\n}\n#comiis_head .header_y input[value="保存草稿"] {\n  color: #f90;\n}\n#comiis_head .header_y input[value="发表"] {\n  color: #b0ff6a;\n}\n#comiis_head .header_y input[value="回复"] {\n  color: #b0ff6a;\n}\n#comiis_post_tab {\n  color: #000;\n}\n.gm_plugin_chartbed .delImg a,\n.gm_plugin_chartbed .p_img a {\n  padding: 0;\n}\n.gm_plugin_chartbed .delImg a i {\n  line-height: inherit;\n}\n#filedata,\n#filedata_hello,\n#filedata_kggzs,\n#filedata_mt {\n  display: none;\n}\n\n#comiis_mh_sub {\n  height: 40px;\n}\n#imglist .del a {\n  padding: 0;\n}\n.comiis_post_from.mt15 {\n  margin-top: unset !important;\n}\n';
-  const MTSmiliesDict = () => {
+  var MTSmiliesDict = () => {
     return {
       "[呵呵]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq001.gif",
       "[撇嘴]": "https://cdn-bbs.mt2.cn/static/image/smiley/qq/qq002.gif",
@@ -10848,52 +9875,43 @@
       "[w威武]": "https://cdn-bbs.mt2.cn/static/image/smiley/doge/88.png",
     };
   };
-  const MTEditorPreview = {
+  var MTEditorPreview = {
     parseText(text) {
       const smiliesDictionaries = MTSmiliesDict();
       let attachimgmatch = text.match(/\[attachimg\]([\s\S]+?)\[\/attachimg\]/g);
-      if (attachimgmatch) {
+      if (attachimgmatch)
         attachimgmatch.forEach((item) => {
           let aimgidMatch = item.match(/\[attachimg\]([\s\S]+?)\[\/attachimg\]/);
           let aimg_id = aimgidMatch ? aimgidMatch[aimgidMatch.length - 1] : "";
           let imgtitle = domUtils.attr(`#aimg_${aimg_id}`, "title");
           let imgsrc = domUtils.attr(`#aimg_${aimg_id}`, "src");
-          if (!imgsrc) {
-            imgtitle = "该图片不存在";
-          }
+          if (!imgsrc) imgtitle = "该图片不存在";
           text = text.replace(
             item,
             `<span class="comiis_postimg vm"><img loading="lazy" id="aimg_${aimg_id}" src="${imgsrc}" alt="${imgtitle}" title="${imgtitle}"></span>`
           );
         });
-      }
       let code = text.match(/\[code\]([\s\S]*?)\[\/code\]/g);
-      if (code) {
+      if (code)
         code.forEach((item) => {
           let match_content = item.match(/\[code\]([\s\S]*?)\[\/code\]/);
           let contentAll = match_content ? match_content[match_content.length - 1] : "";
           let content = "";
           let brSplit = contentAll.split("\n");
-          if (brSplit.length == 1) {
-            content = `<li>${contentAll}</li>`;
-          } else {
-            Array.from(brSplit).forEach((item2, index) => {
-              if (index == brSplit.length - 1) {
-                content = `${content}<li>${item2}</li>`;
-              } else {
-                content = `${content}<li>${item2}<br></li>`;
-              }
+          if (brSplit.length == 1) content = `<li>${contentAll}</li>`;
+          else
+            Array.from(brSplit).forEach((item, index) => {
+              if (index == brSplit.length - 1) content = `${content}<li>${item}</li>`;
+              else content = `${content}<li>${item}<br></li>`;
             });
-          }
           text = text.replace(
             item,
             `
                 <div class="comiis_blockcode comiis_bodybg b_ok f_b"><div class="bg_f b_l"><ol>${content}</ol></div></div>`
           );
         });
-      }
       let url = text.match(/\[url\=[\s\S]*?\]([\s\S]*?)\[\/url\]/g);
-      if (url) {
+      if (url)
         url.forEach((item) => {
           let urlMatch = item.match(/\[url=([\s\S]*?)\][\s\S]*\[\/url\]/);
           let urlNameMatch = item.match(/\[url=[\s\S]*?\]([\s\S]*?)\[\/url\]/);
@@ -10901,9 +9919,8 @@
           let _url_name_ = urlNameMatch ? urlNameMatch[urlNameMatch.length - 1] : "";
           text = text.replace(item, `<a href="${_url_}" target="_blank">${_url_name_}</a>`);
         });
-      }
       let color = text.match(/\[color\=[\s\S]*?\]([\s\S]*?)\[\/color\]/g);
-      if (color) {
+      if (color)
         color.forEach((item) => {
           let colorValueMatch = item.match(/\[color=([\s\S]*?)\][\s\S]*\[\/color\]/);
           let colorTextMatch = item.match(/\[color=[\s\S]*?\]([\s\S]*?)\[\/color\]/);
@@ -10911,9 +9928,8 @@
           let colorText = colorTextMatch ? colorTextMatch[colorTextMatch.length - 1] : "";
           text = text.replace(item, `<font color="${colorValue}">${colorText}</font>`);
         });
-      }
       let size = text.match(/\[size\=[\s\S]*?\]([\s\S]*?)\[\/size\]/g);
-      if (size) {
+      if (size)
         size.forEach((item) => {
           let sizeValueMatch = item.match(/\[size=([\s\S]*?)\][\s\S]*\[\/size\]/);
           let sizeTextMatch = item.match(/\[size=[\s\S]*?\]([\s\S]*?)\[\/size\]/);
@@ -10921,9 +9937,8 @@
           let sizeText = sizeTextMatch ? sizeTextMatch[sizeTextMatch.length - 1] : "";
           text = text.replace(item, `<font size="${sizeValue}">${sizeText}</font>`);
         });
-      }
       let img = text.match(/\[img(|\=[\s\S]+?)\]([\s\S]*?)\[\/img\]/g);
-      if (img) {
+      if (img)
         img.forEach((item) => {
           let widthInfo = null;
           let heightInfo = null;
@@ -10937,21 +9952,16 @@
           heightInfo = heightInfo ? heightInfo : "";
           let match_content = item.match(/\[img\]([\s\S]*?)\[\/img\]|\[img=[\s\S]*?\]([\s\S]*?)\[\/img\]/);
           let content = "";
-          if (match_content) {
-            if (match_content[match_content.length - 1] == null) {
-              content = match_content[match_content.length - 2];
-            } else {
-              content = match_content[match_content.length - 1];
-            }
-          }
+          if (match_content)
+            if (match_content[match_content.length - 1] == null) content = match_content[match_content.length - 2];
+            else content = match_content[match_content.length - 1];
           text = text.replace(
             item,
             `<img loading="lazy" src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}" crossoriginNew="anonymous">`
           );
         });
-      }
       let hide = text.match(/\[hide\]([\s\S]*?)\[\/hide\]/g);
-      if (hide) {
+      if (hide)
         hide.forEach((item) => {
           let match_content = item.match(/\[hide\]([\s\S]*?)\[\/hide\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
@@ -10960,9 +9970,8 @@
             `<div class="comiis_quote bg_h f_c"><h2 class="f_a">本帖隐藏的内容: </h2>${content}</div>`
           );
         });
-      }
       let hide2 = text.match(/\[hide=[\s\S]*?\]([\s\S]*?)\[\/hide\]/g);
-      if (hide2) {
+      if (hide2)
         hide2.forEach((item) => {
           let match_content = item.match(/\[hide=([\s\S]*?)\]([\s\S]*?)\[\/hide\]/);
           let other_info = match_content ? match_content[match_content.length - 2] : "";
@@ -10973,9 +9982,8 @@
             `<div class="comiis_quote bg_h f_c">以下内容需要积分高于 ${integral_big_can_see} 才可浏览</div>`
           );
         });
-      }
       let quote = text.match(/\[quote\]([\s\S]*?)\[\/quote\]/g);
-      if (quote) {
+      if (quote)
         quote.forEach((item) => {
           let match_content = item.match(/\[quote\]([\s\S]*?)\[\/quote\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
@@ -10984,95 +9992,79 @@
             `<div class="comiis_quote bg_h b_dashed f_c"><blockquote><font>回复</font> ${content}</blockquote></div>`
           );
         });
-      }
       let free = text.match(/\[free\]([\s\S]*?)\[\/free\]/g);
-      if (free) {
+      if (free)
         free.forEach((item) => {
           let match_content = item.match(/\[free\]([\s\S]*?)\[\/free\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<div class="comiis_quote bg_h f_c"><blockquote>${content}</blockquote></div>`);
         });
-      }
       let strong = text.match(/\[b\]([\s\S]*?)\[\/b\]/g);
-      if (strong) {
+      if (strong)
         strong.forEach((item) => {
           let match_content = item.match(/\[b\]([\s\S]*?)\[\/b\]/i);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<strong>${content}</strong>`);
         });
-      }
       let xhx = text.match(/\[u\]([\s\S]*?)\[\/u\]/g);
-      if (xhx) {
+      if (xhx)
         xhx.forEach((item) => {
           let match_content = item.match(/\[u\]([\s\S]*?)\[\/u\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<u>${content}</u>`);
         });
-      }
       let qx = text.match(/\[i\]([\s\S]*?)\[\/i\]/g);
-      if (qx) {
+      if (qx)
         qx.forEach((item) => {
           let match_content = item.match(/\[i\]([\s\S]*?)\[\/i\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<i>${content}</i>`);
         });
-      }
       let strike = text.match(/\[s\]([\s\S]*?)\[\/s\]/g);
-      if (strike) {
+      if (strike)
         strike.forEach((item) => {
           let match_content = item.match(/\[s\]([\s\S]*?)\[\/s\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<strike>${content}</strike>`);
         });
-      }
       let smilies = text.match(/\[([\s\S]+?)\]/g);
-      if (smilies) {
+      if (smilies)
         smilies.forEach((item) => {
           let smiliesMatchSrc = smiliesDictionaries[item];
-          if (smiliesMatchSrc) {
+          if (smiliesMatchSrc)
             text = text.replace(item, `<img loading="lazy" src="${smiliesMatchSrc}" border="0" alt="" smilieid="">`);
-          }
         });
-      }
       let media = text.match(/\[media=[\s\S]+?\][\s\S]+?\[\/media\]/g);
-      if (media) {
+      if (media)
         media.forEach((item) => {
           let match_content = item.match(/\[media=[\s\S]*?\]([\s\S]*?)\[\/media\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
-          if (content) {
+          if (content)
             text = text.replace(
               item,
               `<ignore_js_op><span><iframe src="${content}" border="0" scrolling="no" framespacing="0" allowfullscreen="true" style="max-width: 100%" width="100%" height="auto" frameborder="no"></iframe></span></ignore_js_op>`
             );
-          }
         });
-      }
       let email = text.match(/\[email=[\s\S]+?\][\s\S]+?\[\/email\]/g);
-      if (email) {
+      if (email)
         email.forEach((item) => {
           let email_match = item.match(/\[email=([\s\S]*?)\][\s\S]*?\[\/email\]/);
           let content_match = item.match(/\[email=[\s\S]*?\]([\s\S]*?)\[\/email\]/);
           let _email_ = email_match.length ? email_match[email_match.length - 1] : "";
           let _content_ = content_match.length ? content_match[content_match.length - 1] : "";
-          if (_email_ || _content_) {
-            text = text.replace(item, `<a href="mailto:${_email_}">${_content_}</a>`);
-          }
+          if (_email_ || _content_) text = text.replace(item, `<a href="mailto:${_email_}">${_content_}</a>`);
         });
-      }
       let align = text.match(/\[align=[\s\S]+?\][\s\S]+?\[\/align\]/g);
-      if (align) {
+      if (align)
         align.forEach((item) => {
           let align_match = item.match(/\[align=([\s\S]*?)\][\s\S]+?\[\/align\]/);
           let content_match = item.match(/\[align=[\s\S]*?\]([\s\S]+?)\[\/align\]/);
           let _align_ = align_match.length ? align_match[align_match.length - 1] : "";
           let _content_ = content_match.length ? content_match[content_match.length - 1] : "";
-          if (_align_ || _content_) {
-            text = text.replace(item, `<div align="${_align_}">${_content_}</div>`);
-          }
+          if (_align_ || _content_) text = text.replace(item, `<div align="${_align_}">${_content_}</div>`);
         });
-      }
       let qq = text.match(/\[qq\][\s\S]*?\[\/qq\]/g);
-      if (qq) {
+      if (qq)
         qq.forEach((item) => {
           let match_content = item.match(/\[qq\]([\s\S]*?)\[\/qq\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
@@ -11081,62 +10073,51 @@
             `<a href="http://wpa.qq.com/msgrd?v=3&uin=${content}&site=[Discuz!]&from=discuz&menu=yes" target="_blank"><img loading="lazy" src="static/image/common/qq_big.gif" border="0"></a>`
           );
         });
-      }
       let td = text.match(/\[td\][\s\S]+?\[\/td\]/g);
-      if (td) {
+      if (td)
         td.forEach((item) => {
           let match_content = item.match(/\[td\]([\s\S]*?)\[\/td\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<td>${content}</td>`);
         });
-      }
       let tr = text.match(/\[tr\][\s\S]+?\[\/tr\]/g);
-      if (tr) {
+      if (tr)
         tr.forEach((item) => {
           let match_content = item.match(/\[tr\]([\s\S]*?)\[\/tr\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           text = text.replace(item, `<tr>${content}</tr>`);
         });
-      }
       let table = text.match(/\[table\][\s\S]+?\[\/table\]/g);
-      if (table) {
+      if (table)
         table.forEach((item) => {
           let match_content = item.match(/\[table\]([\s\S]*?)\[\/table\]/);
           let content = match_content ? match_content[match_content.length - 1] : "";
           content = content.replace(/\n/g, "");
           text = text.replace(item, `<table>${content}</table>`);
         });
-      }
       let list = text.match(/\[list=[\s\S]+?\][\s\S]+?\[\/list\]/g);
-      if (list) {
+      if (list)
         list.forEach((item) => {
           let list_model_match = item.match(/\[list=([\s\S]*?)\][\s\S]*?\[\/list\]/);
           let list_content_match = item.match(/\[list=[\s\S]*?\]([\s\S]*?)\[\/list\]/);
           let list_model = list_model_match ? list_model_match[list_model_match.length - 1] : "";
           let list_type = "";
-          if (list_model === "a") {
-            list_type = "litype_2";
-          } else if (list_model === "A") {
-            list_type = "litype_3";
-          } else if (list_model.length === 1 && list_model.match(/[0-9]{1}/)) {
-            list_type = "litype_1";
-          }
+          if (list_model === "a") list_type = "litype_2";
+          else if (list_model === "A") list_type = "litype_3";
+          else if (list_model.length === 1 && list_model.match(/[0-9]{1}/)) list_type = "litype_1";
           let content = list_content_match ? list_content_match[list_content_match.length - 1] : "";
           let li_split = content.split("[*]");
           if (li_split.length > 1) {
             let newContent = "";
-            if (li_split[0].replace(/[\s]*/, "") == "") {
-              li_split = li_split.slice(1);
-            }
-            Array.from(li_split).forEach((item2) => {
-              newContent = `${newContent}<li>${item2}</li>`;
+            if (li_split[0].replace(/[\s]*/, "") == "") li_split = li_split.slice(1);
+            Array.from(li_split).forEach((item) => {
+              newContent = `${newContent}<li>${item}</li>`;
             });
             content = newContent;
           }
           content = content.replace(/\n/g, "");
           text = text.replace(item, `<ul type="${list_model}" class="${list_type}">${content}</ul>`);
         });
-      }
       return text;
     },
     parseVoteText() {
@@ -11169,18 +10150,14 @@
       maxchoices = maxchoices > chooseContent.length ? chooseContent.length : maxchoices;
       let polldatas = parseInt(domUtils.val("input#polldatas"));
       polldatas = isNaN(polldatas) ? 0 : polldatas;
-      _unsafeWindow.$("input#visibilitypoll").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close")
-        ? false
-        : true;
+      _unsafeWindow.$("input#visibilitypoll").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close");
       let overt = _unsafeWindow.$("input#overt").parent().find(".comiis_checkbox").hasClass("comiis_checkbox_close")
         ? false
         : true;
       let html = "";
       let choosehtml = "";
       chooseContent.forEach((item, index) => {
-        if (index >= 20) {
-          return;
-        }
+        if (index >= 20) return;
         choosehtml =
           choosehtml +
           `
@@ -11230,9 +10207,9 @@
         .before(_unsafeWindow.$(html));
     },
   };
-  const MTEditorOptimization = {
+  var MTEditorOptimization = {
     $data: {
-      db: new Utils.indexedDB("mt_full_reply_record", "input_text"),
+      db: new _whitesev_utils.default.indexedDB("mt_full_reply_record", "input_text"),
       get type() {
         return MTRouter.isPostPublish_voting() ? "post-vote" : "post";
       },
@@ -11254,7 +10231,7 @@
     },
     init() {
       log.info(`编辑器优化`);
-      addStyle(optimizationCSS);
+      addStyle(editor_optimization_default);
       this.overridePageEditor();
     },
     overridePageEditor() {
@@ -11263,9 +10240,7 @@
       this.$el.$form = $("#postform");
       this.$el.$input = $("#needmessage");
       domUtils.hide(domUtils.parent(".comiis_scrollTop_box"), false);
-      domUtils.css("#postform .comiis_post_from.mt15", {
-        "margin-top": "0px !important",
-      });
+      domUtils.css("#postform .comiis_post_from.mt15", { "margin-top": "0px !important" });
       let comiis_post_tab = _unsafeWindow.$("#postform .comiis_post_from #comiis_post_tab");
       _unsafeWindow.$("#postform .comiis_post_from .comiis_post_ico").append(comiis_post_tab);
       comiis_post_tab.remove();
@@ -11281,8 +10256,7 @@
       domUtils.hide(".comiis_btnbox", false);
       this.initVotePage();
       _unsafeWindow.$(".gm_plugin_chartbed .comiis_over_box.comiis_input_style #imglist");
-      addStyle(
-        `
+      addStyle(`
         #imglist_settings button{
             font-size: 13.333px;
             color: #9baacf;
@@ -11301,8 +10275,7 @@
             justify-content: center;
         }
         #imglist_settings button:active{box-shadow:inset .2rem .2rem .5rem #c8d0e7,inset -.2rem -.2rem .5rem #fff!important;color:#638ffb!important}
-        `
-      );
+        `);
       domUtils.attr("#filedata", "multiple", true);
       domUtils.remove(".gm_plugin_chartbed .comiis_over_box.comiis_input_style");
       domUtils.on(
@@ -11314,9 +10287,7 @@
           domUtils.addClass(this, "bg_f");
           _unsafeWindow.$(".gm_plugin_chartbed .comiis_upbox").hide().eq(_unsafeWindow.$(this).index()).fadeIn();
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
       let top_height = parseInt(domUtils.css("#comiis_head", "height")) || 0;
       let fatie_toupiao = parseInt(domUtils.css("#comiis_sub", "height")) || 0;
@@ -11329,18 +10300,15 @@
         `${window.screen.height - top_height - fatie_toupiao - 48 - title_height - nav_bottom_height - 10}px`
       );
       domUtils.css("#needmessage", "margin-bottom", extra_margin_bottom + "px");
-      if (MTRouter.isPostPublish_edit() && domUtils.val("#needsubject") === "") {
+      if (MTRouter.isPostPublish_edit() && domUtils.val("#needsubject") === "")
         domUtils.hide(".comiis_styli.comiis_flex", false);
-      } else {
-        domUtils.attr("#needsubject", "placeholder", "请输入完整的帖子标题 (1-80个字)");
-      }
+      else domUtils.attr("#needsubject", "placeholder", "请输入完整的帖子标题 (1-80个字)");
       domUtils.attr("#needmessage", "placeholder", "来吧，尽情发挥吧...");
-      if (typeof _unsafeWindow.comiis_addsmilies == "function") {
+      if (typeof _unsafeWindow.comiis_addsmilies == "function")
         _unsafeWindow.comiis_addsmilies = (_str_) => {
           _unsafeWindow.$("#needmessage").comiis_insert(_str_);
           _unsafeWindow.$("#needmessage")[0].dispatchEvent(new Event("input"));
         };
-      }
       if (
         Panel.getValue("mt-forum-post-editorOptimizationNormal-recordInputText") ||
         Panel.getValue("mt-forum-post-editorOptimization-recordInputText")
@@ -11385,19 +10353,12 @@
       } else if (MTRouter.isPostPublish_edit()) {
         log.info(`草稿的页面`);
         log.info(`type：${this.$data.type} tid：${this.$data.tid} pid：${this.$data.pid}`);
-        let initResult = await this.$data.db.get("data");
-        if (initResult.code === 201) {
-          await this.$data.db.save("data", []);
-        }
+        if ((await this.$data.db.get("data")).code === 201) await this.$data.db.save("data", []);
         let queryResult = await this.$data.db.get("data");
         if (queryResult.data) {
           let findValue = queryResult.data.find((item) => {
-            if (item.type !== that.$data.type) {
-              return;
-            }
-            if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
-              return;
-            }
+            if (item.type !== that.$data.type) return;
+            if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) return;
             return true;
           });
           if (findValue) {
@@ -11406,12 +10367,8 @@
               let deleteQuery = await this.$data.db.get("data");
               if (deleteQuery.data) {
                 let deleteFindIndex = deleteQuery.data.findIndex((item) => {
-                  if (item.type !== that.$data.type) {
-                    return;
-                  }
-                  if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
-                    return;
-                  }
+                  if (item.type !== that.$data.type) return;
+                  if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) return;
                   return true;
                 });
                 if (deleteFindIndex != -1) {
@@ -11425,25 +10382,19 @@
       } else if (MTRouter.isPostPublish_reply()) {
         log.info(`回复页面`);
         if (Panel.getValue("mt-forum-post-editorOptimizationNormal-recordInputText")) {
-          let initResult = await MTEditorOptimizationNormal.$data.db.get("data");
-          if (initResult.code === 201) {
+          if ((await MTEditorOptimizationNormal.$data.db.get("data")).code === 201)
             await this.$data.db.save("data", []);
-          }
           let queryResult = await MTEditorOptimizationNormal.$data.db.get("data");
           if (queryResult.data) {
             let findValue = queryResult.data.find((item) => {
               return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
             });
-            if (findValue) {
-              data = findValue;
-            }
+            if (findValue) data = findValue;
           }
         }
       }
-      if (!data) {
-        return;
-      }
-      if (MTRouter.isPostPublish_voting()) {
+      if (!data) return;
+      if (MTRouter.isPostPublish_voting())
         save_callback = () => {
           let $title = that.$el.$form.querySelector("input[name='subject']");
           let $content = that.$el.$form.querySelector("textarea[name='message']");
@@ -11465,34 +10416,29 @@
           domUtils.emit($overt, "input");
           return true;
         };
-      } else {
-        if (MTRouter.isPostPublish_reply()) {
-          save_callback = () => {
-            let $content = that.$el.$form.querySelector("textarea[name='message']");
-            domUtils.val($content, data.text);
-            domUtils.emit($content, "input");
-            return true;
-          };
-        } else {
-          save_callback = () => {
-            let $title = that.$el.$form.querySelector("input[name='subject']");
-            let $content = that.$el.$form.querySelector("textarea[name='message']");
-            domUtils.val($title, data.title);
-            domUtils.val($content, data.content);
-            domUtils.emit($title, "input");
-            domUtils.emit($content, "input");
-            return true;
-          };
-        }
-      }
+      else if (MTRouter.isPostPublish_reply())
+        save_callback = () => {
+          let $content = that.$el.$form.querySelector("textarea[name='message']");
+          domUtils.val($content, data.text);
+          domUtils.emit($content, "input");
+          return true;
+        };
+      else
+        save_callback = () => {
+          let $title = that.$el.$form.querySelector("input[name='subject']");
+          let $content = that.$el.$form.querySelector("textarea[name='message']");
+          domUtils.val($title, data.title);
+          domUtils.val($content, data.content);
+          domUtils.emit($title, "input");
+          domUtils.emit($content, "input");
+          return true;
+        };
       if (MTRouter.isPostPublish_newthread()) {
         log.info(`新发布帖子的页面`);
-        if (typeof save_callback === "function") {
-          save_callback();
-        }
+        if (typeof save_callback === "function") save_callback();
       } else if (MTRouter.isPostPublish_edit()) {
         log.info(`草稿的页面`);
-        if (typeof save_callback === "function" && typeof delete_callback === "function") {
+        if (typeof save_callback === "function" && typeof delete_callback === "function")
           __pops__.confirm({
             title: {
               text: "提示",
@@ -11509,7 +10455,7 @@
                 text: "恢复",
                 callback: async (details) => {
                   if (await save_callback()) {
-                    Qmsg.success("恢复成功");
+                    qmsg.default.success("恢复成功");
                     details.close();
                   }
                 },
@@ -11521,29 +10467,22 @@
                 callback: async (details) => {
                   await delete_callback();
                   details.close();
-                  Qmsg.success("删除成功");
+                  qmsg.default.success("删除成功");
                 },
               },
             },
             width: "300px",
             height: "200px",
           });
-        }
       } else if (MTRouter.isPostPublish_reply()) {
         log.info(`回复页面`);
-        if (typeof save_callback === "function") {
-          save_callback();
-        }
+        if (typeof save_callback === "function") save_callback();
       }
     },
     async getReplyRecordSize() {
       let result = await this.$data.db.get("data");
-      if (result.success) {
-        let size = utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
-        return size;
-      } else {
-        return utils.formatByteToSize(0);
-      }
+      if (result.success) return utils.getTextStorageSize(result?.data?.length ? JSON.stringify(result.data) : "");
+      else return utils.formatByteToSize(0);
     },
     async clearAllReplyRecord() {
       return await this.$data.db.deleteAll();
@@ -11559,12 +10498,8 @@
         let tid = MTUtils.getThreadId(window.location.href);
         let pid = MTUtils.getPostId(window.location.href);
         let localDataIndex = result.data.findIndex((item) => {
-          if (item.type !== type) {
-            return;
-          }
-          if (item.tid !== tid || item.pid !== pid) {
-            return;
-          }
+          if (item.type !== type) return;
+          if (item.tid !== tid || item.pid !== pid) return;
           return true;
         });
         if (localDataIndex !== -1) {
@@ -11602,11 +10537,8 @@
         }
         if (MTRouter.isPostPublish_newthread()) {
           log.info(`内容改变 ==> 新发布帖子的页面`);
-          if (MTRouter.isPostPublish_voting()) {
-            _GM_setValue(that.$key.noPublishVotingSerializeText, data);
-          } else {
-            _GM_setValue(that.$key.noPublishSerializeText, data);
-          }
+          if (MTRouter.isPostPublish_voting()) _GM_setValue(that.$key.noPublishVotingSerializeText, data);
+          else _GM_setValue(that.$key.noPublishSerializeText, data);
         } else if (MTRouter.isPostPublish_edit()) {
           log.info(`内容改变 ==> 草稿的页面`);
           that.$data.db.get("data").then((result) => {
@@ -11615,17 +10547,11 @@
               return;
             }
             let localDataIndex = result.data.findIndex((item) => {
-              if (item.type !== that.$data.type) {
-                return;
-              }
-              if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) {
-                return;
-              }
+              if (item.type !== that.$data.type) return;
+              if (item.tid !== that.$data.tid || item.pid !== that.$data.pid) return;
               return true;
             });
-            if (localDataIndex !== -1) {
-              result.data.splice(localDataIndex, 1);
-            }
+            if (localDataIndex !== -1) result.data.splice(localDataIndex, 1);
             result.data.push({
               url: window.location.href,
               data,
@@ -11646,22 +10572,16 @@
               let localDataIndex = result.data.findIndex((item) => {
                 return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
               });
-              if (localDataIndex !== -1) {
-                if (data.content == null || data.content === "") {
-                  result.data.splice(localDataIndex, 1);
-                } else {
-                  result.data[localDataIndex] = utils.assign(result.data[localDataIndex], {
-                    text: data.content,
-                  });
-                }
-              } else {
+              if (localDataIndex !== -1)
+                if (data.content == null || data.content === "") result.data.splice(localDataIndex, 1);
+                else result.data[localDataIndex] = utils.assign(result.data[localDataIndex], { text: data.content });
+              else
                 result.data.push({
                   forumId: that.$data.tid,
                   url: window.location.href,
                   repquote: MTUtils.getRepquote(window.location.href),
                   text: data.content,
                 });
-              }
               MTEditorOptimizationNormal.$data.db.save("data", result.data).then((result2) => {});
             });
           });
@@ -11669,16 +10589,11 @@
       });
     },
     initDeleteBtn() {
-      let btn_del = $(".comiis_btnbox .comiis_btn.bg_del");
-      if (!btn_del) {
-        return;
-      }
+      if (!$(".comiis_btnbox .comiis_btn.bg_del")) return;
       let $header = $("#comiis_head .header_y");
       let $btn = domUtils.createElement(
         "input",
-        {
-          className: "new_btn_del",
-        },
+        { className: "new_btn_del" },
         {
           type: "button",
           value: "删除",
@@ -11710,18 +10625,12 @@
     },
     initSaveBtn() {
       let $save = domUtils.selector(".comiis_btnbox button#postsubmit:contains('保存')");
-      if (!$save) {
-        return;
-      }
-      if (domUtils.text($save).includes("草稿")) {
-        return;
-      }
+      if (!$save) return;
+      if (domUtils.text($save).includes("草稿")) return;
       let $header = $("#comiis_head .header_y");
       let $btn = domUtils.createElement(
         "input",
-        {
-          className: "new_btn_save",
-        },
+        { className: "new_btn_save" },
         {
           type: "button",
           value: "保存",
@@ -11734,15 +10643,11 @@
     },
     initPostBtn() {
       let $post = domUtils.selector(".comiis_btnbox button#postsubmit:contains('发表')");
-      if (!$post) {
-        return;
-      }
+      if (!$post) return;
       let $header = $("#comiis_head .header_y");
       let $btn = domUtils.createElement(
         "input",
-        {
-          className: "new_btn_post",
-        },
+        { className: "new_btn_post" },
         {
           type: "button",
           value: "发表",
@@ -11757,15 +10662,11 @@
     initReplyBtn() {
       const that = this;
       let $reply = domUtils.selector(".comiis_btnbox button#postsubmit:contains('回复')");
-      if (!$reply) {
-        return;
-      }
+      if (!$reply) return;
       let $header = $("#comiis_head .header_y");
       let $btn = domUtils.createElement(
         "input",
-        {
-          className: "new_btn_reply",
-        },
+        { className: "new_btn_reply" },
         {
           type: "button",
           value: "回复",
@@ -11778,14 +10679,8 @@
       });
     },
     initVotePage() {
-      if (!$$(".comiis_scrollTop_box").length) {
-        return;
-      }
-      _unsafeWindow
-        .$("#htmlon")
-        .parent()
-        .append(
-          `
+      if (!$$(".comiis_scrollTop_box").length) return;
+      _unsafeWindow.$("#htmlon").parent().append(`
                 <li class="comiis_styli_m f15 comiis_flex b_b">
                     <div class="flex">发表帖子</div>
                     <div class="styli_r">
@@ -11804,13 +10699,10 @@
                         </label>
                     </div>	
                 </li>
-                `
-        );
-      if (_unsafeWindow.$(".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')").attr("class") != "f_c") {
+                `);
+      if (_unsafeWindow.$(".comiis_scrollTop_box .swiper-slide a:contains('发表帖子')").attr("class") != "f_c")
         _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").removeClass("comiis_checkbox_close");
-      } else {
-        _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").removeClass("comiis_checkbox_close");
-      }
+      else _unsafeWindow.$(".comiis_checkbox.comiis_choose_vote").removeClass("comiis_checkbox_close");
       _unsafeWindow.$(".comiis_checkbox.comiis_choose_post").on("click", function () {
         let obj = _unsafeWindow.$(this);
         obj.addClass("comiis_checkbox_close");
@@ -11828,15 +10720,11 @@
     },
     initSaveDraftBtn() {
       let $saveDraft = domUtils.selector(".comiis_btnbox button#postsubmit em:contains('保存草稿')");
-      if (!$saveDraft) {
-        return;
-      }
+      if (!$saveDraft) return;
       let $header = $("#comiis_head .header_y");
       let $btn = domUtils.createElement(
         "input",
-        {
-          className: "new_btn_save_temp",
-        },
+        { className: "new_btn_save_temp" },
         {
           type: "button",
           value: "保存草稿",
@@ -11856,9 +10744,7 @@
           callback: (mutations) => {
             var $tar = $("#postform > div > div.comiis_post_ico.comiis_minipost_icot");
             let height = window.getComputedStyle($tar).getPropertyValue("height");
-            if (height.toString() === recordHeight.toString()) {
-              return;
-            }
+            if (height.toString() === recordHeight.toString()) return;
             recordHeight = parseInt(height);
             let needMessageSeeHeight =
               document.documentElement.clientHeight -
@@ -11906,8 +10792,7 @@
       });
     },
     initSelectPostingSection() {
-      addStyle(
-        `
+      addStyle(`
             #select-post-section {
                 height: 28px;
                 width: 160px;
@@ -11919,8 +10804,7 @@
                 appearance: none;
                 -moz-appearance: none;
             }
-            `
-      );
+            `);
       let section_dict = {
         2: "版本发布",
         37: "插件交流",
@@ -12013,27 +10897,22 @@
                         </li>
                         `
             );
-          } else {
+          } else
             Object.keys(classifyClassNameDict).forEach((key) => {
               domUtils.remove(".comiis_post_from ." + classifyClassNameDict[key]["className"]);
             });
-          }
           domUtils.attr("#postform", "action", postSection);
         });
-      } else {
-        domUtils.attr($select, "disabled", true);
-      }
+      } else domUtils.attr($select, "disabled", true);
       domUtils.val($select, currentSection);
       domUtils.emit($select, "change");
     },
     initCharacterCount() {
       log.info(`添加功能：字符计数`);
-      addStyle(
-        `
+      addStyle(`
         .gm_plugin_word_count{display:flex}
         .gm_plugin_word_count::after{content:"/20000"}
-        `
-      );
+        `);
       domUtils.append(
         "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
         `
@@ -12048,11 +10927,8 @@
         domUtils.html(".gm_plugin_previewpostforum_html .comiis_message_table", parsedText);
         let wordCountDom = $(".gm_plugin_word_count p");
         domUtils.text(wordCountDom, userInputTextLength);
-        if (userInputTextLength > 2e4 || userInputTextLength < 10) {
-          domUtils.attr(wordCountDom, "style", "color: red;");
-        } else {
-          domUtils.attr(wordCountDom, "style", "");
-        }
+        if (userInputTextLength > 2e4 || userInputTextLength < 10) domUtils.attr(wordCountDom, "style", "color: red;");
+        else domUtils.attr(wordCountDom, "style", "");
       });
     },
     initUBB() {
@@ -12060,13 +10936,11 @@
         log.error("未找到插入元素");
         return;
       }
-      addStyle(
-        `
+      addStyle(`
         #comiis_post_tab .comiis_input_style .comiis_post_urlico li a.f_0{
             color: #53bcf5 !important;
         }
-        `
-      );
+        `);
       let ubbCode = MTQuickUBB();
       let parentEle = $(".comiis_post_urlico > ul");
       let contentEle = $("#comiis_post_qydiv > ul");
@@ -12086,8 +10960,7 @@
                 `,
         });
         domUtils.on($ubbs, "click", () => {
-          let bottomEle = $(`#comiis_post_qydiv li[data-key='${value.key}']`);
-          if (!bottomEle) {
+          if (!$(`#comiis_post_qydiv li[data-key='${value.key}']`)) {
             log.error("未找到该元素");
             return;
           }
@@ -12119,51 +10992,40 @@
         domUtils.on(`.comiis_sendbtn[data-keyI="${key}"]`, "click", () => {
           let text = _unsafeWindow.$(`#comiis_input_${key}`).val();
           if (text == "") {
-            Qmsg.warning("请输入需要插入的内容");
+            qmsg.default.warning("请输入需要插入的内容");
             return;
           }
           let currentUBBObj = ubbCode[key];
-          if (currentUBBObj["isFunc"]) {
-            text = MTUBB_Rainbow(currentUBBObj["num"], text);
-          }
-          if (currentUBBObj.hasOwnProperty("L")) {
-            text = currentUBBObj["L"] + text + currentUBBObj["R"];
-          }
+          if (currentUBBObj["isFunc"]) text = MTUBB_Rainbow(currentUBBObj["num"], text);
+          if (currentUBBObj.hasOwnProperty("L")) text = currentUBBObj["L"] + text + currentUBBObj["R"];
           _unsafeWindow.$("#needmessage").insertAtCaret(text);
-          if (currentUBBObj.hasOwnProperty("cursorL")) {
+          if (currentUBBObj.hasOwnProperty("cursorL"))
             _unsafeWindow
               .$("#needmessage")
               .moveCursorToCenterByTextWithLeft(currentUBBObj["cursorL"], currentUBBObj["cursorLength"]);
-          }
-          if (currentUBBObj.hasOwnProperty("cursorR")) {
+          if (currentUBBObj.hasOwnProperty("cursorR"))
             _unsafeWindow
               .$("#needmessage")
               .moveCursorToCenterByTextWithRight(currentUBBObj["cursorR"], currentUBBObj["cursorLength"]);
-          }
         });
       });
     },
     initImage() {
       log.info(`添加功能：图片`);
-      addStyle(
-        `
+      addStyle(`
             #comiis_pictitle_tab .comiis_upbox{
                 height: 140px;
                 overflow-y: auto;
             }
-            `
+            `);
+      domUtils.append(
+        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
+        `
+        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`
       );
-      let imageBtnHTML = `
-        <a href="javascript:;" class="comiis_pictitle"><i class="comiis_font"><em>图片</em></i></a>`;
-      domUtils.append("#comiis_mh_sub .swiper-wrapper.comiis_post_ico", imageBtnHTML);
       domUtils.on(".comiis_pictitle", "click", function () {
-        let $click = this;
-        let $font = $click.querySelector("i.comiis_font");
-        if (!$font.classList.contains("f_0")) {
-          domUtils.show(".gm_plugin_chartbed", false);
-        } else {
-          domUtils.hide(".gm_plugin_chartbed", false);
-        }
+        if (!this.querySelector("i.comiis_font").classList.contains("f_0")) domUtils.show(".gm_plugin_chartbed", false);
+        else domUtils.hide(".gm_plugin_chartbed", false);
       });
       domUtils.append(
         "#comiis_post_tab",
@@ -12201,9 +11063,7 @@
           domUtils.addClass($click, "bg_f");
           _unsafeWindow.$("#comiis_pictitle_tab div.comiis_upbox").hide().eq(_unsafeWindow.$($click).index()).fadeIn();
         },
-        {
-          overrideTarget: false,
-        }
+        { overrideTarget: false }
       );
       Panel.execMenuOnce("mt-image-bed-hello-enable", () => {
         MTEditorImageBed_Hello.init();
@@ -12215,17 +11075,17 @@
     initPreview() {
       const that = this;
       log.info(`添加功能：双列预览`);
-      addStyle(
-        `
+      addStyle(`
         .gm_plugin_previewpostforum_html .comiis_message_table{margin-top:10px;font-weight:initial;line-height:24px}
         .gm_plugin_previewpostforum_html .comiis_message_table a{height:auto;float:unset;color:#507daf!important}
         .gm_plugin_previewpostforum_html .comiis_message_table i{text-align:unset;font-size:unset;line-height:unset;padding-top:unset;display:unset}
         .comiis_postli.comiis_list_readimgs.nfqsqi{width:100vw}
         .gm_plugin_previewpostforum_html.double-preview{width:50vw}
         .gm_plugin_previewpostforum_html.double-preview .comiis_over_box.comiis_input_style{border-left:1px solid}
+        `);
+      domUtils.append(
+        "#comiis_mh_sub .swiper-wrapper.comiis_post_ico",
         `
-      );
-      let previewBtnHTML = `
         <a href="javascript:;" class="swiper-slide gm_plugin_previewpostforum">
             <i class="comiis_font" style="display: flex;flex-direction: column;padding-top: 1px;">
                 <svg t="1661243615511" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2399" width="22" height="22" fill="currentColor">
@@ -12234,8 +11094,8 @@
                 </svg>
                 <em style="bottom: 1px;position: relative;">预览</em>
             </i>
-        </a>`;
-      domUtils.append("#comiis_mh_sub .swiper-wrapper.comiis_post_ico", previewBtnHTML);
+        </a>`
+      );
       domUtils.css(domUtils.parent(this.$el.$input), "display", "flex");
       domUtils.after(
         this.$el.$input,
@@ -12254,11 +11114,8 @@
       );
       domUtils.on(".gm_plugin_previewpostforum", "click", function () {
         let $click = this;
-        if ($$("#polldatas").length) {
-          MTEditorPreview.parseVoteText();
-        }
-        let $font = $click.querySelector("i.comiis_font");
-        if (!$font.classList.contains("f_0")) {
+        if ($$("#polldatas").length) MTEditorPreview.parseVoteText();
+        if (!$click.querySelector("i.comiis_font").classList.contains("f_0")) {
           domUtils.show(".gm_plugin_previewpostforum_html", false);
           let parsedText = MTEditorPreview.parseText(domUtils.val(that.$el.$input));
           domUtils.html(".gm_plugin_previewpostforum_html .comiis_message_table", parsedText);
@@ -12267,9 +11124,7 @@
             "height",
             domUtils.css(that.$el.$input, "height")
           );
-        } else {
-          domUtils.hide(".gm_plugin_previewpostforum_html", false);
-        }
+        } else domUtils.hide(".gm_plugin_previewpostforum_html", false);
       });
     },
     initSettingImmersionMode() {
@@ -12301,20 +11156,19 @@
           "div#comiis_head",
           "div#comiis_head+*:not([class])",
         ];
-        if (domUtils.hasClass(code_obj, "comiis_checkbox_close")) {
+        if (domUtils.hasClass(code_obj, "comiis_checkbox_close"))
           elementList.forEach(($ele) => {
             $ele && domUtils.hide($ele, false);
           });
-        } else {
+        else
           elementList.forEach(($ele) => {
             $ele && domUtils.show($ele, false);
           });
-        }
         window.dispatchEvent(new Event("resize"));
       });
     },
   };
-  const MTForumPostPublish = {
+  var MTForumPostPublish = {
     init() {
       domUtils.onReady(() => {
         Panel.execMenuOnce("mt-forum-post-publish-editorOptimization", () => {
@@ -12323,10 +11177,8 @@
       });
     },
   };
-  const MT = {
-    $flag: {
-      showUserUID_initCSS: false,
-    },
+  var MT = {
+    $flag: { showUserUID_initCSS: false },
     init() {
       if (
         MTRouter.isPage() ||
@@ -12335,16 +11187,14 @@
         MTRouter.isPost() ||
         MTRouter.isSearch() ||
         MTRouter.isSpace()
-      ) {
+      )
         Panel.execMenuOnce("mt-show-user-uid", () => {
           this.showUserUID();
         });
-      }
-      if (MTRouter.isSearch() || MTRouter.isGuide() || MTRouter.isSpace() || MTRouter.isPlate()) {
+      if (MTRouter.isSearch() || MTRouter.isGuide() || MTRouter.isSpace() || MTRouter.isPlate())
         Panel.execMenuOnce("mt-small-window", () => {
           MTSmallWindow.init();
         });
-      }
       if (MTRouter.isPost()) {
         log.info(`Router: 帖子`);
         MTForumPost.init();
@@ -12363,9 +11213,7 @@
       } else if (MTRouter.isPostPublish()) {
         log.info("Router: 发帖页面");
         MTForumPostPublish.init();
-      } else {
-        log.error(`Router: 未适配的链接 ==> ` + window.location.href);
-      }
+      } else log.error(`Router: 未适配的链接 ==> ` + window.location.href);
       domUtils.onReady(() => {
         Panel.execMenuOnce("mt-black-home", () => {
           MTBlackHome.init();
@@ -12394,27 +11242,24 @@
         Panel.execMenu("mt-extend-cookie-expire", () => {
           this.extendCookieExpire();
         });
-        if (!MTRouter.isPostPublish_edit()) {
+        if (!MTRouter.isPostPublish_edit())
           Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
             MTIdentifyLinks();
           });
-        }
       });
     },
     showUserUID() {
       log.info(`显示用户UID`);
       if (!this.$flag.showUserUID_initCSS) {
         this.$flag.showUserUID_initCSS = true;
-        addStyle(
-          `
+        addStyle(`
 			.postli_top_tximg + h2{
  				height: auto;
 			}
 			.comiis_postli_top.bg_f.b_t h2{
             	height: auto;
           	}
-			`
-        );
+			`);
       }
       let lockFn = new utils.LockFunction(() => {
         let forumList = utils.getNodeListValue(
@@ -12422,19 +11267,13 @@
           ElementUtils.comiisPostli(),
           ElementUtils.comiisMmlist()
         );
-        if (forumList.length) {
+        if (forumList.length)
           forumList.forEach(($post) => {
-            let mtUIDOM = $post.querySelector(".gm-custom-label-uid");
-            if (mtUIDOM) {
-              return;
-            }
+            if ($post.querySelector(".gm-custom-label-uid")) return;
             let mt_uid_array = Array.from($post.querySelectorAll("a"))
               .map((item) => {
-                let url = item.href;
-                let uid = url.match(MTRegExp.uid);
-                if (uid) {
-                  return uid[uid.length - 1];
-                }
+                let uid = item.href.match(MTRegExp.uid);
+                if (uid) return uid[uid.length - 1];
               })
               .filter((item) => item != null);
             if (mt_uid_array.length) {
@@ -12447,17 +11286,12 @@
               uid_control.innerHTML = "UID:" + mt_uid;
               domUtils.on(uid_control, "click", async (event) => {
                 domUtils.preventEvent(event);
-                let status = await utils.copy(mt_uid);
-                if (status) {
-                  Qmsg.success(`${mt_uid}已复制`);
-                } else {
-                  Qmsg.error(`${mt_uid}复制失败`);
-                }
+                if (await utils.copy(mt_uid)) qmsg.default.success(`${mt_uid}已复制`);
+                else qmsg.default.error(`${mt_uid}复制失败`);
               });
               $topLev.parentElement.append(uid_control);
             }
           });
-        }
       });
       utils.mutationObserver(document, {
         config: {
@@ -12474,22 +11308,13 @@
       let cookieList = await _GM.cookie.list({});
       let needExtendCookieNameList = ["_auth", "_saltkey", "_client_created", "_client_token"];
       cookieList.forEach(async (cookieItem) => {
-        if (cookieItem.session) {
-          return;
-        }
+        if (cookieItem.session) return;
         let expireTime = cookieItem.expirationDate;
         let nowTime = Date.now() / 1e3;
-        if (expireTime < nowTime) {
-          return;
-        }
-        let _30days = 60 * 60 * 24 * 30;
-        if (expireTime - nowTime > _30days) {
-          return;
-        }
-        let flag = needExtendCookieNameList.find((it) => cookieItem.name.endsWith(it));
-        if (!flag) {
-          return;
-        }
+        if (expireTime < nowTime) return;
+        let _30days = 3600 * 24 * 30;
+        if (expireTime - nowTime > _30days) return;
+        if (!needExtendCookieNameList.find((it) => cookieItem.name.endsWith(it))) return;
         _GM.cookie
           .set({
             name: cookieItem.name,
@@ -12505,7 +11330,7 @@
       });
     },
   };
-  const MTDyncmicAvatar = {
+  var MTDyncmicAvatar = {
     $upload: {
       small: false,
       middle: false,
@@ -12579,38 +11404,30 @@
             text: "上传",
             callback: async () => {
               if (!that.$upload.small) {
-                Qmsg.error("请上传小头像");
+                qmsg.default.error("请上传小头像");
                 return;
               }
               if (!that.$upload.middle) {
-                Qmsg.error("请上传中头像");
+                qmsg.default.error("请上传中头像");
                 return;
               }
               if (!that.$upload.big) {
-                Qmsg.error("请上传大头像");
+                qmsg.default.error("请上传大头像");
                 return;
               }
-              let $loading = Qmsg.loading("正在处理数据中...");
+              let $loading = qmsg.default.loading("正在处理数据中...");
               try {
                 let uploadUrl = await this.getUploadUrl();
-                if (uploadUrl == null) {
-                  return;
-                }
+                if (uploadUrl == null) return;
                 let formhash = await MTUtils.getFormHash();
                 if (formhash == null) {
-                  Qmsg.error("获取formhash失败");
+                  qmsg.default.error("获取formhash失败");
                   return;
                 }
                 let avatarInfo = {
-                  big: {
-                    base64: await utils.parseFileToBase64(this.$avatar.big),
-                  },
-                  middle: {
-                    base64: await utils.parseFileToBase64(this.$avatar.middle),
-                  },
-                  small: {
-                    base64: await utils.parseFileToBase64(this.$avatar.small),
-                  },
+                  big: { base64: await utils.parseFileToBase64(this.$avatar.big) },
+                  middle: { base64: await utils.parseFileToBase64(this.$avatar.middle) },
+                  small: { base64: await utils.parseFileToBase64(this.$avatar.small) },
                 };
                 Object.keys(avatarInfo).forEach((keyName) => {
                   let value = avatarInfo[keyName];
@@ -12636,15 +11453,13 @@
                     Referer: `${window.location.origin}/home.php?mod=spacecp&ac=avatar`,
                   },
                 });
-                if (!response.status) {
-                  return;
-                }
+                if (!response.status) return;
                 if (response.data.responseText.indexOf("window.parent.postMessage('success','*')") != -1) {
                   $confirm.close();
-                  Qmsg.success("上传成功");
+                  qmsg.default.success("上传成功");
                 } else {
                   log.error("上传失败", response);
-                  Qmsg.error(response.data.responseText, {
+                  qmsg.default.error(response.data.responseText, {
                     timeout: 6e3,
                     isHTML: false,
                   });
@@ -12708,9 +11523,7 @@
     },
     setUploadChangeEvent($file, $status, sizeInfo, successCallBack) {
       domUtils.on($file, "change", () => {
-        if (!$file.files?.length) {
-          return;
-        }
+        if (!$file.files?.length) return;
         domUtils.text($status, "🤡获取文件信息中...");
         $status.removeAttribute("data-success");
         let uploadImageFile = $file.files[0];
@@ -12745,30 +11558,23 @@
     },
     async getUploadUrl() {
       let response = await httpx.get("/home.php?mod=spacecp&ac=avatar", {
-        headers: {
-          "User-Agent": utils.getRandomPCUA(),
-        },
+        headers: { "User-Agent": utils.getRandomPCUA() },
       });
-      if (!response.status) {
-        return;
-      }
+      if (!response.status) return;
       if (utils.isNull(response.data.responseText)) {
-        Qmsg.error("动态头像：获取上传地址失败");
+        qmsg.default.error("动态头像：获取上传地址失败");
         return;
       }
       let dataMatch = response.data.responseText.match(/var[\s]*data[\s]*=[\s]*"(.+?)"/);
       if (dataMatch == null || dataMatch.length != 2) {
-        Qmsg.error("动态头像：获取变量data失败");
+        qmsg.default.error("动态头像：获取变量data失败");
         return;
       }
-      let data = dataMatch[dataMatch.length - 1];
-      let data_split = data.split(",");
+      let data_split = dataMatch[dataMatch.length - 1].split(",");
       let srcIndex = data_split.indexOf("stl_src");
+      if (srcIndex === -1) srcIndex = data_split.indexOf("src");
       if (srcIndex === -1) {
-        srcIndex = data_split.indexOf("src");
-      }
-      if (srcIndex === -1) {
-        Qmsg.error("动态头像：获取上传地址失败");
+        qmsg.default.error("动态头像：获取上传地址失败");
         return;
       }
       let uploadUrl = data_split[srcIndex + 1];
@@ -12783,7 +11589,7 @@
       return uploadUrl;
     },
   };
-  const Component_Common = {
+  var Component_Common = {
     id: "component-common",
     title: "通用",
     views: [
@@ -13075,9 +11881,7 @@
                   ),
                   UIButton(
                     "修改头像",
-                    `可以上传gif图片，注意图片最大限制为${Utils.formatByteToSize(
-                      MTDyncmicAvatar.$data.avatarInfo.maxSize
-                    )}`,
+                    `可以上传gif图片，注意图片最大限制为${_whitesev_utils.default.formatByteToSize(MTDyncmicAvatar.$data.avatarInfo.maxSize)}`,
                     "上传",
                     void 0,
                     false,
@@ -13095,7 +11899,7 @@
       },
     ],
   };
-  const Component_ForumPost = {
+  var Component_ForumPost = {
     id: "component-forum-post",
     title: "帖子",
     views: [
@@ -13204,19 +12008,15 @@
                     false,
                     "default",
                     async (event) => {
-                      let $click = event.target;
-                      let $li = $click.closest("li");
-                      let $desc = $li.querySelector(".pops-panel-item-left-desc-text");
+                      let $desc = event.target.closest("li").querySelector(".pops-panel-item-left-desc-text");
                       let result = await MTEditorOptimizationNormal.clearAllReplyRecord();
                       if (result.success) {
-                        Qmsg.success("清理成功");
+                        qmsg.default.success("清理成功");
                         domUtils.text(
                           $desc,
                           `当前占用空间大小：${await MTEditorOptimizationNormal.getReplyRecordSize()}`
                         );
-                      } else {
-                        Qmsg.error("清理失败 " + result.msg);
-                      }
+                      } else qmsg.default.error("清理失败 " + result.msg);
                     },
                     async (formCOnfig, container) => {
                       let $desc = container.target.querySelector(".pops-panel-item-left-desc-text");
@@ -13261,16 +12061,12 @@
                     false,
                     "default",
                     async (event) => {
-                      let $click = event.target;
-                      let $li = $click.closest("li");
-                      let $desc = $li.querySelector(".pops-panel-item-left-desc-text");
+                      let $desc = event.target.closest("li").querySelector(".pops-panel-item-left-desc-text");
                       let result = await MTEditorOptimization.clearAllReplyRecord();
                       if (result.success) {
-                        Qmsg.success("清理成功");
+                        qmsg.default.success("清理成功");
                         domUtils.text($desc, `当前占用空间大小：${await MTEditorOptimization.getReplyRecordSize()}`);
-                      } else {
-                        Qmsg.error("清理失败 " + result.msg);
-                      }
+                      } else qmsg.default.error("清理失败 " + result.msg);
                     },
                     async (formCOnfig, container) => {
                       let $desc = container.target.querySelector(".pops-panel-item-left-desc-text");
@@ -13346,7 +12142,7 @@
       },
     ],
   };
-  const Component_Search = {
+  var Component_Search = {
     id: "component-search",
     title: "搜索",
     views: [
@@ -13361,7 +12157,7 @@
       },
     ],
   };
-  const Component_Sign = {
+  var Component_Sign = {
     id: "component-sigh",
     title: "签到",
     views: [
@@ -13383,11 +12179,8 @@
             "签到信息",
             `上次签到时间：${(() => {
               let signInfo = MTAutoSignIn.getHostNameSignInfo(window.location.hostname);
-              if (signInfo) {
-                return Utils.formatTime(signInfo.time);
-              } else {
-                return "尚未签到";
-              }
+              if (signInfo) return _whitesev_utils.default.formatTime(signInfo.time);
+              else return "尚未签到";
             })()}`,
             "清空信息",
             void 0,
@@ -13395,8 +12188,7 @@
             void 0,
             "primary",
             (event) => {
-              let $click = event.composedPath()[0];
-              let $desc = $click.closest("li").querySelector(".pops-panel-item-left-desc-text");
+              let $desc = event.composedPath()[0].closest("li").querySelector(".pops-panel-item-left-desc-text");
               __pops__.confirm({
                 title: {
                   text: "提示 ",
@@ -13409,22 +12201,19 @@
                 btn: {
                   ok: {
                     enable: true,
-                    callback: (event2) => {
+                    callback: (event) => {
                       let hostName = window.location.hostname;
                       MTAutoSignIn.clearSignInfo(hostName);
-                      Qmsg.success("删除成功");
+                      qmsg.default.success("删除成功");
                       domUtils.text(
                         $desc,
                         `上次签到时间：${(() => {
                           let signInfo = MTAutoSignIn.getHostNameSignInfo(hostName);
-                          if (signInfo) {
-                            return Utils.formatTime(signInfo.time);
-                          } else {
-                            return "尚未签到";
-                          }
+                          if (signInfo) return _whitesev_utils.default.formatTime(signInfo.time);
+                          else return "尚未签到";
                         })()}`
                       );
-                      event2.close();
+                      event.close();
                     },
                   },
                 },
@@ -13437,7 +12226,7 @@
       },
     ],
   };
-  const Component_Space = {
+  var Component_Space = {
     id: "component-space",
     title: "空间",
     views: [
@@ -13457,7 +12246,7 @@
       },
     ],
   };
-  const Component_Guide = {
+  var Component_Guide = {
     id: "component-guide",
     title: "导读",
     views: [

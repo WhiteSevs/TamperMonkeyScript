@@ -1,7 +1,7 @@
 import { DOMUtils, log } from "@/env";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
-import { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
+import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { AutoOpenOrClose } from "../all-open-or-close";
 import { UIOwn } from "@components/setting/components/ui-own";
 import { UIButtonShortCut } from "@components/setting/panel-components";

@@ -1,6 +1,6 @@
 import { $, DOMUtils, httpx, utils } from "@/env";
 import Qmsg from "qmsg";
-import { HomePostsInfo } from "../../api/TiebaApi";
+import type { HomePostsInfo } from "../../api/TiebaApi";
 import type { UserConcernInfo } from "../../api/TiebaHomeApi";
 import { TiebaNewPCApi } from "../../api/TiebaNewPCApi";
 

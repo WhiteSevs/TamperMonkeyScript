@@ -28,8 +28,8 @@
 <script setup lang="ts">
   import { log, utils } from "@/env";
   import { VNodeRef, ref, watch } from "vue";
-  import { TiebaHomeApi, UserConcernInfo } from "../../api/TiebaHomeApi";
-  import { TiebaHomeData, UserInfo } from "../data/TiebaHomeData";
+  import { TiebaHomeApi, type UserConcernInfo } from "../../api/TiebaHomeApi";
+  import { TiebaHomeData, type UserInfo } from "../data/TiebaHomeData";
   import TemplateFollowForum from "../template/TemplateFollowForum.vue";
 
   const props = defineProps<{

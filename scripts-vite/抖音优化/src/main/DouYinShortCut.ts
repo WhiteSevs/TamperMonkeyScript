@@ -1,6 +1,6 @@
 import { log } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
+import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 
 export const DouYinShortCut = {
   shortCut: new ShortCut("general-short-cut"),

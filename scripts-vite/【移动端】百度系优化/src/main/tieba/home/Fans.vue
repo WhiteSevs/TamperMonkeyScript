@@ -49,7 +49,7 @@
   import { VNodeRef, ref, watch } from "vue";
   import { TiebaNewPCApi } from "../api/TiebaNewPCApi";
   import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
-  import { UserInfo } from "./data/TiebaHomeData";
+  import type { UserInfo } from "./data/TiebaHomeData";
   import { TiebaRouter } from "./router";
   import TemplateFollowUser from "./template/TemplateFollowUser.vue";
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.11
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
 // @connect      passport.weibo.com
@@ -36,28 +36,58 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, pops, Utils) {
+(function (qmsg, _whitesev_domutils, _whitesev_pops, _whitesev_utils) {
   "use strict";
-
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
-  const PanelSettingConfig = {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __copyProps = (to, from, except, desc) => {
+    if ((from && typeof from === "object") || typeof from === "function")
+      for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+        key = keys[i];
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, {
+            get: ((k) => from[k]).bind(null, key),
+            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+          });
+      }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
+    __copyProps(
+      isNodeMode || !mod || !mod.__esModule
+        ? __defProp(target, "default", {
+            value: mod,
+            enumerable: true,
+          })
+        : target,
+      mod
+    )
+  );
+  qmsg = __toESM(qmsg);
+  _whitesev_domutils = __toESM(_whitesev_domutils);
+  _whitesev_pops = __toESM(_whitesev_pops);
+  _whitesev_utils = __toESM(_whitesev_utils);
+  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
+  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
+  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
+  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
+  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
+  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
+  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
+  var _GM_removeValueChangeListener =
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
+  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
+  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
+  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
+  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
+  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
+  var _monkeyWindow = window;
+  var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom",
@@ -70,62 +100,52 @@
       key: "qmsg-config-showreverse",
       defaultValue: false,
     },
+    httpx_cookie_manager_enable: {
+      key: "httpx-use-cookie-enable",
+      defaultValue: false,
+    },
+    httpx_cookie_manager_use_document_cookie: {
+      key: "httpx-use-document-cookie",
+      defaultValue: false,
+    },
   };
-  const CommonUtil = {
+  var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
-        if (typeof selector !== "string") {
-          return;
-        }
-        DOMUtils.waitNodeList(selector).then((nodeList) => {
+        if (typeof selector !== "string") return;
+        _whitesev_domutils.default.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
     },
     createBlockCSSNode(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return DOMUtils.createElement("style", {
+      return _whitesev_domutils.default.createElement("style", {
         type: "text/css",
         innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
     addBlockCSS(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+      if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
-      if (typeof cssText === "string" && cssText) {
-        return addStyle(cssText);
-      } else {
-        return CommonUtil.loadStyleLink(resourceMapData.url);
-      }
+      if (typeof cssText === "string" && cssText) return addStyle(cssText);
+      else return CommonUtil.loadStyleLink(resourceMapData.url);
     },
     async loadStyleLink(url) {
       let $link = document.createElement("link");
@@ -133,7 +153,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.onReady(() => {
+        _whitesev_domutils.default.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -151,32 +171,21 @@
     },
     fixUrl(url) {
       url = url.trim();
-      if (url.startsWith("data:")) {
-        return url;
-      }
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else if (url.startsWith("//")) {
-        if (url.startsWith("///"));
-        else {
-          url = window.location.protocol + url;
-        }
+      if (url.startsWith("data:")) return url;
+      if (url.match(/^http(s|):\/\//i)) return url;
+      else if (url.startsWith("//")) {
+        if (url.startsWith("///")) {
+        } else url = window.location.protocol + url;
         return url;
       } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
+        if (!url.startsWith("/")) url += "/";
         url = window.location.origin + url;
         return url;
       }
     },
     fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
+      if (url.startsWith("https://")) return url;
+      if (!url.startsWith("http://")) return url;
       try {
         let urlInstance = new URL(url);
         urlInstance.protocol = "https:";
@@ -220,9 +229,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions
-          .query({
-            name: "clipboard-read",
-          })
+          .query({ name: "clipboard-read" })
           .then(() => {
             readClipboardText(resolve);
           })
@@ -232,12 +239,8 @@
           });
       }
       function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
+        if (typeof navigator?.clipboard?.readText !== "function") return false;
+        if (typeof navigator?.permissions?.query !== "function") return false;
         return true;
       }
       return new Promise((resolve) => {
@@ -245,19 +248,15 @@
           resolve("");
           return;
         }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard(resolve);
-        } else {
+        if (document.hasFocus()) requestPermissionsWithClipboard(resolve);
+        else
           window.addEventListener(
             "focus",
             () => {
               requestPermissionsWithClipboard(resolve);
             },
-            {
-              once: true,
-            }
+            { once: true }
           );
-        }
       });
     },
     escapeHtml(unsafe) {
@@ -306,66 +305,44 @@
     },
     findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
-        let $parent = DOMUtils.closest($el, parentSelector);
-        if ($parent) {
-          let $target = $parent.querySelector(selector);
-          return $target;
-        }
+        let $parent = _whitesev_domutils.default.closest($el, parentSelector);
+        if ($parent) return $parent.querySelector(selector);
       } else {
-        if (DOMUtils.matches($el, selector)) {
-          return $el;
-        }
-        let $parent = DOMUtils.closest($el, selector);
-        return $parent;
+        if (_whitesev_domutils.default.matches($el, selector)) return $el;
+        return _whitesev_domutils.default.closest($el, selector);
       }
     },
     toStr(data, space = 2) {
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
-      const dataStr = JSON.stringify(
+      return JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
         space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
-      return dataStr;
     },
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
     },
     isMobileDevice(size = 768) {
-      const isVerticalScreen = this.isVerticalScreen();
-      if (isVerticalScreen) {
-        return globalThis.innerWidth < size;
-      } else {
-        return globalThis.innerHeight < size;
-      }
+      if (this.isVerticalScreen()) return globalThis.innerWidth < size;
+      else return globalThis.innerHeight < size;
     },
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
     formatVideoDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
       const zeroPadding = function (num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
+        if (num < 10) return `0${num}`;
+        else return num;
       };
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
-        return `${minutes}:${zeroPadding(seconds)}`;
-      } else {
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else {
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor(duration / 60) % 60;
         const seconds = duration % 60;
@@ -374,78 +351,64 @@
     },
     formatTimeStamp(time, endTime) {
       if (typeof time === "number") {
-        if (time < 1e12) {
+        if (time < 0xe8d4a51000) {
           const padZeroLength = String(Date.now()).length - String(time).length;
           time = time * Math.pow(10, padZeroLength);
         }
       }
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
-      let currentTime = new Date(endTime ?? Date.now());
-      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
       let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0) {
-        if (days > 7) {
-          result = utils.formatTime(oldTime.getTime());
-        } else {
-          result = days + "天前";
-        }
-      } else {
+      if (days > 0)
+        if (days > 7) result = utils.formatTime(oldTime.getTime());
+        else result = days + "天前";
+      else {
         let leave1 = timeDifference % (24 * 3600 * 1e3);
         let hours = Math.floor(leave1 / (3600 * 1e3));
-        if (hours > 0) {
-          result = hours + "小时前";
-        } else {
+        if (hours > 0) result = hours + "小时前";
+        else {
           let leave2 = leave1 % (3600 * 1e3);
           let minutes = Math.floor(leave2 / (60 * 1e3));
-          if (minutes > 0) {
-            result = minutes + "分钟前";
-          } else {
+          if (minutes > 0) result = minutes + "分钟前";
+          else {
             let leave3 = leave2 % (60 * 1e3);
-            let seconds = Math.round(leave3 / 1e3);
-            result = seconds + "秒前";
+            result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
       }
       return result;
     },
   };
-  const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.fn.Utils.AnyTouch();
+  var utils = _whitesev_utils.default.noConflict();
+  var domUtils = _whitesev_domutils.default.noConflict();
+  var __pops__ = _whitesev_pops.default;
+  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
     tag: true,
   });
-  const getPageMaxZIndex = () => {
+  var getPageMaxZIndex = () => {
     const deviation = 100;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
     const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-    const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
-    return maxZIndex;
+    return Math.max(deviation, popsZIndex, pointZIndex);
   };
-  Qmsg.config({
+  qmsg.default.config({
     isHTML: true,
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
+      if (qmsgType === "loading") return false;
       const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
+      if (qmsgType === "warning") log.warn(content);
+      else if (qmsgType === "error") log.error(content);
+      else log.info(content);
       return false;
     },
     get position() {
@@ -483,13 +446,13 @@
     },
     drag: true,
   });
-  const MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  const httpx = new utils.Httpx({
+  var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
     logDetails: false,
   });
@@ -502,94 +465,75 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") {
-        Qmsg.warning("请求取消", { consoleLogContent: true });
-      } else if (data.type === "onerror") {
-        Qmsg.error("请求异常", { consoleLogContent: true });
-      } else if (data.type === "ontimeout") {
-        Qmsg.error("请求超时", { consoleLogContent: true });
-      } else {
-        Qmsg.error("其它错误", { consoleLogContent: true });
-      }
+      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
+      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
+      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
+      else qmsg.default.error("其它错误", { consoleLogContent: true });
       return data;
     }
   );
-  ({
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty,
-      keys: _unsafeWindow.Object.keys,
-      values: _unsafeWindow.Object.values,
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call,
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
-    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
-    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
-    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
-    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-  });
-  const addStyle = domUtils.addStyle.bind(domUtils);
+  (_unsafeWindow.Object.defineProperty,
+    _unsafeWindow.Object.keys,
+    _unsafeWindow.Object.values,
+    _unsafeWindow.Function.prototype.apply,
+    _unsafeWindow.Function.prototype.call,
+    _unsafeWindow.Element.prototype.appendChild,
+    _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    _unsafeWindow.setInterval.bind(_unsafeWindow),
+    _unsafeWindow.clearInterval.bind(_unsafeWindow));
+  var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.CookieManagerService({
-    baseCookieHandler: "GM_cookie",
-  });
-  if (!cookieManager.isSupportGM_cookie) {
-    if (cookieManager.isSupportCookieStore) {
-      cookieManager.setOptions({
-        baseCookieHandler: "cookieStore",
-      });
-    } else {
-      cookieManager.setOptions({
-        baseCookieHandler: "document.cookie",
-      });
-    }
-  }
+  var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
+  var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
+  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  if (!cookieManager.isSupportGM_cookie)
+    if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
+    else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils.DocumentCookieHandler();
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelSizeUtil = {
+  var KEY = "GM_Panel";
+  var ATTRIBUTE_INIT = "data-init";
+  var ATTRIBUTE_KEY = "data-key";
+  var ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  var ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  var ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+  var PROPS_STORAGE_API = "data-storage-api";
+  var PanelSizeUtil = {
+    followBrowserSize: false,
     get width() {
-      return globalThis.innerWidth;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
     },
     get height() {
-      return globalThis.innerHeight;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
     },
   };
-  const PanelUISize = {
+  var PanelUISize = {
     setting: {
       get width() {
-        if (PanelSizeUtil.width < 550) {
-          return "88vw";
-        } else if (PanelSizeUtil.width < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
+        if (PanelSizeUtil.width < 550) return "88vw";
+        else if (PanelSizeUtil.width < 700) return "550px";
+        else return "700px";
       },
       get height() {
-        if (PanelSizeUtil.height < 450) {
-          return "70vh";
-        } else if (PanelSizeUtil.height < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
+        if (PanelSizeUtil.height < 450) return "70vh";
+        else if (PanelSizeUtil.height < 550) return "450px";
+        else return "550px";
       },
     },
     settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
+      },
+    },
+    settingBig: {
+      get width() {
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       },
     },
     info: {
@@ -601,21 +545,17 @@
       },
     },
   };
-  const PanelContent = {
+  var PanelContent = {
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) {
-          this.__contentConfig = new utils.Dictionary();
-        }
+        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) {
-        configList = [configList];
-      }
+      if (!Array.isArray(configList)) configList = [configList];
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
@@ -626,34 +566,28 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig(config) {
-      if (this.$data.__defaultBottomContentConfig.length) {
-        return this.$data.__defaultBottomContentConfig;
-      }
+      if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
       let isDoubleClick = false;
       let timer = void 0;
       const translateCallback = (text, translateMap) => {
-        if (config && typeof config.translateCallback === "function") {
+        if (config && typeof config.translateCallback === "function")
           return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const exportToFile = (fileName, fileData) => {
-        if (typeof fileData !== "string") {
-          fileData = CommonUtil.toStr(fileData);
-        }
+        if (typeof fileData !== "string") fileData = CommonUtil.toStr(fileData);
         const blob = new Blob([fileData]);
         const blobUrl = globalThis.URL.createObjectURL(blob);
-        const $anchor = domUtils.createElement("a", {
-          href: blobUrl,
-          download: fileName,
-        });
-        $anchor.click();
+        domUtils
+          .createElement("a", {
+            href: blobUrl,
+            download: fileName,
+          })
+          .click();
         utils.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
@@ -682,9 +616,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -706,43 +638,29 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm(
-              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
-            );
-            if (clearLocalStorage) {
-              if (typeof _GM_listValues === "function") {
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
+              if (typeof _GM_listValues === "function")
                 if (typeof _GM_deleteValue === "function") {
-                  const localStorageKeys = _GM_listValues();
-                  localStorageKeys.forEach((key) => {
+                  _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
-                } else {
-                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-                }
-              } else {
-                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
-              }
-            }
-            if (typeof _GM_setValues === "function") {
-              _GM_setValues(data);
-            } else {
-              const keys = Object.keys(data);
-              keys.forEach((key) => {
+                  qmsg.default.success(translateCallback("已清空脚本存储的配置"));
+                } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
+              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            if (typeof _GM_setValues === "function") _GM_setValues(data);
+            else
+              Object.keys(data).forEach((key) => {
                 const value = data[key];
                 _GM_setValue(key, value);
               });
-            }
-            Qmsg.success(translateCallback("配置导入完毕"));
+            qmsg.default.success(translateCallback("配置导入完毕"));
+            importEndCallBack?.();
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
-              if (Object.keys(data).length === 0) {
-                Qmsg.warning(translateCallback("解析为空配置，不导入"));
-              } else {
-                await updateConfigToStorage(data);
-              }
+              if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
+              else await updateConfigToStorage(data);
               resolve(true);
             });
           };
@@ -754,9 +672,7 @@
               accept: ".json",
             });
             domUtils.on($input, ["propertychange", "input"], () => {
-              if (!$input.files?.length) {
-                return;
-              }
+              if (!$input.files?.length) return;
               const uploadFile = $input.files[0];
               const fileReader = new FileReader();
               fileReader.onload = () => {
@@ -791,53 +707,37 @@
                   callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error(translateCallback("请填入完整的url"));
+                      qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
-                    const response = await httpx.get(url, {
-                      allowInterceptConfig: false,
-                    });
+                    const $loading = qmsg.default.loading(translateCallback("正在获取配置..."));
+                    const response = await httpx.get(url, { allowInterceptConfig: false });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
+                      qmsg.default.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
-                    const flag = await importFile(response.data.responseText);
-                    if (!flag) {
-                      return;
-                    }
+                    if (!(await importFile(response.data.responseText))) return;
                     details.close();
                   },
                 },
-                cancel: {
-                  enable: false,
-                },
+                cancel: { enable: false },
               },
               drag: true,
-              mask: {
-                enable: true,
-              },
+              mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
             domUtils.on($promptInput, ["input", "propertychange"], () => {
-              const value = domUtils.val($promptInput);
-              if (value === "") {
-                domUtils.attr($promptOk, "disabled", "true");
-              } else {
-                domUtils.removeAttr($promptOk, "disabled");
-              }
+              if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+              else domUtils.removeAttr($promptOk, "disabled");
             });
             domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
-                const value = domUtils.val($promptInput);
-                if (value !== "") {
-                  domUtils.emit($promptOk, "click");
-                }
+                if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
               }
             });
             domUtils.emit($promptInput, "input");
@@ -847,13 +747,10 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
+              qmsg.default.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
-            const flag = await importFile(clipboardText);
-            if (!flag) {
-              return;
-            }
+            if (!(await importFile(clipboardText))) return;
           });
         };
         const exportConfig = (
@@ -882,9 +779,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -910,48 +805,46 @@
               exportToFile(fileName, fileData);
               $alert.close();
             } catch (error) {
-              Qmsg.error(error.toString(), { consoleLogContent: true });
+              qmsg.default.error(error.toString(), { consoleLogContent: true });
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            const result = await utils.copy(fileData);
-            if (result) {
-              Qmsg.success(translateCallback("复制成功"));
+            if (await utils.copy(fileData)) {
+              qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
-            } else {
-              Qmsg.error(translateCallback("复制失败"));
-            }
+            } else qmsg.default.error(translateCallback("复制失败"));
           });
         };
-        const $dialog = __pops__.confirm({
-          title: {
-            text: translateCallback("配置"),
-            position: "center",
-          },
-          content: {
-            text: `<textarea name="config-value" id="config" readonly></textarea>`,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              type: "primary",
-              text: translateCallback("导入"),
-              callback() {
-                importConfig();
+        const $textarea = __pops__
+          .confirm({
+            title: {
+              text: translateCallback("配置"),
+              position: "center",
+            },
+            content: {
+              text: `<textarea name="config-value" id="config" readonly></textarea>`,
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                type: "primary",
+                text: translateCallback("导入"),
+                callback() {
+                  importConfig();
+                },
+              },
+              cancel: {
+                enable: true,
+                text: translateCallback("导出"),
+                callback() {
+                  exportConfig(void 0, configDataStr);
+                },
               },
             },
-            cancel: {
-              enable: true,
-              text: translateCallback("导出"),
-              callback() {
-                exportConfig(void 0, configDataStr);
-              },
-            },
-          },
-          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
-          height: "auto",
-          style: `
+            width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+            height: "auto",
+            style: `
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -983,17 +876,16 @@
             --textarea-bd-color: #c0c4cc;
           }
         `,
-        });
-        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+          })
+          .$shadowRoot.querySelector("textarea");
         const configData = {};
-        if (typeof _GM_listValues === "function") {
-          const LocalKeys = _GM_listValues();
-          LocalKeys.forEach((key) => {
+        if (typeof _GM_listValues === "function")
+          _GM_listValues().forEach((key) => {
             const value = _GM_getValue(key);
             Reflect.set(configData, key, value);
           });
-        } else {
-          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
+        else {
+          qmsg.default.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1002,9 +894,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-          window.open(supportURL, "_blank");
-        }
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -1017,9 +907,8 @@
           clickFirstCallback() {
             return false;
           },
-          afterRender(config2) {
-            const anyTouch = new AnyTouch(config2.$asideLiElement);
-            anyTouch.on("tap", function () {
+          afterRender(config) {
+            new AnyTouch(config.$asideLiElement).on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1041,7 +930,7 @@
       this.$data.__defaultBottomContentConfig = config;
     },
   };
-  const PanelMenu = {
+  var PanelMenu = {
     $data: {
       __menuOption: [
         {
@@ -1065,28 +954,20 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!CommonUtil.isTopWindow()) {
-        return;
-      }
+      if (!CommonUtil.isTopWindow()) return;
       MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       this.$data.menuOption.push(...option);
     },
     updateMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       option.forEach((optionItem) => {
         let findIndex = this.$data.menuOption.findIndex((it) => {
           return it.key === optionItem.key;
         });
-        if (findIndex !== -1) {
-          this.$data.menuOption[findIndex] = optionItem;
-        }
+        if (findIndex !== -1) this.$data.menuOption[findIndex] = optionItem;
       });
     },
     getMenuOption(index = 0) {
@@ -1096,7 +977,7 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
-  class PanelMenuResultsHandler {
+  var PanelMenuResultsHandler = class {
     data = {
       storeNodeList: [],
       destoryFnList: [],
@@ -1109,40 +990,26 @@
       const dynamicMenuStoreNodeList = [];
       const dynamicDestoryFnList = [];
       let resultValueList = [];
-      if (Array.isArray(args)) {
-        resultValueList = resultValueList.concat(args);
-      } else {
+      if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
+      else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null) {
-            if (obj instanceof Element) {
-              resultValueList.push(obj);
-            } else {
-              if (Array.isArray(obj)) {
-                handleArgs(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else if ($css instanceof Element) {
-                    resultValueList.push($css);
-                  } else;
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
+          if (typeof obj === "object" && obj != null)
+            if (obj instanceof Element) resultValueList.push(obj);
+            else if (Array.isArray(obj)) handleArgs(obj);
+            else {
+              const { $css, destory } = obj;
+              if ($css != null) {
+                if (Array.isArray($css)) resultValueList = resultValueList.concat($css);
+                else if ($css instanceof Element) resultValueList.push($css);
               }
+              if (typeof destory === "function") resultValueList.push(destory);
             }
-          } else {
-            resultValueList.push(obj);
-          }
+          else resultValueList.push(obj);
         };
         handleArgs(args);
       }
       const handleResult = (it) => {
-        if (it == null) {
-          return;
-        }
+        if (it == null) return;
         if (it instanceof Element) {
           dynamicMenuStoreNodeList.push(it);
           return;
@@ -1154,17 +1021,12 @@
       };
       for (const it of resultValueList) {
         const flag = handleResult(it);
-        if (typeof flag === "boolean" && !flag) {
-          break;
-        }
-        if (Array.isArray(it)) {
+        if (typeof flag === "boolean" && !flag) break;
+        if (Array.isArray(it))
           for (const it2 of it) {
             const flag2 = handleResult(it2);
-            if (typeof flag2 === "boolean" && !flag2) {
-              break;
-            }
+            if (typeof flag2 === "boolean" && !flag2) break;
           }
-        }
       }
       this.clearStoreNodeList();
       this.execDestoryFnAndClear();
@@ -1179,8 +1041,7 @@
     }
     clearStoreNodeList = () => {
       for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
-        const $css = this.data.storeNodeList[index];
-        $css?.remove();
+        this.data.storeNodeList[index]?.remove();
         this.data.storeNodeList.splice(index, 1);
       }
     };
@@ -1193,15 +1054,12 @@
     };
     checkMenuExec() {
       let flag = false;
-      if (typeof this.option.checkExec === "function") {
-        flag = this.option.checkExec(this.option.keyList);
-      } else {
-        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
-      }
+      if (typeof this.option.checkExec === "function") flag = this.option.checkExec(this.option.keyList);
+      else flag = this.option.keyList.every((key) => this.getEnableStatus(key));
       return flag;
     }
-  }
-  class StorageUtils {
+  };
+  var StorageUtils = class {
     storageKey;
     listenerData;
     cacheData;
@@ -1209,14 +1067,10 @@
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key can not be empty string");
-        }
+        if (trimKey == "") throw new Error("key can not be empty string");
         this.storageKey = trimKey;
-      } else {
-        throw new TypeError("key must be a string");
-      }
-      this.listenerData = new Utils.Dictionary();
+      } else throw new TypeError("key must be a string");
+      this.listenerData = new _whitesev_utils.default.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
       this.setLocalValue = this.setLocalValue.bind(this);
       this.destory = this.destory.bind(this);
@@ -1263,9 +1117,7 @@
           _GM_removeValueChangeListener(listenerId);
         });
         return localValue;
-      } else {
-        return this.cacheData;
-      }
+      } else return this.cacheData;
     }
     setLocalValue(value) {
       this.cacheData = null;
@@ -1284,8 +1136,7 @@
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
+      return this.getLocalValue();
     }
     delete(key) {
       const oldValue = this.get(key);
@@ -1341,19 +1192,16 @@
     }
     async emitValueChangeListener(...args) {
       const [key, newValue, oldValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
+      if (!this.listenerData.has(key)) return;
       const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
           let __newValue;
           let __oldValue;
-          if (args.length === 1);
-          else if (args.length === 2) {
-            __newValue = newValue;
-          } else if (args.length === 3) {
+          if (args.length === 1) {
+          } else if (args.length === 2) __newValue = newValue;
+          else if (args.length === 3) {
             __newValue = newValue;
             __oldValue = oldValue;
           }
@@ -1361,9 +1209,9 @@
         }
       }
     }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
-  const Panel = {
+  };
+  var PopsPanelStorageApi = new StorageUtils(KEY);
+  var Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
       __onceExecMenuData: null,
@@ -1373,28 +1221,20 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) {
-          this.__contentConfigInitDefaultValue = new utils.Dictionary();
-        }
+        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) {
-          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
-        }
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
+        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -1416,19 +1256,13 @@
     },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
-          return;
-        }
+        if (!config.attributes) return;
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") return;
         const attributes = config.attributes;
         const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           const __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) return;
         }
         const menuDefaultConfig = new Map();
         const key = attributes[ATTRIBUTE_KEY];
@@ -1437,56 +1271,46 @@
           menuDefaultConfig.set(key, defaultValue);
         }
         const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
-          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            const defaultValue = moreMenuDefaultConfig[key2];
-            menuDefaultConfig.set(key2, defaultValue);
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig)
+          Object.keys(moreMenuDefaultConfig).forEach((key) => {
+            const defaultValue = moreMenuDefaultConfig[key];
+            menuDefaultConfig.set(key, defaultValue);
           });
-        }
         if (!menuDefaultConfig.size) {
           log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
           const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
-          if (typeof disabled === "boolean" && disabled) {
+          if (typeof disabled === "boolean" && disabled)
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
-          }
         }
-        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
-          this.setDefaultValue(__key, __defaultValue);
-        }
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) this.setDefaultValue(__key, __defaultValue);
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           const configItem = configList[index];
           initDefaultValue(configItem);
           const childViews = configItem.views;
-          if (childViews && Array.isArray(childViews)) {
-            loopInitDefaultValue(childViews);
-          }
+          if (childViews && Array.isArray(childViews)) loopInitDefaultValue(childViews);
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         const leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.views) {
-          continue;
-        }
+        if (!leftContentConfigItem.views) continue;
         const rightContentConfigList = leftContentConfigItem.views;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+        if (rightContentConfigList && Array.isArray(rightContentConfigList))
           loopInitDefaultValue(rightContentConfigList);
-        }
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     setDefaultValue(key, defaultValue) {
-      if (this.$data.contentConfigInitDefaultValue.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key))
         log.warn("该key已存在，初始化默认值失败: ", {
           key,
           initValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
-      }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     getDefaultValue(key) {
@@ -1498,9 +1322,7 @@
     getValue(key, defaultValue) {
       const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.contentConfigInitDefaultValue.has(key)) {
-          return this.$data.contentConfigInitDefaultValue.get(key);
-        }
+        if (this.$data.contentConfigInitDefaultValue.has(key)) return this.$data.contentConfigInitDefaultValue.get(key);
         return defaultValue;
       }
       return localValue;
@@ -1515,11 +1337,8 @@
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       if (option?.immediate || option?.immediateAll) {
         const value = this.getValue(key);
-        if (option?.immediate) {
-          callback(key, value, value);
-        } else if (option?.immediateAll) {
-          Panel.emitMenuValueChange(key, value, value);
-        }
+        if (option?.immediate) callback(key, value, value);
+        else if (option?.immediateAll) Panel.emitMenuValueChange(key, value, value);
       }
       return listenerId;
     },
@@ -1531,20 +1350,15 @@
     },
     async exec(queryKey, callback, checkExec, once = true) {
       let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) queryKeyFn = () => queryKey;
+      else queryKeyFn = queryKey;
       let isArrayKey = false;
       const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
         keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
+      } else keyList.push(queryKeyResult);
       const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -1552,9 +1366,7 @@
       }
       const storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return this.$data.onceExecMenuData.get(storageKey);
-        }
+        if (this.$data.onceExecMenuData.has(storageKey)) return this.$data.onceExecMenuData.get(storageKey);
       }
       const listenerIdList = [];
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1563,13 +1375,10 @@
           const value = this.getValue(key);
           return Boolean(value);
         },
-        checkExec(keyList2) {
+        checkExec(keyList) {
           let flag = false;
-          if (typeof checkExec === "function") {
-            flag = checkExec(keyList2);
-          } else {
-            flag = keyList2.every((key) => this.getValue(key));
-          }
+          if (typeof checkExec === "function") flag = checkExec(keyList);
+          else flag = keyList.every((key) => this.getValue(key));
           return flag;
         },
       });
@@ -1589,16 +1398,17 @@
         }
         panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
-      if (once) {
+      if (once)
         keyList.forEach((key) => {
-          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
             return valueChangeCallback({
-              key: key2,
+              key,
+              newValue,
+              oldValue,
             });
           });
           listenerIdList.push(listenerId);
         });
-      }
       await valueChangeCallback();
       const result = {
         checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
@@ -1622,9 +1432,7 @@
           });
         },
         clearOnceExecMenuData() {
-          if (once) {
-            Panel.$data.onceExecMenuData.delete(storageKey);
-          }
+          if (once) Panel.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1637,19 +1445,15 @@
           return await callback(...args);
         },
         (keyList) => {
-          const execFlag = keyList.every((__key__) => {
+          return keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            if (isReverse) {
-              flag = !flag;
-            }
+            if (isReverse) flag = !flag;
             return flag;
           });
-          return execFlag;
         },
         once
       );
@@ -1670,16 +1474,14 @@
     async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
       const results = await Promise.all(
         menus.map(async ([key, callback]) => {
-          const menuResult = await this.execMenu(
+          return await this.execMenu(
             key,
             (...args) => {
-              const result = callback(...args);
-              return result;
+              return callback(...args);
             },
             isReverse,
             once
           );
-          return menuResult;
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1694,23 +1496,14 @@
         panelMenuResultsHandler.clearStoreNodeList();
         panelMenuResultsHandler.execDestoryFnAndClear();
         if (removeListener) {
-          for (const listenerId of listenerIdList) {
-            this.removeValueChangeListener(listenerId);
-          }
-          for (const result of results) {
-            if (result) {
-              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
-            }
-          }
+          for (const listenerId of listenerIdList) this.removeValueChangeListener(listenerId);
+          for (const result of results) if (result) this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
         }
       };
       const __allExecCallback__ = () => {
         const allExecFlag = results.every((result) => {
-          if (result) {
-            return result.checkMenuExec();
-          } else {
-            return true;
-          }
+          if (result) return result.checkMenuExec();
+          else return true;
         });
         __destory__(false);
         if (allExecFlag) {
@@ -1719,7 +1512,7 @@
         }
       };
       __allExecCallback__();
-      for (const result of results) {
+      for (const result of results)
         if (result) {
           const listenerId = this.addValueChangeListener(result.keyList[0], () => {
             __allExecCallback__();
@@ -1733,58 +1526,42 @@
             this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
           }
         }
-      }
       return {
         clear() {
-          for (const result of results) {
-            result?.clear();
-          }
+          for (const result of results) result?.clear();
           this.execDestoryFnAndClear();
           this.removeValueChangeListener();
         },
         execDestoryFnAndClear() {
-          for (const result of results) {
-            result?.execDestoryFnAndClear();
-          }
+          for (const result of results) result?.execDestoryFnAndClear();
           __destory__(false);
         },
         removeValueChangeListener() {
-          for (const result of results) {
-            result?.removeValueChangeListener();
-          }
+          for (const result of results) result?.removeValueChangeListener();
           __destory__(true);
         },
       };
     },
     async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
-      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
-      return results;
+      return await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
+      return PopsPanelStorageApi.removeValueChangeListener(key);
     },
     onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
+      if (typeof key !== "string") throw new TypeError("key 必须是字符串");
+      if (this.$data.onceExecData.has(key)) return;
       if (runWithMenuEnable) {
-        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
-          const menuEnable = !!Panel.getValue(it);
-          if (!menuEnable) {
-            return true;
-          }
-        });
-        if (findIndex !== -1) {
+        if (
+          (Array.isArray(key) ? key : [key]).findIndex((it) => {
+            if (!!!Panel.getValue(it)) return true;
+          }) !== -1
+        )
           return;
-        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1812,9 +1589,7 @@
     },
     async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
-      for (const callback of values) {
-        await callback(config);
-      }
+      for (const callback of values) await callback(config);
     },
     showPanel(
       content,
@@ -1826,12 +1601,12 @@
       this.$data.panelContent = [];
       const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-          return isBottom && it.id === "script-version";
+          return (
+            (typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom)) && it.id === "script-version"
+          );
         }) !== -1;
-      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
+      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig)
         content.push(...PanelContent.getDefaultBottomContentConfig());
-      }
       const $panel = __pops__.panel({
         title: {
           text: title,
@@ -1877,33 +1652,30 @@
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
-      if (!preventRegisterSearchPlugin) {
-        this.registerConfigSearch({ $panel, content });
-      }
-      return { $panel, content };
+      if (!preventRegisterSearchPlugin)
+        this.registerConfigSearch({
+          $panel,
+          content,
+        });
+      return {
+        $panel,
+        content,
+      };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
       const translateCallback = (text, translateMap) => {
-        if (typeof config.translateCallback === "function") {
-          return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        if (typeof config.translateCallback === "function") return config.translateCallback(text, translateMap);
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const asyncQueryProperty = async (target, handler) => {
-        if (target == null) {
-          return;
-        }
+        if (target == null) return;
         const handleResult = await handler(target);
-        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-          return handleResult.data;
-        }
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) return handleResult.data;
         return await asyncQueryProperty(handleResult.data, handler);
       };
       const scrollToElementAndListen = ($el, callback) => {
@@ -1922,7 +1694,10 @@
           }
         );
         observer.observe($el);
-        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+        $el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
@@ -1932,9 +1707,7 @@
         $el.classList.add(flashingClassName);
       };
       const dbclick_callback = (evt) => {
-        if (evt.type === "dblclick" && isMobileTouch) {
-          return;
-        }
+        if (evt.type === "dblclick" && isMobileTouch) return;
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
@@ -1950,14 +1723,8 @@
 					`,
             html: true,
           },
-          btn: {
-            ok: { enable: false },
-          },
-          mask: {
-            clickEvent: {
-              toClose: true,
-            },
-          },
+          btn: { ok: { enable: false } },
+          mask: { clickEvent: { toClose: true } },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
@@ -2010,17 +1777,16 @@
         };
         const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
-            if (target?.next) {
+            if (target?.next)
               return {
                 isFind: false,
                 data: target.next,
               };
-            } else {
+            else
               return {
                 isFind: true,
                 data: target,
               };
-            }
           });
           const $item = domUtils.createElement("div", {
             className: "search-result-item",
@@ -2031,16 +1797,11 @@
           });
           const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
-            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
+            const $targetAsideItem = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
-            );
-            const $targetAsideItem = $asideItems2[pathInfo.index];
+            )[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(
-                translateCallback(`左侧项下标{{index}}不存在`, {
-                  index: pathInfo.index,
-                })
-              );
+              qmsg.default.error(translateCallback(`左侧项下标{{index}}不存在`, { index: pathInfo.index }));
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -2058,10 +1819,9 @@
                     }
                   );
                 }, 2500);
-                if ($findDeepMenu) {
-                  $findDeepMenu.click();
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
+                if ($findDeepMenu) $findDeepMenu.click();
+                else {
+                  qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -2075,8 +1835,10 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
-                      return viewConfig === target.matchedData?.formConfig;
+                      return (
+                        Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey) ===
+                        target.matchedData?.formConfig
+                      );
                     }
                   );
                 }, 2500);
@@ -2084,16 +1846,13 @@
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
-                    $foldWrapper.click();
+                    $fold.querySelector(".pops-panel-forms-fold-container").click();
                     await utils.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
                   });
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的菜单项"));
-                }
+                } else qmsg.default.error(translateCallback("未找到对应的菜单项"));
                 return {
                   isFind: true,
                   data: target,
@@ -2114,21 +1873,18 @@
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
-                  deepNext.next = {
-                    name: configItem.text,
-                  };
+                  deepNext.next = { name: configItem.text };
                 }
                 loopContentConfig(childViewConfig, deepMenuPath);
               } else {
@@ -2137,15 +1893,9 @@
                 if (configItem.type === "own") {
                   let searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                   if (searchConfig) {
-                    if (typeof searchConfig === "function") {
-                      searchConfig = searchConfig();
-                    }
-                    if (typeof searchConfig.text === "string") {
-                      text = searchConfig.text;
-                    }
-                    if (typeof searchConfig.desc === "string") {
-                      description = searchConfig.desc;
-                    }
+                    if (typeof searchConfig === "function") searchConfig = searchConfig();
+                    if (typeof searchConfig.text === "string") text = searchConfig.text;
+                    if (typeof searchConfig.desc === "string") description = searchConfig.desc;
                   }
                 } else {
                   text = configItem.text;
@@ -2153,25 +1903,22 @@
                 }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
-                  if (typeof configText !== "string") {
-                    return;
-                  }
+                  if (typeof configText !== "string") return;
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
                   const matchedPath = utils.deepClone(path);
                   const deepNext = utils.queryProperty(matchedPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   deepNext.next = {
                     name: text,
@@ -2185,20 +1932,17 @@
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
-                    if (typeof name === "string" && name.trim() !== "") {
-                      pathList.push(name);
-                    }
-                    if (target?.next) {
+                    if (typeof name === "string" && name.trim() !== "") pathList.push(name);
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
                   deepNext.next.matchedData.path = pathStr;
@@ -2209,18 +1953,12 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.views) {
-              continue;
-            }
-            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
-              continue;
-            }
+            if (!leftContentConfigItem.views) continue;
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") continue;
             const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
-              if (typeof text === "function") {
-                text = text();
-              }
+              if (typeof text === "function") text = text();
               loopContentConfig(rightContentConfigList, {
                 index,
                 name: text,
@@ -2249,12 +1987,11 @@
           }, 200)
         );
       };
-      const $asideItems = $panel.$shadowRoot.querySelectorAll(
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
-      );
-      $asideItems.forEach(($asideItem) => {
-        domUtils.on($asideItem, "dblclick", dbclick_callback);
-      });
+      $panel.$shadowRoot
+        .querySelectorAll(`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`)
+        .forEach(($asideItem) => {
+          domUtils.on($asideItem, "dblclick", dbclick_callback);
+        });
       const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
@@ -2279,9 +2016,7 @@
             clickMap.set($selector, evt);
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
@@ -2312,16 +2047,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key)) {
+      if (Array.isArray(key))
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
-        } else {
-          return key[0];
-        }
-      } else {
-        return key;
-      }
+        } else return key[0];
+      else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2343,9 +2074,9 @@
       };
     },
   };
-  const blockAdsCSS$1 =
+  var blockAds_default$1 =
     "/* 底部中间的 登录/注册按钮 */\n#app div.main-wrap div.login-box,\n/* 主内容底部的小程序横幅推荐 */\n#app > div.lite-page-wrap > div > div.main > div > div.wrap,\n/* 底部悬浮的在微博内打开 */\n#app .woo-frame.blog-config-page div.weibo-btn-box,\n/* 顶部的新闻信息流 */\n#app .woo-frame div.woo-panel-container.news-banner,\n/* 夹杂在card中间的图片横幅，不确定是否会误伤其它正常内容 */\n.card .card-main .m-img-box > ul {\n  display: none !important;\n}\n/* 搜索域名下的 */\n.card.m-panel:has(+ .simple),\n.card.m-panel.simple {\n  display: none !important;\n}\n";
-  const WeiBoNetWorkHook = {
+  var WeiBoNetWorkHook = {
     _ajaxHooker_: null,
     get ajaxHooker() {
       if (this._ajaxHooker_ == null) {
@@ -2356,60 +2087,45 @@
       return this._ajaxHooker_;
     },
   };
-  const VueUtils = {
+  var VueUtils = {
     getVue($el) {
-      if ($el == null) {
-        return;
-      }
+      if ($el == null) return;
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
     getVue3($el) {
-      if ($el == null) {
-        return;
-      }
+      if ($el == null) return;
       return $el["__vueParentComponent"];
     },
     waitVuePropToSet($el, checkOption) {
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
+      if (!Array.isArray(checkOption)) checkOption = [checkOption];
       function getTarget() {
         let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
+        if (typeof $el === "string") __target__ = domUtils.selector($el);
+        else if (typeof $el === "function") __target__ = $el();
+        else if ($el instanceof HTMLElement) __target__ = $el;
         return __target__;
       }
       checkOption.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
+        if (typeof needSetOption.msg === "string") log.info(needSetOption.msg);
         const checkTarget = function () {
           const $targetEl = getTarget();
-          if ($targetEl == null) {
+          if ($targetEl == null)
             return {
               status: false,
               isTimeout: true,
               inst: null,
               $el: $targetEl,
             };
-          }
           const vueInst = VueUtils.getVue($targetEl);
-          if (vueInst == null) {
+          if (vueInst == null)
             return {
               status: false,
               isTimeout: false,
               inst: null,
               $el: $targetEl,
             };
-          }
-          const checkResult = Boolean(needSetOption.check(vueInst, $targetEl));
           return {
-            status: checkResult,
+            status: Boolean(needSetOption.check(vueInst, $targetEl)),
             isTimeout: false,
             inst: vueInst,
             $el: $targetEl,
@@ -2429,11 +2145,8 @@
             if (checkTargetResult.status) {
               const vueInst = checkTargetResult.inst;
               needSetOption.set(vueInst, checkTargetResult.$el);
-            } else {
-              if (typeof needSetOption.failWait === "function") {
-                needSetOption.failWait(checkTargetResult.isTimeout);
-              }
-            }
+            } else if (typeof needSetOption.failWait === "function")
+              needSetOption.failWait(checkTargetResult.isTimeout);
           });
       });
     },
@@ -2452,7 +2165,7 @@
           },
           set(vueInstance) {
             let removeWatch = null;
-            if (typeof key === "function") {
+            if (typeof key === "function")
               removeWatch = vueInstance.$watch(
                 () => {
                   return key(vueInstance);
@@ -2462,7 +2175,7 @@
                 },
                 config
               );
-            } else {
+            else
               removeWatch = vueInstance.$watch(
                 key,
                 (newValue, oldValue) => {
@@ -2470,7 +2183,6 @@
                 },
                 config
               );
-            }
             resolve(removeWatch);
           },
           failWait,
@@ -2479,32 +2191,26 @@
     },
     goToUrl($el, path, useRouter = false) {
       if ($el == null) {
-        Qmsg.error("跳转Url: $vueNode为空");
+        qmsg.default.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
       let vueInstance = VueUtils.getVue($el);
       if (vueInstance == null) {
-        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+        qmsg.default.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
       let $router = vueInstance.$router;
       let isBlank = true;
       log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isBlank = false;
-      }
-      if (isBlank) {
-        window.open(path, "_blank");
-      } else {
+      if (useRouter) isBlank = false;
+      if (isBlank) window.open(path, "_blank");
+      else {
         if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
+          if (path.startsWith("//")) path = window.location.protocol + path;
           let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
+          if (urlObj.origin === window.location.origin) path = urlObj.pathname + urlObj.search + urlObj.hash;
+          else {
             log.info("不同域名，直接本页打开，不用Router：" + path);
             window.location.href = path;
             return;
@@ -2526,73 +2232,52 @@
       }
       async function resumeBack(isFromPopState = false) {
         domUtils.off(_unsafeWindow, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (true) {
+        if (option.callback(isFromPopState)) return;
+        while (true)
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();
             await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
+          } else return;
       }
       banBack();
-      return {
-        resumeBack,
-      };
+      return { resumeBack };
     },
   };
-  const WeiBoHook = {
+  var WeiBoHook = {
     hookApply() {
       log.info("劫持Function.prototype.apply");
       let originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function (...args) {
         let target = originApply;
-        if (args.length !== 2 || (args.length === 2 && !Array.isArray(args[1])) || typeof args[1][0] !== "string") {
+        if (args.length !== 2 || (args.length === 2 && !Array.isArray(args[1])) || typeof args[1][0] !== "string")
           return Reflect.apply(target, this, args);
-        }
         const ApiPath = args[1][0];
         const ApiSearchParams = args[1]?.[1]?.["params"];
         if (ApiPath === "api/attitudes/create" && Panel.getValue("weibo_apply_attitudes_create")) {
           log.success("拦截跳转登录");
           return new Promise((resolve) => {
-            resolve({
-              data: {},
-            });
+            resolve({ data: {} });
           });
         } else if (ApiPath === "api/likes/update" && Panel.getValue("weibo_apply_likes_update")) {
           log.success("拦截点赞跳转登录");
           return new Promise((resolve) => {
-            resolve({
-              data: {},
-            });
+            resolve({ data: {} });
           });
         } else if (ApiPath === "api/comments/create" && Panel.getValue("weibo_apply_comments_create")) {
           log.success("拦截评论跳转登录");
           return new Promise((resolve) => {
-            resolve({
-              data: {},
-            });
+            resolve({ data: {} });
           });
         } else if (ApiPath === "api/friendships/create" && Panel.getValue("weibo_apply_friendships_create")) {
           log.success("拦截关注跳转登录");
           return new Promise((resolve) => {
-            resolve({
-              data: {},
-            });
+            resolve({ data: {} });
           });
         } else if (ApiPath === "api/comments/reply" && Panel.getValue("weibo_apply_comments_reply")) {
           log.success("拦截回复跳转登录");
           return new Promise((resolve, reject) => {
-            resolve({
-              data: {
-                ok: 200,
-              },
-            });
+            resolve({ data: { ok: 200 } });
           });
         } else if (ApiPath.startsWith("profile/info") && Panel.getValue("weibo_apply_profile_info")) {
           log.success("优化跳转xx微博主页", ApiSearchParams);
@@ -2646,7 +2331,7 @@
               },
             });
           });
-        } else;
+        }
         return Reflect.apply(target, this, args);
       };
     },
@@ -2654,7 +2339,7 @@
       WeiBoNetWorkHook.ajaxHooker.hook(function (request) {
         let requestUrl = CommonUtil.fixUrl(request.url);
         log.info("[ajaxHookr] " + requestUrl);
-        if (requestUrl.startsWith("https://m.weibo.cn/api/config") && Panel.getValue("weibo_request_api_config")) {
+        if (requestUrl.startsWith("https://m.weibo.cn/api/config") && Panel.getValue("weibo_request_api_config"))
           request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             if (!originResponseData.data.login) {
@@ -2669,41 +2354,38 @@
               originResponse.responseText = JSON.stringify(originResponseData);
             }
           };
-        } else if (
+        else if (
           requestUrl.startsWith("https://m.weibo.cn/comments/hot") &&
           Panel.getValue("weibo_request_comments_hot")
-        ) {
+        )
           request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             if (originResponseData.ok !== 1) {
               log.error("由于尚未登录，获取不到更多评论数据", originResponseData);
-              originResponseData = {
-                ok: 1,
-              };
+              originResponseData = { ok: 1 };
               originResponse.responseText = JSON.stringify(originResponseData);
             }
           };
-        } else if (
+        else if (
           requestUrl.startsWith("https://m.weibo.cn/status/push?") &&
           Panel.getValue("weibo_request_status_push")
-        ) {
+        )
           request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             Reflect.set(originResponse, "json", {});
             log.info(`重构/status/push响应`, originResponseData);
             originResponse.responseText = JSON.stringify(originResponseData);
           };
-        } else if (
+        else if (
           requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") &&
           Panel.getValue("weibo-request-blockArticleAds")
-        ) {
+        )
           request.response = function (originResponse) {
             let originResponseData = utils.toJSON(originResponse.responseText);
             let cards = originResponseData["data"]["cards"];
-            if (Array.isArray(cards)) {
+            if (Array.isArray(cards))
               for (let index = 0; index < cards.length; index++) {
-                const card = cards[index];
-                let mblog = card?.mblog;
+                let mblog = cards[index]?.mblog;
                 if (mblog) {
                   let id = mblog.id;
                   let ad_state = mblog?.ad_state;
@@ -2712,15 +2394,13 @@
                   if (ad_state) {
                     cards.splice(index, 1);
                     index--;
-                    log.info(`移除广告url：https://m.weibo.cn/detail/` + id);
+                    log.info("移除广告url：https://m.weibo.cn/detail/" + id);
                     log.info(`移除广告card：` + cardText);
                   }
                 }
               }
-            }
             originResponse.responseText = JSON.stringify(originResponseData);
           };
-        }
       });
     },
     hookWebpack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
@@ -2740,7 +2420,7 @@
               (Array.isArray(mainCoreData) &&
                 Array.isArray(_mainCoreData) &&
                 JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
-            ) {
+            )
               Object.keys(args[0][1]).forEach((keyName) => {
                 let originSwitchFunc = args[0][1][keyName];
                 args[0][1][keyName] = function (..._args) {
@@ -2749,7 +2429,6 @@
                   return result;
                 };
               });
-            }
             return originPush.call(this, ...args);
           };
         },
@@ -2770,7 +2449,7 @@
                   let uid = to?.params?.uid;
                   if (uid == null) {
                     log.error("获取uid失败");
-                    Qmsg.error("获取uid失败");
+                    qmsg.default.error("获取uid失败");
                     return;
                   }
                   log.success(`修复跳转${uid}微博主页`);
@@ -2778,7 +2457,8 @@
                   window.location.href = uidHomeUrl;
                   return;
                 }
-              } else if (to?.name === "detail");
+              } else if (to?.name === "detail") {
+              }
               next();
             };
             vueIns.$router.beforeEach(beforeEachFn);
@@ -2792,9 +2472,7 @@
             if (ownHookIndex !== -1) {
               let ownHook = vueIns.$router.beforeHooks.splice(ownHookIndex, 1);
               vueIns.$router.beforeHooks.splice(0, 0, ...ownHook);
-            } else {
-              log.error("$router未在beforeHooks内找到自定义的beforeEach");
-            }
+            } else log.error("$router未在beforeHooks内找到自定义的beforeEach");
           },
         },
       ]);
@@ -2810,7 +2488,7 @@
       });
     },
   };
-  const WeiBoRouter = {
+  var WeiBoRouter = {
     isMWeiBo() {
       return window.location.hostname === "m.weibo.cn";
     },
@@ -2830,8 +2508,7 @@
       return this.isMWeiBo() && window.location.pathname.startsWith("/search");
     },
     isMWeiBo_HotSearch() {
-      let searchParams = new URLSearchParams(globalThis.location.search);
-      let containerid = searchParams.get("containerid");
+      let containerid = new URLSearchParams(globalThis.location.search).get("containerid");
       return (
         this.isMWeiBo() &&
         window.location.pathname.startsWith("/p/index") &&
@@ -2855,7 +2532,7 @@
       return window.location.hostname === "weibo.com" && window.location.pathname.startsWith("/l/wblive/m/show/");
     },
   };
-  const WeiBoHuaTi = {
+  var WeiBoHuaTi = {
     init() {
       Panel.execMenu("huati_weibo_masquerade_weibo_client_app", () => {
         this.isWeibo();
@@ -2882,9 +2559,7 @@
     hookNetWorkWithGetMoreCelebrityCalendarInformation() {
       WeiBoNetWorkHook.ajaxHooker.hook((request) => {
         log.info("ajaxHookr: ", request.url);
-        if (!request.url.startsWith("/ajax/super/starschedule?")) {
-          return;
-        }
+        if (!request.url.startsWith("/ajax/super/starschedule?")) return;
         request.response = async (res) => {
           let getResp = await httpx.get(request.url, {
             headers: {
@@ -2908,7 +2583,7 @@
       });
     },
   };
-  const WeiBoVideoHook = {
+  var WeiBoVideoHook = {
     init() {
       this.hookWebpack();
     },
@@ -2930,7 +2605,7 @@
       });
     },
   };
-  const WeiBoVideo = {
+  var WeiBoVideo = {
     init() {
       Panel.onceExec("weibo-video-init-hook", () => {
         WeiBoVideoHook.init();
@@ -2958,11 +2633,11 @@
       return CommonUtil.addBlockCSS('#app .woo-panel[class*="Playdetail_card_"]:nth-child(3)');
     },
   };
-  const blockAdsCSS = "/* 文章内容的底部的广告 */\n#app .ad-wrap {\n  display: none !important;\n}\n";
-  const WeiBoDetail = {
+  var blockAds_default = "/* 文章内容的底部的广告 */\n#app .ad-wrap {\n  display: none !important;\n}\n";
+  var WeiBoDetail = {
     init() {
       Panel.onceExec("weibo-detail-blockAds", () => {
-        return addStyle(blockAdsCSS);
+        return addStyle(blockAds_default);
       });
     },
     setArticleAbsoluteTime() {
@@ -2978,19 +2653,12 @@
             Array.from($$(".card.m-panel .m-text-cut .time:not([data-gm-absolute-time])")).forEach(($time) => {
               let $card = $time.closest(".card.m-panel");
               let cardVueIns = VueUtils.getVue($card);
-              if (!cardVueIns) {
-                return;
-              }
+              if (!cardVueIns) return;
               let createTime = cardVueIns?.item?.created_at;
-              if (typeof createTime !== "string") {
-                return;
-              }
-              if ($time.innerText.includes("编辑")) {
-                return;
-              }
+              if (typeof createTime !== "string") return;
+              if ($time.innerText.includes("编辑")) return;
               let createTimeObj = new Date(createTime);
-              let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
-              $time.innerText = formatCreateTime;
+              $time.innerText = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
               $time.setAttribute("data-gm-absolute-time", "true");
             });
           }
@@ -3000,27 +2668,19 @@
             if (litePageWrapVueIns) {
               let curWeiboData = litePageWrapVueIns?.curWeiboData;
               let $timeList = Array.from($$(".lite-page-comment .card .card-main .m-box .time"));
-              if ($timeList.length === curWeiboData.commentLists.length + 1) {
+              if ($timeList.length === curWeiboData.commentLists.length + 1)
                 $timeList.forEach(($time, index) => {
-                  if ($time.hasAttribute("data-gm-absolute-time")) {
-                    return;
-                  }
+                  if ($time.hasAttribute("data-gm-absolute-time")) return;
                   if (index === 0) {
                     let createTimeObj = new Date(curWeiboData.rootComment.created_at);
-                    let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
-                    $time.innerText = formatCreateTime;
+                    $time.innerText = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
                   } else {
                     let createTimeObj = new Date(curWeiboData.commentLists[index - 1].created_at);
-                    let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
-                    $time.innerText = formatCreateTime;
+                    $time.innerText = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
                   }
                   $time.setAttribute("data-gm-absolute-time", "true");
                 });
-              } else {
-                if ($timeList.length !== 0) {
-                  log.warn("楼中楼时间设置失败，数量不一致");
-                }
-              }
+              else if ($timeList.length !== 0) log.warn("楼中楼时间设置失败，数量不一致");
             }
           }
           function handleCardCommentTime() {
@@ -3028,35 +2688,28 @@
               let $card = $time.closest(".card");
               let $cardParent = $card.parentElement;
               let cardVueIns = VueUtils.getVue($card) || VueUtils.getVue($cardParent);
-              if (!cardVueIns) {
-                return;
-              }
+              if (!cardVueIns) return;
               let createTime = cardVueIns?.item?.created_at;
-              if (typeof createTime !== "string") {
-                return;
-              }
+              if (typeof createTime !== "string") return;
               let createTimeObj = new Date(createTime);
-              let formatCreateTime = utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss");
-              $time.innerText = `${formatCreateTime} ${cardVueIns?.item?.source || ""}`;
+              $time.innerText = `${utils.formatTime(createTimeObj, "yyyy-MM-dd HH:mm:ss")} ${cardVueIns?.item?.source || ""}`;
               $time.setAttribute("data-gm-absolute-time", "true");
             });
           }
           let searchParams = new URLSearchParams(window.location.search);
-          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
-            if (searchParams.has("cid")) {
-              handleCardLzlTime();
-            } else {
+          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status())
+            if (searchParams.has("cid")) handleCardLzlTime();
+            else {
               handleCardMainTime();
               handleCardCommentTime();
             }
-          } else {
-            handleCardMainTime();
-          }
+          else handleCardMainTime();
         },
       });
     },
   };
-  const WeiBoSearch = {
+  var WeiBoUserHome = { init() {} };
+  var WeiBoSearch = {
     init() {
       Panel.execMenuOnce("weibo-search-addOpenBlankBtn", () => {
         this.addOpenBlankBtn();
@@ -3072,7 +2725,7 @@
       domUtils.waitNode(`.ntop-nav input[type="search"]`).then(($input) => {
         if (!$input) {
           log.error("未找到搜索框");
-          Qmsg.error("未找到搜索框");
+          qmsg.default.error("未找到搜索框");
           return;
         }
         let searchParams = new URLSearchParams(window.location.search);
@@ -3080,8 +2733,7 @@
           log.warn("不存在containerid参数");
           return;
         }
-        let containeridSearchParams = new URLSearchParams(searchParams.get("containerid"));
-        if (containeridSearchParams.has("q")) {
+        if (new URLSearchParams(searchParams.get("containerid")).has("q")) {
           log.warn("containerid参数中存在q参数，是搜索结果页面");
           return;
         }
@@ -3099,13 +2751,9 @@
         },
         immediate: true,
         callback() {
-          if (!WeiBoRouter.isMWeiBo_search()) {
-            return;
-          }
+          if (!WeiBoRouter.isMWeiBo_search()) return;
           document.querySelectorAll(".card footer.m-ctrl-box:not(:has(.gm-open-blank))").forEach(($footerCtrl) => {
-            if ($footerCtrl.querySelector(".gm-open-blank")) {
-              return;
-            }
+            if ($footerCtrl.querySelector(".gm-open-blank")) return;
             let $ownDiyBtn = domUtils.createElement("div", {
               innerHTML: `
 								<h4>新标签页打开</h4>
@@ -3116,12 +2764,12 @@
               domUtils.preventEvent(event);
               let vueIns = VueUtils.getVue($footerCtrl);
               if (!vueIns) {
-                Qmsg.error("没有找到对应的Vue实例");
+                qmsg.default.error("没有找到对应的Vue实例");
                 return;
               }
               let id = vueIns?.item?.id;
               if (typeof id !== "string") {
-                Qmsg.error("没有找到对应的id");
+                qmsg.default.error("没有找到对应的id");
                 return;
               }
               let url = `${window.location.origin}/detail/${id}`;
@@ -3129,24 +2777,17 @@
               window.open(url, "_blank");
             });
             let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
-            if ($diyBtnList.length) {
-              domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
-            } else {
-              domUtils.append($footerCtrl, $ownDiyBtn);
-            }
+            if ($diyBtnList.length) domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+            else domUtils.append($footerCtrl, $ownDiyBtn);
           });
         },
       });
     },
   };
-  const WeiBoApi = {
+  var WeiBoApi = {
     async component(oid) {
-      let postParams = {
-        page: "/tv/show/" + oid,
-      };
-      let postData = {
-        data: JSON.stringify({ Component_Play_Playinfo: { oid } }),
-      };
+      let postParams = { page: "/tv/show/" + oid };
+      let postData = { data: JSON.stringify({ Component_Play_Playinfo: { oid } }) };
       let api = `https://www.weibo.com/tv/api/component?${utils.toSearchParamsStr(postParams)}`;
       let response = await httpx.post(api, {
         data: utils.toSearchParamsStr(postData),
@@ -3160,20 +2801,17 @@
           "User-Agent": utils.getRandomPCUA(),
         },
       });
-      if (!response.status) {
-        return;
-      }
+      if (!response.status) return;
       let data = utils.toJSON(response.data.responseText);
       if (data["code"] !== "100000") {
         log.info(`获取播放信息失败`, response);
-        Qmsg.error("获取播放信息失败");
+        qmsg.default.error("获取播放信息失败");
         return;
       }
-      let Component_Play_Playinfo = data["data"]["Component_Play_Playinfo"];
-      return Component_Play_Playinfo;
+      return data["data"]["Component_Play_Playinfo"];
     },
   };
-  const VideoQualityMap_Mobile = {
+  var VideoQualityMap_Mobile = {
     "流畅 360P": {
       label: "流畅",
       sign: 1,
@@ -3190,7 +2828,7 @@
       name: "mp4_720p_mp4",
     },
   };
-  const VideoQualityMap_PC = {
+  var VideoQualityMap_PC = {
     "高清 1080P": {
       label: "超清",
       sign: 4,
@@ -3217,11 +2855,11 @@
       name: "mp4_2160p_60fps_mp4",
     },
   };
-  const VideoQualityMap = {
+  var VideoQualityMap = {
     ...VideoQualityMap_Mobile,
     ...VideoQualityMap_PC,
   };
-  class WeiBoUnlockQuality {
+  var WeiBoUnlockQuality = class {
     $src = VideoQualityMap_PC;
     $data = {
       newQualityNameList: [],
@@ -3248,24 +2886,20 @@
               if (VideoQualityMap[key].name === userSetQuality) {
                 userSetQualitySign = VideoQualityMap[key].sign;
                 return true;
-              } else {
-                return false;
-              }
+              } else return false;
             });
             let ownAddChild = function (...args) {
-              let name = args[0];
-              if (name === "qualityButton") {
+              if (args[0] === "qualityButton") {
                 let qualityInfo = args[1];
                 log.info("锁定视频清晰度", qualityInfo);
                 qualityInfo["qualityList"].find((item) => {
-                  if (!(item.sign === 1 && that.$data.videoQualityMap.has(item.src))) {
-                    return false;
-                  }
+                  if (!(item.sign === 1 && that.$data.videoQualityMap.has(item.src))) return false;
                   that.$data.videoQualityMap.get(item.src).forEach((videoQualityMapInfo) => {
-                    let findIndex = qualityInfo["qualityList"].findIndex((qualityItem) => {
-                      return qualityItem.sign === videoQualityMapInfo.sign;
-                    });
-                    if (findIndex === -1) {
+                    if (
+                      qualityInfo["qualityList"].findIndex((qualityItem) => {
+                        return qualityItem.sign === videoQualityMapInfo.sign;
+                      }) === -1
+                    ) {
                       let newQuality = {
                         label: videoQualityMapInfo.label,
                         sign: videoQualityMapInfo.sign,
@@ -3277,33 +2911,27 @@
                   });
                   return true;
                 });
-                if (userSetQualitySign !== -1) {
-                  let findSign = qualityInfo["qualityList"].find((item) => item["sign"] === userSetQualitySign);
-                  if (findSign) {
+                if (userSetQualitySign !== -1)
+                  if (qualityInfo["qualityList"].find((item) => item["sign"] === userSetQualitySign))
                     qualityInfo["defaultSign"] = userSetQualitySign;
-                  } else {
+                  else {
                     let signList = qualityInfo["qualityList"]
                       .map((item) => {
-                        if (item.sign <= userSetQualitySign) {
-                          return item.sign;
-                        }
+                        if (item.sign <= userSetQualitySign) return item.sign;
                       })
                       .filter((item) => item);
                     let userSetQualitySignLower = utils.getMaxValue(...signList);
                     qualityInfo["defaultSign"] = userSetQualitySignLower;
                     log.error("该清晰度不存在，选择比该画质低的清晰度：" + userSetQualitySignLower);
                   }
-                } else {
+                else {
                   let signList = qualityInfo["qualityList"].map((item) => item.sign);
-                  let maxSign = utils.getMaxValue(...signList);
-                  qualityInfo["defaultSign"] = maxSign;
+                  qualityInfo["defaultSign"] = utils.getMaxValue(...signList);
                 }
               }
               return oldAddChild.apply(this, args);
             };
-            if (oldAddChild == ownAddChild) {
-              return;
-            }
+            if (oldAddChild == ownAddChild) return;
             vueObj.player.controlBar.addChild = ownAddChild;
             log.success("成功覆盖属性 __vue__.player.controlBar.addChild");
           },
@@ -3320,9 +2948,7 @@
             VueUtils.waitVuePropToSet($ele, [
               {
                 check(vueObj) {
-                  if (typeof vueObj?.item?.type === "string" && vueObj?.item?.type !== "video") {
-                    return true;
-                  }
+                  if (typeof vueObj?.item?.type === "string" && vueObj?.item?.type !== "video") return true;
                   return typeof vueObj?.item?.object_id === "string";
                 },
                 failWait() {
@@ -3330,28 +2956,24 @@
                 },
                 async set(vueObj) {
                   try {
-                    if (vueObj.item.type !== "video") {
-                      return;
-                    }
+                    if (vueObj.item.type !== "video") return;
                     let object_id = vueObj.item.object_id;
                     let urls = vueObj.item.urls;
                     let componentInfo = await WeiBoApi.component(object_id);
-                    if (!componentInfo) {
-                      return;
-                    }
+                    if (!componentInfo) return;
                     if (!componentInfo.urls) {
                       log.error("获取组件信息urls失败");
-                      Qmsg.error("获取组件信息urls失败");
+                      qmsg.default.error("获取组件信息urls失败");
                       return;
                     }
                     if (typeof componentInfo.urls !== "object") {
                       log.error("组件信息urls不是一个对象");
-                      Qmsg.error("组件信息urls不是一个对象");
+                      qmsg.default.error("组件信息urls不是一个对象");
                       return;
                     }
                     if (!Object.keys(componentInfo.urls).length) {
                       log.error("组件信息urls为空");
-                      Qmsg.error("组件信息urls为空");
+                      qmsg.default.error("组件信息urls为空");
                       return;
                     }
                     Object.keys(componentInfo.urls).forEach((srcName) => {
@@ -3364,15 +2986,14 @@
                           src,
                         };
                         let ld_mp4_url = urls["mp4_ld_mp4"];
-                        if (ld_mp4_url) {
-                          if (!that.$data.videoQualityMap.has(ld_mp4_url)) {
+                        if (ld_mp4_url)
+                          if (!that.$data.videoQualityMap.has(ld_mp4_url))
                             that.$data.videoQualityMap.set(ld_mp4_url, [mapInfo]);
-                          } else {
+                          else {
                             let currentMapInfo = that.$data.videoQualityMap.get(ld_mp4_url);
                             currentMapInfo.push(mapInfo);
                             that.$data.videoQualityMap.set(ld_mp4_url, currentMapInfo);
                           }
-                        }
                       }
                       if (srcName in VideoQualityMap) {
                         let newSrcInfo = VideoQualityMap[srcName];
@@ -3381,9 +3002,11 @@
                           log.success("新增清晰度：", newSrcInfo);
                           urls[newSrcInfo.name] = src;
                         }
-                      } else {
-                        log.error("视频清晰度映射尚未补充", { srcName, src });
-                      }
+                      } else
+                        log.error("视频清晰度映射尚未补充", {
+                          srcName,
+                          src,
+                        });
                     });
                   } catch (error) {
                     log.error(error);
@@ -3402,8 +3025,8 @@
         await utils.sleep(100);
       }
     }
-  }
-  const WeiBoCardArticle = {
+  };
+  var WeiBoCardArticle = {
     init() {
       Panel.execMenuOnce("card_weibo_com__autoExpandFullArticle", () => {
         return this.autoExpandFullArticle();
@@ -3418,15 +3041,13 @@
     autoExpandFullArticle() {
       log.info("自动展开全文");
       return [
-        addStyle(
-          `
+        addStyle(`
 			.m-container-max .f-art,
 			.m-container-max .art-con-new{
 				height: unset !important;
 				overflow: unset !important;
 			}    
-			`
-        ),
+			`),
         CommonUtil.addBlockCSS(".m-container-max .f-art-opt"),
       ];
     },
@@ -3443,23 +3064,18 @@
         (event) => {
           let $click = event.target;
           let jQueryEventName = Object.keys($click).find((key) => key.startsWith("jQuery"));
-          if (!jQueryEventName) {
-            return;
-          }
+          if (!jQueryEventName) return;
           domUtils.preventEvent(event);
-          let jQueryEvent = $click[jQueryEventName];
-          let data = jQueryEvent["events"]["click"][0]["data"];
+          let data = $click[jQueryEventName]["events"]["click"][0]["data"];
           log.success("跳转信息：", data);
           let url = data["url"] || data["target_url"];
           window.open(url, "_blank");
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const WeiBoHome = {
+  var WeiBoHome = {
     init() {
       Panel.execMenuOnce("weibo-home-blockMessageCount", () => {
         return this.blockMessageCount();
@@ -3494,7 +3110,6 @@
               },
             ],
           });
-          return;
         },
       });
     },
@@ -3506,15 +3121,11 @@
         },
         immediate: true,
         callback() {
-          if (!WeiBoRouter.isMWeiBoHome()) {
-            return;
-          }
+          if (!WeiBoRouter.isMWeiBoHome()) return;
           document
             .querySelectorAll(".main-wrap .wb-item .card .f-footer-ctrl:not(:has(.gm-open-blank))")
             .forEach(($footerCtrl) => {
-              if ($footerCtrl.querySelector(".gm-open-blank")) {
-                return;
-              }
+              if ($footerCtrl.querySelector(".gm-open-blank")) return;
               let $ownDiyBtn = domUtils.createElement("div", {
                 innerHTML: `
 								<h4>新标签页打开</h4>
@@ -3525,12 +3136,12 @@
                 domUtils.preventEvent(event);
                 let vueIns = VueUtils.getVue($footerCtrl);
                 if (!vueIns) {
-                  Qmsg.error("没有找到对应的Vue实例");
+                  qmsg.default.error("没有找到对应的Vue实例");
                   return;
                 }
                 let id = vueIns?.item?.id;
                 if (typeof id !== "string") {
-                  Qmsg.error("没有找到对应的id");
+                  qmsg.default.error("没有找到对应的id");
                   return;
                 }
                 let url = `${window.location.origin}/detail/${id}`;
@@ -3538,66 +3149,57 @@
                 window.open(url, "_blank");
               });
               let $diyBtnList = $footerCtrl.querySelectorAll(".m-diy-btn");
-              if ($diyBtnList.length) {
-                domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
-              } else {
-                domUtils.append($footerCtrl, $ownDiyBtn);
-              }
+              if ($diyBtnList.length) domUtils.after($diyBtnList[$diyBtnList.length - 1], $ownDiyBtn);
+              else domUtils.append($footerCtrl, $ownDiyBtn);
             });
         },
       });
     },
   };
-  const WeiBoHotSearch = {
+  var WeiBoHotSearch = {
     init() {
       Panel.execMenuOnce("weibo-hot-search-openBlank", () => {
         this.openBlank();
       });
     },
     openBlank() {
-      DOMUtils.on(
+      _whitesev_domutils.default.on(
         document,
         "click",
         ".card-list .card",
         (event, targetSelector) => {
-          DOMUtils.preventEvent(event);
+          _whitesev_domutils.default.preventEvent(event);
           let vueIns = VueUtils.getVue(targetSelector);
           if (!vueIns) {
             log.error("没有找到对应的Vue实例", vueIns);
-            Qmsg.error("没有找到对应的Vue实例");
+            qmsg.default.error("没有找到对应的Vue实例");
             return;
           }
           let carddata = vueIns?.carddata;
           if (typeof carddata?.scheme !== "string") {
             log.error("没有找到对应的scheme", vueIns);
-            Qmsg.error("没有找到对应的scheme");
+            qmsg.default.error("没有找到对应的scheme");
             return;
           }
           let scheme = carddata.scheme;
           log.success(`新标签页打开：` + scheme);
           window.open(scheme, "_blank");
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const blockCSS = "#app .bottombtn {\n  display: none !important;\n}\n";
-  const WeiBoLive = {
+  var block_default = "#app .bottombtn {\n  display: none !important;\n}\n";
+  var WeiBoLive = {
     init() {
-      addStyle(blockCSS);
+      addStyle(block_default);
     },
   };
-  const WeiBo = {
-    $data: {
-      weiBoUnlockQuality: new WeiBoUnlockQuality(),
-    },
+  var WeiBo = {
+    $data: { weiBoUnlockQuality: new WeiBoUnlockQuality() },
     init() {
       Panel.execMenuOnce("weibo_hijack_navigator_service_worker_register", () => {
-        if ("serviceWorker" in window.navigator) {
-          WeiBoHook.hookServiceWorkerRegister();
-        }
+        if ("serviceWorker" in window.navigator) WeiBoHook.hookServiceWorkerRegister();
       });
       Panel.execMenuOnce("weibo-common-clickImageToClosePreviewImage", () => {
         this.clickImageToClosePreviewImage();
@@ -3632,15 +3234,14 @@
           WeiBoDetail.init();
         } else if (WeiBoRouter.isMWeiBo_userHome()) {
           log.info("Router: 移动端微博-用户主页");
+          WeiBoUserHome.init();
         } else if (WeiBoRouter.isMWeiBo_search()) {
           log.info("Router: 移动端微博-搜索");
           WeiBoSearch.init();
         } else if (WeiBoRouter.isMWeiBo_HotSearch()) {
           log.info(`Router: 移动端微博-微博热搜`);
           WeiBoHotSearch.init();
-        } else {
-          log.error("Router: 移动端微博未适配链接 => " + window.location.href);
-        }
+        } else log.error("Router: 移动端微博未适配链接 => " + window.location.href);
       } else if (WeiBoRouter.isHuaTi()) {
         log.info("Router: 话题");
         WeiBoHuaTi.init();
@@ -3652,19 +3253,15 @@
         if (WeiBoRouter.isCardArticle()) {
           log.info("Router: 头条文章");
           WeiBoCardArticle.init();
-        } else {
-          log.error("Router: 头条未适配链接 => " + window.location.href);
-        }
+        } else log.error("Router: 头条未适配链接 => " + window.location.href);
       } else if (WeiBoRouter.isLive()) {
         log.info(`Router: 直播`);
         WeiBoLive.init();
-      } else {
-        log.error("Router: 未适配 => " + window.location.href);
-      }
+      } else log.error("Router: 未适配 => " + window.location.href);
     },
     blockAds() {
       log.info(`屏蔽 广告`);
-      return addStyle(blockAdsCSS$1);
+      return addStyle(blockAds_default$1);
     },
     shieldBottomBar() {
       log.info("【屏蔽】底部工具栏");
@@ -3686,14 +3283,12 @@
       });
     },
     clickImageToClosePreviewImage() {
-      let selectorList = [".pswp .pswp__item"];
-      selectorList.forEach((selector) => {
+      [".pswp .pswp__item"].forEach((selector) => {
         domUtils.on(document, "click", selector, (event) => {
           event.target;
           let $closeButton = $(".pswp .pswp__button--close");
-          if ($closeButton) {
-            $closeButton.click();
-          } else {
+          if ($closeButton) $closeButton.click();
+          else {
             log.warn("未找到关闭预览按钮，使用history.back()");
             window.history.back();
           }
@@ -3701,7 +3296,7 @@
       });
     },
   };
-  const UISwitch = function (
+  var UISwitch = function (
     text,
     key,
     defaultValue = false,
@@ -3712,6 +3307,14 @@
     valueChangeCallBack,
     shortCutOption
   ) {
+    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
+      const shortCutKey = shortCutOption.key ?? key;
+      shortCutOption.handler.add({
+        key: shortCutKey,
+        name: text,
+      });
+      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
+    }
     const result = {
       text,
       type: "switch",
@@ -3720,31 +3323,122 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        return value;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, __value) {
         const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
-      afterAddToUListCallBack: (...args) => {},
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+        if (shortCutOption) {
+          const shortCut = shortCutOption.handler.shortCut;
+          const shortCutKey = shortCutOption.key ?? key;
+          const [_, container] = args;
+          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
+          if (!$leftMainText) return;
+          const renderKeyboard = () => {
+            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
+            const $wrapper = domUtils.createElement(
+              "div",
+              {
+                className: "pops-switch-shortcut-wrapper",
+                innerHTML: `
+              <i class="pops-bottom-icon" is-loading="false">
+                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
+                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
+                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
+                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
+                </svg>
+              </i>
+            `,
+              },
+              { style: "margin-right: 5px;display: inline-flex;" }
+            );
+            const $icon = $wrapper.querySelector(".pops-bottom-icon");
+            domUtils.on(
+              $icon,
+              "click",
+              function (evt) {
+                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
+                $tooltip.toolTip.offEvent();
+                $tooltip.toolTip.close();
+                $tooltip.toolTip.destory();
+                $wrapper.remove();
+              },
+              { once: true }
+            );
+            const $tooltip = __pops__.tooltip({
+              $target: $icon,
+              content: () => {
+                return tooltipShowText;
+              },
+              className: "github-tooltip",
+              isFixed: true,
+              only: true,
+            });
+            domUtils.empty($leftMainText);
+            domUtils.append($leftMainText, $wrapper, text);
+          };
+          __pops__.rightClickMenu({
+            $target: $leftMainText,
+            only: true,
+            data: [
+              {
+                text: () => {
+                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
+                  else return "添加快捷键";
+                },
+                icon: __pops__.config.iconSVG.keyboard,
+                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
+                  if (shortCut.isWaitKeyboardPress()) {
+                    qmsg.default.warning("请先执行当前的录入操作");
+                    return;
+                  }
+                  const $loading = qmsg.default.loading("请按下快捷键...", {
+                    showClose: true,
+                    onClose() {
+                      shortCut.cancelEnterShortcutKeys();
+                    },
+                  });
+                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
+                    $loading.close();
+                    if (status) {
+                      log.success("录入快捷键", option);
+                      qmsg.default.success("录入成功");
+                      renderKeyboard();
+                    } else
+                      qmsg.default.error(
+                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
+                      );
+                  });
+                },
+              },
+            ],
+          });
+          if (!shortCut.hasOption(shortCutKey)) return;
+          renderKeyboard();
+        }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UITextArea = function (
+  var UITextArea = function (
     text,
     key,
     defaultValue,
@@ -3763,44 +3457,40 @@
       placeholder,
       disabled,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        if (Array.isArray(value)) {
-          return value.join("\n");
-        }
+        const value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) return value.join("\n");
         return value;
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const PanelComponents = {
+  var PanelComponents = {
     $data: {
       __storeApiFn: null,
       get storeApiValue() {
-        if (!this.__storeApiFn) {
-          this.__storeApiFn = new Utils.Dictionary();
-        }
+        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
         return this.__storeApiFn;
       },
     },
     getStorageApi(type) {
-      if (!this.hasStorageApi(type)) {
-        return;
-      }
+      if (!this.hasStorageApi(type)) return;
       return this.$data.storeApiValue.get(type);
     },
     hasStorageApi(type) {
@@ -3811,18 +3501,15 @@
     },
     initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
-      if (this.hasStorageApi(type)) {
-        propsStorageApi = this.getStorageApi(type);
-      } else {
-        propsStorageApi = storageApiValue;
-      }
+      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
+      else propsStorageApi = storageApiValue;
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
     setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     const result = {
       text,
       type: "select",
@@ -3830,39 +3517,33 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
+        if (isSelectedInfo == null) return;
         const value = isSelectedInfo.value;
         log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
+          if (selectCallBack(isSelectedInfo)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
       },
       data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const SettingUICommon = {
+  var SettingUICommon = {
     id: "weibo-panel-config-currency",
     title: "通用",
     views: [
@@ -4166,7 +3847,7 @@
       },
     ],
   };
-  const SettingUIHome = {
+  var SettingUIHome = {
     id: "weibo-panel-config-card-article",
     title: "首页",
     views: [
@@ -4198,7 +3879,7 @@
       },
     ],
   };
-  const SettingUIDetail = {
+  var SettingUIDetail = {
     id: "weibo-panel-config-detail",
     title: "正文",
     views: [
@@ -4217,7 +3898,7 @@
       },
     ],
   };
-  const SettingUISearch = {
+  var SettingUISearch = {
     id: "weibo-panel-config-u",
     title: "搜索",
     views: [
@@ -4237,7 +3918,7 @@
       },
     ],
   };
-  const SettingUIHuaTi = {
+  var SettingUIHuaTi = {
     id: "weibo-panel-config-huati",
     title: "话题",
     views: [
@@ -4269,7 +3950,7 @@
       },
     ],
   };
-  const SettingUIVideo = {
+  var SettingUIVideo = {
     id: "weibo-panel-config-video",
     title: "视频",
     views: [
@@ -4331,7 +4012,7 @@
       },
     ],
   };
-  const SettingUICardArticle = {
+  var SettingUICardArticle = {
     id: "weibo-panel-config-card-article",
     title: "头条文章",
     views: [
@@ -4356,7 +4037,7 @@
       },
     ],
   };
-  const SettingUIOther = {
+  var SettingUIOther = {
     id: "weibo-panel-config-other",
     title: "其它",
     views: [

@@ -114,7 +114,7 @@
   import { VNodeRef, ref, watch } from "vue";
   import { TiebaNewPCApi } from "../../api/TiebaNewPCApi";
   import { TiebaUrlHandler } from "../../handler/TiebaUrlHandler";
-  import { UserInfo } from "../data/TiebaHomeData";
+  import type { UserInfo } from "../data/TiebaHomeData";
   import TemplatePostsItem from "../template/TemplatePostsItem.vue";
 
   type HomePostsInfo = NonNullable<NonNullable<Awaited<ReturnType<typeof TiebaNewPCApi.myThread>>>["list"]>["0"];

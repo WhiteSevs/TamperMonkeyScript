@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
   import { ref } from "vue";
-  import { UserInfo } from "./data/TiebaHomeData";
+  import type { UserInfo } from "./data/TiebaHomeData";
   import { TiebaRouter } from "./router";
 
   const props = defineProps<{

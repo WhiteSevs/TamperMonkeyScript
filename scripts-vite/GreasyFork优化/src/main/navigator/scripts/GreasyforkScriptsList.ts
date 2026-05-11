@@ -1,14 +1,14 @@
+import { GreasyforkApi } from "@/api/GreasyForkApi";
 import { $$, addStyle, log, pops, utils } from "@/env";
-import { GreasyforkScriptsFilter, ScriptFilterRule } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
+import { GreasyforkScriptsFilter, type ScriptFilterRule } from "@/main/navigator/scripts/GreasyforkScriptsFilter";
+import { GreasyforkCheckVersion } from "@/utils/GreasyforkCheckVersion";
+import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 import { Panel } from "@components/setting/panel";
 import DOMUtils from "@whitesev/domutils";
 import i18next from "i18next";
+import Qmsg from "qmsg";
 import { GreasyforkScriptsCollectEvent } from "./GreasyforkScripts";
 import beautifyCenterContentCSS from "./css/beautifyCenterContent.css?raw";
-import Qmsg from "qmsg";
-import { GreasyforkCheckVersion } from "@/utils/GreasyforkCheckVersion";
-import { GreasyforkApi } from "@/api/GreasyForkApi";
-import { GreasyforkElementUtils } from "@/utils/GreasyforkElementUtils";
 
 export const GreasyforkScriptsList = {
   init() {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.11
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,10 +13,10 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -48,35 +48,85 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (DOMUtils, pops, utils$1, Qmsg, md5, Viewer, Artplayer, artplayerPluginDanmuku, flvjs) {
+(function (
+  _whitesev_domutils,
+  _whitesev_pops,
+  _whitesev_utils,
+  qmsg,
+  md5,
+  viewerjs,
+  artplayer,
+  artplayer_plugin_danmuku,
+  flv_js
+) {
   "use strict";
-
-  const d = new Set();
-  const importCSS = async (t) => {
-    d.has(t) ||
-      (d.add(t),
-      ((a) => {
-        function r(n) {
-          if (typeof GM_addStyle == "function") return GM_addStyle(n);
-          const e = document.createElement("style");
-          if ((e.setAttribute("type", "text/css"), e.setAttribute("data-type", "gm-css"), globalThis.trustedTypes)) {
-            const c = globalThis.trustedTypes.createPolicy("safe-innerHTML", { createHTML: (i) => i });
-            e.innerHTML = c.createHTML(n);
-          } else e.innerHTML = n;
-          return ((document.head || document.documentElement).appendChild(e), e);
-        }
-        r(a);
-      })(t));
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __copyProps = (to, from, except, desc) => {
+    if ((from && typeof from === "object") || typeof from === "function")
+      for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+        key = keys[i];
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, {
+            get: ((k) => from[k]).bind(null, key),
+            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+          });
+      }
+    return to;
   };
-
-  const blockCss =
-    '@charset "UTF-8";.m-video2-awaken-btn,.openapp-dialog{display:none!important}.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app{display:none!important}.m-home .launch-app-btn.home-float-openapp{display:none!important}.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp,.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]),#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app.LIVE .open-app-btn.bili-btn-warp{display:none!important}#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn,#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp,#app .m-opus_wp .m-open-app.opus-float-btn{display:none!important}#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp{display:none!important}#app.main-container bili-open-app.btn-download{display:none!important}#__next m-open-app[class^=TopBar_download],#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app{display:none!important}#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}';
-  importCSS(blockCss);
-  const commonCss = "html{--bili-color: #fb7299;--bili-color-rgb: 251, 114, 153}";
-  importCSS(commonCss);
-  const BilibiliBeautifyCSS =
+  var __toESM = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
+    __copyProps(
+      isNodeMode || !mod || !mod.__esModule
+        ? __defProp(target, "default", {
+            value: mod,
+            enumerable: true,
+          })
+        : target,
+      mod
+    )
+  );
+  _whitesev_domutils = __toESM(_whitesev_domutils);
+  _whitesev_pops = __toESM(_whitesev_pops);
+  _whitesev_utils = __toESM(_whitesev_utils);
+  qmsg = __toESM(qmsg);
+  md5 = __toESM(md5);
+  viewerjs = __toESM(viewerjs);
+  artplayer = __toESM(artplayer);
+  artplayer_plugin_danmuku = __toESM(artplayer_plugin_danmuku);
+  flv_js = __toESM(flv_js);
+  var s = new Set();
+  var _css = async (t) => {
+    if (s.has(t)) return;
+    s.add(t);
+    ((cssText) => {
+      function addStyle(cssText) {
+        if (typeof GM_addStyle == "function") return GM_addStyle(cssText);
+        const $css = document.createElement("style");
+        $css.setAttribute("type", "text/css");
+        $css.setAttribute("data-type", "gm-css");
+        if (globalThis.trustedTypes)
+          $css.innerHTML = globalThis.trustedTypes
+            .createPolicy("safe-innerHTML", { createHTML: (html) => html })
+            .createHTML(cssText);
+        else $css.innerHTML = cssText;
+        (document.head || document.documentElement).appendChild($css);
+        return $css;
+      }
+      addStyle(cssText);
+    })(t);
+  };
+  _css(
+    ".m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]){display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn{display:none!important}#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp,#app .m-opus_wp .m-open-app.opus-float-btn,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp,#app.main-container bili-open-app.btn-download,#__next m-open-app[class^=TopBar_download]{display:none!important}#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app,#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}"
+  );
+  _css("html{--bili-color:#fb7299;--bili-color-rgb:251, 114, 153}");
+  var beautify_default$1 =
     '@charset "UTF-8";\n/* 主页 */\n#app .m-head {\n  --bg-color: #f0f1f3;\n  --bg-rever-color: #ffffff;\n  --pd-width: 1.3333vmin;\n  --bd-circle: 1.3333vmin;\n  --card-height: 30vmin;\n  --icon-font-size: 3.2vmin;\n  --icon-text-font-size: 2.6vmin;\n  --icon-font-margin-right: 3vmin;\n  --title-font-size: 2.8vmin;\n  background-color: var(--bg-color);\n}\n#app .m-head .m-home {\n  background-color: var(--bg-color);\n}\n/* 美化视频卡片 */\n#app .m-head .video-list .card-box .v-card {\n  background-color: var(--bg-rever-color);\n  padding: 0px;\n  margin: 0px;\n  width: calc(50% - var(--pd-width) / 2);\n  border-radius: var(--bd-circle);\n  margin-top: var(--pd-width);\n  display: grid;\n  /* 视频封面区域 */\n}\n#app .m-head .video-list .card-box .v-card .card {\n  background: var(--bg-rever-color);\n  border-radius: unset;\n  border-top-left-radius: var(--bd-circle);\n  border-top-right-radius: var(--bd-circle);\n  height: var(--card-height);\n}\n#app .m-head .video-list .card-box .v-card .card .count {\n  display: flex;\n  justify-content: safe flex-start;\n  padding-right: 0;\n}\n#app .m-head .video-list .card-box .v-card .card .count .iconfont {\n  font-size: var(--icon-text-font-size);\n}\n#app .m-head .video-list .card-box .v-card .card .count > span {\n  font-size: var(--icon-text-font-size);\n  margin-right: var(--icon-font-margin-right);\n}\n/* 视频标题区域 */\n#app .m-head .video-list .card-box .v-card .title {\n  padding: 0;\n  margin: var(--pd-width);\n  font-size: var(--title-font-size);\n}\n/* 两列 => 左边的 */\n#app .m-head .video-list .card-box .v-card:nth-child(2n-1) {\n  /*background-color: red;*/\n  margin-right: calc(var(--pd-width) / 2);\n}\n/* 两列 => 右边的 */\n#app .m-head .video-list .card-box .v-card:nth-child(2n) {\n  /*background-color: rebeccapurple;*/\n  margin-left: calc(var(--pd-width) / 2);\n}\n';
-  const BilibiliRouter = {
+  var BilibiliRouter = {
     isVideo() {
       return window.location.pathname.startsWith("/video/");
     },
@@ -112,7 +162,7 @@
       return window.location.pathname.startsWith("/playlist");
     },
   };
-  const BilibiliPCRouter = {
+  var BilibiliPCRouter = {
     isPC() {
       return window.location.hostname === "www.bilibili.com";
     },
@@ -120,12 +170,14 @@
       return this.isPC() && window.location.pathname.startsWith("/read/mobile");
     },
   };
-  const BilibiliData = {
+  var BilibiliData = {
     className: {
       bangumi: "#app.main-container",
       bangumi_new: "body > #__next",
       dynamic: "#app .m-dynamic",
       opus: "#app .m-opus",
+      search: "#app .m-search",
+      "topic-detail": "#app .topic-detail",
       video: "#app .video",
       mVideo: "#app .m-video",
       head: "#app .m-head",
@@ -134,92 +186,73 @@
     },
     theme: "#FB7299",
   };
-  const BilibiliPCData = {
-    className: {
-      read: {
-        mobile: "#app .read-app-main",
-      },
+  var BilibiliPCData = { className: { read: { mobile: "#app .read-app-main" } } };
+  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
+  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
+  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
+  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
+  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
+  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
+  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
+  var _GM_removeValueChangeListener =
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
+  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
+  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
+  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
+  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
+  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
+  var _monkeyWindow = window;
+  var GM_RESOURCE_MAPPING = {
+    ElementPlus: {
+      keyName: "ElementPlusResourceCSS",
+      url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css",
     },
-  };
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
-  const GM_RESOURCE_MAPPING = {
     Viewer: {
       keyName: "ViewerCSS",
       url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
     },
+    Hljs: {
+      keyName: "HljsCSS",
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
+    },
   };
-  const CommonUtil = {
+  var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
-        if (typeof selector !== "string") {
-          return;
-        }
-        DOMUtils.waitNodeList(selector).then((nodeList) => {
+        if (typeof selector !== "string") return;
+        _whitesev_domutils.default.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
     },
     createBlockCSSNode(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return DOMUtils.createElement("style", {
+      return _whitesev_domutils.default.createElement("style", {
         type: "text/css",
         innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
     addBlockCSS(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+      if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
-      if (typeof cssText === "string" && cssText) {
-        return addStyle(cssText);
-      } else {
-        return CommonUtil.loadStyleLink(resourceMapData.url);
-      }
+      if (typeof cssText === "string" && cssText) return addStyle(cssText);
+      else return CommonUtil.loadStyleLink(resourceMapData.url);
     },
     async loadStyleLink(url) {
       let $link = document.createElement("link");
@@ -227,7 +260,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.onReady(() => {
+        _whitesev_domutils.default.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -245,32 +278,21 @@
     },
     fixUrl(url) {
       url = url.trim();
-      if (url.startsWith("data:")) {
-        return url;
-      }
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else if (url.startsWith("//")) {
-        if (url.startsWith("///"));
-        else {
-          url = window.location.protocol + url;
-        }
+      if (url.startsWith("data:")) return url;
+      if (url.match(/^http(s|):\/\//i)) return url;
+      else if (url.startsWith("//")) {
+        if (url.startsWith("///")) {
+        } else url = window.location.protocol + url;
         return url;
       } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
+        if (!url.startsWith("/")) url += "/";
         url = window.location.origin + url;
         return url;
       }
     },
     fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
+      if (url.startsWith("https://")) return url;
+      if (!url.startsWith("http://")) return url;
       try {
         let urlInstance = new URL(url);
         urlInstance.protocol = "https:";
@@ -314,9 +336,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions
-          .query({
-            name: "clipboard-read",
-          })
+          .query({ name: "clipboard-read" })
           .then(() => {
             readClipboardText(resolve);
           })
@@ -326,12 +346,8 @@
           });
       }
       function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
+        if (typeof navigator?.clipboard?.readText !== "function") return false;
+        if (typeof navigator?.permissions?.query !== "function") return false;
         return true;
       }
       return new Promise((resolve) => {
@@ -339,19 +355,15 @@
           resolve("");
           return;
         }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard(resolve);
-        } else {
+        if (document.hasFocus()) requestPermissionsWithClipboard(resolve);
+        else
           window.addEventListener(
             "focus",
             () => {
               requestPermissionsWithClipboard(resolve);
             },
-            {
-              once: true,
-            }
+            { once: true }
           );
-        }
       });
     },
     escapeHtml(unsafe) {
@@ -400,66 +412,44 @@
     },
     findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
-        let $parent = DOMUtils.closest($el, parentSelector);
-        if ($parent) {
-          let $target = $parent.querySelector(selector);
-          return $target;
-        }
+        let $parent = _whitesev_domutils.default.closest($el, parentSelector);
+        if ($parent) return $parent.querySelector(selector);
       } else {
-        if (DOMUtils.matches($el, selector)) {
-          return $el;
-        }
-        let $parent = DOMUtils.closest($el, selector);
-        return $parent;
+        if (_whitesev_domutils.default.matches($el, selector)) return $el;
+        return _whitesev_domutils.default.closest($el, selector);
       }
     },
-    toStr(data2, space = 2) {
+    toStr(data, space = 2) {
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
-      const dataStr = JSON.stringify(
-        data2,
+      return JSON.stringify(
+        data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
         space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
-      return dataStr;
     },
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
     },
     isMobileDevice(size = 768) {
-      const isVerticalScreen = this.isVerticalScreen();
-      if (isVerticalScreen) {
-        return globalThis.innerWidth < size;
-      } else {
-        return globalThis.innerHeight < size;
-      }
+      if (this.isVerticalScreen()) return globalThis.innerWidth < size;
+      else return globalThis.innerHeight < size;
     },
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
     formatVideoDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
       const zeroPadding = function (num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
+        if (num < 10) return `0${num}`;
+        else return num;
       };
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
-        return `${minutes}:${zeroPadding(seconds)}`;
-      } else {
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else {
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor(duration / 60) % 60;
         const seconds = duration % 60;
@@ -468,81 +458,78 @@
     },
     formatTimeStamp(time, endTime) {
       if (typeof time === "number") {
-        if (time < 1e12) {
+        if (time < 0xe8d4a51000) {
           const padZeroLength = String(Date.now()).length - String(time).length;
           time = time * Math.pow(10, padZeroLength);
         }
       }
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
-      let currentTime = new Date(endTime ?? Date.now());
-      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
       let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0) {
-        if (days > 7) {
-          result = utils.formatTime(oldTime.getTime());
-        } else {
-          result = days + "天前";
-        }
-      } else {
+      if (days > 0)
+        if (days > 7) result = utils.formatTime(oldTime.getTime());
+        else result = days + "天前";
+      else {
         let leave1 = timeDifference % (24 * 3600 * 1e3);
         let hours = Math.floor(leave1 / (3600 * 1e3));
-        if (hours > 0) {
-          result = hours + "小时前";
-        } else {
+        if (hours > 0) result = hours + "小时前";
+        else {
           let leave2 = leave1 % (3600 * 1e3);
           let minutes = Math.floor(leave2 / (60 * 1e3));
-          if (minutes > 0) {
-            result = minutes + "分钟前";
-          } else {
+          if (minutes > 0) result = minutes + "分钟前";
+          else {
             let leave3 = leave2 % (60 * 1e3);
-            let seconds = Math.round(leave3 / 1e3);
-            result = seconds + "秒前";
+            result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
       }
       return result;
     },
   };
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelSizeUtil = {
+  var KEY = "GM_Panel";
+  var ATTRIBUTE_INIT = "data-init";
+  var ATTRIBUTE_KEY = "data-key";
+  var ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  var ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  var ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+  var PROPS_STORAGE_API = "data-storage-api";
+  var PanelSizeUtil = {
+    followBrowserSize: false,
     get width() {
-      return globalThis.innerWidth;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
     },
     get height() {
-      return globalThis.innerHeight;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
     },
   };
-  const PanelUISize = {
+  var PanelUISize = {
     setting: {
       get width() {
-        if (PanelSizeUtil.width < 550) {
-          return "88vw";
-        } else if (PanelSizeUtil.width < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
+        if (PanelSizeUtil.width < 550) return "88vw";
+        else if (PanelSizeUtil.width < 700) return "550px";
+        else return "700px";
       },
       get height() {
-        if (PanelSizeUtil.height < 450) {
-          return "70vh";
-        } else if (PanelSizeUtil.height < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
+        if (PanelSizeUtil.height < 450) return "70vh";
+        else if (PanelSizeUtil.height < 550) return "450px";
+        else return "550px";
       },
     },
     settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
+      },
+    },
+    settingBig: {
+      get width() {
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       },
     },
     info: {
@@ -554,21 +541,17 @@
       },
     },
   };
-  const PanelContent = {
+  var PanelContent = {
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) {
-          this.__contentConfig = new utils.Dictionary();
-        }
+        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) {
-        configList = [configList];
-      }
+      if (!Array.isArray(configList)) configList = [configList];
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
@@ -579,34 +562,28 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig(config) {
-      if (this.$data.__defaultBottomContentConfig.length) {
-        return this.$data.__defaultBottomContentConfig;
-      }
+      if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
       let isDoubleClick = false;
       let timer = void 0;
       const translateCallback = (text, translateMap) => {
-        if (config && typeof config.translateCallback === "function") {
+        if (config && typeof config.translateCallback === "function")
           return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const exportToFile = (fileName, fileData) => {
-        if (typeof fileData !== "string") {
-          fileData = CommonUtil.toStr(fileData);
-        }
+        if (typeof fileData !== "string") fileData = CommonUtil.toStr(fileData);
         const blob = new Blob([fileData]);
         const blobUrl = globalThis.URL.createObjectURL(blob);
-        const $anchor = domUtils.createElement("a", {
-          href: blobUrl,
-          download: fileName,
-        });
-        $anchor.click();
+        domUtils
+          .createElement("a", {
+            href: blobUrl,
+            download: fileName,
+          })
+          .click();
         utils.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
@@ -635,9 +612,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -658,44 +633,30 @@
           const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-          const updateConfigToStorage = async (data2) => {
-            const clearLocalStorage = confirm(
-              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
-            );
-            if (clearLocalStorage) {
-              if (typeof _GM_listValues === "function") {
+          const updateConfigToStorage = async (data) => {
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
+              if (typeof _GM_listValues === "function")
                 if (typeof _GM_deleteValue === "function") {
-                  const localStorageKeys = _GM_listValues();
-                  localStorageKeys.forEach((key) => {
+                  _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
-                } else {
-                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-                }
-              } else {
-                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
-              }
-            }
-            if (typeof _GM_setValues === "function") {
-              _GM_setValues(data2);
-            } else {
-              const keys = Object.keys(data2);
-              keys.forEach((key) => {
-                const value = data2[key];
+                  qmsg.default.success(translateCallback("已清空脚本存储的配置"));
+                } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
+              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            if (typeof _GM_setValues === "function") _GM_setValues(data);
+            else
+              Object.keys(data).forEach((key) => {
+                const value = data[key];
                 _GM_setValue(key, value);
               });
-            }
-            Qmsg.success(translateCallback("配置导入完毕"));
+            qmsg.default.success(translateCallback("配置导入完毕"));
+            importEndCallBack?.();
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
-              const data2 = utils.toJSON(configText);
-              if (Object.keys(data2).length === 0) {
-                Qmsg.warning(translateCallback("解析为空配置，不导入"));
-              } else {
-                await updateConfigToStorage(data2);
-              }
+              const data = utils.toJSON(configText);
+              if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
+              else await updateConfigToStorage(data);
               resolve(true);
             });
           };
@@ -707,9 +668,7 @@
               accept: ".json",
             });
             domUtils.on($input, ["propertychange", "input"], () => {
-              if (!$input.files?.length) {
-                return;
-              }
+              if (!$input.files?.length) return;
               const uploadFile = $input.files[0];
               const fileReader = new FileReader();
               fileReader.onload = () => {
@@ -744,53 +703,37 @@
                   callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error(translateCallback("请填入完整的url"));
+                      qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
-                    const response = await httpx.get(url, {
-                      allowInterceptConfig: false,
-                    });
+                    const $loading = qmsg.default.loading(translateCallback("正在获取配置..."));
+                    const response = await httpx.get(url, { allowInterceptConfig: false });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
+                      qmsg.default.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
-                    const flag = await importFile(response.data.responseText);
-                    if (!flag) {
-                      return;
-                    }
+                    if (!(await importFile(response.data.responseText))) return;
                     details.close();
                   },
                 },
-                cancel: {
-                  enable: false,
-                },
+                cancel: { enable: false },
               },
               drag: true,
-              mask: {
-                enable: true,
-              },
+              mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
             domUtils.on($promptInput, ["input", "propertychange"], () => {
-              const value = domUtils.val($promptInput);
-              if (value === "") {
-                domUtils.attr($promptOk, "disabled", "true");
-              } else {
-                domUtils.removeAttr($promptOk, "disabled");
-              }
+              if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+              else domUtils.removeAttr($promptOk, "disabled");
             });
             domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
-                const value = domUtils.val($promptInput);
-                if (value !== "") {
-                  domUtils.emit($promptOk, "click");
-                }
+                if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
               }
             });
             domUtils.emit($promptInput, "input");
@@ -800,13 +743,10 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
+              qmsg.default.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
-            const flag = await importFile(clipboardText);
-            if (!flag) {
-              return;
-            }
+            if (!(await importFile(clipboardText))) return;
           });
         };
         const exportConfig = (
@@ -835,9 +775,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -863,48 +801,46 @@
               exportToFile(fileName, fileData);
               $alert.close();
             } catch (error) {
-              Qmsg.error(error.toString(), { consoleLogContent: true });
+              qmsg.default.error(error.toString(), { consoleLogContent: true });
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            const result = await utils.copy(fileData);
-            if (result) {
-              Qmsg.success(translateCallback("复制成功"));
+            if (await utils.copy(fileData)) {
+              qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
-            } else {
-              Qmsg.error(translateCallback("复制失败"));
-            }
+            } else qmsg.default.error(translateCallback("复制失败"));
           });
         };
-        const $dialog = __pops__.confirm({
-          title: {
-            text: translateCallback("配置"),
-            position: "center",
-          },
-          content: {
-            text: `<textarea name="config-value" id="config" readonly></textarea>`,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              type: "primary",
-              text: translateCallback("导入"),
-              callback() {
-                importConfig();
+        const $textarea = __pops__
+          .confirm({
+            title: {
+              text: translateCallback("配置"),
+              position: "center",
+            },
+            content: {
+              text: `<textarea name="config-value" id="config" readonly></textarea>`,
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                type: "primary",
+                text: translateCallback("导入"),
+                callback() {
+                  importConfig();
+                },
+              },
+              cancel: {
+                enable: true,
+                text: translateCallback("导出"),
+                callback() {
+                  exportConfig(void 0, configDataStr);
+                },
               },
             },
-            cancel: {
-              enable: true,
-              text: translateCallback("导出"),
-              callback() {
-                exportConfig(void 0, configDataStr);
-              },
-            },
-          },
-          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
-          height: "auto",
-          style: `
+            width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+            height: "auto",
+            style: `
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -936,17 +872,16 @@
             --textarea-bd-color: #c0c4cc;
           }
         `,
-        });
-        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+          })
+          .$shadowRoot.querySelector("textarea");
         const configData = {};
-        if (typeof _GM_listValues === "function") {
-          const LocalKeys = _GM_listValues();
-          LocalKeys.forEach((key) => {
+        if (typeof _GM_listValues === "function")
+          _GM_listValues().forEach((key) => {
             const value = _GM_getValue(key);
             Reflect.set(configData, key, value);
           });
-        } else {
-          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
+        else {
+          qmsg.default.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -955,9 +890,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-          window.open(supportURL, "_blank");
-        }
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -970,9 +903,8 @@
           clickFirstCallback() {
             return false;
           },
-          afterRender(config2) {
-            const anyTouch = new AnyTouch(config2.$asideLiElement);
-            anyTouch.on("tap", function () {
+          afterRender(config) {
+            new AnyTouch(config.$asideLiElement).on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -994,7 +926,7 @@
       this.$data.__defaultBottomContentConfig = config;
     },
   };
-  const PanelMenu = {
+  var PanelMenu = {
     $data: {
       __menuOption: [
         {
@@ -1018,28 +950,20 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!CommonUtil.isTopWindow()) {
-        return;
-      }
+      if (!CommonUtil.isTopWindow()) return;
       MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       this.$data.menuOption.push(...option);
     },
     updateMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       option.forEach((optionItem) => {
         let findIndex = this.$data.menuOption.findIndex((it) => {
           return it.key === optionItem.key;
         });
-        if (findIndex !== -1) {
-          this.$data.menuOption[findIndex] = optionItem;
-        }
+        if (findIndex !== -1) this.$data.menuOption[findIndex] = optionItem;
       });
     },
     getMenuOption(index = 0) {
@@ -1049,7 +973,7 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
-  class PanelMenuResultsHandler {
+  var PanelMenuResultsHandler = class {
     data = {
       storeNodeList: [],
       destoryFnList: [],
@@ -1062,40 +986,26 @@
       const dynamicMenuStoreNodeList = [];
       const dynamicDestoryFnList = [];
       let resultValueList = [];
-      if (Array.isArray(args)) {
-        resultValueList = resultValueList.concat(args);
-      } else {
+      if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
+      else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null) {
-            if (obj instanceof Element) {
-              resultValueList.push(obj);
-            } else {
-              if (Array.isArray(obj)) {
-                handleArgs(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else if ($css instanceof Element) {
-                    resultValueList.push($css);
-                  } else;
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
+          if (typeof obj === "object" && obj != null)
+            if (obj instanceof Element) resultValueList.push(obj);
+            else if (Array.isArray(obj)) handleArgs(obj);
+            else {
+              const { $css, destory } = obj;
+              if ($css != null) {
+                if (Array.isArray($css)) resultValueList = resultValueList.concat($css);
+                else if ($css instanceof Element) resultValueList.push($css);
               }
+              if (typeof destory === "function") resultValueList.push(destory);
             }
-          } else {
-            resultValueList.push(obj);
-          }
+          else resultValueList.push(obj);
         };
         handleArgs(args);
       }
       const handleResult = (it) => {
-        if (it == null) {
-          return;
-        }
+        if (it == null) return;
         if (it instanceof Element) {
           dynamicMenuStoreNodeList.push(it);
           return;
@@ -1107,17 +1017,12 @@
       };
       for (const it of resultValueList) {
         const flag = handleResult(it);
-        if (typeof flag === "boolean" && !flag) {
-          break;
-        }
-        if (Array.isArray(it)) {
+        if (typeof flag === "boolean" && !flag) break;
+        if (Array.isArray(it))
           for (const it2 of it) {
             const flag2 = handleResult(it2);
-            if (typeof flag2 === "boolean" && !flag2) {
-              break;
-            }
+            if (typeof flag2 === "boolean" && !flag2) break;
           }
-        }
       }
       this.clearStoreNodeList();
       this.execDestoryFnAndClear();
@@ -1132,8 +1037,7 @@
     }
     clearStoreNodeList = () => {
       for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
-        const $css = this.data.storeNodeList[index];
-        $css?.remove();
+        this.data.storeNodeList[index]?.remove();
         this.data.storeNodeList.splice(index, 1);
       }
     };
@@ -1146,15 +1050,12 @@
     };
     checkMenuExec() {
       let flag = false;
-      if (typeof this.option.checkExec === "function") {
-        flag = this.option.checkExec(this.option.keyList);
-      } else {
-        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
-      }
+      if (typeof this.option.checkExec === "function") flag = this.option.checkExec(this.option.keyList);
+      else flag = this.option.keyList.every((key) => this.getEnableStatus(key));
       return flag;
     }
-  }
-  class StorageUtils {
+  };
+  var StorageUtils = class {
     storageKey;
     listenerData;
     cacheData;
@@ -1162,14 +1063,10 @@
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key can not be empty string");
-        }
+        if (trimKey == "") throw new Error("key can not be empty string");
         this.storageKey = trimKey;
-      } else {
-        throw new TypeError("key must be a string");
-      }
-      this.listenerData = new utils$1.Dictionary();
+      } else throw new TypeError("key must be a string");
+      this.listenerData = new _whitesev_utils.default.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
       this.setLocalValue = this.setLocalValue.bind(this);
       this.destory = this.destory.bind(this);
@@ -1216,9 +1113,7 @@
           _GM_removeValueChangeListener(listenerId);
         });
         return localValue;
-      } else {
-        return this.cacheData;
-      }
+      } else return this.cacheData;
     }
     setLocalValue(value) {
       this.cacheData = null;
@@ -1237,8 +1132,7 @@
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
+      return this.getLocalValue();
     }
     delete(key) {
       const oldValue = this.get(key);
@@ -1294,29 +1188,26 @@
     }
     async emitValueChangeListener(...args) {
       const [key, newValue, oldValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
+      if (!this.listenerData.has(key)) return;
       const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
-        const data2 = listenerData[index];
-        if (typeof data2.callback === "function") {
+        const data = listenerData[index];
+        if (typeof data.callback === "function") {
           let __newValue;
           let __oldValue;
-          if (args.length === 1);
-          else if (args.length === 2) {
-            __newValue = newValue;
-          } else if (args.length === 3) {
+          if (args.length === 1) {
+          } else if (args.length === 2) __newValue = newValue;
+          else if (args.length === 3) {
             __newValue = newValue;
             __oldValue = oldValue;
           }
-          await data2.callback(key, __newValue, __oldValue);
+          await data.callback(key, __newValue, __oldValue);
         }
       }
     }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
-  const Panel = {
+  };
+  var PopsPanelStorageApi = new StorageUtils(KEY);
+  var Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
       __onceExecMenuData: null,
@@ -1326,28 +1217,20 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) {
-          this.__contentConfigInitDefaultValue = new utils.Dictionary();
-        }
+        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) {
-          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
-        }
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
+        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -1369,19 +1252,13 @@
     },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
-          return;
-        }
+        if (!config.attributes) return;
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") return;
         const attributes = config.attributes;
         const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           const __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) return;
         }
         const menuDefaultConfig = new Map();
         const key = attributes[ATTRIBUTE_KEY];
@@ -1390,56 +1267,46 @@
           menuDefaultConfig.set(key, defaultValue);
         }
         const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
-          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            const defaultValue = moreMenuDefaultConfig[key2];
-            menuDefaultConfig.set(key2, defaultValue);
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig)
+          Object.keys(moreMenuDefaultConfig).forEach((key) => {
+            const defaultValue = moreMenuDefaultConfig[key];
+            menuDefaultConfig.set(key, defaultValue);
           });
-        }
         if (!menuDefaultConfig.size) {
           log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
           const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
-          if (typeof disabled === "boolean" && disabled) {
+          if (typeof disabled === "boolean" && disabled)
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
-          }
         }
-        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
-          this.setDefaultValue(__key, __defaultValue);
-        }
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) this.setDefaultValue(__key, __defaultValue);
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           const configItem = configList[index];
           initDefaultValue(configItem);
           const childViews = configItem.views;
-          if (childViews && Array.isArray(childViews)) {
-            loopInitDefaultValue(childViews);
-          }
+          if (childViews && Array.isArray(childViews)) loopInitDefaultValue(childViews);
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         const leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.views) {
-          continue;
-        }
+        if (!leftContentConfigItem.views) continue;
         const rightContentConfigList = leftContentConfigItem.views;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+        if (rightContentConfigList && Array.isArray(rightContentConfigList))
           loopInitDefaultValue(rightContentConfigList);
-        }
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     setDefaultValue(key, defaultValue) {
-      if (this.$data.contentConfigInitDefaultValue.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key))
         log.warn("该key已存在，初始化默认值失败: ", {
           key,
           initValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
-      }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     getDefaultValue(key) {
@@ -1451,9 +1318,7 @@
     getValue(key, defaultValue) {
       const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.contentConfigInitDefaultValue.has(key)) {
-          return this.$data.contentConfigInitDefaultValue.get(key);
-        }
+        if (this.$data.contentConfigInitDefaultValue.has(key)) return this.$data.contentConfigInitDefaultValue.get(key);
         return defaultValue;
       }
       return localValue;
@@ -1468,11 +1333,8 @@
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       if (option?.immediate || option?.immediateAll) {
         const value = this.getValue(key);
-        if (option?.immediate) {
-          callback(key, value, value);
-        } else if (option?.immediateAll) {
-          Panel.emitMenuValueChange(key, value, value);
-        }
+        if (option?.immediate) callback(key, value, value);
+        else if (option?.immediateAll) Panel.emitMenuValueChange(key, value, value);
       }
       return listenerId;
     },
@@ -1484,20 +1346,15 @@
     },
     async exec(queryKey, callback, checkExec, once = true) {
       let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) queryKeyFn = () => queryKey;
+      else queryKeyFn = queryKey;
       let isArrayKey = false;
       const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
         keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
+      } else keyList.push(queryKeyResult);
       const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -1505,9 +1362,7 @@
       }
       const storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return this.$data.onceExecMenuData.get(storageKey);
-        }
+        if (this.$data.onceExecMenuData.has(storageKey)) return this.$data.onceExecMenuData.get(storageKey);
       }
       const listenerIdList = [];
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1516,13 +1371,10 @@
           const value = this.getValue(key);
           return Boolean(value);
         },
-        checkExec(keyList2) {
+        checkExec(keyList) {
           let flag = false;
-          if (typeof checkExec === "function") {
-            flag = checkExec(keyList2);
-          } else {
-            flag = keyList2.every((key) => this.getValue(key));
-          }
+          if (typeof checkExec === "function") flag = checkExec(keyList);
+          else flag = keyList.every((key) => this.getValue(key));
           return flag;
         },
       });
@@ -1542,16 +1394,17 @@
         }
         panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
-      if (once) {
+      if (once)
         keyList.forEach((key) => {
-          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
             return valueChangeCallback({
-              key: key2,
+              key,
+              newValue,
+              oldValue,
             });
           });
           listenerIdList.push(listenerId);
         });
-      }
       await valueChangeCallback();
       const result = {
         checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
@@ -1575,9 +1428,7 @@
           });
         },
         clearOnceExecMenuData() {
-          if (once) {
-            Panel.$data.onceExecMenuData.delete(storageKey);
-          }
+          if (once) Panel.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1590,19 +1441,15 @@
           return await callback(...args);
         },
         (keyList) => {
-          const execFlag = keyList.every((__key__) => {
+          return keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            if (isReverse) {
-              flag = !flag;
-            }
+            if (isReverse) flag = !flag;
             return flag;
           });
-          return execFlag;
         },
         once
       );
@@ -1623,16 +1470,14 @@
     async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
       const results = await Promise.all(
         menus.map(async ([key, callback]) => {
-          const menuResult = await this.execMenu(
+          return await this.execMenu(
             key,
             (...args) => {
-              const result = callback(...args);
-              return result;
+              return callback(...args);
             },
             isReverse,
             once
           );
-          return menuResult;
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1647,23 +1492,14 @@
         panelMenuResultsHandler.clearStoreNodeList();
         panelMenuResultsHandler.execDestoryFnAndClear();
         if (removeListener) {
-          for (const listenerId of listenerIdList) {
-            this.removeValueChangeListener(listenerId);
-          }
-          for (const result of results) {
-            if (result) {
-              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
-            }
-          }
+          for (const listenerId of listenerIdList) this.removeValueChangeListener(listenerId);
+          for (const result of results) if (result) this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
         }
       };
       const __allExecCallback__ = () => {
         const allExecFlag = results.every((result) => {
-          if (result) {
-            return result.checkMenuExec();
-          } else {
-            return true;
-          }
+          if (result) return result.checkMenuExec();
+          else return true;
         });
         __destory__(false);
         if (allExecFlag) {
@@ -1672,7 +1508,7 @@
         }
       };
       __allExecCallback__();
-      for (const result of results) {
+      for (const result of results)
         if (result) {
           const listenerId = this.addValueChangeListener(result.keyList[0], () => {
             __allExecCallback__();
@@ -1686,58 +1522,42 @@
             this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
           }
         }
-      }
       return {
         clear() {
-          for (const result of results) {
-            result?.clear();
-          }
+          for (const result of results) result?.clear();
           this.execDestoryFnAndClear();
           this.removeValueChangeListener();
         },
         execDestoryFnAndClear() {
-          for (const result of results) {
-            result?.execDestoryFnAndClear();
-          }
+          for (const result of results) result?.execDestoryFnAndClear();
           __destory__(false);
         },
         removeValueChangeListener() {
-          for (const result of results) {
-            result?.removeValueChangeListener();
-          }
+          for (const result of results) result?.removeValueChangeListener();
           __destory__(true);
         },
       };
     },
     async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
-      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
-      return results;
+      return await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
+      return PopsPanelStorageApi.removeValueChangeListener(key);
     },
     onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
+      if (typeof key !== "string") throw new TypeError("key 必须是字符串");
+      if (this.$data.onceExecData.has(key)) return;
       if (runWithMenuEnable) {
-        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
-          const menuEnable = !!Panel.getValue(it);
-          if (!menuEnable) {
-            return true;
-          }
-        });
-        if (findIndex !== -1) {
+        if (
+          (Array.isArray(key) ? key : [key]).findIndex((it) => {
+            if (!!!Panel.getValue(it)) return true;
+          }) !== -1
+        )
           return;
-        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1765,9 +1585,7 @@
     },
     async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
-      for (const callback of values) {
-        await callback(config);
-      }
+      for (const callback of values) await callback(config);
     },
     showPanel(
       content,
@@ -1779,12 +1597,12 @@
       this.$data.panelContent = [];
       const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-          return isBottom && it.id === "script-version";
+          return (
+            (typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom)) && it.id === "script-version"
+          );
         }) !== -1;
-      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
+      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig)
         content.push(...PanelContent.getDefaultBottomContentConfig());
-      }
       const $panel = __pops__.panel({
         title: {
           text: title,
@@ -1830,33 +1648,30 @@
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
-      if (!preventRegisterSearchPlugin) {
-        this.registerConfigSearch({ $panel, content });
-      }
-      return { $panel, content };
+      if (!preventRegisterSearchPlugin)
+        this.registerConfigSearch({
+          $panel,
+          content,
+        });
+      return {
+        $panel,
+        content,
+      };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
       const translateCallback = (text, translateMap) => {
-        if (typeof config.translateCallback === "function") {
-          return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        if (typeof config.translateCallback === "function") return config.translateCallback(text, translateMap);
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const asyncQueryProperty = async (target, handler) => {
-        if (target == null) {
-          return;
-        }
+        if (target == null) return;
         const handleResult = await handler(target);
-        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-          return handleResult.data;
-        }
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) return handleResult.data;
         return await asyncQueryProperty(handleResult.data, handler);
       };
       const scrollToElementAndListen = ($el, callback) => {
@@ -1875,7 +1690,10 @@
           }
         );
         observer.observe($el);
-        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+        $el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
@@ -1885,9 +1703,7 @@
         $el.classList.add(flashingClassName);
       };
       const dbclick_callback = (evt) => {
-        if (evt.type === "dblclick" && isMobileTouch) {
-          return;
-        }
+        if (evt.type === "dblclick" && isMobileTouch) return;
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
@@ -1903,14 +1719,8 @@
 					`,
             html: true,
           },
-          btn: {
-            ok: { enable: false },
-          },
-          mask: {
-            clickEvent: {
-              toClose: true,
-            },
-          },
+          btn: { ok: { enable: false } },
+          mask: { clickEvent: { toClose: true } },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
@@ -1963,17 +1773,16 @@
         };
         const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
-            if (target?.next) {
+            if (target?.next)
               return {
                 isFind: false,
                 data: target.next,
               };
-            } else {
+            else
               return {
                 isFind: true,
                 data: target,
               };
-            }
           });
           const $item = domUtils.createElement("div", {
             className: "search-result-item",
@@ -1984,16 +1793,11 @@
           });
           const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
-            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
+            const $targetAsideItem = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
-            );
-            const $targetAsideItem = $asideItems2[pathInfo.index];
+            )[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(
-                translateCallback(`左侧项下标{{index}}不存在`, {
-                  index: pathInfo.index,
-                })
-              );
+              qmsg.default.error(translateCallback(`左侧项下标{{index}}不存在`, { index: pathInfo.index }));
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -2011,10 +1815,9 @@
                     }
                   );
                 }, 2500);
-                if ($findDeepMenu) {
-                  $findDeepMenu.click();
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
+                if ($findDeepMenu) $findDeepMenu.click();
+                else {
+                  qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -2028,8 +1831,10 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
-                      return viewConfig === target.matchedData?.formConfig;
+                      return (
+                        Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey) ===
+                        target.matchedData?.formConfig
+                      );
                     }
                   );
                 }, 2500);
@@ -2037,16 +1842,13 @@
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
-                    $foldWrapper.click();
+                    $fold.querySelector(".pops-panel-forms-fold-container").click();
                     await utils.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
                   });
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的菜单项"));
-                }
+                } else qmsg.default.error(translateCallback("未找到对应的菜单项"));
                 return {
                   isFind: true,
                   data: target,
@@ -2067,21 +1869,18 @@
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
-                  deepNext.next = {
-                    name: configItem.text,
-                  };
+                  deepNext.next = { name: configItem.text };
                 }
                 loopContentConfig(childViewConfig, deepMenuPath);
               } else {
@@ -2090,15 +1889,9 @@
                 if (configItem.type === "own") {
                   let searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                   if (searchConfig) {
-                    if (typeof searchConfig === "function") {
-                      searchConfig = searchConfig();
-                    }
-                    if (typeof searchConfig.text === "string") {
-                      text = searchConfig.text;
-                    }
-                    if (typeof searchConfig.desc === "string") {
-                      description = searchConfig.desc;
-                    }
+                    if (typeof searchConfig === "function") searchConfig = searchConfig();
+                    if (typeof searchConfig.text === "string") text = searchConfig.text;
+                    if (typeof searchConfig.desc === "string") description = searchConfig.desc;
                   }
                 } else {
                   text = configItem.text;
@@ -2106,25 +1899,22 @@
                 }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
-                  if (typeof configText !== "string") {
-                    return;
-                  }
+                  if (typeof configText !== "string") return;
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
                   const matchedPath = utils.deepClone(path);
                   const deepNext = utils.queryProperty(matchedPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   deepNext.next = {
                     name: text,
@@ -2138,20 +1928,17 @@
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
-                    if (typeof name === "string" && name.trim() !== "") {
-                      pathList.push(name);
-                    }
-                    if (target?.next) {
+                    if (typeof name === "string" && name.trim() !== "") pathList.push(name);
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
                   deepNext.next.matchedData.path = pathStr;
@@ -2162,18 +1949,12 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.views) {
-              continue;
-            }
-            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
-              continue;
-            }
+            if (!leftContentConfigItem.views) continue;
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") continue;
             const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
-              if (typeof text === "function") {
-                text = text();
-              }
+              if (typeof text === "function") text = text();
               loopContentConfig(rightContentConfigList, {
                 index,
                 name: text,
@@ -2202,12 +1983,11 @@
           }, 200)
         );
       };
-      const $asideItems = $panel.$shadowRoot.querySelectorAll(
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
-      );
-      $asideItems.forEach(($asideItem) => {
-        domUtils.on($asideItem, "dblclick", dbclick_callback);
-      });
+      $panel.$shadowRoot
+        .querySelectorAll(`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`)
+        .forEach(($asideItem) => {
+          domUtils.on($asideItem, "dblclick", dbclick_callback);
+        });
       const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
@@ -2232,9 +2012,7 @@
             clickMap.set($selector, evt);
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
@@ -2265,16 +2043,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key)) {
+      if (Array.isArray(key))
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
-        } else {
-          return key[0];
-        }
-      } else {
-        return key;
-      }
+        } else return key[0];
+      else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2296,7 +2070,7 @@
       };
     },
   };
-  const PanelSettingConfig = {
+  var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom",
@@ -2309,43 +2083,44 @@
       key: "qmsg-config-showreverse",
       defaultValue: false,
     },
+    httpx_cookie_manager_enable: {
+      key: "httpx-use-cookie-enable",
+      defaultValue: false,
+    },
+    httpx_cookie_manager_use_document_cookie: {
+      key: "httpx-use-document-cookie",
+      defaultValue: false,
+    },
   };
-  const utils = utils$1.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.fn.Utils.AnyTouch();
+  var utils = _whitesev_utils.default.noConflict();
+  var domUtils = _whitesev_domutils.default.noConflict();
+  var __pops__ = _whitesev_pops.default;
+  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
     tag: true,
   });
-  const getPageMaxZIndex = () => {
+  var getPageMaxZIndex = () => {
     const deviation = 100;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
     const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-    const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
-    return maxZIndex;
+    return Math.max(deviation, popsZIndex, pointZIndex);
   };
-  Qmsg.config({
+  qmsg.default.config({
     isHTML: true,
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
+      if (qmsgType === "loading") return false;
       const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
+      if (qmsgType === "warning") log.warn(content);
+      else if (qmsgType === "error") log.error(content);
+      else log.info(content);
       return false;
     },
     get position() {
@@ -2383,38 +2158,33 @@
     },
     drag: true,
   });
-  const MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  const httpx = new utils.Httpx({
+  var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
     logDetails: false,
   });
-  httpx.interceptors.request.use((data2) => {
-    return data2;
+  httpx.interceptors.request.use((data) => {
+    return data;
   });
   httpx.interceptors.response.use(
     (response) => {
       return response;
     },
-    (data2) => {
-      log.error("[Httpx-HttpxRequest.response] 响应错误", { data: data2 });
-      if (data2.type === "onabort") {
-        Qmsg.warning("请求取消", { consoleLogContent: true });
-      } else if (data2.type === "onerror") {
-        Qmsg.error("请求异常", { consoleLogContent: true });
-      } else if (data2.type === "ontimeout") {
-        Qmsg.error("请求超时", { consoleLogContent: true });
-      } else {
-        Qmsg.error("其它错误", { consoleLogContent: true });
-      }
-      return data2;
+    (data) => {
+      log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
+      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
+      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
+      else qmsg.default.error("其它错误", { consoleLogContent: true });
+      return data;
     }
   );
-  const OriginPrototype = {
+  var OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
       keys: _unsafeWindow.Object.keys,
@@ -2424,39 +2194,30 @@
       apply: _unsafeWindow.Function.prototype.apply,
       call: _unsafeWindow.Function.prototype.call,
     },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
+    Element: { appendChild: _unsafeWindow.Element.prototype.appendChild },
     setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
     clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
     setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
-  const addStyle = domUtils.addStyle.bind(domUtils);
+  var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.CookieManagerService({
-    baseCookieHandler: "GM_cookie",
-  });
-  if (!cookieManager.isSupportGM_cookie) {
-    if (cookieManager.isSupportCookieStore) {
-      cookieManager.setOptions({
-        baseCookieHandler: "cookieStore",
-      });
-    } else {
-      cookieManager.setOptions({
-        baseCookieHandler: "document.cookie",
-      });
-    }
-  }
+  var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
+  var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
+  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  if (!cookieManager.isSupportGM_cookie)
+    if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
+    else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils.DocumentCookieHandler();
-  const _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
-  const QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
-  const BilibiliApiConfig = {
-    web_host: "api.bilibili.com",
-  };
-  const AppKeyInfo = {
+  var _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
+  var QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
+  var BilibiliApiConfig = { web_host: "api.bilibili.com" };
+  var AppKeyInfo = {
+    tv: {
+      appkey: "4409e2ce8ffd12b8",
+      appsec: "59b43e04ad6965f34319062b478f83dd",
+      mobi_app: "android_tv_yst",
+    },
     ios: {
       appkey: "27eb53fc9058f8c3",
       appsec: "c2ed53a74eeefe3cf99fbd01d8c9c375",
@@ -2467,35 +2228,30 @@
     params.appkey = appkey;
     const searchParams = new URLSearchParams(params);
     searchParams.sort();
-    return md5(searchParams.toString() + appsec);
+    return (0, md5.default)(searchParams.toString() + appsec);
   }
-  const BilibiliApiResponseCheck = {
+  var BilibiliApiResponseCheck = {
     isWebApiSuccess(json) {
       const message = (typeof json?.message === "string" ? json.message : "").toLowerCase();
       return json?.code === 0 && (json?.message === "0" || message === "success" || message === "ok");
     },
-    isAreaLimit(data2) {
-      const areaLimitCode = {
-        6002003: "抱歉您所在地区不可观看！",
-      };
-      const flag =
+    isAreaLimit(data) {
+      const areaLimitCode = { 6002003: "抱歉您所在地区不可观看！" };
+      return (
         Object.keys(areaLimitCode).findIndex((code) => {
           const codeMsg = areaLimitCode[code];
-          if (data2.code.toString() === code.toString() || data2.message.includes(codeMsg)) {
-            return true;
-          }
-        }) !== -1;
-      return flag;
+          if (data.code.toString() === code.toString() || data.message.includes(codeMsg)) return true;
+        }) !== -1
+      );
     },
   };
-  const BilibiliLoginApi = {
+  var BilibiliLoginApi = {
     async getQrCodeInfo() {
       const Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/auth_code";
       const postData = {
         appkey: AppKeyInfo.ios.appkey,
         local_id: "0",
         ts: "0",
-
         mobi_app: AppKeyInfo.ios.mobi_app,
         csrf: (await cookieManager.get("bili_jct"))?.value || "",
       };
@@ -2505,23 +2261,18 @@
           ...postData,
           sign,
         }),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         responseType: "json",
         fetch: true,
       });
       log.info(response);
-      if (!response.status) {
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (data.code !== 0) {
+        qmsg.default.error(data.message);
         return;
       }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (data2.code !== 0) {
-        Qmsg.error(data2.message);
-        return;
-      }
-      const loginData = data2.data;
-      return loginData;
+      return data.data;
     },
     async poll(auth_code) {
       const Api = "https://passport.bilibili.com/x/passport-tv-login/qrcode/poll";
@@ -2537,15 +2288,16 @@
           ...postData,
           sign,
         }),
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         responseType: "json",
         fetch: true,
       });
-      if (!response.status) {
-        return { success: false, message: "网络错误", action: void 0 };
-      }
+      if (!response.status)
+        return {
+          success: false,
+          message: "网络错误",
+          action: void 0,
+        };
       const json = utils.toJSON(response.data.responseText);
       log.info(json);
       const msgMap = {
@@ -2560,31 +2312,37 @@
       if (!BilibiliApiResponseCheck.isWebApiSuccess(json)) {
         const code = json.code.toString();
         const message = json.message || msgMap[code] || "未知错误";
-        if (code === "86038") {
-          return { success: false, message, action: "refresh" };
-        }
-        if (code === "86039" || code === "86090") {
-          return { success: false, message, action: "wait" };
-        }
-        return { success: false, message, action: void 0 };
+        if (code === "86038")
+          return {
+            success: false,
+            message,
+            action: "refresh",
+          };
+        if (code === "86039" || code === "86090")
+          return {
+            success: false,
+            message,
+            action: "wait",
+          };
+        return {
+          success: false,
+          message,
+          action: void 0,
+        };
       }
-      const accessKey = json.data.access_token;
-      const accessKeyExpireAt = Date.now() + json.data.expires_in * 1e3;
       return {
         success: true,
         message: "获取成功",
-        accessKey,
-        accessKeyExpireAt,
+        accessKey: json.data.access_token,
+        accessKeyExpireAt: Date.now() + json.data.expires_in * 1e3,
       };
     },
   };
-  const BilibiliQrCodeLogin = {
+  var BilibiliQrCodeLogin = {
     async init() {
-      Qmsg.info("正在申请二维码...");
+      qmsg.default.info("正在申请二维码...");
       const qrcodeInfo = await this.getQRCodeInfo();
-      if (!qrcodeInfo) {
-        return;
-      }
+      if (!qrcodeInfo) return;
       this.confirmScanQrcode(qrcodeInfo);
     },
     getQRCodeInfo: async function () {
@@ -2606,9 +2364,7 @@
           html: true,
         },
         btn: {
-          ok: {
-            enable: false,
-          },
+          ok: { enable: false },
           close: {
             enable: true,
             callback(event) {
@@ -2664,36 +2420,30 @@
           });
           isSuccessLogin = true;
           log.info("扫码登录成功", pollInfo);
-          Qmsg.success("扫码登录成功");
+          qmsg.default.success("扫码登录成功");
           break;
-        } else {
-          if (pollInfo?.action === "refresh") {
-            log.info("刷新二维码");
-            Qmsg.info("刷新二维码");
-            const qrcodeInfo2 = await this.getQRCodeInfo();
-            if (qrcodeInfo2) {
-              qrcode.clear();
-              qrcode.makeCode(qrcodeInfo2.url);
-            }
-          } else if (pollInfo.action === "wait") {
-            if (pollInfo.message === "二维码已扫码未确认") {
-              log.info("已扫码，等待确认...");
-              __pops__.loading({
-                $parent: $biliQrcodeCanvas,
-                content: {
-                  text: "已扫码，等待确认",
-                },
-                mask: {
-                  enable: true,
-                },
-              });
-            }
-          } else {
-            isSuccessLogin = false;
-            log.error(pollInfo.message);
-            Qmsg.error(pollInfo.message);
-            break;
+        } else if (pollInfo?.action === "refresh") {
+          log.info("刷新二维码");
+          qmsg.default.info("刷新二维码");
+          const qrcodeInfo = await this.getQRCodeInfo();
+          if (qrcodeInfo) {
+            qrcode.clear();
+            qrcode.makeCode(qrcodeInfo.url);
           }
+        } else if (pollInfo.action === "wait") {
+          if (pollInfo.message === "二维码已扫码未确认") {
+            log.info("已扫码，等待确认...");
+            __pops__.loading({
+              $parent: $biliQrcodeCanvas,
+              content: { text: "已扫码，等待确认" },
+              mask: { enable: true },
+            });
+          }
+        } else {
+          isSuccessLogin = false;
+          log.error(pollInfo.message);
+          qmsg.default.error(pollInfo.message);
+          break;
         }
         await utils.sleep(1500);
       }
@@ -2706,22 +2456,19 @@
     generateExpireAt(monthNumber = 6) {
       return new Date().getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
     },
-    setAccessTokenInfo(data2) {
-      _GM_setValue("bili-accessTokenInfo", data2);
+    setAccessTokenInfo(data) {
+      _GM_setValue("bili-accessTokenInfo", data);
     },
     getAccessTokenInfo() {
-      const data2 = _GM_getValue("bili-accessTokenInfo");
-      if (data2 && data2.expireAt > Date.now()) {
-        return data2;
-      } else {
-        return null;
-      }
+      const data = _GM_getValue("bili-accessTokenInfo");
+      if (data && data.expireAt > Date.now()) return data;
+      else return null;
     },
     getAccessToken() {
       return this.getAccessTokenInfo()?.access_token || "";
     },
   };
-  const githubCDNServerList = {
+  var serverAreaList = {
     上海: [
       "cn-sh-ct-01-06.bilivideo.com",
       "cn-sh-ct-01-13.bilivideo.com",
@@ -2950,9 +2697,6 @@
       "cn-hk-eq-bcache-13.bilivideo.com",
       "cn-hk-eq-bcache-16.bilivideo.com",
     ],
-  };
-  const serverAreaList = {
-    ...githubCDNServerList,
     海外: [
       "upos-hz-mirrorakam.akamaized.net",
       "upos-sz-mirroraliov.bilivideo.com",
@@ -2968,23 +2712,22 @@
     ],
     其它: ["upos-tf-all-hw.bilivideo.com", "upos-tf-all-tx.bilivideo.com"],
   };
-  const serverList = [
+  var serverList = [
     {
       name: "不替换",
       host: "",
     },
   ];
   Object.keys(serverAreaList).map((key) => {
-    const hostList = serverAreaList[key];
-    hostList.forEach((host) => {
+    serverAreaList[key].forEach((host) => {
       serverList.push({
         name: `${key} - ${host.trim().replace(/\.bilivideo\.com$/gi, "")}`,
         host,
       });
     });
   });
-  const BilibiliCDNServerList = serverList;
-  const BilibiliApiProxy = {
+  var BilibiliCDNServerList = serverList;
+  var BilibiliApiProxy = {
     getBangumiProxyHost() {
       const serverHost = [
         {
@@ -2993,113 +2736,90 @@
           host: Panel.getValue("bili-bangumi-proxyApiServer-default", "").trim() || BilibiliApiConfig.web_host,
         },
       ];
-      if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) {
-        return serverHost;
-      }
+      if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) return serverHost;
       const hk_host = Panel.getValue("bili-bangumi-proxyApiServer-hk");
-      if (utils.isNotNull(hk_host)) {
+      if (utils.isNotNull(hk_host))
         serverHost.push({
           name: "香港",
           area: "hk",
           host: hk_host,
         });
-      }
       const tw_host = Panel.getValue("bili-bangumi-proxyApiServer-tw");
-      if (utils.isNotNull(tw_host)) {
+      if (utils.isNotNull(tw_host))
         serverHost.push({
           name: "台湾",
           area: "tw",
           host: tw_host,
         });
-      }
       const tha_host = Panel.getValue("bili-bangumi-proxyApiServer-tha-or-sea");
-      if (utils.isNotNull(tha_host)) {
+      if (utils.isNotNull(tha_host))
         serverHost.push({
           name: "泰国/东南亚",
           area: "th",
           host: tha_host,
         });
-      }
       return serverHost;
     },
     getSearchProxyHost() {
       const bangumiProxyHost = this.getBangumiProxyHost();
       const serverHost = [];
       const hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
-      if (utils.isNotNull(hk_host)) {
+      if (utils.isNotNull(hk_host))
         serverHost.push({
           name: "香港",
           area: "hk",
           host: hk_host,
         });
-      } else {
+      else {
         const bangumi_hk_host = bangumiProxyHost.find((item) => item.area === "hk");
-        if (bangumi_hk_host) {
-          serverHost.push(bangumi_hk_host);
-        }
+        if (bangumi_hk_host) serverHost.push(bangumi_hk_host);
       }
       const tw_host = Panel.getValue("bili-search-proxyApiServer-tw");
-      if (utils.isNotNull(tw_host)) {
+      if (utils.isNotNull(tw_host))
         serverHost.push({
           name: "台湾",
           area: "tw",
           host: tw_host,
         });
-      } else {
+      else {
         const bangumi_tw_host = bangumiProxyHost.find((item) => item.area === "tw");
-        if (bangumi_tw_host) {
-          serverHost.push(bangumi_tw_host);
-        }
+        if (bangumi_tw_host) serverHost.push(bangumi_tw_host);
       }
       const tha_host = Panel.getValue("bili-search-proxyApiServer-tha-or-sea");
-      if (utils.isNotNull(tha_host)) {
+      if (utils.isNotNull(tha_host))
         serverHost.push({
           name: "泰国/东南亚",
           area: "th",
           host: tha_host,
         });
-      } else {
+      else {
         const bangumi_tha_host = bangumiProxyHost.find((item) => item.area === "th");
-        if (bangumi_tha_host) {
-          serverHost.push(bangumi_tha_host);
-        }
+        if (bangumi_tha_host) serverHost.push(bangumi_tha_host);
       }
       return serverHost;
     },
     getBangumiProxySearchParam(option = {}) {
-      const proxyData = {
+      return {
         from_client: "BROWSER",
         drm_tech_type: 2,
         module: "bangumi",
         area: option?.area || "",
         access_key: BilibiliQrCodeLogin.getAccessToken(),
       };
-      return proxyData;
     },
   };
-  const BilibiliCDNProxy = {
+  var BilibiliCDNProxy = {
     findBetterCDN(...args) {
       let urlList = [];
       args.forEach((arg) => {
-        if (Array.isArray(arg)) {
-          urlList = urlList.concat(arg.filter((item) => typeof item === "string"));
-        } else {
-          if (typeof arg === "string") {
-            urlList.push(arg);
-          }
-        }
+        if (Array.isArray(arg)) urlList = urlList.concat(arg.filter((item) => typeof item === "string"));
+        else if (typeof arg === "string") urlList.push(arg);
       });
       const betterCDN = urlList.find((url) => {
-        const urlInst = new URL(url);
-        if (urlInst.host.startsWith("upos")) {
-          return url;
-        }
+        if (new URL(url).host.startsWith("upos")) return url;
       });
-      if (betterCDN) {
-        return betterCDN;
-      } else {
-        return urlList[0];
-      }
+      if (betterCDN) return betterCDN;
+      else return urlList[0];
     },
     replaceVideoCDN(url, isAudio = false) {
       const userChooseCDN = isAudio
@@ -3132,9 +2852,7 @@
         const urlInst = new URL(url);
         const originHost = urlInst.host;
         if (utils.isNotNull(ownCDNHost)) {
-          if (originHost !== ownCDNHost) {
-            return url;
-          }
+          if (originHost !== ownCDNHost) return url;
           urlInst.host = ownCDNHost;
           log.info(`原Host为：${originHost}，替换CDN为自定义：${ownCDNHost}`);
           return urlInst.toString();
@@ -3142,13 +2860,9 @@
         const chooseUposCDNInfo = BilibiliCDNServerList.find((item) => {
           return item.host === userChooseCDNHost;
         });
-        if (utils.isNull(chooseUposCDNInfo) || utils.isNull(chooseUposCDNInfo.host)) {
-          return url;
-        }
+        if (utils.isNull(chooseUposCDNInfo) || utils.isNull(chooseUposCDNInfo.host)) return url;
         const chooseUposCDNHost = chooseUposCDNInfo.host;
-        if (chooseUposCDNHost === urlInst.host) {
-          return url;
-        }
+        if (chooseUposCDNHost === urlInst.host) return url;
         urlInst.host = chooseUposCDNHost;
         log.info(`原Host为：${originHost}，替换CDN为：${JSON.stringify(chooseUposCDNInfo)}`);
         return urlInst.toString();
@@ -3158,10 +2872,8 @@
       }
     },
   };
-  const BilibiliPlayerToast = {
-    $flag: {
-      isInitCSS: false,
-    },
+  var BilibiliPlayerToast = {
+    $flag: { isInitCSS: false },
     $data: {
       originToast: "mplayer-toast",
       showClassName: "mplayer-show",
@@ -3173,20 +2885,12 @@
       },
     },
     toast(config) {
-      if (typeof config === "string") {
-        config = {
-          text: config,
-        };
-      }
+      if (typeof config === "string") config = { text: config };
       this.initCSS();
       let $parent = config.parent ?? this.$el.$mplayer;
-      if (!$parent) {
-        throw new TypeError("toast parent is null");
-      }
+      if (!$parent) throw new TypeError("toast parent is null");
       this.mutationMPlayerOriginToast($parent);
-      let $toast = domUtils.createElement("div", {
-        "data-from": "gm",
-      });
+      let $toast = domUtils.createElement("div", { "data-from": "gm" });
       domUtils.addClass($toast, this.$data.prefix);
       domUtils.addClass($toast, this.$data.showClassName);
       if (config.showCloseBtn) {
@@ -3235,20 +2939,14 @@
       this.setTransitionendEvent($toast);
       let timeout = typeof config.timeout === "number" && !isNaN(config.timeout) ? config.timeout : 3500;
       Array.from($$(`.mplayer-toast`)).forEach(($mplayerOriginToast) => {
-        if ($mplayerOriginToast.hasAttribute("data-is-set-transitionend")) {
-          return;
-        }
+        if ($mplayerOriginToast.hasAttribute("data-is-set-transitionend")) return;
         $mplayerOriginToast.setAttribute("data-is-set-transitionend", "true");
-        if ($mplayerOriginToast.textContent?.includes("记忆你上次看到")) {
+        if ($mplayerOriginToast.textContent?.includes("记忆你上次看到"))
           setTimeout(() => {
             let $close = $mplayerOriginToast.querySelector(".mplayer-toast-close");
-            if ($close) {
-              $close.click();
-            } else {
-              $mplayerOriginToast.remove();
-            }
+            if ($close) $close.click();
+            else $mplayerOriginToast.remove();
           }, 3e3);
-        }
         this.setTransitionendEvent($mplayerOriginToast);
       });
       $parent.appendChild($toast);
@@ -3263,12 +2961,9 @@
       };
     },
     initCSS() {
-      if (this.$flag.isInitCSS) {
-        return;
-      }
+      if (this.$flag.isInitCSS) return;
       this.$flag.isInitCSS = true;
-      addStyle(
-        `
+      addStyle(`
 		.${this.$data.prefix}.mplayer-show {
 			opacity: 1;
 			visibility: visible;
@@ -3315,17 +3010,12 @@
 			text-decoration: none;
 		}
 
-		`
-      );
+		`);
     },
     mutationMPlayerOriginToast($parent) {
       let $mplayer = this.$el.$mplayer;
-      if (!$mplayer) {
-        return;
-      }
-      if ($mplayer.hasAttribute("data-mutation")) {
-        return;
-      }
+      if (!$mplayer) return;
+      if ($mplayer.hasAttribute("data-mutation")) return;
       log.success(`添加观察器，动态更新toast的位置`);
       $mplayer.setAttribute("data-mutation", "gm");
       utils.mutationObserver($mplayer, {
@@ -3376,13 +3066,11 @@
             return;
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const VideoQualityNameMap = {
+  var VideoQualityNameMap = {
     "240P 极速": 6,
     "360P 流畅": 16,
     "480P 清晰": 32,
@@ -3396,12 +3084,12 @@
     杜比视界: 126,
     "8K 超高清": 127,
   };
-  const VideoQualityMap = {};
+  var VideoQualityMap = {};
   Object.keys(VideoQualityNameMap).forEach((qualityName) => {
     let qualityValue = Reflect.get(VideoQualityNameMap, qualityName);
     Reflect.set(VideoQualityMap, qualityValue, qualityName);
   });
-  const XhrHook = {
+  var XhrHook = {
     _ajaxHooker_: null,
     get ajaxHooker() {
       if (XhrHook._ajaxHooker_ == null) {
@@ -3411,29 +3099,24 @@
       return XhrHook._ajaxHooker_;
     },
   };
-  const BilibiliNetworkHook = {
+  var BilibiliNetworkHook = {
     $flag: {
       is_hook_video_playurl: false,
       is_hook_bangumi_html5: false,
       is_hook_live_playurl: false,
     },
     init() {
-      if (BilibiliRouter.isLive()) {
+      if (BilibiliRouter.isLive())
         Panel.execMenuOnce("bili-live-cdn-hook", () => {
           this.hook_live_playurl();
         });
-      }
     },
     hook_video_playurl() {
-      if (this.$flag.is_hook_video_playurl) {
-        return;
-      }
+      if (this.$flag.is_hook_video_playurl) return;
       this.$flag.is_hook_video_playurl = true;
       XhrHook.ajaxHooker.hook((request) => {
         if (request.url.includes(`//${BilibiliApiConfig.web_host}/x/player/wbi/playurl`)) {
-          if (request.url.startsWith("//")) {
-            request.url = window.location.protocol + request.url;
-          }
+          if (request.url.startsWith("//")) request.url = window.location.protocol + request.url;
           let playUrl = new URL(request.url);
           playUrl.searchParams.set("platform", "html5");
           playUrl.searchParams.set("qn", VideoQualityNameMap["1080P60 高帧率"].toString());
@@ -3446,10 +3129,12 @@
           }
           request.url = playUrl.toString();
           request.response = (res) => {
-            let data2 = utils.toJSON(res.responseText);
-            let unlockQuality = data2?.["data"]?.["quality"];
-            let support_formats = data2?.["data"]?.["support_formats"];
+            let data = utils.toJSON(res.responseText);
+            let unlockQuality = data?.["data"]?.["quality"];
+            let support_formats = data?.["data"]?.["support_formats"];
             log.info("当前解锁的quality值：" + unlockQuality);
+            if (unlockQuality) {
+            }
             if (unlockQuality && support_formats) {
               let findValue = support_formats.find((item) => {
                 return item["quality"] == unlockQuality;
@@ -3465,15 +3150,11 @@
       });
     },
     hook_bangumi_html5() {
-      if (this.$flag.is_hook_bangumi_html5) {
-        return;
-      }
+      if (this.$flag.is_hook_bangumi_html5) return;
       this.$flag.is_hook_bangumi_html5 = true;
       XhrHook.ajaxHooker.hook((request) => {
         if (request.url.includes(`//${BilibiliApiConfig.web_host}/pgc/player/web/playurl/html5`)) {
-          if (request.url.startsWith("//")) {
-            request.url = window.location.protocol + request.url;
-          }
+          if (request.url.startsWith("//")) request.url = window.location.protocol + request.url;
           let playUrlInst = new URL(request.url);
           playUrlInst.pathname = "/pgc/player/web/playurl";
           playUrlInst.searchParams.delete("bsource");
@@ -3485,78 +3166,59 @@
           playUrlInst.searchParams.set("drm_tech_type", "2");
           request.url = playUrlInst.toString();
           request.response = (res) => {
-            let data2 = utils.toJSON(res.responseText);
-            let result = data2["result"];
+            let result = utils.toJSON(res.responseText)["result"];
             log.info("当前解锁的quality值：" + result["quality"]);
             if (result["quality"] && result["support_formats"]) {
               let findValue = result["support_formats"].find((item) => {
                 return item["quality"] == result["quality"];
               });
-              if (findValue) {
-                log.info("当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]);
-              }
+              if (findValue) log.info("当前已解锁的画质：" + findValue["new_description"] || findValue["display_desc"]);
             }
           };
         }
       });
     },
     hook_live_playurl() {
-      if (this.$flag.is_hook_live_playurl) {
-        return;
-      }
+      if (this.$flag.is_hook_live_playurl) return;
       this.$flag.is_hook_live_playurl = true;
       XhrHook.ajaxHooker.hook((request) => {
         if (!Panel.getValue("bili-live-cdn-hook")) return;
-        if (request.url.startsWith("data:")) {
-          return;
-        }
+        if (request.url.startsWith("data:")) return;
         const url = CommonUtil.fixUrl(request.url);
         let playUrlInst = new URL(url);
-        const pathname = playUrlInst.pathname;
-        if (pathname.startsWith("/xlive/web-room/v2/index/getRoomPlayInfo")) {
+        if (playUrlInst.pathname.startsWith("/xlive/web-room/v2/index/getRoomPlayInfo")) {
           playUrlInst.searchParams.set("qn", "30000");
           request.url = playUrlInst.toString();
           request.response = (res) => {
-            const data2 = typeof res.responseText === "string" ? utils.toJSON(res.responseText) : res.json;
-            const stream = data2?.data?.playurl_info?.playurl?.stream;
-            if (Array.isArray(stream)) {
+            const data = typeof res.responseText === "string" ? utils.toJSON(res.responseText) : res.json;
+            const stream = data?.data?.playurl_info?.playurl?.stream;
+            if (Array.isArray(stream))
               stream.forEach((streamItem) => {
                 const format = streamItem?.format;
-                if (!Array.isArray(format)) {
-                  return;
-                }
+                if (!Array.isArray(format)) return;
                 format.forEach((formatItem) => {
                   const codec = formatItem?.codec;
-                  if (!Array.isArray(codec)) {
-                    return;
-                  }
+                  if (!Array.isArray(codec)) return;
                   formatItem?.format_name;
                   codec.forEach((codecItem) => {
                     codecItem?.codec_name;
                     const url_info = codecItem?.url_info;
-                    if (!Array.isArray(url_info)) {
-                      return;
-                    }
+                    if (!Array.isArray(url_info)) return;
                     url_info.forEach((urlInfoItem) => {
                       const host = urlInfoItem?.host;
-                      if (typeof host === "string") {
-                        urlInfoItem.host = BilibiliCDNProxy.replaceLiveVideoCDN(host);
-                      }
+                      if (typeof host === "string") urlInfoItem.host = BilibiliCDNProxy.replaceLiveVideoCDN(host);
                     });
                   });
                 });
               });
-            } else {
-              log.error("直播请求信息中返回的steam不是数组", data2);
-            }
+            else log.error("直播请求信息中返回的steam不是数组", data);
           };
-        } else if (playUrlInst.hostname.endsWith(".bilivideo.com")) {
+        } else if (playUrlInst.hostname.endsWith(".bilivideo.com"))
           request.url = BilibiliCDNProxy.replaceLiveVideoCDN(url);
-        }
       });
     },
   };
-  const BilibiliUserApi = {
+  var BilibiliUserApi = {
     async nav(checkCode = true) {
       const response = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/web-interface/nav?web_location=333.401`,
@@ -3570,13 +3232,13 @@
         log.error(["获取导航栏用户信息失败，请求异常", response]);
         return;
       }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log.error(data2);
-        Qmsg.error("获取导航栏用户信息失败");
+      const data = utils.toJSON(response.data.responseText);
+      if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data)) {
+        log.error(data);
+        qmsg.default.error("获取导航栏用户信息失败");
         return;
       }
-      return data2.data;
+      return data.data;
     },
     async space(mid, offset = "") {
       const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/polymer/web-dynamic/v1/feed/space`, {
@@ -3586,14 +3248,10 @@
         },
         fetch: true,
       });
-      if (!response.status) {
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return;
-      }
-      return data2["data"];
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return;
+      return data["data"];
     },
     async following(mid, pn = 1, ps = 50) {
       const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/relation/followings`, {
@@ -3604,20 +3262,14 @@
         },
         fetch: true,
       });
-      if (!response.status) {
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return data2["message"];
-      }
-      return data2["data"];
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return data["message"];
+      return data["data"];
     },
   };
-  const BilibiliGlobalData = {
-    $data: {
-      isLogin: new Promise(() => false),
-    },
+  var BilibiliGlobalData = {
+    $data: { isLogin: new Promise(() => false) },
     $flag: {
       isSetQueryLoginStatus: false,
       isQueryLoginStatus: false,
@@ -3626,71 +3278,64 @@
       this.resetLoginStatus();
     },
     resetLoginStatus() {
-      if (this.$flag.isSetQueryLoginStatus) {
-        return;
-      }
+      if (this.$flag.isSetQueryLoginStatus) return;
       this.$flag.isSetQueryLoginStatus = true;
       let isLogin = false;
       this.$data.isLogin = new Promise(async (resolve) => {
         if (!this.$flag.isQueryLoginStatus) {
           this.$flag.isQueryLoginStatus = true;
           let userNavInfo = await BilibiliUserApi.nav(false);
-          if (userNavInfo && userNavInfo.isLogin) {
-            isLogin = true;
-          }
+          if (userNavInfo && userNavInfo.isLogin) isLogin = true;
         }
         resolve(isLogin);
       });
     },
   };
   function b2a(bvid) {
-    const XOR_CODE2 = 23442827791579n;
+    const XOR_CODE = 23442827791579n;
     const MASK_CODE = 2251799813685247n;
-    const BASE2 = 58n;
-    const BYTES = ["B", "V", 1, "", "", "", "", "", "", "", "", ""];
-    const BV_LEN = BYTES.length;
+    const BASE = 58n;
+    const BV_LEN = 12;
     const ALPHABET = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf".split("");
     const DIGIT_MAP = [0, 1, 2, 9, 7, 5, 6, 4, 8, 3, 10, 11];
     let r = 0n;
-    for (let i = 3; i < BV_LEN; i++) {
-      r = r * BASE2 + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
-    }
-    return `${(r & MASK_CODE) ^ XOR_CODE2}`;
+    for (let i = 3; i < BV_LEN; i++) r = r * BASE + BigInt(ALPHABET.indexOf(bvid[DIGIT_MAP[i]]));
+    return `${(r & MASK_CODE) ^ XOR_CODE}`;
   }
-  const wbi = async (params) => {
-    async function getWbiQueryString(params2) {
+  var wbi = async (params) => {
+    async function getWbiQueryString(params) {
       const response = await BilibiliUserApi.nav(false);
-      if (!response) {
-        return;
-      }
+      if (!response) return;
       const { img_url, sub_url } = response.wbi_img;
-      const imgKey = img_url.slice(img_url.lastIndexOf("/") + 1, img_url.lastIndexOf("."));
-      const subKey = sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
-      const originKey = imgKey + subKey;
-      const mixinKeyEncryptTable = [
+      const originKey =
+        img_url.slice(img_url.lastIndexOf("/") + 1, img_url.lastIndexOf(".")) +
+        sub_url.slice(sub_url.lastIndexOf("/") + 1, sub_url.lastIndexOf("."));
+      const mixinKey = [
         46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49, 33, 9, 42, 19, 29, 28, 14, 39, 12,
         38, 41, 13, 37, 48, 7, 16, 24, 55, 40, 61, 26, 17, 0, 1, 60, 51, 30, 4, 22, 25, 54, 21, 56, 59, 6, 63, 57, 62,
         11, 36, 20, 34, 44, 52,
-      ];
-      const mixinKey = mixinKeyEncryptTable
+      ]
         .map((n) => originKey[n])
         .join("")
         .slice(0, 32);
-      const query = Object.keys(params2)
+      const query = Object.keys(params)
         .sort()
         .map((key) => {
-          const value = params2[key].toString().replace(/[!'()*]/g, "");
+          const value = params[key].toString().replace(/[!'()*]/g, "");
           return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
         })
         .join("&");
-      const wbiSign = md5(query + mixinKey);
+      const wbiSign = (0, md5.default)(query + mixinKey);
       return query + "&w_rid=" + wbiSign;
     }
     return await getWbiQueryString(params);
   };
-  const global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
-  const sortTypeConstant = { LATEST: 0, HOT: 2 };
-  const MobileCommentModule = {
+  var global = typeof _unsafeWindow === "undefined" ? window : _unsafeWindow;
+  var sortTypeConstant = {
+    LATEST: 0,
+    HOT: 2,
+  };
+  var MobileCommentModule = {
     $data: {
       oid: null,
       createrID: void 0,
@@ -3786,8 +3431,7 @@
       if (this.$flag.isInitCSS) return;
       this.$flag.isInitCSS = true;
       await domUtils.onReady();
-      addStyle(
-        `
+      addStyle(`
     .reply-header {
         padding: 12px;
         border-bottom: 1px solid #f1f2f3;
@@ -3800,10 +3444,8 @@
     .reply-navigation .nav-bar .nav-title {
         font-size: 1rem !important;
     }
-    `
-      );
-      addStyle(
-        `
+    `);
+      addStyle(`
     .reply-list {
         margin-top: 0 !important;
         margin-bottom: 0 !important;
@@ -3865,14 +3507,12 @@
     .sub-reply-info .sub-reply-like {
         margin-right: 12px !important;
     }
-    `
-      );
+    `);
       const avatarCSS = document.createElement("style");
       avatarCSS.textContent = `
             
           `;
-      addStyle(
-        `
+      addStyle(`
     .reply-item .root-reply-avatar .avatar .bili-avatar {
         width: 40px;
         height: 40px;
@@ -3882,10 +3522,8 @@
         width: 24px;
         height: 24px;
     }
-    `
-      );
-      addStyle(
-        `
+    `);
+      addStyle(`
     .sub-reply-container .view-more-btn:hover {
         color: #00AEEC;
     }
@@ -3916,14 +3554,12 @@
     .pagination-page-number:hover {
         color: #00AEEC;
     }
-    `
-      );
+    `);
       const otherCSS = document.createElement("style");
       otherCSS.textContent = `
             
           `;
-      addStyle(
-        `
+      addStyle(`
     :root {
         --text1: #18191C;
         --text3: #9499A0;
@@ -3935,8 +3571,7 @@
     .jump-link {
         color: #008DDA;
     }
-    `
-      );
+    `);
     },
     setupStandardCommentContainer($root) {
       domUtils.html(
@@ -4013,21 +3648,18 @@
       }
       const totalReplyCount = parseInt(firstPaginationData?.cursor?.all_count) || 0;
       domUtils.text(this.$el.totalReply, totalReplyCount);
-      if (firstPaginationData?.cursor?.name?.includes("精选")) {
+      if (firstPaginationData?.cursor?.name?.includes("精选"))
         domUtils.html(
           this.$el.navSort,
           `
             <div class="selected-sort">精选评论</div>
         `
         );
-      }
       if (firstPaginationData.top_replies && firstPaginationData.top_replies.length !== 0) {
         const topReplyData = firstPaginationData.top_replies[0];
         this.appendReplyItem(topReplyData, true);
       }
-      for (const replyData of firstPaginationData.replies) {
-        this.appendReplyItem(replyData);
-      }
+      for (const replyData of firstPaginationData.replies) this.appendReplyItem(replyData);
       if (firstPaginationData.replies.length === 0 || firstPaginationData.cursor.is_end) {
         const infoElement = domUtils.createElement(
           "p",
@@ -4035,9 +3667,7 @@
             className: "no-more-replies-info",
             textContent: "没有更多评论",
           },
-          {
-            style: "padding-bottom: 100px; text-align: center; color: #999;",
-          }
+          { style: "padding-bottom: 100px; text-align: center; color: #999;" }
         );
         domUtils.append(this.$el.replyWrapper, infoElement);
         return;
@@ -4046,27 +3676,22 @@
     },
     async getPaginationData(plat) {
       const params = {
-        pagination_str: JSON.stringify({
-          offset: this.$data.nextOffset || "",
-        }),
+        pagination_str: JSON.stringify({ offset: this.$data.nextOffset || "" }),
         oid: this.$data.oid,
         type: this.$data.commentType,
         wts: parseInt((Date.now() / 1e3).toString()),
       };
       if (this.$data.currentSortType === sortTypeConstant.HOT) {
         Reflect.set(params, "mode", 3);
-        if (!this.$data.nextOffset);
-      } else if (this.$data.currentSortType === sortTypeConstant.LATEST) {
-        Reflect.set(params, "mode", 2);
-      }
+        if (!this.$data.nextOffset) {
+        }
+      } else if (this.$data.currentSortType === sortTypeConstant.LATEST) Reflect.set(params, "mode", 2);
       const isLogin = await BilibiliGlobalData.$data.isLogin;
       const fetchResult = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await wbi(params)}`,
         {
           fetch: !isLogin,
-          fetchInit: {
-            credentials: "same-origin",
-          },
+          fetchInit: { credentials: "same-origin" },
           anonymous: !isLogin,
         }
       );
@@ -4079,9 +3704,8 @@
         typeof this.$data.replyPool === "object" &&
         this.$data.replyPool != null &&
         this.$data.replyPool[replyData.rpid]
-      ) {
+      )
         return;
-      }
       const $replyItem = domUtils.createElement("div", {
         className: "reply-item",
         innerHTML: `
@@ -4097,9 +3721,7 @@
           <div class="content-warp">
             <div class="user-info">
               <a class="user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
-              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${this.getMemberLevelColor(
-                replyData.member.level_info.current_level
-              )};">LV${replyData.member.level_info.current_level}</span>
+              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${this.getMemberLevelColor(replyData.member.level_info.current_level)};">LV${replyData.member.level_info.current_level}</span>
               ${this.$data.createrID === replyData.mid ? '<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>' : ""}
             </div>
             <div class="root-reply">
@@ -4125,16 +3747,7 @@
                 </span>
               </div>
               <div class="reply-tag-list">
-                ${
-                  replyData.card_label
-                    ? replyData.card_label.reduce(
-                        (acc, cur) =>
-                          acc +
-                          `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`,
-                        ""
-                      )
-                    : ""
-                }
+                ${replyData.card_label ? replyData.card_label.reduce((acc, cur) => acc + `<span class="reply-tag-item ${cur.text_content === "热评" ? "reply-tag-hot" : ""} ${cur.text_content === "UP主觉得很赞" ? "reply-tag-liked" : ""}" style="font-size: 12px; background-color: ${cur.label_color_day}; color: ${cur.text_color_day};">${cur.text_content}</span>`, "") : ""}
               </div>
             </div>
           </div>
@@ -4162,7 +3775,7 @@
       this.$data.replyPool[replyData.rpid_str] = true;
       const $previewImageContainer = $replyItem.querySelector(".preview-image-container");
       if ($previewImageContainer)
-        new Viewer($previewImageContainer, {
+        new viewerjs.default($previewImageContainer, {
           title: false,
           toolbar: false,
           tooltip: false,
@@ -4170,20 +3783,14 @@
         });
       const subReplyList = $replyItem.querySelector(".sub-reply-list");
       const viewMoreBtn = $replyItem.querySelector(".view-more-btn");
-      if (viewMoreBtn) {
+      if (viewMoreBtn)
         domUtils.on(viewMoreBtn, "click", () => {
           this.loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1);
         });
-      }
     },
     getFormattedTime(ms) {
       const time = new Date(ms * 1e3);
-      const year = time.getFullYear();
-      const month = (time.getMonth() + 1).toString().padStart(2, "0");
-      const day = time.getDate().toString().padStart(2, "0");
-      const hour = time.getHours().toString().padStart(2, "0");
-      const minute = time.getMinutes().toString().padStart(2, "0");
-      return `${year}-${month}-${day} ${hour}:${minute}`;
+      return `${time.getFullYear()}-${(time.getMonth() + 1).toString().padStart(2, "0")}-${time.getDate().toString().padStart(2, "0")} ${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}`;
     },
     getMemberLevelColor(level) {
       return {
@@ -4204,15 +3811,14 @@
         keywordBlacklist.push(linkElementHTML);
         result = result.replace(`{vote:${content.vote.id}}`, linkElementHTML);
       }
-      if (content.emote) {
+      if (content.emote)
         for (const [key, value] of Object.entries(content.emote)) {
-          const imageElementHTML = `<img class="emoji-${["", "small", "large"][value.meta.size]}" src="${
-            value.url
-          }" alt="${key}">`;
+          const imageElementHTML = `<img class="emoji-${
+            ["", "small", "large"][value.meta.size]
+          }" src="${value.url}" alt="${key}">`;
           keywordBlacklist.push(imageElementHTML);
           result = result.replaceAll(key, imageElementHTML);
         }
-      }
       result = result.replaceAll(/(\d{1,2}[:：]){1,2}\d{1,2}/g, (timestamp) => {
         timestamp = timestamp.replaceAll("：", ":");
         if (!BilibiliRouter.isVideo()) return timestamp;
@@ -4240,13 +3846,12 @@
         keywordBlacklist.push(linkElementHTML);
         return linkElementHTML;
       });
-      if (content.at_name_to_mid) {
+      if (content.at_name_to_mid)
         for (const [key, value] of Object.entries(content.at_name_to_mid)) {
           const linkElementHTML = `<a class="jump-link user" data-user-id="${value}" href="https://space.bilibili.com/${value}" target="_blank" noopener noreferrer>@${key}</a>`;
           keywordBlacklist.push(linkElementHTML);
           result = result.replaceAll(`@${key}`, linkElementHTML);
         }
-      }
       if (Object.keys(content.jump_url).length) {
         const entries = [].concat(
           Object.entries(content.jump_url).filter((entry) => entry[0].startsWith("https://")),
@@ -4268,15 +3873,14 @@
       if (images.length === 1) imageSizeConfig = "max-width: 260px; max-height: 180px;";
       if (images.length === 2) imageSizeConfig = "width: 128px; height: 128px;";
       let result = "";
-      for (const image of images) {
+      for (const image of images)
         result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
-      }
       return result;
     },
     getSubReplyItems(subReplies) {
       if (!(subReplies instanceof Array)) return "";
       let result = "";
-      for (const replyData of subReplies) {
+      for (const replyData of subReplies)
         result += `
           <div class="sub-reply-item">
             <div class="sub-user-info">
@@ -4289,9 +3893,7 @@
                 </div>
               </a>
               <a class="sub-user-name" href="https://space.bilibili.com/${replyData.mid}" target="_blank" data-user-id="${replyData.mid}" data-root-reply-id="${replyData.rpid}" style="color: ${replyData.member.vip.nickname_color ? replyData.member.vip.nickname_color : "#61666d"}">${replyData.member.uname}</a>
-              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${this.getMemberLevelColor(
-                replyData.member.level_info.current_level
-              )};">LV${replyData.member.level_info.current_level}</span>
+              <span style="height: 14px; padding: 0 2px; margin-right: 4px; display: flex; align-items: center; font-size: 10px; color: white; border-radius: 2px; background-color: ${this.getMemberLevelColor(replyData.member.level_info.current_level)};">LV${replyData.member.level_info.current_level}</span>
               ${this.$data.createrID === replyData.mid ? `<i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect><path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path></svg></i>` : ""}
             </div>
             <span class="reply-content-container sub-reply-content">
@@ -4306,7 +3908,6 @@
             </div>
           </div>
         `;
-      }
       return result;
     },
     async loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
@@ -4324,28 +3925,25 @@
         {
           allowInterceptConfig: false,
           fetch: !isLogin,
-          fetchInit: {
-            credentials: "same-origin",
-          },
+          fetchInit: { credentials: "same-origin" },
           anonymous: !isLogin,
         }
       );
       if (!subReplyResponse.status) {
         log.error(subReplyResponse);
-        Qmsg.error("请求异常，获取评论的回复失败");
+        qmsg.default.error("请求异常，获取评论的回复失败");
         return;
       }
       const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
       if (subReplyJSON === -352) {
-        Qmsg.error("请登录后再进行操作");
+        qmsg.default.error("请登录后再进行操作");
         console.error("you should login first", subReplyResponse);
         return;
       }
       const subReplyData = subReplyJSON.data;
       subReplyList.innerHTML = this.getSubReplyItems(subReplyData.replies);
       this.addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
-      const replyItem = subReplyList.parentElement.parentElement;
-      replyItem.scrollIntoView({ behavior: "instant" });
+      subReplyList.parentElement.parentElement.scrollIntoView({ behavior: "instant" });
       global.scrollTo(0, document.documentElement.scrollTop - 60);
     },
     addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, currentPageNumber) {
@@ -4393,11 +3991,7 @@
                 return acc + `<span class="pagination-page-number">${cur}</span>`;
               }, "");
             })()}
-            ${
-              currentPageNumber !== pageAmount
-                ? `<span class="pagination-btn pagination-to-next-btn">下一页</span>`
-                : ""
-            }
+            ${currentPageNumber !== pageAmount ? `<span class="pagination-btn pagination-to-next-btn">下一页</span>` : ""}
           </div>
         `,
       });
@@ -4424,9 +4018,7 @@
           className: "anchor-for-loading",
           textContent: "正在加载...",
         },
-        {
-          style: `text-align: center; color: #61666d; transform: translateY(-50px)`,
-        }
+        { style: `text-align: center; color: #61666d; transform: translateY(-50px)` }
       );
       domUtils.append(this.$el.replyWrapper, anchorElement);
       let paginationCounter = 1;
@@ -4438,16 +4030,14 @@
           ob.disconnect();
           return;
         }
-        for (const replyData of newPaginationData.replies) {
-          this.appendReplyItem(replyData);
-        }
+        for (const replyData of newPaginationData.replies) this.appendReplyItem(replyData);
       });
       ob.observe(anchorElement);
     },
   };
-  const MobileCommentModuleStyle =
+  var MobileCommentModule_default =
     ':root {\n  --v_xs: 5px;\n  --v_xsx: 4px;\n  --v_xxs: 6px;\n  --v_sm: 10px;\n  --v_smx: 8px;\n  --v_xsm: 12px;\n  --v_md: 15px;\n  --v_mdx: 14px;\n  --v_xmd: 16px;\n  --v_lg: 20px;\n  --v_lgx: 18px;\n  --v_xlg: 22px;\n  --v_xl: 25px;\n  --v_xlx: 24px;\n  --v_xxl: 26px;\n  --v_fs_1: 24px;\n  --v_fs_2: 18px;\n  --v_fs_3: 16px;\n  --v_fs_4: 14px;\n  --v_fs_5: 13px;\n  --v_fs_6: 12px;\n  --v_lh_xs: 1;\n  --v_lh_sm: 1.25;\n  --v_lh_md: 1.5;\n  --v_lh_lg: 1.75;\n  --v_lh_xl: 2;\n  --v_height_xs: 16px;\n  --v_height_sm: 24px;\n  --v_height_md: 32px;\n  --v_height_lg: 40px;\n  --v_height_xl: 48px;\n  --v_radius: 6px;\n  --v_radius_sm: 4px;\n  --v_radius_md: 8px;\n  --v_radius_lg: 10px;\n  --v_brand_pink: var(--brand_pink, #ff6699);\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\n  --v_brand_blue: var(--brand_blue, #00aeec);\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\n  --v_stress_red: var(--stress_red, #f85a54);\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\n  --v_success_green: var(--success_green, #2ac864);\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\n  --v_operate_orange: var(--operate_orange, #ff7f24);\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\n  --v_bg1: var(--bg1, #ffffff);\n  --v_bg2: var(--bg2, #f6f7f8);\n  --v_bg3: var(--bg3, #f1f2f3);\n  --v_bg1_float: var(--bg1_float, #ffffff);\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\n  --v_text_white: var(--text_white, #ffffff);\n  --v_text1: var(--text1, #18191c);\n  --v_text2: var(--text2, #61666d);\n  --v_text3: var(--text3, #9499a0);\n  --v_text4: var(--text4, #c9ccd0);\n  --v_text_link: var(--text_link, #008ac5);\n  --v_text_notice: var(--text_notice, #e58900);\n  --v_line_light: var(--line_light, #f1f2f3);\n  --v_line_regular: var(--line_regular, #e3e5e7);\n  --v_line_bold: var(--line_bold, #c9ccd0);\n  --v_graph_white: var(--graph_white, #ffffff);\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\n  --v_graph_medium: var(--graph_medium, #9499a0);\n  --v_graph_icon: var(--graph_icon, #61666d);\n  --v_shadow: var(--shadow, #000000);\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\n  --v_text_hover: var(--text_hover, #797f87);\n  --v_text_active: var(--text_active, #61666d);\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\n  --v_line_border: var(--line_border, #c9ccd0);\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\n}\n\n@font-face {\n  font-family: fanscard;\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\n}\n\n.svg-icon {\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.svg-icon svg {\n  width: 100%;\n  height: 100%;\n}\n\n.svg-icon.use-color svg path {\n  fill: currentColor;\n  color: inherit;\n}\n\n.top-vote-card {\n  background-color: var(--graph_bg_thin);\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  height: 80px;\n  width: 100%;\n  margin-bottom: 24px;\n  padding: 12px 16px 12px 10px;\n  border-radius: 6px;\n}\n\n.top-vote-card__multi {\n  cursor: pointer;\n}\n\n.top-vote-card__multi:hover .vote-result-text {\n  color: var(--brand_blue);\n  transition: 0.2s;\n}\n\n.top-vote-card-left {\n  width: 40%;\n  max-width: calc(40% - 30px);\n  margin-right: 20px;\n  word-wrap: break-word;\n  font-size: 13px;\n  line-height: 18px;\n  color: var(--text1);\n}\n\n.top-vote-card-left__title {\n  display: flex;\n  align-items: center;\n}\n\n.top-vote-card-left__title svg {\n  margin-right: 2px;\n  flex: none;\n}\n\n.top-vote-card-left__title span {\n  display: -webkit-box;\n  float: none;\n  height: 18px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  word-break: break-word;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 1;\n}\n\n.top-vote-card-left__join {\n  height: 17px;\n  display: flex;\n  align-items: center;\n  margin-top: 4px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.top-vote-card-left__join .vote-icon {\n  height: 12px;\n}\n\n.top-vote-card-left__join span {\n  display: flex;\n  align-items: center;\n}\n\n.top-vote-card-right {\n  width: 60%;\n  font-size: var(--2fde2a28);\n  line-height: 17px;\n  display: flex;\n  --option-height: 40px;\n  --option-radius: 6px;\n}\n\n.top-vote-card-right .vote-text__not-vote {\n  opacity: 0.9;\n}\n\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\n  font-weight: 400 !important;\n}\n\n.top-vote-card-right .vote-text :first-child {\n  font-weight: 500;\n}\n\n.top-vote-card-right .vote-icon {\n  flex: none;\n}\n\n.top-vote-card-right .left-vote-option {\n  position: relative;\n  display: flex;\n  min-width: 120px;\n  align-items: center;\n  justify-content: space-between;\n  background-color: rgba(255, 102, 153, var(--212267a6));\n  height: var(--option-height);\n  width: var(--38c5ebb3);\n  padding-left: 10px;\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\n  cursor: pointer;\n  margin-right: 30px;\n  color: var(--332a347e);\n  transition: width ease-out 0.2s;\n}\n\n.top-vote-card-right .left-vote-option .skew-vote-option {\n  position: absolute;\n  right: -20px;\n  top: 0;\n}\n\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\n  left: -8px;\n  background-color: #f69;\n  transform: skew(21deg);\n  border-top-right-radius: calc(var(--option-radius) - 2px);\n  border-bottom-right-radius: var(--option-radius);\n}\n\n.top-vote-card-right .skew-vote-option {\n  height: 40px;\n  width: 20px;\n  overflow: hidden;\n  opacity: var(--212267a6);\n  pointer-events: none;\n}\n\n.top-vote-card-right .skew-vote-option__fill {\n  pointer-events: all;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n}\n\n.top-vote-card-right .right-vote-option {\n  position: relative;\n  display: flex;\n  min-width: 120px;\n  align-items: center;\n  flex-direction: row-reverse;\n  justify-content: space-between;\n  background-color: rgba(0, 174, 236, var(--212267a6));\n  height: var(--option-height);\n  width: var(--4b2970aa);\n  padding-right: 10px;\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\n  cursor: pointer;\n  color: var(--1e587827);\n  transition: width ease-out 0.2s;\n}\n\n.top-vote-card-right .right-vote-option .skew-vote-option {\n  position: absolute;\n  left: -20px;\n  top: 0;\n}\n\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\n  left: 8px;\n  background-color: #00aeec;\n  transform: skew(21deg);\n  border-top-left-radius: var(--option-radius);\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\n}\n\n.top-vote-card-right .right-vote-option .vote-text {\n  text-align: right;\n}\n\n.top-vote-card-right .had_voted {\n  cursor: unset;\n}\n\n.reply-header .reply-notice {\n  display: flex;\n  align-items: center;\n  position: relative;\n  min-height: 40px;\n  padding: 4px 10px;\n  margin-bottom: 16px;\n  font-size: 13px;\n  border-radius: 2px;\n  color: var(--Ye5_u);\n  cursor: pointer;\n}\n\n.reply-header .reply-notice:after {\n  content: "";\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  background-color: var(--Ye5_u);\n  opacity: 0.2;\n}\n\n.reply-header .reply-notice .notice-icon {\n  width: 16px;\n  height: 16px;\n  margin-right: 5px;\n}\n\n.reply-header .reply-notice .notice-content {\n  flex: 1;\n  padding: 0 5px;\n  vertical-align: top;\n  word-wrap: break-word;\n  word-break: break-all;\n}\n\n.reply-header .reply-notice .notice-close-icon {\n  position: relative;\n  z-index: 1;\n  width: 10px;\n  height: 10px;\n  margin-left: 5px;\n}\n\n.reply-header .reply-navigation {\n  margin-bottom: 22px;\n}\n\n.reply-header .reply-navigation .nav-bar {\n  display: flex;\n  align-items: center;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title {\n  display: flex;\n  align-items: center;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title {\n    font-size: 20px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title {\n    font-size: 24px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\n  color: var(--text1);\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n  margin: 0 36px 0 6px;\n  font-weight: 400;\n  color: var(--text3);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n    font-size: 14px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  color: var(--text1);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-size: 16px;\n  }\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort {\n  display: flex;\n  align-items: center;\n  color: var(--text3);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-sort {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-sort {\n    font-size: 16px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\n  height: 11px;\n  margin: 0 12px;\n  border-left: solid 1px;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\n  cursor: pointer;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\n  cursor: pointer;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\n  color: var(--text1);\n}\n\n.reply-header .reply-navigation .nav-operation-warp {\n  position: absolute;\n  right: 0;\n}\n\n/*\n   * @bilibili/userAvatar\n   * version: 1.2.0-beta.2. Powered by main-frontend\n   * 用户头像公共组件.\n   * author: wuxiuran\n   */\n.bili-avatar {\n  display: block;\n  position: relative;\n  background-image: url(data:image/gif;base64,R0lGODlhtAC0AOYAALzEy+To7rG6wb/Hzd/k6rK7wsPK0bvDybO8w9/j6dDW3NHX3eHl6+Hm7LnByLa+xeDl6+Lm7M/V27vDyt7j6dHX3r/Gzb/HzsLJ0LS9xLW+xbe/xtLY3s/V3OPn7dne5NXb4eDk67jAx7S8w+Dk6rrCybW9xMXM08TL0sLK0Nrf5cXM0tjd48zS2bO7wsrR17W+xLfAx8fO1La/xsbN07K7wbzEytzh573FzNLX3uLn7cDHzsbN1NPZ377Gzb7FzNbc4sjP1dfd49bb4tvg5svR2LfAxsnQ1s7U293h6Nbb4dTa4MrQ19fc4t3i6L7GzMnP1s7U2tXa4M3T2sDIz97i6N7i6dje5MjO1dfc473Ey8HJz9vg57jBx8jP1tPY38PL0cfO1dne5dXa4ePn7sHIz8vS2Nrf5tDW3djd5M3T2cDIztTZ4L3Fy7rCyMTL0czT2bC5wOXp7wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4zLWMwMTEgNjYuMTQ1NjYxLCAyMDEyLzAyLzA2LTE0OjU2OjI3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M2IChXaW5kb3dzKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo1OTQ4QTFCMzg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo1OTQ4QTFCNDg4NDAxMUU1OTA2NUJGQjgwNzVFMDQ2NSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjU5NDhBMUIxODg0MDExRTU5MDY1QkZCODA3NUUwNDY1IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU5NDhBMUIyODg0MDExRTU5MDY1QkZCODA3NUUwNDY1Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAAAAAAAsAAAAALQAtAAAB/+AcoKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19sA6SCtTCakBCyuKOLmXKAGOOAhLiDkFoQzCOA9YEDyE5SHCBx9KhdhhMc6EBhMJeXDQMY6GjKIgXCgZR0jIQR4msDRxJRQBHyzjoHwpR0LODRI9keDI0kAAnoI8rMgJoyYnlTkBUEA6KMDSmTsxhTjIEsBAqlWvlowR9BIBCzmf9ANLyCrTrJP/SAzI+WMtW5EncmpIUwkCTpZaqtw9FIBGzgxlIRHgWvLH1MGIDLN8ACRSArQsfRCAnCgAj5wmsjwigbnkk80hA6hezbr1ajkeMoCu7Lq1HIM5C9yQU7v363EQFhxBMeGA8ePIkx+fMEFAzjgFmCtHPuHBcwEAik/fbnwCCiZfQHKzcoLk8/Po06tfr95BC7vWAkgQwb6+/fv4ETqocC2EgfwABihgRzToQM1ZJT0AwIIMNujggxBGKOGEFFYIgHkWYQCBNA0A0BEASOzmDAMS2NBRCh5AE4AMFiGAhIHSeIAEAhYdAQ0HFmkwxDVDmPBQAU2MiCECSiDiAQkhMBAC/wFMNunkk1ASkMCUUzJJAgQMMNDAllxyGUEEXTaQ5ZhjQmDmmRCEcOVRhyhBI0I2RNCMGRZ5cUgO5RWAQAYuCCBADYDW4OeghBZqqJ8FuLAnDBo84OijkDqqwaQwwGDCpRlkOsKmCHTaqQsjAIDFAocEYVEHzDCA4QMkFNIAGAgdcMEAtM5K6621XqDrrrz2uiuuFgQr7LDEFmsBrsjiWgJCYIg3CAnW6ZeiMgtYBEUhEfwQhwEqsFkMGSxw9IOchHjxIwjKBICBRS4R8pkZzHgWhwyFCGHRCcoQMIJFZxAyRBz4NhMADgIUOYgKFjnAQDJLOIeQboTQUAB8y3wgAP8PhHBRwEMCwEUMiw+Z8BhvJVChogMHeEuBbA+NkQysDxmxsCARbPBCNDs8QK4cDBhhUQvJrJHwtHJAAAMS0byQwYZJYRgHxsjM9VAJ3kJgAqrQoAFDCFUdYBEKyUiN0ASENCCCBNF0IIKzcpj4kAFhWwQAIRE4gDY0EjiwsxwePpRC3A+1Qbfd0eS9N2PbAo7QAIPf/YzhhBCFENxRW/T3IHU77gzkg6RgEeXHiB0HBmWfnXYMbK/7tuKjl72B5s10sMHMgqg+OeukD9LA62nPTojtiVf+0A+EMPAA7Mx08ADTgjxhOetzDwLBA1g/04EGzPP9vPBjEwKBBtU7o8D/1oS4jdDloVtE9iAhZBC+JVkg0YS3kQzhgAMoRBEkJgpk0OogMvEb61I2CH29LxJWWMIKROAcAUzACpIIgLYsIoITAGFvkVAAAlAjiADejnseIQQBEHDARlBAAT5gWUemIIkXPKcLGEhD9hyhABdwUA4eDF76HrI+QRCgAAqARADYYACHHUZEjvDAstAzAx54TBEKmBghcgg6Y4iuh3L4YRAbEQEFuGE96HoEA2awHgHIgAg0lCIAP8c6G4gQiIw4wwvIyJ5+QUIB9SkACpCYiCjCx3w6tKJFtCBCEnZmDGUwono20AP6OSIIG2NPAbAwskNo8IbOWx0I10AIEoyg/4RyIMJf2DMDNcwQEiowQCTXU4AjYHAQl/wdG0GIPjmQwH2HCIHT0jMCJtDOElWAwi7RgwNEKGAENwReFYshutz50JCGAJl6HuCFG2YiAl/oW3oQYMwNylKTO0SIM7MIzUL8Jz0bkIE1O8GCLfjoPA/oZjJnGc7WFdAFWyxEtZ4zAhpwwJGhSIAEnrDKjpDKkgWYJzgF+ZBxavEQHlhJRzSAAja80hQkmIIBNGCRGfySEH785gfrWcuHHuIDGajBBnBwAhb8DxYk+MAKLBCFdcJSjbWjJ0PPR4gEwBERViDCR4GhgBrAR5msq6JP8yk+AcDHcwtlpk6XGg0FOJUQUP8d6U4DmYAaMLUZVq3kObUq1YeAbRAJEMBXNUGCV3pgnR94YibCSoixBrKsCDmrINK6VkwoQQNlKAQRJpCBdgmCAQdAgFM6QddBoECneI2DXm+jVk98Jg5hFMRVCDkIF8YBeXMVQCUfG1ViiC5ggqBAZTvhhBhARAWCqMIq0QAbKDgHAVz4RGMFQVqymtYiNCCEavuKiRu41gUGKMIXNyCTAuxgiSOojG5FS4i8lHYYoqMXWn/qiSrkUABSaMASEaKF3ILCqvC5rG+xaxEsuA60mtABHKhQgi2EkQFH2IIBFABQTsiObWGA7G8fYiPMmQ4aamMbFATM3ofcDHOEw5v/3gjBBAYLQ3RFaFzhJjyIIlg4GBgmhA4i/DgOC8LD172wRZggYhJvzsRyqHCKQWyRFdDtwNZbGyHEctcBI8Rk0oMBKJOhABNwbRBUsAgYkiHR7klPA/AlMgyyl0PUGgN4VMOcEYAGDRTorCrjjUMQkmFdhMgMzFB7hhayfFifPYS2yEAxQhCQhB13gWipykBwB3GDNyFkf8cgQkFhO4h/9eAZLYiDwQSBsIfQORkNcJphBUGDDHxlGSoowJ4HYa+H7GAZnkWInegGAA0k5hhKGIEDYDQIUz2Ey8kQgwse8gBrRmBdFzDDAna9gBzkoALADrawh01sYP8a2LxOtrKX/83sZVfA19CuQAucN4E6i5CjCMlAJZGxBYuM2RALoEF1NDADGAigAHrylLo95YJ2o/vd8NbTCDLQqA1sIAYiEEEM9o3vfOvbCPYO+Axm8KhJaQABg0K3AEzwBgngWRAVESAzmrBKBGS2EAFIEwNIQAEKJOBJVAq5yBPQ8ZJ73EpYytKWyKSllbM8S2gKgcxJbnIKHNkQIPBzAQjNjN7GwQQXnwYI3omQazmjCl1oURRYXVU/xyFO0ACCCscmgUszowEc2IIiMSKNBSgSIRuwkNjHTvayN2iYIwj6MxZA9AG5/e3TVDs0WBBmuNv97k+3ozUIwARs4/3vAZpBC4ZaDf8CtMACdDzPuQvwdcBfx0/rEQEAWnBKbYRgCUsAgRSkMIYxLKAHIGjCFVRABC6ogAUg4IADII+QMHDg9bCHfQf29ZARKCD2uLdrHBDQgyawIK4fEAIQNL+EHoB+CJrvwReykAC2xaMHX/80Ij5QEmsbIgJ1j0MYJvFweARglLVfyCHk/JCDGuILLKmBXNkyhII+xOiGACRCrFwV8GeIMyKd6EsHsbKS4ACgQNB4D8NzSBEAZEAGqiEHNzBrOREFhrAELJEBFKMu57FMBcgmrpYTNsB0cpCBHQEXmXYeBYBGkNEAbvYcFxcAXsMSDlhd6WFjkNED6eEDGeN0FgFkguD/BO7HEo82GKKTE+o3CPvEEg7gLdKEHt/GFn2mHnpVZiXRgwQwdeehATYVEommHgIAQSNxHksgCKGmHiwEFgGQdOsRXCH4HPAyPfXRBRwYEiBQH9oWBeixAwEwBffBH1Thc+rxArqXIFZAH/bxA/1lDyFgg+mhARuAHgJgLvchAKdGED7xd9FyHxZ4D23gePmBAIIREkQggJioHmrwEl/4ifXBZvcQAMNEilj4iPOQBZ6oiuixfQRxhLBISs4nDx6QiLV4HxxwD1Kwi/gRWPbghMDIStYnD7tTjPcBa/KgBMp4HxPQfe7AY8+IhdIVDw3gWtVYH/TnDlmwjfaxAVWogg60CI7pkQPxQAbZZ47nUWDvcAWvyI7+N4jocIXyqB4FIH7tEADadI/p8WDtsIT+qB7R6A5IMJBltH7lkFUIiR7uqA7f05DqAQDSWA7/IpHpsXPsUI4YyRJhmA4S1JHpgYPo4AS0J5LPIQI3dw5v2BHnFo/+WAOTZg4yhpLnYX6xEAgAOw==);\n  -webkit-background-size: cover;\n  background-size: cover;\n  border-radius: 50%;\n  margin: 0;\n  padding: 0;\n}\n\n.bili-avatar * {\n  margin: 0;\n  padding: 0;\n}\n\n.bili-avatar-face {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n  -moz-transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  -o-transform: translate(-50%, -50%);\n  transform: translate(-50%, -50%);\n  width: 100%;\n  height: 100%;\n}\n\n.bili-avatar-pendent-dom {\n  height: 176.48%;\n  width: 176.48%;\n  position: absolute;\n  top: -38.33%;\n  left: -38.33%;\n  overflow: hidden;\n}\n\n.bili-avatar-pendent-dom img {\n  height: 100%;\n  min-width: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.bili-avatar-img {\n  border: none;\n  display: block;\n  -o-object-fit: cover;\n  object-fit: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n.bili-avatar-img-radius {\n  border-radius: 50%;\n}\n\n.bili-avatar-img[src=""],\n.bili-avatar-img:not([src]) {\n  opacity: 0;\n}\n\n.bili-avatar-img.bili-avatar-img-error {\n  display: none;\n}\n\n.bili-avatar-right-icon {\n  width: 27.5%;\n  height: 27.5%;\n  position: absolute;\n  right: 0;\n  bottom: -1px;\n  -webkit-background-size: cover;\n  background-size: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n.bili-avatar-nft-icon {\n  position: absolute;\n  width: 27.5%;\n  height: 27.5%;\n  right: -webkit-calc(27.5% - 1px);\n  right: -moz-calc(27.5% - 1px);\n  right: calc(27.5% - 1px);\n  bottom: -1px;\n  -webkit-background-size: cover;\n  background-size: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n@-webkit-keyframes bili-avatar {\n  0% {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -webkit-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n@-moz-keyframes bili-avatar {\n  0% {\n    -moz-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -moz-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n@keyframes bili-avatar {\n  0% {\n    -webkit-transform: translate3d(0, 0, 0);\n    -moz-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -webkit-transform: translate3d(-97.5%, 0, 0);\n    -moz-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n.bili-avatar .bili-avatar-size-80 {\n  width: 22px;\n  height: 22px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-60,\n.bili-avatar .bili-avatar-size-50,\n.bili-avatar .bili-avatar-size-48 {\n  width: 18px;\n  height: 18px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-40,\n.bili-avatar .bili-avatar-size-36 {\n  width: 14px;\n  height: 14px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-30,\n.bili-avatar .bili-avatar-size-24 {\n  width: 12px;\n  height: 12px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-nft-80 {\n  width: 22px;\n  height: 22px;\n  bottom: -1px;\n  right: -webkit-calc(22px - 1px);\n  right: -moz-calc(22px - 1px);\n  right: 21px;\n}\n\n.bili-avatar .bili-avatar-size-nft-60,\n.bili-avatar .bili-avatar-size-nft-50,\n.bili-avatar .bili-avatar-size-nft-48 {\n  width: 18px;\n  height: 18px;\n  bottom: -1px;\n  right: -webkit-calc(18px - 1px);\n  right: -moz-calc(18px - 1px);\n  right: 17px;\n}\n\n.bili-avatar .bili-avatar-size-nft-40,\n.bili-avatar .bili-avatar-size-nft-36 {\n  width: 14px;\n  height: 14px;\n  bottom: -1px;\n  right: -webkit-calc(14px - 1px);\n  right: -moz-calc(14px - 1px);\n  right: 13px;\n}\n\n.bili-avatar .bili-avatar-size-nft-30,\n.bili-avatar .bili-avatar-size-nft-24 {\n  width: 12px;\n  height: 12px;\n  bottom: -1px;\n  right: -webkit-calc(12px - 1px);\n  right: -moz-calc(12px - 1px);\n  right: 11px;\n}\n\n.reply-image {\n  width: var(--3414c33c);\n  height: var(--822197ea);\n}\n\n.reply-image.b-img {\n  background-color: inherit;\n}\n\n.reply-image.b-img img {\n  width: 100%;\n  height: 100%;\n}\n\n.opacity-enter-active,\n.opacity-leave-active {\n  transition: opacity 0.15s ease;\n}\n\n.opacity-enter-from,\n.opacity-leave-to {\n  opacity: 0;\n}\n\n.reply-box {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-box .box-normal {\n  display: flex;\n  z-index: 2;\n}\n\n.reply-box .box-normal .reply-box-avatar {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 80px;\n  height: 48px;\n}\n\n.reply-box .box-normal .reply-box-warp {\n  position: relative;\n  flex: 1;\n  transition: 0.2s;\n  border: 1px solid var(--line_regular);\n  border-radius: 6px;\n  background-color: var(--bg3);\n  overflow-x: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp.focus-within,\n.reply-box .box-normal .reply-box-warp:hover {\n  border-color: var(--line_regular);\n  background-color: var(--bg1);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\n  padding: 8px 0;\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  border-radius: 6px;\n  cursor: text;\n  overflow: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\n  margin-left: 10px;\n  margin-bottom: 4px;\n  height: 20px;\n  font-size: 12px;\n  line-height: 17px;\n  display: flex;\n  align-items: center;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\n  flex: none;\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 4px;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\n  background-color: var(--Pi1);\n  color: var(--Pi5);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\n  background-color: var(--brand_blue_thin);\n  color: var(--brand_blue);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\n  background-color: var(--graph_bg_regular);\n  color: var(--text3);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\n  max-width: calc(100% - 68px);\n  color: var(--text2);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\n  flex: none;\n  margin-left: 4px;\n  cursor: pointer;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-input {\n  padding: 0 8px;\n  width: 100%;\n  height: 100%;\n  border: 1px solid var(--Ga1);\n  border-radius: 6px;\n  background-color: var(--bg3);\n  font-family: inherit;\n  line-height: 20px;\n  color: var(--text1);\n  resize: none;\n  outline: none;\n  overflow-y: scroll;\n  overflow-x: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\n  background-color: var(--bg1);\n  border-color: var(--graph_weak);\n}\n\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\n  padding: 0 8px;\n  width: 100%;\n  height: 32px;\n  border: none;\n  border-radius: 6px;\n  background-color: transparent;\n  font-family: inherit;\n  font-size: 14px;\n  line-height: 32px;\n  color: var(--text1);\n  resize: none;\n  outline: none;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\n  color: var(--text3);\n}\n\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\n  background: transparent;\n}\n\n.reply-box .box-expand {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-left: 80px;\n  margin-top: 10px;\n  z-index: 1;\n  height: 32px;\n  transition: all 0.2s ease-in-out;\n}\n\n.reply-box .box-expand.hide {\n  margin-top: 0;\n  height: 0;\n  overflow: hidden;\n  transition: all 0.2s ease-in-out;\n}\n\n.reply-box .box-expand .box-left {\n  display: flex;\n  align-items: center;\n}\n\n.reply-box .box-expand .reply-box-emoji {\n  width: 32px;\n  height: 26px;\n  margin-right: 6px;\n  position: relative;\n}\n\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .at-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 32px;\n  height: 26px;\n  margin-right: 6px;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .image-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 32px;\n  height: 26px;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .image-btn.disabled {\n  opacity: 0.4;\n}\n\n.reply-box .box-expand .image-btn .image-upload-input {\n  appearance: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0;\n  font-size: 0;\n  user-select: auto;\n  cursor: pointer;\n}\n\n.reply-box .box-expand .forward-to-dynamic {\n  display: flex;\n  align-items: center;\n  margin-left: 16px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-box .box-expand .forward-to-dynamic .forward-input,\n.reply-box .box-expand .forward-to-dynamic .forward-label {\n  cursor: pointer;\n}\n\n.reply-box .box-expand .reply-box-send {\n  float: right;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 70px;\n  height: 32px;\n  border-radius: 6px;\n  cursor: pointer;\n}\n\n.reply-box .box-expand .reply-box-send .send-text {\n  position: absolute;\n  z-index: 1;\n  font-size: 16px;\n  color: var(--text_white);\n}\n\n.reply-box .box-expand .reply-box-send:after {\n  content: "";\n  position: absolute;\n  opacity: 0.5;\n  width: 100%;\n  height: 100%;\n  border-radius: 4px;\n  background-color: var(--brand_blue);\n}\n\n.reply-box .box-expand .reply-box-send:hover:after {\n  opacity: 1;\n}\n\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\n  line-height: normal;\n}\n\n.reply-box.box-active .reply-box-send.send-active:after {\n  opacity: 1;\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg3);\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  cursor: pointer;\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\n  padding: 4px 9px;\n  margin: 0 3px;\n  border-radius: 4px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\n  background-color: var(--Lb4);\n  cursor: pointer;\n}\n\n.reply-box.disabled .reply-box-send .send-text {\n  color: var(--text3);\n}\n\n.reply-box.disabled .reply-box-send:after {\n  opacity: 1;\n  background-color: var(--bg3);\n}\n\n.reply-box.fixed-box {\n  position: relative;\n  z-index: 2;\n  padding: 15px 0;\n  border-top: 0.5px solid var(--graph_bg_thick);\n  background-color: var(--bg1);\n}\n\n.reply-content-container.fold .reply-content {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 4;\n}\n\n.reply-content-container .reply-content {\n  color: var(--text1);\n  overflow: hidden;\n  word-wrap: break-word;\n  word-break: break-word;\n  white-space: pre-wrap;\n  line-height: 24px;\n  vertical-align: baseline;\n}\n\n.reply-content-container .reply-content .note-prefix {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 1px 4px;\n  border-radius: 4px;\n  margin-right: 8px;\n  font-size: 12px;\n  color: var(--text3);\n  line-height: 20px;\n  vertical-align: bottom;\n  background-color: var(--bg2);\n}\n\n.reply-content-container .reply-content .note-prefix .note-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.reply-content-container .reply-content .top-icon {\n  top: -2px;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 30px;\n  height: 18px;\n  border: 1px solid var(--brand_pink);\n  border-radius: 3px;\n  margin-right: 5px;\n  font-size: 12px;\n  color: var(--brand_pink);\n}\n\n.reply-content-container .reply-content .emoji-small {\n  vertical-align: text-bottom;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .emoji-small {\n    width: 20px;\n    height: 20px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .emoji-small {\n    width: 22px;\n    height: 22px;\n  }\n}\n\n.reply-content-container .reply-content .emoji-large {\n  width: 50px;\n  height: 50px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-container .reply-content .icon {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-top;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .icon {\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .icon {\n    line-height: 26px;\n  }\n}\n\n.reply-content-container .reply-content .icon.search-word {\n  width: 12px;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n}\n\n.reply-content-container .reply-content .jump-link {\n  vertical-align: baseline;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .jump-link {\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .jump-link {\n    line-height: 26px;\n  }\n}\n\n.reply-content-container .expand-content {\n  color: var(--text_link);\n  cursor: pointer;\n  margin-left: 4px;\n}\n\n.reply-content-container .expand-content:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-item {\n  position: relative;\n  padding: 8px 0 8px 42px;\n  border-radius: 4px;\n}\n\n@media screen and (max-width: 1681px) {\n  .sub-reply-item {\n    font-size: 15px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .sub-reply-item {\n    font-size: 16px;\n    line-height: 26px;\n  }\n}\n\n.sub-reply-item.show-reply {\n  background-color: #dff6fb;\n  animation-name: enterAnimation-jumpReply-1f8a4018;\n  animation-duration: 2s;\n  animation-delay: 3s;\n  animation-fill-mode: forwards;\n}\n\n.sub-reply-item .sub-user-info {\n  display: inline-flex;\n  align-items: center;\n  margin-right: 9px;\n  line-height: 24px;\n  vertical-align: baseline;\n  white-space: nowrap;\n}\n\n.sub-reply-item .sub-user-info .sub-reply-avatar {\n  position: absolute;\n  left: 8px;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-user-info .sub-user-name {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  margin-right: 5px;\n  color: var(--3bab3096);\n  cursor: pointer;\n}\n\n@media screen and (max-width: 1681px) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-size: 13px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-size: 14px;\n    line-height: 26px;\n  }\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.sub-reply-item .sub-user-info .sub-user-level {\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-user-info .sub-up-icon {\n  cursor: default;\n}\n\n.sub-reply-item .sub-reply-info {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 2px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-time {\n  margin-right: var(--7530c1e4);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-location {\n  margin-right: 20px;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\n  margin-right: 5px;\n  color: #9499a0;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\n  color: #00aeec;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\n  color: #9499a0;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\n  color: #00aeec;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-btn {\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\n  position: absolute;\n  right: 40px;\n  opacity: 0;\n}\n\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\n  opacity: 1;\n}\n\n@keyframes enterAnimation-jumpReply-1f8a4018 {\n  0% {\n    background-color: #dff6fb;\n  }\n\n  to {\n    background-color: #dff6fb00;\n  }\n}\n\n.sub-reply-list .view-more {\n  padding-left: 8px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.sub-reply-list .view-more .view-more-default .view-more-btn {\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination {\n  color: var(--text1);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\n  margin-right: 10px;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\n  margin: 0 4 0 14px;\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\n  margin: 0 4px;\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\n  margin: 0 4px;\n  cursor: default;\n}\n\n.image-exhibition {\n  margin-top: 8px;\n  user-select: none;\n}\n\n.image-exhibition .preview-image-container {\n  max-width: var(--dacbf126);\n  display: flex;\n  flex-wrap: wrap;\n  row-gap: var(--77b1c8ee);\n  column-gap: var(--0c349aa2);\n}\n\n.image-exhibition .preview-image-container .image-item-wrap {\n  display: flex;\n  justify-content: center;\n  position: relative;\n  border-radius: var(--7fefecd2);\n  overflow: hidden;\n  cursor: zoom-in;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\n  flex-direction: column;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\n  justify-content: start;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  right: 4px;\n  bottom: 4px;\n  height: 20px;\n  padding: 0 6px;\n  border-radius: 4px;\n  font-size: 13px;\n  color: var(--text_white);\n  font-weight: 500;\n  line-height: 18px;\n  background: rgba(0, 0, 0, 0.7);\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\n  border-bottom-right-radius: 0;\n  border-top-right-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\n  border-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\n  border-bottom-right-radius: var(--7fefecd2);\n  border-top-right-radius: var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\n  border-radius: var(--7fefecd2) 0 0 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\n  border-radius: 0 var(--7fefecd2) 0 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\n  border-radius: 0 0 0 var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\n  border-radius: 0 0 var(--7fefecd2) 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\n  border-radius: 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\n  border-radius: 0 0 0 var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\n  border-radius: 0 0 var(--7fefecd2) 0;\n}\n\n.reply-user-sailing {\n  height: 48px;\n}\n\n.vote-warp {\n  display: flex;\n  width: 100%;\n  height: 80px;\n  border: 0.5px solid var(--graph_bg_thick);\n  border-radius: 4px;\n  margin: 10px 0;\n}\n\n.vote-warp .vote-icon-warp {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-basis: 80px;\n  flex-shrink: 0;\n  border-top-left-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: var(--brand_blue_thin);\n}\n\n.vote-warp .vote-icon-warp .vote-icon {\n  width: 40px;\n  height: 40px;\n}\n\n.vote-warp .vote-container {\n  display: flex;\n  align-items: center;\n  flex: 1;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 4px;\n  background-color: var(--bg1);\n}\n\n.vote-warp .vote-container .vote-text-warp {\n  flex: 1;\n  padding-left: 15px;\n}\n\n.vote-warp .vote-container .vote-text-warp .vote-title {\n  font-size: 14px;\n  color: var(--text1);\n}\n\n.vote-warp .vote-container .vote-text-warp .vote-desc {\n  margin-top: 10px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.vote-warp .vote-container .vote-btn-warp {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-basis: 90px;\n  flex-shrink: 0;\n}\n\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\n  width: 54px;\n  height: 28px;\n  border-radius: 4px;\n  font-size: 13px;\n  text-align: center;\n  line-height: 28px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n  cursor: pointer;\n}\n\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\n  background-color: var(--Lb4);\n}\n\n.vote-dialog {\n  max-height: 100vh;\n  overflow-y: auto;\n}\n\n.vote-dialog::-webkit-scrollbar {\n  width: 4px;\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.vote-dialog::-webkit-scrollbar-thumb {\n  border-radius: 4px;\n  background-color: var(--graph_bg_thick);\n  transition: 0.3s ease-in-out;\n}\n\n.vote-dialog::-webkit-scrollbar-track {\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.vote-dialog .vote-iframe-warp {\n  height: 600px;\n  padding-top: 10px;\n  border-top: 0.5px solid var(--graph_weak);\n}\n\n.vote-dialog .vote-iframe-warp .vote-iframe {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-item {\n  position: relative;\n}\n\n.reply-item .login-limit-mask {\n  display: none;\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 10;\n  pointer-events: none;\n}\n\n.reply-item .login-limit-mask .mask-top {\n  height: 80%;\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\n}\n\n.reply-item .login-limit-mask .mask-bottom {\n  height: 20%;\n  background: var(--bg1);\n}\n\n.reply-item.login-limit-reply-end .login-limit-mask {\n  display: block;\n}\n\n.reply-item .root-reply-container {\n  padding: 22px 0 0 80px;\n}\n\n.reply-item .root-reply-container.show-reply {\n  animation-name: enterAnimation-jumpReply-7041f671;\n  animation-duration: 5s;\n  animation-fill-mode: forwards;\n}\n\n.reply-item .root-reply-container .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: 0;\n  width: 80px;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp {\n  flex: 1;\n  position: relative;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate {\n  position: absolute;\n  top: 0;\n  right: 0;\n  user-select: none;\n  transform: translateY(-15px);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\n  width: 82px;\n  height: 36px;\n  transform: translateY(6px);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\n  width: var(--213e47ca);\n  height: var(--268890ba);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\n  display: flex;\n  align-items: center;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\n  height: 48px;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\n  position: absolute;\n  right: 0;\n  font-size: 13px;\n  color: var(--2bd55d12);\n  line-height: 16px;\n  word-break: keep-all;\n  transform: scale(0.7);\n  transform-origin: center center;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\n  font-family: fanscard;\n}\n\n.reply-item .root-reply-container .content-warp .user-info {\n  display: flex;\n  align-items: center;\n  margin-bottom: 4px;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .user-info {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .user-info {\n    font-size: 14px;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .user-info .user-name {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  margin-right: 5px;\n  color: var(--dc735352);\n  cursor: pointer;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .user-info .user-level {\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\n  cursor: default;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: var(--697d5c46);\n  height: 12px;\n  padding: 2px;\n  border-radius: 2px;\n  background-color: var(--brand_pink_thin);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\n  border: 0.5px solid var(--brand_pink);\n  background-color: transparent;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 16px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  color: var(--brand_pink);\n  white-space: nowrap;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\n  display: flex;\n  align-items: center;\n  height: 14px;\n  padding-left: 5px;\n  border: 0.5px solid var(--3d3b5a1e);\n  border-radius: 10px;\n  margin-left: 5px;\n  background-image: var(--35269ce2);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\n  display: flex;\n  align-items: center;\n  position: relative;\n  width: var(--1f5204fd);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\n  position: absolute;\n  left: -8px;\n  width: 20px;\n  height: 20px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\n  position: absolute;\n  right: 0;\n  width: 8px;\n  height: 11px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: var(--4f9eed68);\n  height: 100%;\n  margin-right: 4px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 18px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  color: var(--57e6be72);\n  font-weight: 500;\n  white-space: nowrap;\n  transform: scale(0.5) translate(-50%, -50%);\n  transform-origin: 0 0;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  width: 11.5px;\n  height: 11.5px;\n  border-radius: 50%;\n  margin-right: 0.5px;\n  background-color: var(--59f85baa);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 14px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  top: 52%;\n  left: 50%;\n  font-family: Reeji-CloudHuPo-GBK;\n  color: var(--103312b6);\n  font-weight: 500;\n  white-space: nowrap;\n  line-height: 1;\n  transform: scale(0.5) translate(-50%, -43%);\n  transform-origin: 0 0;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info {\n  margin-bottom: 4px;\n  height: 20px;\n  font-size: 12px;\n  line-height: 17px;\n  display: flex;\n  align-items: center;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag {\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 4px;\n  flex: none;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\n  background-color: var(--Pi1);\n  color: var(--Pi5);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\n  background-color: var(--brand_blue_thin);\n  color: var(--brand_blue);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\n  background-color: var(--graph_bg_regular);\n  color: var(--text3);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__text {\n  color: var(--Ga7_u);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply {\n  position: relative;\n  padding: 2px 0;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .root-reply {\n    font-size: 15px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .root-reply {\n    font-size: 16px;\n    line-height: 26px;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\n  display: block;\n  overflow: hidden;\n  width: 100%;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 2px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\n  margin-right: var(--472bae2d);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\n  margin-right: 20px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\n  margin-right: 5px;\n  color: #9499a0;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\n  color: #00aeec;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\n  color: #9499a0;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\n  color: #00aeec;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\n  color: var(--brand_blue);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\n  position: absolute;\n  right: 20px;\n  display: none;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\n  display: flex;\n  align-items: center;\n  margin-top: 6px;\n  font-size: 12px;\n  line-height: 17px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 10px;\n}\n\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\n  display: block;\n}\n\n.reply-item .sub-reply-container {\n  padding-left: 72px;\n}\n\n.reply-item .reply-box-container {\n  padding: 25px 0 10px 80px;\n}\n\n.reply-item .bottom-line {\n  margin-left: 80px;\n  border-bottom: 1px solid var(--graph_bg_thick);\n  margin-top: 14px;\n}\n\n.reply-item .reply-dynamic-card {\n  position: absolute;\n  z-index: 10;\n  top: 30px;\n  left: 400px;\n}\n\n@keyframes enterAnimation-jumpReply-7041f671 {\n  0% {\n    background-color: #dff6fb;\n  }\n\n  to {\n    background-color: #dff6fb00;\n  }\n}\n\n.reply-list {\n  margin-top: 14px;\n  padding-bottom: 100px;\n}\n\n.reply-list .reply-end-mark {\n  height: 100px;\n}\n\n.reply-list .reply-end,\n.reply-list .reply-loading,\n.reply-list .view-all-reply {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--text3);\n  text-align: center;\n}\n\n.reply-list .view-all-reply:hover {\n  color: var(--brand_blue);\n  cursor: pointer;\n}\n\n.reply-list .login-prompt {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: calc(100% - 80px);\n  height: 50px;\n  margin: 16px 0 0 auto;\n  border-radius: 6px;\n  font-size: 14px;\n  color: var(--brand_blue);\n  background-color: var(--brand_blue_thin);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.reply-list .login-prompt:hover {\n  background-color: var(--Lb2);\n}\n\n.user-card {\n  position: absolute;\n  top: var(--555c4a14);\n  left: var(--8468e010);\n  z-index: 10;\n  width: 366px;\n  border: 0.5px solid var(--graph_weak);\n  border-radius: 8px;\n  background-color: var(--bg1);\n  box-shadow: 0 0 30px #0000001a;\n}\n\n.user-card .card-bg {\n  width: 100%;\n  height: 85px;\n  border-radius: 8px 8px 0 0;\n  overflow: hidden;\n  background-image: var(--71924242);\n  background-size: cover;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n\n.user-card .user-card-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  width: 70px;\n  margin-top: 10px;\n  cursor: pointer;\n}\n\n.user-card .card-content {\n  display: flex;\n  flex-direction: column;\n  padding: 12px 20px 16px 70px;\n}\n\n.user-card .card-content .card-user-info {\n  display: flex;\n  align-items: center;\n  color: var(--text1);\n  margin-bottom: 10px;\n}\n\n.user-card .card-content .card-user-info .card-user-name {\n  max-width: 160px;\n  margin-right: 5px;\n  font-size: 16px;\n  font-weight: 600;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--text1);\n  color: var(--7ba58c95);\n  text-decoration: none;\n}\n\n.user-card .card-content .card-user-info .card-user-sex {\n  width: 16px;\n  height: 16px;\n  margin-right: 5px;\n}\n\n.user-card .card-content .card-user-info .card-user-level {\n  margin-right: 5px;\n  cursor: pointer;\n}\n\n.user-card .card-content .card-user-info .card-user-vip {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: var(--7a718880);\n  height: 16px;\n  padding: 1px 4px;\n  border-radius: 2px;\n  color: var(--612d8511);\n  background-color: var(--29ab308e);\n  cursor: default;\n}\n\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 20px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  white-space: nowrap;\n  font-style: normal;\n}\n\n.user-card .card-content .card-social-info {\n  display: flex;\n  align-items: center;\n  font-size: 12px;\n  color: var(--text1);\n}\n\n.user-card .card-content .card-social-info .card-user-attention,\n.user-card .card-content .card-social-info .card-user-fans,\n.user-card .card-content .card-social-info .card-user-like {\n  margin-right: 18px;\n  color: inherit;\n  text-decoration: none;\n}\n\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\n  margin-left: 3px;\n  color: var(--text3);\n}\n\n.user-card .card-content .card-verify-info {\n  padding-top: 10px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.user-card .card-content .card-verify-info .card-verify-icon {\n  vertical-align: text-bottom;\n  margin-right: 3px;\n}\n\n.user-card .card-content .card-sign {\n  padding-top: 8px;\n  font-size: 12px;\n  color: var(--text3);\n  word-break: break-all;\n}\n\n.user-card .card-content .card-btn-warp {\n  display: flex;\n  margin-top: 16px;\n  font-size: 14px;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100px;\n  height: 30px;\n  border-radius: 4px;\n  margin-right: 8px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n  transition: 0.4s;\n  cursor: pointer;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\n  display: none;\n  position: absolute;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\n  color: var(--text2);\n  background-color: var(--bg3);\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\n  display: none;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\n  display: inline;\n}\n\n.user-card .card-content .card-btn-warp .card-message-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100px;\n  height: 30px;\n  border: 1px solid var(--graph_weak);\n  border-radius: 4px;\n  color: var(--text2);\n  cursor: pointer;\n}\n\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\n  border-color: var(--brand_blue);\n  color: var(--brand_blue);\n}\n\n.dynamic-card {\n  display: flex;\n  flex-direction: column;\n  position: absolute;\n  z-index: 10;\n  top: var(--7b058890);\n  left: 400px;\n  width: 710px;\n  height: 550px;\n  border-radius: 6px;\n  background-color: var(--bg1);\n  box-shadow: 0 0 25px #00000026;\n}\n\n.dynamic-card .card-header {\n  display: flex;\n  align-items: center;\n  flex-basis: 50px;\n  padding: 0 10px;\n  border-bottom: 0.5px solid var(--line_light);\n}\n\n.dynamic-card .card-header .card-title {\n  flex: 1;\n  text-align: center;\n  font-size: 16px;\n  color: var(--text1);\n}\n\n.dynamic-card .card-header .close-card {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 30px;\n  height: 30px;\n  border-radius: 6px;\n  color: var(--text2);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.dynamic-card .card-header .close-card:hover {\n  background-color: var(--bg3);\n}\n\n.dynamic-card .card-content {\n  flex: 1;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar {\n  width: 4px;\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\n  border-radius: 4px;\n  background-color: var(--graph_bg_thick);\n  transition: 0.3s ease-in-out;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar-track {\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.dynamic-card .card-content .dynamic-card-iframe {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-view-image {\n  position: fixed;\n  z-index: 999999;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(24, 25, 28, 0.85);\n  transform: scale(1);\n  user-select: none;\n  cursor: default;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -webkit-user-drag: none;\n}\n\n.reply-view-image,\n.reply-view-image * {\n  box-sizing: border-box;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  z-index: 2;\n  width: 42px;\n  height: 42px;\n  border-radius: 50%;\n  color: var(--text_white);\n  background: rgba(0, 0, 0, 0.58);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon:hover {\n  color: var(--brand_pink);\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\n  top: 16px;\n  right: 16px;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\n  top: 50%;\n  left: 16px;\n  transform: translateY(-50%);\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\n  top: 50%;\n  right: 16px;\n  transform: translateY(-50%);\n}\n\n.reply-view-image .show-image-wrap {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  max-height: 100%;\n  padding: 0 100px;\n  overflow: auto;\n}\n\n.reply-view-image .show-image-wrap .loading-svga {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  width: 42px;\n  height: 42px;\n}\n\n.reply-view-image .show-image-wrap.vertical {\n  flex-direction: column;\n  justify-content: var(--c186e874);\n}\n\n.reply-view-image .show-image-wrap .image-content {\n  width: calc(100vw - 200px);\n  max-width: var(--34114ac9);\n  -webkit-user-drag: none;\n}\n\n.reply-view-image .preview-list {\n  display: flex;\n  align-items: center;\n  position: absolute;\n  left: 50%;\n  bottom: 30px;\n  z-index: 2;\n  padding: 6px 10px;\n  border-radius: 8px;\n  background: rgba(24, 25, 28, 0.8);\n  backdrop-filter: blur(20px);\n  transform: translate(-50%);\n}\n\n.reply-view-image .preview-list .preview-item-box {\n  padding: 1px;\n  border: 2px solid transparent;\n  border-radius: 8px;\n  transition: 0.3s;\n  cursor: pointer;\n}\n\n.reply-view-image .preview-list .preview-item-box.active {\n  border-color: var(--brand_pink);\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\n  flex-direction: column;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\n  justify-content: start;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\n  -webkit-user-drag: none;\n}\n\n.reply-view-image--transition-enter-active,\n.reply-view-image--transition-leave-active {\n  transition: all 0.3s ease;\n}\n\n.reply-view-image--transition-enter-from,\n.reply-view-image--transition-leave-to {\n  transform: scale(0.4);\n  opacity: 0;\n}\n\n.reply-warp {\n  position: relative;\n}\n\n.reply-warp .fixed-reply-box {\n  position: fixed;\n  bottom: 0;\n  left: var(--3e88ddc5);\n  z-index: 10;\n  width: var(--d9a0b070);\n}\n\n.reply-warp .fixed-reply-box .reply-box-shadow {\n  position: absolute;\n  top: -10px;\n  z-index: 1;\n  width: 100%;\n  height: 36px;\n  border-radius: 50%;\n  background-color: #00000014;\n  filter: blur(10px);\n}\n\n.reply-warp .fixed-reply-box--transition-enter-active,\n.reply-warp .fixed-reply-box--transition-leave-active {\n  transition: opacity 0.5s ease;\n}\n\n.reply-warp .fixed-reply-box--transition-enter-from,\n.reply-warp .fixed-reply-box--transition-leave-to {\n  opacity: 0;\n}\n\n.bili-comment.browser-pc {\n  background-color: var(--bg1);\n}\n\n.bili-comment.browser-pc * {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Regular,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 400;\n  box-sizing: border-box;\n  -webkit-font-smoothing: antialiased;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .bili-comment.browser-pc * {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.bili-comment.browser-pc * ul {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n\n.bili-comment.browser-pc * a {\n  text-decoration: none;\n  background-color: transparent;\n  color: var(--text_link);\n  cursor: pointer;\n}\n\n.bili-comment.browser-pc * a:hover {\n  color: var(--Lb4);\n}\n\n.bili-comment.browser-pc * i {\n  font-style: normal;\n}\n\n.bili-comment.browser-pc * p {\n  margin: 0;\n  padding: 0;\n}\n\n.bili-comment.browser-pc .comment-container {\n  animation-name: enterAnimation-commentContainer;\n  animation-duration: 1s;\n  animation-fill-mode: forwards;\n}\n\n.reply-operation-client {\n  display: inline-flex;\n  position: relative;\n}\n\n.reply-operation-client .operation-icon {\n  border-radius: 4px;\n  cursor: pointer;\n}\n\n.reply-operation-client .operation-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-operation-client .operation-list {\n  display: flex;\n  flex-direction: column;\n  position: absolute;\n  top: 10px;\n  right: 0;\n  z-index: 10;\n  width: 180px;\n  padding: 12px 0;\n  border-radius: 6px;\n  font-size: 14px;\n  color: var(--text2);\n  background-color: var(--bg1_float);\n  box-shadow: 0 0 5px #0003;\n}\n\n.reply-operation-client .operation-list .operation-option {\n  display: flex;\n  align-items: center;\n  height: 40px;\n  padding: 0 15px;\n  cursor: pointer;\n}\n\n.reply-operation-client .operation-list .operation-option:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal {\n  position: absolute;\n  top: 0;\n  left: 50%;\n  width: auto;\n  padding: 10px 20px;\n  border: 1px solid var(--graph_bg_thick);\n  border-radius: 8px;\n  margin-bottom: 100px;\n  font-size: 12px;\n  line-height: 12px;\n  text-align: center;\n  white-space: nowrap;\n  background-color: var(--bg1);\n  box-shadow: 0 0 5px #0003;\n  transform: translate(-50%, -100%);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\n  display: flex;\n  justify-content: center;\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 40px;\n  height: 20px;\n  border-radius: 4px;\n  margin-right: 20px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\n  background-color: var(--Lb4);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 40px;\n  height: 20px;\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\n  color: var(--brand_blue);\n}\n\n.select-reply-dialog-client .select-dialog-content {\n  text-align: left;\n}\n\n.select-reply-dialog-client .cancel-select-reply {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.select-reply-dialog-client .comfirm-select-reply {\n  width: 130px;\n}\n\n.close-reply-dialog-client .close-reply-dialog-content {\n  text-align: left;\n}\n\n.close-reply-dialog-client .cancel-close-reply {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.close-reply-dialog-client .comfirm-close-reply {\n  width: 130px;\n}\n\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\n  text-align: left;\n}\n\n.close-danmaku-dialog-client .cancel-close-danmaku {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.close-danmaku-dialog-client .comfirm-close-danmaku {\n  width: 130px;\n}\n\n.blacklist-dialog-client .blacklist-dialog-content {\n  text-align: center;\n}\n\n.blacklist-dialog-client .comfirm-pull-blacklist {\n  margin-right: 20px;\n}\n\n.reply-header-client .reply-notice {\n  display: flex;\n  align-items: center;\n  position: relative;\n  height: 40px;\n  padding: 11px 14px;\n  margin-bottom: 10px;\n  font-size: 12px;\n  border-radius: 2px;\n  color: var(--text_notice);\n  background-color: var(--Or0);\n  cursor: pointer;\n}\n\n.reply-header-client .reply-notice .notice-content {\n  flex: 1;\n  position: relative;\n  padding: 0 5px;\n  line-height: 18px;\n  vertical-align: top;\n  word-wrap: break-word;\n  word-break: break-all;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  transition: 2s;\n}\n\n.reply-header-client .reply-navigation {\n  margin: 12px 0;\n}\n\n.reply-header-client .reply-navigation .nav-bar {\n  display: flex;\n  align-items: center;\n  position: relative;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\n  font-size: 12px;\n  color: var(--text1);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\n  display: flex;\n  align-items: center;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\n  height: 10px;\n  margin: 0 8px;\n  border-left: solid 1px;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\n  cursor: pointer;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\n  cursor: pointer;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\n  color: var(--text1);\n}\n\n.reply-header-client .reply-navigation .nav-operation-warp {\n  position: absolute;\n  right: 0;\n}\n\n.reply-box-client {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-box-client .reply-box-warp {\n  position: relative;\n  flex: 1;\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea {\n  width: 100%;\n  height: 32px;\n  padding: 5px 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  line-height: 20px;\n  color: var(--text1);\n  background-color: var(--bg2);\n  resize: none;\n  outline: none;\n  transition: 0.2s;\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\n  color: var(--text4);\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\n  border-color: var(--brand_pink);\n}\n\n.reply-box-client .box-operation-warp {\n  display: flex;\n  align-items: center;\n  margin-top: 10px;\n  height: 32px;\n}\n\n.reply-box-client .box-operation-warp .reply-box-emoji {\n  position: relative;\n  margin-right: auto;\n}\n\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\n  cursor: pointer;\n}\n\n.reply-box-client .box-operation-warp .reply-box-send {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 70px;\n  height: 100%;\n  border-radius: 4px;\n  cursor: pointer;\n}\n\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\n  position: absolute;\n  z-index: 1;\n  color: var(--text_white);\n}\n\n.reply-box-client .box-operation-warp .reply-box-send:after {\n  content: "";\n  position: absolute;\n  opacity: 0.5;\n  width: 100%;\n  height: 100%;\n  border-radius: 4px;\n  background-color: var(--brand_pink);\n}\n\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\n  opacity: 1;\n}\n\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\n  height: 60px;\n}\n\n.reply-box-client.box-active .reply-box-send.send-active:after {\n  opacity: 1;\n}\n\n.reply-box-client.disabled .reply-box-warp .disable-mask {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg3);\n}\n\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\n  cursor: pointer;\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\n  cursor: not-allowed;\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\n  color: var(--text3);\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\n  opacity: 1;\n  background-color: var(--bg3);\n}\n\n.note-prefix {\n  vertical-align: -3px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0 3px;\n  line-height: 19px;\n  border-radius: 4px;\n  margin-right: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg2);\n}\n\n.note-prefix .note-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.reply-content-client {\n  color: var(--text1);\n  overflow: hidden;\n  word-wrap: break-word;\n  word-break: break-word;\n  white-space: pre-wrap;\n  vertical-align: baseline;\n  transition: 0.2s;\n}\n\n.reply-content-client.root {\n  line-height: 25px;\n}\n\n.reply-content-client.need-view-more {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n}\n\n.reply-content-client.sub {\n  line-height: 20px;\n}\n\n.reply-content-client .top-icon {\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 30px;\n  height: 18px;\n  border: 1px solid var(--brand_pink);\n  border-radius: 3px;\n  margin-right: 5px;\n  font-size: 12px;\n  color: var(--brand_pink);\n  vertical-align: 1px;\n}\n\n.reply-content-client .emoji-small {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .emoji-large {\n  width: 36px;\n  height: 36px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .jump-link {\n  vertical-align: baseline;\n}\n\n.reply-content-client .icon {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-top;\n}\n\n.reply-content-client .icon.vote {\n  width: 16px;\n  height: 16px;\n  margin-right: 3px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .icon.search-word {\n  width: 12px;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n}\n\n.view-more-reply {\n  font-size: 12px;\n  color: var(--text_link);\n  line-height: 17px;\n  cursor: pointer;\n}\n\n.view-more-reply:hover {\n  color: var(--Lb4);\n}\n\n.sub-reply-item-client {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n  position: relative;\n  max-height: 42px;\n  padding: 3px 0;\n  font-size: 14px;\n  overflow: hidden;\n}\n\n.sub-reply-item-client .sub-user-info {\n  display: inline-flex;\n  align-items: center;\n  color: var(--text2);\n  line-height: 20px;\n  vertical-align: baseline;\n  white-space: nowrap;\n}\n\n.sub-reply-item-client .sub-user-info .sub-user-name {\n  margin-right: 5px;\n  font-size: 14px;\n  cursor: pointer;\n}\n\n.sub-reply-item-client .sub-user-info .sub-up-icon {\n  margin-right: 4px;\n  cursor: default;\n}\n\n.sub-reply-list-client {\n  border-radius: 4px;\n  padding: 7px 10px;\n  margin-top: 12px;\n  background-color: var(--bg2_float);\n}\n\n.sub-reply-list-client .view-more {\n  margin-top: 4px;\n  cursor: pointer;\n}\n\n.sub-reply-list-client .view-more .view-more-text {\n  font-size: 12px;\n  color: var(--text_link);\n}\n\n.sub-reply-list-client .view-more .view-more-text:hover {\n  color: var(--Lb4);\n}\n\n.content-warp--blacklist .reply-content {\n  display: inline-flex;\n  align-items: center;\n  padding: 4px;\n  border-radius: 4px;\n  color: var(--text1);\n  background-color: var(--bg2_float);\n}\n\n.content-warp--blacklist .reply-content .ban-icon {\n  margin-right: 4px;\n}\n\n.content-warp--blacklist .reply-header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 8px;\n}\n\n.content-warp--blacklist .reply-header .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: 0;\n  cursor: pointer;\n}\n\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\n  width: 30px;\n  height: 30px;\n}\n\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\n  color: var(--text1);\n}\n\n.reply-item-client {\n  position: relative;\n  padding: 10px 0 14px 42px;\n  border-bottom: 1px solid var(--line_light);\n}\n\n.reply-item-client .content-warp {\n  flex: 1;\n  position: relative;\n}\n\n.reply-item-client .content-warp .reply-header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 8px;\n}\n\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: -42px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\n  display: flex;\n  align-items: center;\n  font-size: 13px;\n  color: var(--text2);\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\n  margin-right: 5px;\n  color: var(--be794234);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\n  margin-right: 5px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\n  cursor: default;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-item-client .content-warp .root-reply {\n  position: relative;\n  font-size: 15px;\n  line-height: 25px;\n  transition: 0.2s;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 12px;\n  font-size: 13px;\n  color: var(--text3);\n  line-height: 16px;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\n  margin-right: 5px;\n  color: var(--text3);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\n  display: none;\n  position: absolute;\n  right: 20px;\n}\n\n.reply-item-client .content-warp .reply-item-box {\n  margin-top: 12px;\n}\n\n.reply-item-client .content-warp .reply-tag-list {\n  display: flex;\n  align-items: center;\n  margin-top: 12px;\n  font-size: 12px;\n  line-height: 14px;\n}\n\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\n  padding: 5px 6px;\n  border-radius: 2px;\n  margin-right: 10px;\n  color: var(--text2);\n  background-color: var(--bg2_float);\n}\n\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\n  display: block;\n}\n\n.reply-list {\n  position: relative;\n  margin-top: 14px;\n  padding-bottom: 100px;\n}\n\n.reply-list .reply-empty {\n  margin-top: 100px;\n  text-align: center;\n  font-size: 14px;\n  color: var(--text3);\n}\n\n.reply-list .reply-end-mark {\n  height: 100px;\n}\n\n.reply-list .reply-end,\n.reply-list .reply-loading {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--text3);\n  text-align: center;\n}\n\n.fixed-reply-box {\n  bottom: 0;\n  z-index: 20;\n  width: 100%;\n}\n\n.fixed-reply-box .reply-box-wrap {\n  background-color: var(--bg1);\n  padding: 14px 0;\n  border-top: 1px solid var(--line_light);\n}\n\n.fixed-reply-box .reply-box-shadow {\n  position: absolute;\n  top: -10px;\n  z-index: -1;\n  height: 36px;\n  border-radius: 50%;\n  background-color: #00000014;\n  filter: blur(10px);\n  width: calc(100% - 72px);\n  left: 50%;\n  transform: translate(-50%);\n}\n\n.reply-detail {\n  flex: 1;\n}\n\n.reply-detail .reply-header {\n  display: flex;\n  align-items: center;\n  position: sticky;\n  z-index: 9;\n  top: 0;\n  left: 0;\n  height: 46px;\n  border-bottom: 1px solid var(--line_light);\n  margin-bottom: 14px;\n  background-color: var(--bg1);\n}\n\n.reply-detail .reply-header .return-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 32px;\n  height: 32px;\n  border-radius: 4px;\n  margin-right: 4px;\n  color: var(--text1);\n  cursor: pointer;\n}\n\n.reply-detail .reply-header .return-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-detail .reply-header .reply-title {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--text1);\n}\n\n.dialog-reply {\n  flex: 1;\n}\n\n.dialog-reply .reply-header {\n  display: flex;\n  align-items: center;\n  position: sticky;\n  z-index: 9;\n  top: 0;\n  left: 0;\n  height: 46px;\n  border-bottom: 1px solid var(--line_light);\n  margin-bottom: 14px;\n  background-color: var(--bg1);\n}\n\n.dialog-reply .reply-header .return-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 32px;\n  height: 32px;\n  border-radius: 4px;\n  margin-right: 4px;\n  color: var(--text1);\n  cursor: pointer;\n}\n\n.dialog-reply .reply-header .return-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.dialog-reply .reply-header .reply-title {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--text1);\n}\n\n.bili-comment.client {\n  background-color: var(--bg1);\n}\n\n.bili-comment.client * {\n  box-sizing: border-box;\n  font-family:\n    PingFang SC,\n    HarmonyOS_Regular,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  -webkit-font-smoothing: antialiased;\n}\n\n.bili-comment.client * ul {\n  list-style: none;\n}\n\n.bili-comment.client * a {\n  text-decoration: none;\n  background-color: transparent;\n  color: var(--text_link);\n  cursor: pointer;\n}\n\n.bili-comment.client * a:hover {\n  color: var(--Lb4);\n}\n\n.bili-comment.client * i {\n  font-style: normal;\n}\n';
-  const BilibiliUrl = {
+  var BilibiliUrl = {
     getUserSpaceUrl(userId) {
       return `https://m.bilibili.com/space/${userId}`;
     },
@@ -4461,60 +4051,45 @@
       return `https://m.bilibili.com/video/${id}`;
     },
   };
-  const VueUtils = {
+  var VueUtils = {
     getVue($el) {
-      if ($el == null) {
-        return;
-      }
+      if ($el == null) return;
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
     getVue3($el) {
-      if ($el == null) {
-        return;
-      }
+      if ($el == null) return;
       return $el["__vueParentComponent"];
     },
     waitVuePropToSet($el, checkOption) {
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
+      if (!Array.isArray(checkOption)) checkOption = [checkOption];
       function getTarget() {
         let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
+        if (typeof $el === "string") __target__ = domUtils.selector($el);
+        else if (typeof $el === "function") __target__ = $el();
+        else if ($el instanceof HTMLElement) __target__ = $el;
         return __target__;
       }
       checkOption.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
+        if (typeof needSetOption.msg === "string") log.info(needSetOption.msg);
         const checkTarget = function () {
           const $targetEl = getTarget();
-          if ($targetEl == null) {
+          if ($targetEl == null)
             return {
               status: false,
               isTimeout: true,
               inst: null,
               $el: $targetEl,
             };
-          }
           const vueInst = VueUtils.getVue($targetEl);
-          if (vueInst == null) {
+          if (vueInst == null)
             return {
               status: false,
               isTimeout: false,
               inst: null,
               $el: $targetEl,
             };
-          }
-          const checkResult = Boolean(needSetOption.check(vueInst, $targetEl));
           return {
-            status: checkResult,
+            status: Boolean(needSetOption.check(vueInst, $targetEl)),
             isTimeout: false,
             inst: vueInst,
             $el: $targetEl,
@@ -4534,11 +4109,8 @@
             if (checkTargetResult.status) {
               const vueInst = checkTargetResult.inst;
               needSetOption.set(vueInst, checkTargetResult.$el);
-            } else {
-              if (typeof needSetOption.failWait === "function") {
-                needSetOption.failWait(checkTargetResult.isTimeout);
-              }
-            }
+            } else if (typeof needSetOption.failWait === "function")
+              needSetOption.failWait(checkTargetResult.isTimeout);
           });
       });
     },
@@ -4557,7 +4129,7 @@
           },
           set(vueInstance) {
             let removeWatch = null;
-            if (typeof key === "function") {
+            if (typeof key === "function")
               removeWatch = vueInstance.$watch(
                 () => {
                   return key(vueInstance);
@@ -4567,7 +4139,7 @@
                 },
                 config
               );
-            } else {
+            else
               removeWatch = vueInstance.$watch(
                 key,
                 (newValue, oldValue) => {
@@ -4575,7 +4147,6 @@
                 },
                 config
               );
-            }
             resolve(removeWatch);
           },
           failWait,
@@ -4584,32 +4155,26 @@
     },
     goToUrl($el, path, useRouter = false) {
       if ($el == null) {
-        Qmsg.error("跳转Url: $vueNode为空");
+        qmsg.default.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
       let vueInstance = VueUtils.getVue($el);
       if (vueInstance == null) {
-        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+        qmsg.default.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
       let $router = vueInstance.$router;
       let isBlank = true;
       log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isBlank = false;
-      }
-      if (isBlank) {
-        window.open(path, "_blank");
-      } else {
+      if (useRouter) isBlank = false;
+      if (isBlank) window.open(path, "_blank");
+      else {
         if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
+          if (path.startsWith("//")) path = window.location.protocol + path;
           let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
+          if (urlObj.origin === window.location.origin) path = urlObj.pathname + urlObj.search + urlObj.hash;
+          else {
             log.info("不同域名，直接本页打开，不用Router：" + path);
             window.location.href = path;
             return;
@@ -4631,44 +4196,30 @@
       }
       async function resumeBack(isFromPopState = false) {
         domUtils.off(_unsafeWindow, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (true) {
+        if (option.callback(isFromPopState)) return;
+        while (true)
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();
             await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
+          } else return;
       }
       banBack();
-      return {
-        resumeBack,
-      };
+      return { resumeBack };
     },
   };
-  const BilibiliUtils = {
+  var BilibiliUtils = {
     goToUrl(path, useRouter = false) {
       let isGoToUrlBlank = Panel.getValue("bili-go-to-url-blank");
       log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isGoToUrlBlank = false;
-      }
-      if (isGoToUrlBlank) {
-        window.open(path, "_blank");
-      } else {
+      if (useRouter) isGoToUrlBlank = false;
+      if (isGoToUrlBlank) window.open(path, "_blank");
+      else {
         if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
+          if (path.startsWith("//")) path = window.location.protocol + path;
           let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
+          if (urlObj.origin === window.location.origin) path = urlObj.pathname + urlObj.search + urlObj.hash;
+          else {
             log.info("不同域名，直接本页打开，不用Router：" + path);
             window.location.href = path;
             return;
@@ -4681,7 +4232,7 @@
             window.location.href = path;
             return;
           }
-          Qmsg.error("跳转Url: 获取根元素#app失败");
+          qmsg.default.error("跳转Url: 获取根元素#app失败");
           log.error("跳转Url: 获取根元素#app失败：" + path);
           return;
         }
@@ -4692,53 +4243,36 @@
             return;
           }
           log.error("获取#app的vue属性失败");
-          Qmsg.error("获取#app的vue属性失败");
+          qmsg.default.error("获取#app的vue属性失败");
           return;
         }
-        let $router = vueInstance.$router;
-        $router.push(path);
+        vueInstance.$router.push(path);
       }
     },
     goToLogin(fromUrl = "") {
       window.open(`https://passport.bilibili.com/h5-app/passport/login?gourl=${encodeURIComponent(fromUrl)}`);
     },
     parseDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
       function zeroPadding(num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
+        if (num < 10) return `0${num}`;
+        else return num;
       }
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
-      } else {
-        return `${Math.floor(duration / 3600)}:${zeroPadding(
-          Math.floor(duration / 60) % 60
-        )}:${zeroPadding(duration % 60)}`;
-      }
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else
+        return `${Math.floor(duration / 3600)}:${zeroPadding(Math.floor(duration / 60) % 60)}:${zeroPadding(duration % 60)}`;
     },
     parseCount(count) {
       let countText = count.toString();
       if (count > 1e4) {
         let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
-        if (roundNum.endsWith(".0")) {
-          roundNum = roundNum.slice(0, -2);
-        }
+        if (roundNum.endsWith(".0")) roundNum = roundNum.slice(0, -2);
         countText = `${roundNum}万`;
       } else if (count > 1e4 * 1e4) {
         let roundNum = (count / (1e4 * 1e4)).toFixed(2).slice(0, -1);
-        if (roundNum.endsWith(".0")) {
-          roundNum = roundNum.slice(0, -2);
-        }
+        if (roundNum.endsWith(".0")) roundNum = roundNum.slice(0, -2);
         countText = `${roundNum}亿`;
       }
       return countText;
@@ -4755,24 +4289,16 @@
       }
       async function resumeBack(isFromPopState = false) {
         domUtils.off(window, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (1) {
+        if (option.callback(isFromPopState)) return;
+        while (1)
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();
             await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
+          } else return;
       }
       banBack();
-      return {
-        resumeBack,
-      };
+      return { resumeBack };
     },
     initialScale() {
       log.info("设置<meta>的viewport固定缩放倍率为1并移除页面原有的<meta>");
@@ -4792,7 +4318,7 @@
       });
     },
   };
-  class GestureBack {
+  var GestureBack = class {
     isBacking = false;
     config;
     constructor(config) {
@@ -4800,48 +4326,37 @@
       this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
       this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
       this.popStateEvent = this.popStateEvent.bind(this);
-      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime))
         this.config.backDelayTime = 150;
-      }
-      if (this.config.win == null) {
-        this.config.win = self;
-      }
+      if (this.config.win == null) this.config.win = self;
     }
     popStateEvent(event) {
       domUtils.preventEvent(event);
-      if (this.isBacking) {
-        return;
-      }
+      if (this.isBacking) return;
       this.quitGestureBackMode(true);
     }
     enterGestureBackMode() {
       log.success("进入手势模式");
       let pushUrl = this.config.hash;
       if (!pushUrl.startsWith("#")) {
-        if (!pushUrl.startsWith("/")) {
-          pushUrl = "/" + pushUrl;
-        }
+        if (!pushUrl.startsWith("/")) pushUrl = "/" + pushUrl;
         pushUrl = "#" + pushUrl;
       }
-      if (this.config.useUrl) {
+      if (this.config.useUrl)
         pushUrl =
           this.config.win.location.origin +
           this.config.win.location.pathname +
           this.config.win.location.search +
           pushUrl;
-      }
       this.config.win.history.pushState({}, "", pushUrl);
       log.success("监听popstate事件");
-      domUtils.on(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
+      domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
     }
     async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
       log.success("退出手势模式");
-      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+      if (typeof this.config.beforeHistoryBackCallBack === "function")
         this.config.beforeHistoryBackCallBack(isUrlChange);
-      }
       let maxDate = Date.now() + 1e3 * 5;
       while (true) {
         if (Date.now() > maxDate) {
@@ -4851,33 +4366,23 @@
         if (this.config.win.location.hash.endsWith(this.config.hash)) {
           log.info("history.back()");
           this.config.win.history.back();
-          await utils$1.sleep(this.config.backDelayTime || 150);
-        } else {
-          break;
-        }
+          await _whitesev_utils.default.sleep(this.config.backDelayTime || 150);
+        } else break;
       }
       log.success("移除popstate事件");
-      domUtils.off(this.config.win, "popstate", this.popStateEvent, {
-        capture: true,
-      });
+      domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
       this.isBacking = false;
-      if (typeof this.config.afterHistoryBackCallBack === "function") {
-        this.config.afterHistoryBackCallBack(isUrlChange);
-      }
+      if (typeof this.config.afterHistoryBackCallBack === "function") this.config.afterHistoryBackCallBack(isUrlChange);
     }
-  }
-  const BilibiliApiRequestCheck = {
+  };
+  var BilibiliApiRequestCheck = {
     mergeAidOrBvidSearchParamsData(searchParamsData, config) {
-      if ("aid" in config && config["aid"] != null) {
-        Reflect.set(searchParamsData, "aid", config.aid);
-      } else if ("bvid" in config && config["bvid"] != null) {
-        Reflect.set(searchParamsData, "bvid", config.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
+      if ("aid" in config && config["aid"] != null) Reflect.set(searchParamsData, "aid", config.aid);
+      else if ("bvid" in config && config["bvid"] != null) Reflect.set(searchParamsData, "bvid", config.bvid);
+      else throw new TypeError("avid or bvid must give one");
     },
   };
-  const BilibiliVideoApi = {
+  var BilibiliVideoApi = {
     async playUrl(config, extraParams) {
       const searchParamsData = {
         cid: config.cid,
@@ -4890,9 +4395,7 @@
         platform: config.setPlatformHTML5 ? "html5" : "pc",
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
-      if (typeof extraParams === "object" && extraParams !== null) {
-        Object.assign(searchParamsData, extraParams);
-      }
+      if (typeof extraParams === "object" && extraParams !== null) Object.assign(searchParamsData, extraParams);
       const response = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/player/playurl?` + utils.toSearchParamsStr(searchParamsData),
         {
@@ -4900,19 +4403,13 @@
           fetch: true,
         }
       );
-      if (!response.status) {
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (data2["code"] !== 0) {
-        return;
-      }
-      return data2["data"];
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (data["code"] !== 0) return;
+      return data["data"];
     },
     async onlineTotal(config) {
-      const searchParamsData = {
-        cid: config.cid,
-      };
+      const searchParamsData = { cid: config.cid };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       const response = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
@@ -4921,14 +4418,10 @@
           fetch: true,
         }
       );
-      if (!response.status) {
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        log.error(`获取在线观看人数失败: `, data2);
-      }
-      return data2["data"];
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) log.error(`获取在线观看人数失败: `, data);
+      return data["data"];
     },
     async like(config) {
       const searchParamsData = {
@@ -4939,48 +4432,33 @@
       const response = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/web-interface/archive/like?` +
           utils.toSearchParamsStr(searchParamsData),
-        {
-          fetch: true,
-        }
+        { fetch: true }
       );
-      if (!response.status) {
-        return false;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      const code = data2["code"];
-      if (code === 0) {
-        return true;
-      }
-      if (code === -101) {
-        Qmsg.error("账号未登录");
-      } else if (code === -111) {
-        Qmsg.error("csrf校验失败");
-      } else if (code === -400) {
-        Qmsg.error("请求错误");
-      } else if (code === -403) {
-        Qmsg.error("账号异常");
-      } else if (code === 10003) {
-        Qmsg.error("不存在该稿件");
-      } else if (code === 65004) {
-        Qmsg.error("取消点赞失败");
-      } else if (code === 65006) {
-        Qmsg.warning("重复点赞");
-      } else {
-        Qmsg.error("未知错误：" + data2["message"]);
-      }
+      if (!response.status) return false;
+      const data = utils.toJSON(response.data.responseText);
+      const code = data["code"];
+      if (code === 0) return true;
+      if (code === -101) qmsg.default.error("账号未登录");
+      else if (code === -111) qmsg.default.error("csrf校验失败");
+      else if (code === -400) qmsg.default.error("请求错误");
+      else if (code === -403) qmsg.default.error("账号异常");
+      else if (code === 10003) qmsg.default.error("不存在该稿件");
+      else if (code === 65004) qmsg.default.error("取消点赞失败");
+      else if (code === 65006) qmsg.default.warning("重复点赞");
+      else qmsg.default.error("未知错误：" + data["message"]);
       return false;
     },
   };
-  const artPlayerCommonCSS =
+  var player_default =
     "/* 设置播放器基础宽高 */\n#artplayer {\n  width: 100%;\n  height: 100%;\n}\n/* 通用隐藏class */\n.art-video-player .art-common-hide {\n  display: none !important;\n}\n/* 设置播放器基础宽高 */\n.art-video-player {\n  width: 100% !important;\n}\n/* 播放时隐藏进度条 */\n.art-hide-cursor .art-progress {\n  display: none !important;\n}\n/* 不知道为什么背景模糊了 */\n.art-video-player.art-backdrop .art-settings {\n  backdrop-filter: unset !important;\n}\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\n  max-width: 100px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n/* 竖屏 宽度小于400px */\n@media (orientation: portrait) and (max-width: 400px) {\n  /* 修正小屏下宽度溢出 */\n  .art-controls .art-control {\n    max-width: 60px;\n    white-space: pre-wrap;\n  }\n}\n\n/* 竖屏 宽度小于550px */\n@media (orientation: portrait) and (max-width: 550px) {\n  /* 隐藏 弹幕设置按钮 */\n  .artplayer-plugin-danmuku .apd-config ,\n    /* 隐藏 弹幕输入框 */\n	.artplayer-plugin-danmuku .apd-emitter {\n    display: none !important;\n  }\n  /* 弹幕库靠右对齐 */\n  .artplayer-plugin-danmuku {\n    justify-content: right;\n  }\n}\n/* 横屏 */\n@media (orientation: landscape) {\n  /* 限制弹幕输入框的最大宽度 */\n  .artplayer-plugin-danmuku .apd-emitter {\n    max-width: 260px;\n  }\n}\n\n/* 插件-在线观看人数  */\n.art-lock .art-layer-top-wrap {\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\n  display: none !important;\n}\n.art-layer-top-wrap {\n  --layer-top-wrap-follow-text-font-size: 0.8em;\n  --layer-top-wrap-follow-icon-size: 1em;\n  width: 100%;\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  color: #fff;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  left: 0;\n  -webkit-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  width: 100%;\n  background: linear-gradient(to bottom, #000, transparent);\n  padding: 10px calc(var(--art-padding));\n  z-index: 60;\n}\n.art-player-top-wrap {\n  width: 100%;\n}\n.art-player-top-wrap .art-player-top-title-text {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  max-width: 100%;\n}\n/* 面板隐藏时，顶部toolbar也隐藏 */\n.art-hide-cursor .art-layer-top-wrap {\n  transform: translateY(-60px);\n}\n/*.art-layer-top-wrap .art-player-top-wrap {\n}\n.art-layer-top-wrap .art-player-top-title-text {\n}*/\n/* 下面的当前在线观看人数 */\n.art-layer-top-wrap .art-player-top-follow {\n  margin-top: var(--art-padding);\n  gap: var(--layer-top-wrap-follow-text-font-size);\n  font-size: var(--layer-top-wrap-follow-text-font-size);\n  display: flex;\n  align-items: center;\n  position: absolute;\n}\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\n  width: var(--layer-top-wrap-follow-icon-size);\n  height: var(--layer-top-wrap-follow-icon-size);\n}\n.art-layer-top-wrap .art-player-top-follow-text {\n  text-wrap: nowrap;\n}\n/* 插件-在线观看人数  */\n\n/* 插件-锁定 */\n.art-video-player .art-layers .art-layer.art-layer-lock {\n  /* 放在右边 */\n  right: 0;\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\n}\n/* 插件-锁定 */\n";
-  const VideoSoundQualityCode = {
+  var VideoSoundQualityCode = {
     30216: "64K",
     30232: "132K",
     30280: "192K",
     30250: "杜比全景声",
     30251: "Hi-Res无损",
   };
-  class ArtPlayerDanmakuOptionHelper {
+  var ArtPlayerDanmakuOptionHelper = class {
     $data = {
       KEY: "art-player-danmaku-option",
       localArtDanmakuOption: {},
@@ -5016,17 +4494,13 @@
         _GM_setValue(this.$data.KEY, this.$data.localArtDanmakuOption);
       });
     }
-  }
-  const TAG$4 = "[artplayer-plugin-m4sAudioSupport]：";
-  const ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
-  const M4SAudioUtils = {
-    $flag: {
-      isIntervaling: false,
-    },
+  };
+  var TAG$4 = "[artplayer-plugin-m4sAudioSupport]：";
+  var ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
+  var M4SAudioUtils = {
+    $flag: { isIntervaling: false },
     intervalHandler(fn, count = 2, delayTime = 900) {
-      if (M4SAudioUtils.$flag.isIntervaling) {
-        return;
-      }
+      if (M4SAudioUtils.$flag.isIntervaling) return;
       M4SAudioUtils.$flag.isIntervaling = true;
       let intervalCount = 0;
       let intervalId = void 0;
@@ -5036,27 +4510,21 @@
           clearInterval(intervalId);
           return;
         }
-        if (typeof fn === "function") {
+        if (typeof fn === "function")
           try {
             fn();
           } catch (error) {
             console.error(TAG$4, error);
           }
-        }
         intervalCount++;
       };
       callback();
-      if (count > 1) {
-        intervalId = setInterval(callback, delayTime);
-      } else {
-        M4SAudioUtils.$flag.isIntervaling = false;
-      }
+      if (count > 1) intervalId = setInterval(callback, delayTime);
+      else M4SAudioUtils.$flag.isIntervaling = false;
     },
   };
-  const M4SAudio = {
-    $key: {
-      plugin_KEY: "plugin-bilibili-m4sAudio",
-    },
+  var M4SAudio = {
+    $key: { plugin_KEY: "plugin-bilibili-m4sAudio" },
     $data: {
       art: null,
       audio: new Audio(),
@@ -5071,9 +4539,7 @@
       },
       option: null,
     },
-    userEvent: {
-      onRestart: void 0,
-    },
+    userEvent: { onRestart: void 0 },
     events: {
       play: () => {
         M4SAudio.handler.play();
@@ -5185,12 +4651,12 @@
       },
       error: (event) => {
         M4SAudio.$data.art.emit("m4sAudio:error", event);
-        console.error(TAG$4 + `Audio加载失败`, event);
-        if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) {
-          M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
-        }
+        console.error(`[artplayer-plugin-m4sAudioSupport]：Audio加载失败`, event);
+        if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
         if (M4SAudio.$data.reconnectInfo.count < M4SAudio.$data.reconnectConfig.maxCount) {
-          console.log(TAG$4 + `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`);
+          console.log(
+            `[artplayer-plugin-m4sAudioSupport]：Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
+          );
           M4SAudio.$data.art.notice.show = `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`;
           M4SAudio.$data.reconnectInfo.count++;
           setTimeout(() => {
@@ -5199,21 +4665,17 @@
             M4SAudio.$data.audio.load();
           }, M4SAudio.$data.reconnectConfig.delayTime);
         } else {
-          console.error(TAG$4 + `Audio已超出重连次数`);
+          console.error(`[artplayer-plugin-m4sAudioSupport]：Audio已超出重连次数`);
           M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
         }
       },
     },
     handler: {
       playUrl(url) {
-        if (typeof url !== "string") {
-          return;
-        }
+        if (typeof url !== "string") return;
         M4SAudio.$data.audio.src = url;
         M4SAudio.unbindAudio();
-        if (utils.isNotNull(url)) {
-          M4SAudio.bindAudio();
-        }
+        if (utils.isNotNull(url)) M4SAudio.bindAudio();
         M4SAudio.$data.art.emit("m4sAudio:restart", url);
         M4SAudio.handler.syncTime();
         M4SAudio.handler.syncPlayState();
@@ -5231,11 +4693,8 @@
         }
       },
       syncPlayState() {
-        if (M4SAudio.$data.art.playing) {
-          this.play();
-        } else {
-          this.pause();
-        }
+        if (M4SAudio.$data.art.playing) this.play();
+        else this.pause();
         M4SAudio.$data.art.emit("m4sAudio:syncPlayState");
       },
       syncTime(offset = 0.1) {
@@ -5259,8 +4718,7 @@
       },
       syncPlayBackRate() {
         let artPlayBackRate = M4SAudio.$data.art.playbackRate;
-        let audioPlayBackRate = M4SAudio.$data.audio.playbackRate;
-        if (artPlayBackRate !== audioPlayBackRate) {
+        if (artPlayBackRate !== M4SAudio.$data.audio.playbackRate) {
           M4SAudio.$data.audio.playbackRate = artPlayBackRate;
           M4SAudio.$data.art.emit("m4sAudio:syncPlayBackRate");
         }
@@ -5294,9 +4752,7 @@
             currentSelectAudioInfo.index = findAudioIndex;
             currentSelectAudioInfo.url = findAudio.url;
             currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
-          } else {
-            console.warn(TAG$4 + "没有找到上次选的音频代码，使用当前默认第一个音频");
-          }
+          } else console.warn(TAG$4 + "没有找到上次选的音频代码，使用当前默认第一个音频");
         }
         let selectorList = option.audioList.map((item, index) => {
           return {
@@ -5328,30 +4784,21 @@
             let itemInfo = selector;
             console.log(TAG$4 + "切换音频", itemInfo);
             that.handler.playUrl(itemInfo.url);
-            that.$data.art.storage.set(storageKey, {
-              soundQualityCode: itemInfo.soundQualityCode,
-            });
+            that.$data.art.storage.set(storageKey, { soundQualityCode: itemInfo.soundQualityCode });
             return selector.html;
           },
         };
-        let findSettingValue = M4SAudio.$data.art.setting.find(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY);
-        if (findSettingValue) {
+        if (M4SAudio.$data.art.setting.find(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
           M4SAudio.$data.art.setting.update(settingOption);
-        } else {
-          M4SAudio.$data.art.setting.add(settingOption);
-        }
+        else M4SAudio.$data.art.setting.add(settingOption);
         log.info("加载m4s的音频：", currentSelectAudioInfo);
         M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
         this.bind();
         this.bindAudio();
       } else {
         M4SAudio.handler.playUrl("");
-        let oldSetting = M4SAudio.$data.art.setting.option.find(
-          (item) => item.name === ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY
-        );
-        if (oldSetting) {
+        if (M4SAudio.$data.art.setting.option.find((item) => item.name === ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
           M4SAudio.$data.art.setting.remove(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY);
-        }
       }
     },
     bind() {
@@ -5361,9 +4808,7 @@
     },
     bindAudio() {
       Object.keys(this.audioEvents).forEach((eventName) => {
-        this.$data.audio.addEventListener(eventName, this.audioEvents[eventName], {
-          once: true,
-        });
+        this.$data.audio.addEventListener(eventName, this.audioEvents[eventName], { once: true });
       });
     },
     unbind() {
@@ -5377,12 +4822,10 @@
       });
     },
   };
-  const artplayerPluginM4SAudioSupport = (option) => {
+  var artplayerPluginM4SAudioSupport = (option) => {
     return (art) => {
       M4SAudio.$data.art = art;
-      if (typeof option.onRestart === "function") {
-        M4SAudio.userEvent.onRestart = option.onRestart;
-      }
+      if (typeof option.onRestart === "function") M4SAudio.userEvent.onRestart = option.onRestart;
       M4SAudio.update({
         from: option.from,
         audioList: option.audioList,
@@ -5404,13 +4847,19 @@
       };
     };
   };
-  const ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY = M4SAudio.$key.plugin_KEY;
-  const TopToolBarEvent = {
+  var ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY = M4SAudio.$key.plugin_KEY;
+  var TopToolBarUtils = {
+    show($el) {
+      if (!$el) return;
+    },
+    hide($el) {
+      if (!$el) return;
+    },
+  };
+  var TopToolBarEvent = {
     events: {
       control: (state) => {
-        if (!state) {
-          return;
-        }
+        if (!state) return;
         TopToolBar.updateOnlineTotal({
           showOnlineTotal: TopToolBar.$data.option.showOnlineTotal,
           onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
@@ -5428,7 +4877,7 @@
       });
     },
   };
-  const TopToolBar = {
+  var TopToolBar = {
     art: null,
     $el: {
       $topWrap: null,
@@ -5444,9 +4893,7 @@
       __option: {},
       option: {},
     },
-    $key: {
-      plugin_KEY: "plugin-bilibili-topToolBar",
-    },
+    $key: { plugin_KEY: "plugin-bilibili-topToolBar" },
     init(option) {
       this.art.layers.add({
         name: "top-wrap",
@@ -5473,6 +4920,7 @@
           TopToolBar.$el.$topTitleFollowText = $topWrap.querySelector(".art-player-top-follow-text");
           TopToolBar.$el.$topRight = $topWrap.querySelector(".art-player-top-right");
           TopToolBar.$el.$topRightFollow = $topWrap.querySelector(".art-player-top-right-follow");
+          TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
           TopToolBar.update(option);
           TopToolBarEvent.bind();
         },
@@ -5485,6 +4933,8 @@
           showWrap: {
             set(value) {
               TopToolBar.$data.__option.showWrap = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topWrap);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
             },
             get() {
               return TopToolBar.$data.__option.showWrap;
@@ -5493,6 +4943,8 @@
           showTitle: {
             set(value) {
               TopToolBar.$data.__option.showTitle = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topTitle);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
             },
             get() {
               return TopToolBar.$data.__option.showTitle;
@@ -5501,9 +4953,7 @@
           title: {
             set(value) {
               TopToolBar.$data.__option.title = value;
-              if (typeof value === "string") {
-                TopToolBar.$el.$topTitleText.innerText = value;
-              }
+              if (typeof value === "string") TopToolBar.$el.$topTitleText.innerText = value;
             },
             get() {
               return TopToolBar.$data.__option.title;
@@ -5512,6 +4962,8 @@
           showOnlineTotal: {
             set(value) {
               TopToolBar.$data.__option.showOnlineTotal = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
             },
             get() {
               return TopToolBar.$data.__option.showOnlineTotal;
@@ -5532,6 +4984,8 @@
           showRight: {
             set(value) {
               TopToolBar.$data.__option.showRight = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topRight);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topRight);
             },
             get() {
               return TopToolBar.$data.__option.showRight;
@@ -5540,6 +4994,8 @@
           showRightFollow: {
             set(value) {
               TopToolBar.$data.__option.showRightFollow = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topRightFollow);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topRightFollow);
             },
             get() {
               return TopToolBar.$data.__option.showRightFollow;
@@ -5550,40 +5006,36 @@
       Object.assign(this.$data.option, option);
     },
     async updateOnlineTotal(option) {
-      if (!option.showOnlineTotal) {
-        return;
-      }
+      if (!option.showOnlineTotal) return;
       let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
         aid: option.onlineInfoParams.aid,
         bvid: option.onlineInfoParams.bvid,
         cid: option.onlineInfoParams.cid,
       });
-      if (!onlineTotalInfo) {
-        return;
-      }
+      if (!onlineTotalInfo) return;
       TopToolBar.$el.$topTitleFollowText.innerText = `${onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0}人正在看`;
     },
   };
-  const artplayerPluginTopToolBar = (option) => {
+  var artplayerPluginTopToolBar = (option) => {
     return (art) => {
       TopToolBar.art = art;
       TopToolBar.init(option);
       return {
         name: TopToolBar.$key.plugin_KEY,
-        update(option2) {
-          TopToolBar.update(option2);
+        update(option) {
+          TopToolBar.update(option);
         },
       };
     };
   };
-  const ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY = TopToolBar.$key.plugin_KEY;
-  const chinese = {
+  var ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY = TopToolBar.$key.plugin_KEY;
+  var chinese = {
     S: "万与丑专业丛东丝丢两严丧个丬丰临为丽举么义乌乐乔习乡书买乱争于亏云亘亚产亩亲亵亸亿仅从仑仓仪们价众优伙会伛伞伟传伤伥伦伧伪伫体余佣佥侠侣侥侦侧侨侩侪侬俣俦俨俩俪俭债倾偬偻偾偿傥傧储傩儿兑兖党兰关兴兹养兽冁内冈册写军农冢冯冲决况冻净凄凉凌减凑凛几凤凫凭凯击凼凿刍划刘则刚创删别刬刭刽刿剀剂剐剑剥剧劝办务劢动励劲劳势勋勐勚匀匦匮区医华协单卖卢卤卧卫却卺厂厅历厉压厌厍厕厢厣厦厨厩厮县参叆叇双发变叙叠叶号叹叽吁后吓吕吗吣吨听启吴呒呓呕呖呗员呙呛呜咏咔咙咛咝咤咴咸哌响哑哒哓哔哕哗哙哜哝哟唛唝唠唡唢唣唤唿啧啬啭啮啰啴啸喷喽喾嗫呵嗳嘘嘤嘱噜噼嚣嚯团园囱围囵国图圆圣圹场坂坏块坚坛坜坝坞坟坠垄垅垆垒垦垧垩垫垭垯垱垲垴埘埙埚埝埯堑堕塆墙壮声壳壶壸处备复够头夸夹夺奁奂奋奖奥妆妇妈妩妪妫姗姜娄娅娆娇娈娱娲娴婳婴婵婶媪嫒嫔嫱嬷孙学孪宁宝实宠审宪宫宽宾寝对寻导寿将尔尘尧尴尸尽层屃屉届属屡屦屿岁岂岖岗岘岙岚岛岭岳岽岿峃峄峡峣峤峥峦崂崃崄崭嵘嵚嵛嵝嵴巅巩巯币帅师帏帐帘帜带帧帮帱帻帼幂幞干并广庄庆庐庑库应庙庞废庼廪开异弃张弥弪弯弹强归当录彟彦彻径徕御忆忏忧忾怀态怂怃怄怅怆怜总怼怿恋恳恶恸恹恺恻恼恽悦悫悬悭悯惊惧惨惩惫惬惭惮惯愍愠愤愦愿慑慭憷懑懒懔戆戋戏戗战戬户扎扑扦执扩扪扫扬扰抚抛抟抠抡抢护报担拟拢拣拥拦拧拨择挂挚挛挜挝挞挟挠挡挢挣挤挥挦捞损捡换捣据捻掳掴掷掸掺掼揸揽揿搀搁搂搅携摄摅摆摇摈摊撄撑撵撷撸撺擞攒敌敛数斋斓斗斩断无旧时旷旸昙昼昽显晋晒晓晔晕晖暂暧札术朴机杀杂权条来杨杩杰极构枞枢枣枥枧枨枪枫枭柜柠柽栀栅标栈栉栊栋栌栎栏树栖样栾桊桠桡桢档桤桥桦桧桨桩梦梼梾检棂椁椟椠椤椭楼榄榇榈榉槚槛槟槠横樯樱橥橱橹橼檐檩欢欤欧歼殁殇残殒殓殚殡殴毁毂毕毙毡毵氇气氢氩氲汇汉污汤汹沓沟没沣沤沥沦沧沨沩沪沵泞泪泶泷泸泺泻泼泽泾洁洒洼浃浅浆浇浈浉浊测浍济浏浐浑浒浓浔浕涂涌涛涝涞涟涠涡涢涣涤润涧涨涩淀渊渌渍渎渐渑渔渖渗温游湾湿溃溅溆溇滗滚滞滟滠满滢滤滥滦滨滩滪漤潆潇潋潍潜潴澜濑濒灏灭灯灵灾灿炀炉炖炜炝点炼炽烁烂烃烛烟烦烧烨烩烫烬热焕焖焘煅煳熘爱爷牍牦牵牺犊犟状犷犸犹狈狍狝狞独狭狮狯狰狱狲猃猎猕猡猪猫猬献獭玑玙玚玛玮环现玱玺珉珏珐珑珰珲琎琏琐琼瑶瑷璇璎瓒瓮瓯电画畅畲畴疖疗疟疠疡疬疮疯疱疴痈痉痒痖痨痪痫痴瘅瘆瘗瘘瘪瘫瘾瘿癞癣癫癯皑皱皲盏盐监盖盗盘眍眦眬着睁睐睑瞒瞩矫矶矾矿砀码砖砗砚砜砺砻砾础硁硅硕硖硗硙硚确硷碍碛碜碱碹磙礼祎祢祯祷祸禀禄禅离秃秆种积称秽秾稆税稣稳穑穷窃窍窑窜窝窥窦窭竖竞笃笋笔笕笺笼笾筑筚筛筜筝筹签简箓箦箧箨箩箪箫篑篓篮篱簖籁籴类籼粜粝粤粪粮糁糇紧絷纟纠纡红纣纤纥约级纨纩纪纫纬纭纮纯纰纱纲纳纴纵纶纷纸纹纺纻纼纽纾线绀绁绂练组绅细织终绉绊绋绌绍绎经绐绑绒结绔绕绖绗绘给绚绛络绝绞统绠绡绢绣绤绥绦继绨绩绪绫绬续绮绯绰绱绲绳维绵绶绷绸绹绺绻综绽绾绿缀缁缂缃缄缅缆缇缈缉缊缋缌缍缎缏缐缑缒缓缔缕编缗缘缙缚缛缜缝缞缟缠缡缢缣缤缥缦缧缨缩缪缫缬缭缮缯缰缱缲缳缴缵罂网罗罚罢罴羁羟羡翘翙翚耢耧耸耻聂聋职聍联聩聪肃肠肤肷肾肿胀胁胆胜胧胨胪胫胶脉脍脏脐脑脓脔脚脱脶脸腊腌腘腭腻腼腽腾膑臜舆舣舰舱舻艰艳艹艺节芈芗芜芦苁苇苈苋苌苍苎苏苘苹茎茏茑茔茕茧荆荐荙荚荛荜荞荟荠荡荣荤荥荦荧荨荩荪荫荬荭荮药莅莜莱莲莳莴莶获莸莹莺莼萚萝萤营萦萧萨葱蒇蒉蒋蒌蓝蓟蓠蓣蓥蓦蔷蔹蔺蔼蕲蕴薮藁藓虏虑虚虫虬虮虽虾虿蚀蚁蚂蚕蚝蚬蛊蛎蛏蛮蛰蛱蛲蛳蛴蜕蜗蜡蝇蝈蝉蝎蝼蝾螀螨蟏衅衔补衬衮袄袅袆袜袭袯装裆裈裢裣裤裥褛褴襁襕见观觃规觅视觇览觉觊觋觌觍觎觏觐觑觞触觯詟誉誊讠计订讣认讥讦讧讨让讪讫训议讯记讱讲讳讴讵讶讷许讹论讻讼讽设访诀证诂诃评诅识诇诈诉诊诋诌词诎诏诐译诒诓诔试诖诗诘诙诚诛诜话诞诟诠诡询诣诤该详诧诨诩诪诫诬语诮误诰诱诲诳说诵诶请诸诹诺读诼诽课诿谀谁谂调谄谅谆谇谈谊谋谌谍谎谏谐谑谒谓谔谕谖谗谘谙谚谛谜谝谞谟谠谡谢谣谤谥谦谧谨谩谪谫谬谭谮谯谰谱谲谳谴谵谶谷豮贝贞负贠贡财责贤败账货质贩贪贫贬购贮贯贰贱贲贳贴贵贶贷贸费贺贻贼贽贾贿赀赁赂赃资赅赆赇赈赉赊赋赌赍赎赏赐赑赒赓赔赕赖赗赘赙赚赛赜赝赞赟赠赡赢赣赪赵赶趋趱趸跃跄跖跞践跶跷跸跹跻踊踌踪踬踯蹑蹒蹰蹿躏躜躯车轧轨轩轪轫转轭轮软轰轱轲轳轴轵轶轷轸轹轺轻轼载轾轿辀辁辂较辄辅辆辇辈辉辊辋辌辍辎辏辐辑辒输辔辕辖辗辘辙辚辞辩辫边辽达迁过迈运还这进远违连迟迩迳迹适选逊递逦逻遗遥邓邝邬邮邹邺邻郁郄郏郐郑郓郦郧郸酝酦酱酽酾酿释里鉅鉴銮錾钆钇针钉钊钋钌钍钎钏钐钑钒钓钔钕钖钗钘钙钚钛钝钞钟钠钡钢钣钤钥钦钧钨钩钪钫钬钭钮钯钰钱钲钳钴钵钶钷钸钹钺钻钼钽钾钿铀铁铂铃铄铅铆铈铉铊铋铍铎铏铐铑铒铕铗铘铙铚铛铜铝铞铟铠铡铢铣铤铥铦铧铨铪铫铬铭铮铯铰铱铲铳铴铵银铷铸铹铺铻铼铽链铿销锁锂锃锄锅锆锇锈锉锊锋锌锍锎锏锐锑锒锓锔锕锖锗错锚锜锞锟锠锡锢锣锤锥锦锨锩锫锬锭键锯锰锱锲锳锴锵锶锷锸锹锺锻锼锽锾锿镀镁镂镃镆镇镈镉镊镌镍镎镏镐镑镒镕镖镗镙镚镛镜镝镞镟镠镡镢镣镤镥镦镧镨镩镪镫镬镭镮镯镰镱镲镳镴镶长门闩闪闫闬闭问闯闰闱闲闳间闵闶闷闸闹闺闻闼闽闾闿阀阁阂阃阄阅阆阇阈阉阊阋阌阍阎阏阐阑阒阓阔阕阖阗阘阙阚阛队阳阴阵阶际陆陇陈陉陕陧陨险随隐隶隽难雏雠雳雾霁霉霭靓静靥鞑鞒鞯鞴韦韧韨韩韪韫韬韵页顶顷顸项顺须顼顽顾顿颀颁颂颃预颅领颇颈颉颊颋颌颍颎颏颐频颒颓颔颕颖颗题颙颚颛颜额颞颟颠颡颢颣颤颥颦颧风飏飐飑飒飓飔飕飖飗飘飙飚飞飨餍饤饥饦饧饨饩饪饫饬饭饮饯饰饱饲饳饴饵饶饷饸饹饺饻饼饽饾饿馀馁馂馃馄馅馆馇馈馉馊馋馌馍馎馏馐馑馒馓馔馕马驭驮驯驰驱驲驳驴驵驶驷驸驹驺驻驼驽驾驿骀骁骂骃骄骅骆骇骈骉骊骋验骍骎骏骐骑骒骓骔骕骖骗骘骙骚骛骜骝骞骟骠骡骢骣骤骥骦骧髅髋髌鬓魇魉鱼鱽鱾鱿鲀鲁鲂鲄鲅鲆鲇鲈鲉鲊鲋鲌鲍鲎鲏鲐鲑鲒鲓鲔鲕鲖鲗鲘鲙鲚鲛鲜鲝鲞鲟鲠鲡鲢鲣鲤鲥鲦鲧鲨鲩鲪鲫鲬鲭鲮鲯鲰鲱鲲鲳鲴鲵鲶鲷鲸鲹鲺鲻鲼鲽鲾鲿鳀鳁鳂鳃鳄鳅鳆鳇鳈鳉鳊鳋鳌鳍鳎鳏鳐鳑鳒鳓鳔鳕鳖鳗鳘鳙鳛鳜鳝鳞鳟鳠鳡鳢鳣鸟鸠鸡鸢鸣鸤鸥鸦鸧鸨鸩鸪鸫鸬鸭鸮鸯鸰鸱鸲鸳鸴鸵鸶鸷鸸鸹鸺鸻鸼鸽鸾鸿鹀鹁鹂鹃鹄鹅鹆鹇鹈鹉鹊鹋鹌鹍鹎鹏鹐鹑鹒鹓鹔鹕鹖鹗鹘鹚鹛鹜鹝鹞鹟鹠鹡鹢鹣鹤鹥鹦鹧鹨鹩鹪鹫鹬鹭鹯鹰鹱鹲鹳鹴鹾麦麸黄黉黡黩黪黾鼋鼌鼍鼗鼹齄齐齑齿龀龁龂龃龄龅龆龇龈龉龊龋龌龙龚龛龟志制咨只里系范松没尝尝闹面准钟别闲乾尽脏拼冲里",
     T: "萬與醜專業叢東絲丟兩嚴喪個丬豐臨爲麗舉麼義烏樂喬習鄉書買亂爭於虧雲亙亞產畝親褻嚲億僅從侖倉儀們價衆優夥會傴傘偉傳傷倀倫傖僞佇體餘傭僉俠侶僥偵側僑儈儕儂俁儔儼倆儷儉債傾傯僂僨償儻儐儲儺兒兌兗黨蘭關興茲養獸囅內岡冊寫軍農冢馮沖決況凍淨淒涼凌減湊凜幾鳳鳧憑凱擊凼鑿芻劃劉則剛創刪別剗剄劊劌剴劑剮劍剝劇勸辦務勱動勵勁勞勢勳勐勩勻匭匱區醫華協單賣盧滷臥衛卻巹廠廳歷厲壓厭厙廁廂厴廈廚廄廝縣參靉靆雙發變敘疊葉號嘆嘰籲後嚇呂嗎唚噸聽啓吳嘸囈嘔嚦唄員咼嗆嗚詠咔嚨嚀噝吒咴鹹哌響啞噠嘵嗶噦譁噲嚌噥喲嘜嗊嘮啢嗩唣喚唿嘖嗇囀齧囉嘽嘯噴嘍嚳囁呵噯噓嚶囑嚕噼囂嚯團園囪圍圇國圖圓聖壙場阪壞塊堅壇壢壩塢墳墜壟壠壚壘墾垧堊墊埡墶壋塏堖塒壎堝埝垵塹墮壪牆壯聲殼壺壼處備復夠頭誇夾奪奩奐奮獎奧妝婦媽嫵嫗嬀姍姜婁婭嬈嬌孌娛媧嫺嫿嬰嬋嬸媼嬡嬪嬙嬤孫學孿寧寶實寵審憲宮寬賓寢對尋導壽將爾塵堯尷屍盡層屓屜屆屬屢屨嶼歲豈嶇崗峴嶴嵐島嶺嶽崬巋嶨嶧峽嶢嶠崢巒嶗崍嶮嶄嶸嶔嵛嶁嵴巔鞏巰幣帥師幃帳簾幟帶幀幫幬幘幗冪襆幹並廣莊慶廬廡庫應廟龐廢廎廩開異棄張彌弳彎彈強歸當錄彠彥徹徑徠御憶懺憂愾懷態慫憮慪悵愴憐總懟懌戀懇惡慟懨愷惻惱惲悅愨懸慳憫驚懼慘懲憊愜慚憚慣愍慍憤憒願懾憖憷懣懶懍戇戔戲戧戰戩戶扎撲扦執擴捫掃揚擾撫拋摶摳掄搶護報擔擬攏揀擁攔擰撥擇掛摯攣掗撾撻挾撓擋撟掙擠揮撏撈損撿換搗據捻擄摑擲撣摻摜揸攬撳攙擱摟攪攜攝攄擺搖擯攤攖撐攆擷擼攛擻攢敵斂數齋斕鬥斬斷無舊時曠暘曇晝曨顯晉曬曉曄暈暉暫曖札術樸機殺雜權條來楊榪傑極構樅樞棗櫪梘棖槍楓梟櫃檸檉梔柵標棧櫛櫳棟櫨櫟欄樹棲樣欒桊椏橈楨檔榿橋樺檜槳樁夢檮棶檢櫺槨櫝槧欏橢樓欖櫬櫚櫸檟檻檳櫧橫檣櫻櫫櫥櫓櫞檐檁歡歟歐殲歿殤殘殞殮殫殯毆毀轂畢斃氈毿氌氣氫氬氳匯漢污湯洶沓溝沒灃漚瀝淪滄渢潙滬沵濘淚澩瀧瀘濼瀉潑澤涇潔灑窪浹淺漿澆湞溮濁測澮濟瀏滻渾滸濃潯濜塗涌濤澇淶漣潿渦溳渙滌潤澗漲澀澱淵淥漬瀆漸澠漁瀋滲溫遊灣溼潰濺漵漊潷滾滯灩灄滿瀅濾濫灤濱灘澦漤瀠瀟瀲濰潛瀦瀾瀨瀕灝滅燈靈災燦煬爐燉煒熗點煉熾爍爛烴燭煙煩燒燁燴燙燼熱煥燜燾煅煳熘愛爺牘犛牽犧犢犟狀獷獁猶狽狍獮獰獨狹獅獪猙獄猻獫獵獼玀豬貓蝟獻獺璣璵瑒瑪瑋環現瑲璽珉珏琺瓏璫琿璡璉瑣瓊瑤璦璇瓔瓚甕甌電畫暢畲疇癤療瘧癘瘍癧瘡瘋皰痾癰痙癢瘂癆瘓癇癡癉瘮瘞瘻癟癱癮癭癩癬癲癯皚皺皸盞鹽監蓋盜盤瞘眥矓着睜睞瞼瞞矚矯磯礬礦碭碼磚硨硯碸礪礱礫礎硜硅碩硤磽磑礄確礆礙磧磣鹼碹磙禮禕禰禎禱禍稟祿禪離禿稈種積稱穢穠穭稅穌穩穡窮竊竅窯竄窩窺竇窶豎競篤筍筆筧箋籠籩築篳篩簹箏籌籤簡籙簀篋籜籮簞簫簣簍籃籬籪籟糴類秈糶糲粵糞糧糝餱緊縶糹糾紆紅紂纖紇約級紈纊紀紉緯紜紘純紕紗綱納紝縱綸紛紙紋紡紵紖紐紓線紺紲紱練組紳細織終縐絆紼絀紹繹經紿綁絨結絝繞絰絎繪給絢絳絡絕絞統綆綃絹繡綌綏絛繼綈績緒綾緓續綺緋綽鞝緄繩維綿綬繃綢綯綹綣綜綻綰綠綴緇緙緗緘緬纜緹緲緝縕繢緦綞緞緶線緱縋緩締縷編緡緣縉縛縟縝縫縗縞纏縭縊縑繽縹縵縲纓縮繆繅纈繚繕繒繮繾繰繯繳纘罌網羅罰罷羆羈羥羨翹翽翬耮耬聳恥聶聾職聹聯聵聰肅腸膚肷腎腫脹脅膽勝朧腖臚脛膠脈膾髒臍腦膿臠腳脫腡臉臘醃膕齶膩靦膃騰臏臢輿艤艦艙艫艱豔艹藝節羋薌蕪蘆蓯葦藶莧萇蒼苧蘇檾蘋莖蘢蔦塋煢繭荊薦薘莢蕘蓽蕎薈薺蕩榮葷滎犖熒蕁藎蓀蔭蕒葒葤藥蒞莜萊蓮蒔萵薟獲蕕瑩鶯蓴蘀蘿螢營縈蕭薩蔥蕆蕢蔣蔞藍薊蘺蕷鎣驀薔蘞藺藹蘄蘊藪藁蘚虜慮虛蟲虯蟣雖蝦蠆蝕蟻螞蠶蠔蜆蠱蠣蟶蠻蟄蛺蟯螄蠐蛻蝸蠟蠅蟈蟬蠍螻蠑螿蟎蠨釁銜補襯袞襖嫋褘襪襲襏裝襠褌褳襝褲襉褸襤襁襴見觀覎規覓視覘覽覺覬覡覿覥覦覯覲覷觴觸觶讋譽謄訁計訂訃認譏訐訌討讓訕訖訓議訊記訒講諱謳詎訝訥許訛論訩訟諷設訪訣證詁訶評詛識詗詐訴診詆謅詞詘詔詖譯詒誆誄試詿詩詰詼誠誅詵話誕詬詮詭詢詣諍該詳詫諢詡譸誡誣語誚誤誥誘誨誑說誦誒請諸諏諾讀諑誹課諉諛誰諗調諂諒諄誶談誼謀諶諜謊諫諧謔謁謂諤諭諼讒諮諳諺諦謎諞諝謨讜謖謝謠謗諡謙謐謹謾謫譾謬譚譖譙讕譜譎讞譴譫讖谷豶貝貞負貟貢財責賢敗賬貨質販貪貧貶購貯貫貳賤賁貰貼貴貺貸貿費賀貽賊贄賈賄貲賃賂贓資賅贐賕賑賚賒賦賭齎贖賞賜贔賙賡賠賧賴賵贅賻賺賽賾贗贊贇贈贍贏贛赬趙趕趨趲躉躍蹌跖躒踐躂蹺蹕躚躋踊躊蹤躓躑躡蹣躕躥躪躦軀車軋軌軒軑軔轉軛輪軟轟軲軻轤軸軹軼軤軫轢軺輕軾載輊轎輈輇輅較輒輔輛輦輩輝輥輞輬輟輜輳輻輯轀輸轡轅轄輾轆轍轔辭辯辮邊遼達遷過邁運還這進遠違連遲邇逕跡適選遜遞邐邏遺遙鄧鄺鄔郵鄒鄴鄰鬱郄郟鄶鄭鄆酈鄖鄲醞醱醬釅釃釀釋裏鉅鑑鑾鏨釓釔針釘釗釙釕釷釺釧釤鈒釩釣鍆釹鍚釵鈃鈣鈈鈦鈍鈔鍾鈉鋇鋼鈑鈐鑰欽鈞鎢鉤鈧鈁鈥鈄鈕鈀鈺錢鉦鉗鈷鉢鈳鉕鈽鈸鉞鑽鉬鉭鉀鈿鈾鐵鉑鈴鑠鉛鉚鈰鉉鉈鉍鈹鐸鉶銬銠鉺銪鋏鋣鐃銍鐺銅鋁銱銦鎧鍘銖銑鋌銩銛鏵銓鉿銚鉻銘錚銫鉸銥鏟銃鐋銨銀銣鑄鐒鋪鋙錸鋱鏈鏗銷鎖鋰鋥鋤鍋鋯鋨鏽銼鋝鋒鋅鋶鐦鐗銳銻鋃鋟鋦錒錆鍺錯錨錡錁錕錩錫錮鑼錘錐錦杴錈錇錟錠鍵鋸錳錙鍥鍈鍇鏘鍶鍔鍤鍬鍾鍛鎪鍠鍰鎄鍍鎂鏤鎡鏌鎮鎛鎘鑷鐫鎳鎿鎦鎬鎊鎰鎔鏢鏜鏍鏰鏞鏡鏑鏃鏇鏐鐔钁鐐鏷鑥鐓鑭鐠鑹鏹鐙鑊鐳鐶鐲鐮鐿鑔鑣鑞鑲長門閂閃閆閈閉問闖閏闈閒閎間閔閌悶閘鬧閨聞闥閩閭闓閥閣閡閫鬮閱閬闍閾閹閶鬩閿閽閻閼闡闌闃闠闊闋闔闐闒闕闞闤隊陽陰陣階際陸隴陳陘陝隉隕險隨隱隸雋難雛讎靂霧霽黴靄靚靜靨韃鞽韉鞴韋韌韍韓韙韞韜韻頁頂頃頇項順須頊頑顧頓頎頒頌頏預顱領頗頸頡頰頲頜潁熲頦頤頻頮頹頷頴穎顆題顒顎顓顏額顳顢顛顙顥纇顫顬顰顴風颺颭颮颯颶颸颼颻飀飄飆飈飛饗饜飣飢飥餳飩餼飪飫飭飯飲餞飾飽飼飿飴餌饒餉餄餎餃餏餅餑餖餓餘餒餕餜餛餡館餷饋餶餿饞饁饃餺餾饈饉饅饊饌饢馬馭馱馴馳驅馹駁驢駔駛駟駙駒騶駐駝駑駕驛駘驍罵駰驕驊駱駭駢驫驪騁驗騂駸駿騏騎騍騅騌驌驂騙騭騤騷騖驁騮騫騸驃騾驄驏驟驥驦驤髏髖髕鬢魘魎魚魛魢魷魨魯魴魺鮁鮃鮎鱸鮋鮓鮒鮊鮑鱟鮍鮐鮭鮚鮳鮪鮞鮦鰂鮜鱠鱭鮫鮮鮺鯗鱘鯁鱺鰱鰹鯉鰣鰷鯀鯊鯇鮶鯽鯒鯖鯪鯕鯫鯡鯤鯧鯝鯢鮎鯛鯨鰺鯴鯔鱝鰈鰏鱨鯷鰮鰃鰓鱷鰍鰒鰉鰁鱂鯿鰠鰲鰭鰨鰥鰩鰟鰜鰳鰾鱈鱉鰻鰵鱅鰼鱖鱔鱗鱒鱯鱤鱧鱣鳥鳩雞鳶鳴鳲鷗鴉鶬鴇鴆鴣鶇鸕鴨鴞鴦鴒鴟鴝鴛鷽鴕鷥鷙鴯鴰鵂鴴鵃鴿鸞鴻鵐鵓鸝鵑鵠鵝鵒鷳鵜鵡鵲鶓鵪鵾鵯鵬鵮鶉鶊鵷鷫鶘鶡鶚鶻鶿鶥鶩鷊鷂鶲鶹鶺鷁鶼鶴鷖鸚鷓鷚鷯鷦鷲鷸鷺鸇鷹鸌鸏鸛鸘鹺麥麩黃黌黶黷黲黽黿鼂鼉鞀鼴齇齊齏齒齔齕齗齟齡齙齠齜齦齬齪齲齷龍龔龕龜志制諮只裏系範鬆沒嚐嚐鬧面準鍾別閒乾盡髒拼衝裡",
   };
-  const S = chinese.S;
-  const T = chinese.T;
-  const tranStr = (str, toT) => {
+  var S = chinese.S;
+  var T = chinese.T;
+  var tranStr = (str, toT) => {
     let src;
     let des;
     let i;
@@ -5600,8 +5052,7 @@
     for (i = 0; i < str.length; i++) {
       letter = str.charAt(i);
       const code = str.charCodeAt(i);
-      const isChinese = (code > 13312 && code < 40899) || (code > 63744 && code < 64106);
-      if (!isChinese) {
+      if (!((code > 13312 && code < 40899) || (code > 63744 && code < 64106))) {
         result += letter;
         continue;
       }
@@ -5611,54 +5062,46 @@
     }
     return result;
   };
-  const Chinese = {
+  var Chinese = {
     s2t: (str, custom) => {
       if (custom) {
-        for (let s = 0; s < custom.length; s++) {
+        for (let s = 0; s < custom.length; s++)
           if (str.includes(custom[s].src)) str = str.replaceAll(custom[s].src, custom[s].des);
-        }
         return tranStr(str, true);
-      } else {
-        return tranStr(str, true);
-      }
+      } else return tranStr(str, true);
     },
     t2s: (str, custom) => {
       if (custom) {
-        for (let s = 0; s < custom.length; s++) {
+        for (let s = 0; s < custom.length; s++)
           if (str.includes(custom[s].src)) str = str.replaceAll(custom[s].src, custom[s].des);
-        }
         return tranStr(str, false);
-      } else {
-        return tranStr(str, false);
-      }
+      } else return tranStr(str, false);
     },
   };
-  const TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
-  const SubTitleCustomStr = {
+  var TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  var SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
     more_src: ["乾脆", "随著", "相信著", "奇蹟", "拚命", "採取", "製造", "艾連"],
     more_des: ["干脆", "随着", "相信着", "奇迹", "拼命", "采取", "制造", "艾伦"],
     _custom_str: [],
     generteCustomStr() {
-      for (let index = 0; index < this.src.length; index++) {
+      for (let index = 0; index < this.src.length; index++)
         this._custom_str.push({
           src: this.src[index],
           des: this.des[index],
         });
-      }
-      for (let index = 0; index < this.more_src.length; index++) {
+      for (let index = 0; index < this.more_src.length; index++)
         this._custom_str.push({
           src: this.more_src[index],
           des: this.more_des[index],
         });
-      }
     },
     getCustomStr() {
       return this._custom_str;
     },
   };
-  const SubTitleEvent = {
+  var SubTitleEvent = {
     reset() {
       this.unbind();
     },
@@ -5672,28 +5115,18 @@
     event() {
       let currentTime = SubTitle.art.currentTime;
       let currentSubTitleData = SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex]?.data;
-      if (!currentSubTitleData) {
-        return;
-      }
+      if (!currentSubTitleData) return;
       let findValue = currentSubTitleData.find((item) => {
-        if (item.to >= currentTime && item.from <= currentTime) {
-          return true;
-        } else {
-          return false;
-        }
+        if (item.to >= currentTime && item.from <= currentTime) return true;
+        else return false;
       });
       let $allSubTitleLine = Array.from(SubTitle.$el.$subtitle.querySelectorAll(".art-subtitle-line"));
       for (let index = 0; index < $allSubTitleLine.length; index++) {
         const $oldSubtitleLine = $allSubTitleLine[index];
         const { from: oldFrom, to: oldTo } = Reflect.get($oldSubtitleLine, "data-subtitle-line-info");
-        if (oldTo <= currentTime || oldFrom >= currentTime) {
-          $oldSubtitleLine.remove();
-        } else {
-          if (findValue) {
-            if (findValue.from === oldFrom && findValue.to === oldTo) {
-              return;
-            }
-          }
+        if (oldTo <= currentTime || oldFrom >= currentTime) $oldSubtitleLine.remove();
+        else if (findValue) {
+          if (findValue.from === oldFrom && findValue.to === oldTo) return;
         }
       }
       if (findValue) {
@@ -5706,7 +5139,7 @@
       }
     },
   };
-  const SubTitleData = {
+  var SubTitleData = {
     allSubTitleInfo: [],
     currentSelectIndex: -1,
     reset() {
@@ -5714,21 +5147,15 @@
       this.currentSelectIndex = -1;
     },
   };
-  const SubTitle = {
+  var SubTitle = {
     art: null,
-    $key: {
-      plugin_KEY: "plugin-bilibili-cc-subtitle",
-    },
-    $el: {
-      $subtitle: null,
-    },
+    $key: { plugin_KEY: "plugin-bilibili-cc-subtitle" },
+    $el: { $subtitle: null },
     async update(option) {
       const that = this;
       const STORAGE_KEY = `artplayer-bili-cc-subtitle-${option.from}`;
       const SubTitleSettingLayer = {
-        config: {
-          NAME: "setting-bilibili-cc-subtitle",
-        },
+        config: { NAME: "setting-bilibili-cc-subtitle" },
         getDefaultSettingOption: () => {
           return {
             name: SubTitleSettingLayer.config.NAME,
@@ -5744,23 +5171,19 @@
             selector: [],
             onSelect: function (selector) {
               let itemInfo = selector;
-              that.art.storage.set(STORAGE_KEY, {
-                lan: itemInfo.subTitle_lan,
-              });
+              that.art.storage.set(STORAGE_KEY, { lan: itemInfo.subTitle_lan });
               SubTitleEvent.unbind();
               SubTitleData.currentSelectIndex = itemInfo.subTitle_index;
-              if (itemInfo.subTitle_index !== -1) {
-                SubTitleEvent.bind();
-              }
+              if (itemInfo.subTitle_index !== -1) SubTitleEvent.bind();
               return selector.html;
             },
           };
         },
         getSettingOption: () => {
           const settingOption = SubTitleSettingLayer.getDefaultSettingOption();
-          const defaultSelector2 = SubTitleSettingLayer.getDefaultSettingSelector();
-          settingOption.selector.push(defaultSelector2);
-          settingOption.tooltip = defaultSelector2.html;
+          const defaultSelector = SubTitleSettingLayer.getDefaultSettingSelector();
+          settingOption.selector.push(defaultSelector);
+          settingOption.tooltip = defaultSelector.html;
           return settingOption;
         },
         getDefaultSettingSelector: () => {
@@ -5776,10 +5199,9 @@
           let settingOption = this.getSettingOption();
           if (selectorList && selectorList.length) {
             settingOption.selector.push(...selectorList);
-            let firstSubTitle = settingOption.selector[0];
             let currentSelectSubTitle = {
               index: 0,
-              html: firstSubTitle.html,
+              html: settingOption.selector[0].html,
             };
             const storageInfo = that.art.storage.get(STORAGE_KEY);
             if (storageInfo) {
@@ -5789,22 +5211,17 @@
                 console.log(TAG$3 + "选择字幕：" + findInfo.html);
                 currentSelectSubTitle.index = findInfoIndex;
                 currentSelectSubTitle.html = findInfo.html;
-              } else {
-                console.warn(TAG$3 + "没有找到上次选的字幕，使用当前默认无");
-              }
+              } else console.warn(TAG$3 + "没有找到上次选的字幕，使用当前默认无");
             }
-            for (let index = 0; index < settingOption.selector.length; index++) {
+            for (let index = 0; index < settingOption.selector.length; index++)
               settingOption.selector[index].default = index === currentSelectSubTitle.index;
-            }
             settingOption.tooltip = currentSelectSubTitle.html;
             SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
           }
           if (this.isAddSetting()) {
             console.log(TAG$3 + "更新字幕菜单", selectorList ?? []);
             that.art.setting.update(settingOption);
-          } else {
-            that.art.setting.add(settingOption);
-          }
+          } else that.art.setting.add(settingOption);
         },
         isAddSetting() {
           return that.art.setting.find(this.config.NAME) != null;
@@ -5822,19 +5239,11 @@
       SubTitleSettingLayer.addSetting();
       const settingSelectorList = [];
       this.$el.$subtitle = this.art.template.$subtitle;
-      const searchParamsData = {
-        cid: option.cid,
-      };
-      if (option.ep_id) {
-        Reflect.set(searchParamsData, "ep_id", option.ep_id);
-      }
-      if (option.aid) {
-        Reflect.set(searchParamsData, "aid", option.aid);
-      } else if (option.bvid) {
-        Reflect.set(searchParamsData, "bvid", option.bvid);
-      } else {
-        throw new TypeError("avid or bvid must give one");
-      }
+      const searchParamsData = { cid: option.cid };
+      if (option.ep_id) Reflect.set(searchParamsData, "ep_id", option.ep_id);
+      if (option.aid) Reflect.set(searchParamsData, "aid", option.aid);
+      else if (option.bvid) Reflect.set(searchParamsData, "bvid", option.bvid);
+      else throw new TypeError("avid or bvid must give one");
       const videoInfoResponse = await httpx.get(
         `https://api.bilibili.com/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
         {
@@ -5880,27 +5289,22 @@
         });
         if (subTitleInfoResponse.status) {
           console.log(TAG$3 + "获取字幕信息成功");
-          const subTitleInfoJSON = utils.toJSON(subTitleInfoResponse.data.responseText);
-          const subTitleInfo = subTitleInfoJSON["body"];
+          const subTitleInfo = utils.toJSON(subTitleInfoResponse.data.responseText)["body"];
           const currentIndex = SubTitleData.allSubTitleInfo.length;
-          const data2 = {
+          const data = {
             name: subTitleUrlInfo.lan_doc,
             lan: subTitleUrlInfo.lan,
             data: subTitleInfo,
           };
-          if (data2.lan === "ai-zh") {
-            data2.name += "（AI）";
-          }
-          SubTitleData.allSubTitleInfo.push(data2);
+          if (data.lan === "ai-zh") data.name += "（AI）";
+          SubTitleData.allSubTitleInfo.push(data);
           settingSelectorList.push({
-            html: data2.name,
+            html: data.name,
             subTitle_index: currentIndex,
-            subTitle_lan: data2.lan,
-            subTitle_data: data2.data,
+            subTitle_lan: data.lan,
+            subTitle_data: data.data,
           });
-        } else {
-          console.error(TAG$3 + "获取字幕链接信息失败", subTitleInfoResponse);
-        }
+        } else console.error(TAG$3 + "获取字幕链接信息失败", subTitleInfoResponse);
       }
       if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
         let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
@@ -5935,16 +5339,12 @@
       if (
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null ||
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0
-      );
-      else {
-        SubTitleEvent.bind();
-      }
+      ) {
+      } else SubTitleEvent.bind();
       SubTitleSettingLayer.addSetting(settingSelectorList);
     },
     clearSubTitle() {
-      if (this.$el.$subtitle) {
-        this.$el.$subtitle.innerHTML = "";
-      }
+      if (this.$el.$subtitle) this.$el.$subtitle.innerHTML = "";
     },
     updateArtPlayer(art) {
       this.art = art;
@@ -5957,29 +5357,23 @@
       SubTitle.update(option);
       return {
         name: SubTitle.$key.plugin_KEY,
-        update(option2) {
-          SubTitle.update(option2);
+        update(option) {
+          SubTitle.update(option);
         },
       };
     };
   }
-  const ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
-  const TAG$2 = "[artplayer-plugin-epChoose]：";
-  const GenerateArtPlayerEpTitle = (title, title_id) => {
-    if (title_id == null || title_id == "") {
-      return title;
-    }
-    if (isNaN(Number(title_id))) {
-      return title_id.toString();
-    }
+  var ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
+  var TAG$2 = "[artplayer-plugin-epChoose]：";
+  var GenerateArtPlayerEpTitle = (title, title_id) => {
+    if (title_id == null || title_id == "") return title;
+    if (isNaN(Number(title_id))) return title_id.toString();
     return `第${title_id}话 ${title}`;
   };
-  const GenerateArtPlayerEpSetting = (option) => {
+  var GenerateArtPlayerEpSetting = (option) => {
     let tooltip = "";
     let selector = option.EP_LIST.map((item, itemIndex) => {
-      if (item.isDefault) {
-        tooltip = item.title;
-      }
+      if (item.isDefault) tooltip = item.title;
       return {
         html: item.title,
         default: item.isDefault,
@@ -5994,9 +5388,7 @@
       selector,
       tooltip,
       onSelect: function (item) {
-        if (typeof item.callback === "function") {
-          item.callback(item, item.index);
-        }
+        if (typeof item.callback === "function") item.callback(item, item.index);
         return item.html;
       },
       mounted(panel, item) {
@@ -6007,18 +5399,15 @@
         if (findIndex !== -1 && findIndex + 1 < this.selector.length - 1) {
           findIndex += 1;
           this.onSelect(this.selector[findIndex]);
-        } else {
-          console.warn(TAG$2 + "当前播放列表已无下一集");
-        }
+        } else console.warn(TAG$2 + "当前播放列表已无下一集");
       },
     };
   };
-  const EpChooseEvent = {
+  var EpChooseEvent = {
     $event: {
       "video:ended": () => {
         console.log(TAG$2 + "自动连播启用，播放下一集");
-        const settingIns = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
-        settingIns?.playNext();
+        EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY)?.playNext();
       },
     },
     bind(art) {
@@ -6032,17 +5421,13 @@
       });
     },
   };
-  const EpChoose = {
-    $flag: {
-      isInitCSS: false,
-    },
+  var EpChoose = {
+    $flag: { isInitCSS: false },
     $key: {
       SETTING_KEY: "setting-ep-choose",
       PLUGIN_KEY: "plugin-ep-choose",
     },
-    $data: {
-      art: null,
-    },
+    $data: { art: null },
     resetEnv() {
       Object.keys(this.$data).forEach((key) => {
         Reflect.set(this.$data, key, null);
@@ -6052,56 +5437,43 @@
       this.resetEnv();
       this.$data.art = art;
       EpChooseEvent.unbind(art);
-      if (option.automaticBroadcast) {
-        EpChooseEvent.bind(art);
-      }
+      if (option.automaticBroadcast) EpChooseEvent.bind(art);
       if (!this.$flag.isInitCSS) {
         this.$flag.isInitCSS = true;
-        addStyle(
-          `
+        addStyle(`
 			.art-setting-panel[data-plugin="${EpChoose.$key.SETTING_KEY}"] .art-setting-item .art-setting-item-left-text{
 				max-width: 210px;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 			}
-			`
-        );
+			`);
       }
       this.update(option);
     },
     update(option) {
       EpChooseEvent.unbind(this.$data.art);
-      if (option.EP_LIST == null) {
-        return;
-      }
-      if (option.EP_LIST.length === 0) {
-        return;
-      }
+      if (option.EP_LIST == null) return;
+      if (option.EP_LIST.length === 0) return;
       let setting = GenerateArtPlayerEpSetting(option);
-      if (this.$data.art.setting.find(this.$key.SETTING_KEY)) {
-        this.$data.art.setting.update(setting);
-      } else {
-        this.$data.art.setting.add(setting);
-      }
-      if (option.automaticBroadcast) {
-        EpChooseEvent.bind(this.$data.art);
-      }
+      if (this.$data.art.setting.find(this.$key.SETTING_KEY)) this.$data.art.setting.update(setting);
+      else this.$data.art.setting.add(setting);
+      if (option.automaticBroadcast) EpChooseEvent.bind(this.$data.art);
     },
   };
-  const artplayerPluginEpChoose = (option) => {
+  var artplayerPluginEpChoose = (option) => {
     return (art) => {
       EpChoose.init(art, option);
       return {
         name: EpChoose.$key.PLUGIN_KEY,
-        update(option2) {
-          EpChoose.update(option2);
+        update(option) {
+          EpChoose.update(option);
         },
       };
     };
   };
-  const ArtPlayer_PLUGIN_EP_CHOOSE_KEY = EpChoose.$key.PLUGIN_KEY;
-  const ArtPlayerBiliBiliIcon = {
+  var ArtPlayer_PLUGIN_EP_CHOOSE_KEY = EpChoose.$key.PLUGIN_KEY;
+  var ArtPlayerBiliBiliIcon = {
     loading: `<img src="data:image/gif;base64,R0lGODlhWgBaALMOAHR0dAICAnd3dwEBAXh4eAMDAwkJCQ0NDQsLCxwcHA4ODggICHl5eQAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiYWE1ODg5ZS1jN2RmLTRmZmUtYjkzOS0wMmVkMTZhNmNjZDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6M0I2ODI2NjA1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6M0I2ODI2NUY1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjljYjgzNjY2LWYxYWUtNGMyZi1hMGEwLThhODJmYjIxM2U0MyIgc3RSZWY6ZG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmU1NDE3YzFmLTllODAtMTE3OS04NjdiLWUyN2Y3M2VkMTZkOSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PgH//v38+/r5+Pf29fTz8vHw7+7t7Ovq6ejn5uXk4+Lh4N/e3dzb2tnY19bV1NPS0dDPzs3My8rJyMfGxcTDwsHAv769vLu6ubi3trW0s7KxsK+urayrqqmop6alpKOioaCfnp2cm5qZmJeWlZSTkpGQj46NjIuKiYiHhoWEg4KBgH9+fXx7enl4d3Z1dHNycXBvbm1sa2ppaGdmZWRjYmFgX15dXFtaWVhXVlVUU1JRUE9OTUxLSklIR0ZFRENCQUA/Pj08Ozo5ODc2NTQzMjEwLy4tLCsqKSgnJiUkIyIhIB8eHRwbGhkYFxYVFBMSERAPDg0MCwoJCAcGBQQDAgEAACH5BAkKAA4ALAAAAABaAFoAAAT/0MlJq7046827/2AojmRpnmiqrmzrvnAsz3Ta3HW+3bjuV7wbg/H7BYXEYu7YGCaVjuDr6Hwqjy2qEzphNlTaIZfi/ZqY2zHZW0KL1RVGeRS2wiXD+ad+x8jZHXx9GX9MO2GDG3mGGG52iX5ojUFVRWWXmJmam1IknJ+goXoioqWmnHSnqquUpDxVsLGys7S1tk6Uj4dIt72+v7K5IcKQF8R7r1asPC7HHs7L0Z3Ogclr0tES1BzH2NiLSMPWUcnAsd7gTboaxLnm77e527vq2uMm8FXy98/j8z77woFoxw9Fp2pI/mUgKBDMQXrp3iATqNBeD3rMIBaqN9BfwWsZ/7kBmpTwo0aLHIF4kchupIWAKftRLHgpDYeND7skq2jMY0NyjlgqwnlRZ8mfCDlCqyO0A1E7MJueBBrTnc0RG1lGXbfQZ0w8sFLEAhmRK0khKJtWConv6lZXaKlKNWpmyk6TJxVqoWvw7iu49fQyLOrJWitx4QTzQhnX4sTAeLsmjuyO8cWcLScjFan5K9kkl9KapSuG50vDlFtlkjtaNGvEkDeDXIlprsrOts+WjkzVUZmrkmN7zsu7dzkiK3OTRl78NO7WQenK7vkc9u7pt9UJrZz0+vDMwpVPGGuBPOfwrbO/8SbNu3j1oNkvc5/+s3T5oraYhn8f/6e1zfFHQZY+BPbiWkdIFajgLMs9ZgoX+1nmn0upYOfchPK95iCG+L034HHpAAAAh6V4OOAsQYh4hAAC3EJAMO3VV55WmLBYiwAv+pKiirzoE+CGDbAoZFu4eCGiiOdYCBgPQrK4wiVHXlDJk0w4mUUZAGgAXApNDtmMkVn+0KWVLhxppojFsHBmlGm26eabcMYp55x01mnnnXjSEAEAIfkECQoADgAsAAAAAFoAWgAABP/QyUmrvTjrzbv/YCiOZGmeaKqubOu+cCxbTT3fX23jfKbXDEZvSPk1gkSiMShM8pZMZ1HngjalEiPLip1qUdZr12Hcmbhj73eETlMY5QbpxxS7JfCyqH2v5NccfH1+cR6CgxVxchqHiIR6GGGOG38/kXRIkxyVR2SKn6CFbKGkpaangDmoq6ytdh2tsbKhmaqzpHW5uru8lbWGOr3Cw8TFvJghmMbLUVvBrxvImmq/sM+Jt9mWE9K2R2La4VRZ1yDdnuLaTefWQFfp4kjsgeXo38z4xMjz0fXK+QB37asHzB03gkqu8WPkD+GQgQbNNYxIY1zBRf0MLvQx8duFVBn/zXDU6DBkrXllqo3cdokkxYsnEaZUudJiRZceJVI8N5NmTZsHcfpcGXOnpBCcRJITCo2h0afuhlISFdTjxpY57RW91/QDJ3AKSzrNyi5XCl/vwr5sB6RqtToZPZhdalXs2LRrvXwEqgEuXXl2ia4Ty7Jq1qX0mO4pt7DbTDWJ6+aNnKkx48duu2oVchVrZcKXqW6+yzmw58GTR4eie/im5NZsP6emhUsqRNiUUeO2F4cJqGanRycLvfs3kqSmb0sNLnxvzyvIlyvXzPyqMD9oqU9fHLEzLwy7TJZOTfovdRF+y3d2ThZeNsDkBRt272r87vLz6Z+Kst71L/2x8GcapHsqBWTgMOZxB9uBDIbXnDcAAricaxFKeB42FUY4IYbpHJCAAgYYsEABoQRgYgA6nIiicaNw9VUQ/zCoIhMz6tKfBcco84MAAjTIQI0/npjjfZtspQiPKdTogJI4AgcGKDwKoIKQKprok5MpCFBGlEgmWSWTPPBoBJctBCkklmFyKaULZgYwVxJqwnDmhtN4hWadJtyJ55589unnn4AGKuigG0QAACH5BAkKAA4ALAAAAABaAFoAAAT/0MlJq7046827/2AojmRpnmiqrmzrvnAsW009319t43ym1wxGb0j5NYJEojEoTPKWTOfzF5VOfi1o0yoxNlTaLdf7PXmr3CvZpE1bGORyKOx+x+Udev0CX3vaexhBcRyAgRmDXhp6U3ghfVQ+VEhDd5aXmJmajjmbnp+gOiShpKWWlCCmqqtHYn86TLGys7S1tre3kyKTuL2+v7mwrnnChxi6c8VqrFnKqc4OrNJ4yM9AYtPSy627xaLZzNHQr9fiNsC22ULVneWR6PC/k+zk3PQk8bHz48Tu/ErC7hXy9q9SwIKLCJZbgaVeooXW7CHsImpgww37ILaTqLGIIotG/zAe7NiPI7cKd1BJ8nMh48mISNidUomIUMuRLzfGdJYyloeHsG5eEyjSH8Qzsx5Byklx6MRjCl/y8olPFg2cNEvu7Jg0BVWPTkmC3MrUZ8VlYLAOG7sO4cWmnEa4zMrWHFOwJ5egmLu2qEm6dvMS1bkUcEKjd+FWOYNyh9bCfQ//7csr8Fm7hAevnAx14Z1thvECDd2Zs1DBmkgrhtwNMWBFS2ZGFs06mevIsnvOBl0bZluxcJEKWfqUt+bSZEP3nDBa9erjp5PvBtrKFS2HvQnbVW2LDxq20K+6BqeqeWuT5Mtnxx48/SdZ4RtDJO4+tb7i4nPm2/+L9/ms/AVYi3Z/tiVmTHx41Vefc/IpuOBupzmYHoMJZoPAAQ5SWEEtwkCGDgHBXOMhEwhuSEuHU+FCAIi48JIiJN/ttVxaQBjCXIxmKPKVjHHgiGOOYUAYERQGlbhRZUNc98KLSXT1woDGtLBjlFRWaeWVWGap5ZZcdumlChEAACH5BAkKAA4ALAAAAABaAFoAAAT/0MlJq7046827/2AojmRpnmiqrmzrvnAsW009319t43ym1wxGbzj5AYXEoTGITOKWTOfzx2xKHb8W1Ho1NlTba8X7PW25YnJ55I2KLQw1mxp8Y+LyHL1uv6vXGmd9GkF5gXuDHIVkPoiJHYtGF4JEf5aXmJmZJZqdnp+GIaCjpJloHKWpqlCiOlWvsLGys7S1THStR7a7vL2xuCDAj5Oup4dHwxjCHsvJRcW5DXxYqzouzajQ1NXc1hLYG8Dd4zvgx9JI5ONC5o3I2+i+sOSR6NF8e/L6tXTtytr+POyr0k+bnncBbxR8d9AevGkpsjArlnAMQIPEdmTzthFdRQri/zA+k9SBUTiKIjviE/kHojuS/458HOlwCc02Ll9KzOgx5UmGVL6pefUBjxee9XL+dPiQ3Rk3RY3upJnU2MtpuPJBFSEViEWZPs9hNQhLhVSIC5lOBErWDccSZal2tRqTqbmpQgFB2prV1b0mdzHCBKlRrFOGJQ0GRjw4r966dWY2lQvZCivKhic3HIuYMGObjtUiPSx6KWevoz3vdHSVtNLWqo0JGwovnmnXdGkI9smo09bKmteqBafqd2rJyxYP7Vost+PIYYFjvsBcF5kqiZEh3925wq3mSGQJh949881UEmJtxh2Mu7pU5EubD/1+VPzX0unX10R0e2fw+nDTX5l0qXk30IG0xOacgtThtxeCaBGoW3nO+LffhRTWheF+Dk64IYcLqjZOACQGUEABJA6g4orVdNjgPDoAIKNWENYDwA8y/pIhITA2cCNONRIUI44A2MLCj17IyIIRSCp5h4sgIBmjjAAsqYaTPTBJZZUrXInlEFt+CQYZVDoRZgwzTunMCmGWuWYLW74p55x01mnnnXjmqecNEQAAIfkEBQoADgAsAAAAAFoAWgAABP/QyUmrvTjrzbv/YCiOZGmeaKqubOu+cCzP9Nrcdb7duO5XvBuD8fsFhcSi7jhMKh3BF7P5lBxb02HVelUdG9Qtt3vKiinfRjnYdJ6h31LW/XYw0qJvuE65x0FmfBdpah1zghh+ZBmHiIl4jIGOGYo8kTx7NYSbnJ2en5t5oKOkpaEhpqmqo1ofq6+wenQ7mG22t7i5uru8TWyzGr+9w8TFub+AtZODyq7NY7AwyM5IaLHXURPTHttw2NjW1dRgSd/m5NCt3M3Cxm3nrd0c0+3u9rr0z4bs+iP37/zErRMnz0hAdOPi9TNIcGGwg+qY9dg38WFDgRQRFtSWLWNFiRr/HV4KiTGcSCCEMOQrSesiQpO1gIH8Y1IhS4skX0KLKfNCpUXeckacB9FNmjYhhhytWe4kSJsvZWUC4evZSp1EXaqb09MDLo5au1pgks5JOxZIy6pNJmTtBFuXUCCbgkqZPKSWUH4UVU1Y3b4nO4IFY2JuzL/oNroNOpRtYqcq7QbWRzZcRi2KcWJ2ygZmIWiXiWQeufnm4M8pFz8VDXk1466lVI+VbFoz69o7SzXW+xh3ZMC+g07ZNHU2cKyhX3f4aYtQcd6lkWftLd1nrtzVmSpHHH03pbRv/bak7t228HOvuot1jR6ber7U2696z72p/Pm3s5N28q9/se2OReTffYC7AJjQemeMZpx8MSjI230Q6rdghPeV9xuF8lmYyC48kcMLhhJuiIsw9RDo3IitOQbJBsawwQMAANxymA2cwEjjFzZapyFiL8Lo4404iojFET4WCSSRPgRRJABSEJKjDksyGUOUP/pg5AxUPrnMllx26eWXYIYp5phkjhkBADs=">`,
     state: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 80 80" width="100" height="100"><defs><path id="pid-64-svgo-a" d="M0 0h80v80H0z"/><path d="M52.546 8.014a3.998 3.998 0 014.222 3.077c.104.446.093.808.039 1.138a2.74 2.74 0 01-.312.881c-.073.132-.16.254-.246.376l-.257.366-.521.73c-.7.969-1.415 1.926-2.154 2.866l-.015.02a240.945 240.945 0 015.986.341l1.643.123.822.066.41.034.206.018.103.008.115.012c1.266.116 2.516.45 3.677.975a11.663 11.663 0 013.166 2.114c.931.87 1.719 1.895 2.321 3.022a11.595 11.595 0 011.224 3.613c.03.157.046.316.068.474l.015.119.013.112.022.206.085.822.159 1.646c.1 1.098.19 2.198.27 3.298.315 4.4.463 8.829.36 13.255a166.489 166.489 0 01-.843 13.213c-.012.127-.034.297-.053.454a7.589 7.589 0 01-.072.475l-.04.237-.05.236a11.762 11.762 0 01-.74 2.287 11.755 11.755 0 01-5.118 5.57 11.705 11.705 0 01-3.623 1.263c-.158.024-.316.052-.475.072l-.477.053-.821.071-1.644.134c-1.096.086-2.192.16-3.288.23a260.08 260.08 0 01-6.578.325c-8.772.324-17.546.22-26.313-.302a242.458 242.458 0 01-3.287-.22l-1.643-.129-.822-.069-.41-.035-.206-.018c-.068-.006-.133-.01-.218-.02a11.566 11.566 0 01-3.7-.992 11.732 11.732 0 01-5.497-5.178 11.73 11.73 0 01-1.215-3.627c-.024-.158-.051-.316-.067-.475l-.026-.238-.013-.119-.01-.103-.07-.823-.132-1.648a190.637 190.637 0 01-.22-3.298c-.256-4.399-.358-8.817-.258-13.233.099-4.412.372-8.811.788-13.197a11.65 11.65 0 013.039-6.835 11.585 11.585 0 016.572-3.563c.157-.023.312-.051.47-.07l.47-.05.82-.07 1.643-.13a228.493 228.493 0 016.647-.405l-.041-.05a88.145 88.145 0 01-2.154-2.867l-.52-.73-.258-.366c-.086-.122-.173-.244-.246-.376a2.74 2.74 0 01-.312-.881 2.808 2.808 0 01.04-1.138 3.998 3.998 0 014.22-3.077 2.8 2.8 0 011.093.313c.294.155.538.347.742.568.102.11.19.23.28.35l.27.359.532.72a88.059 88.059 0 012.06 2.936 73.036 73.036 0 011.929 3.03c.187.313.373.628.556.945 2.724-.047 5.447-.056 8.17-.038.748.006 1.496.015 2.244.026.18-.313.364-.624.549-.934a73.281 73.281 0 011.93-3.03 88.737 88.737 0 012.059-2.935l.533-.72.268-.359c.09-.12.179-.24.281-.35a2.8 2.8 0 011.834-.881zM30.13 34.631a4 4 0 00-.418 1.42 91.157 91.157 0 00-.446 9.128c0 2.828.121 5.656.364 8.483l.11 1.212a4 4 0 005.858 3.143c2.82-1.498 5.55-3.033 8.193-4.606a177.41 177.41 0 005.896-3.666l1.434-.942a4 4 0 00.047-6.632 137.703 137.703 0 00-7.377-4.708 146.88 146.88 0 00-6.879-3.849l-1.4-.725a4 4 0 00-5.382 1.742z" id="pid-64-svgo-d"/><filter x="-15.4%" y="-16.3%" width="130.9%" height="132.5%" filterUnits="objectBoundingBox" id="pid-64-svgo-c"><feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur stdDeviation="1" in="shadowOffsetOuter1" result="shadowBlurOuter1"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="shadowBlurOuter1" result="shadowMatrixOuter1"/><feOffset in="SourceAlpha" result="shadowOffsetOuter2"/><feGaussianBlur stdDeviation="3.5" in="shadowOffsetOuter2" result="shadowBlurOuter2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" in="shadowBlurOuter2" result="shadowMatrixOuter2"/><feMerge><feMergeNode in="shadowMatrixOuter1"/><feMergeNode in="shadowMatrixOuter2"/></feMerge></filter></defs><g fill="none" fill-rule="evenodd" opacity=".8"><mask id="pid-64-svgo-b" fill="#fff"><use xlink:href="#pid-64-svgo-a"/></mask><g mask="url(#pid-64-svgo-b)"><use fill="#000" filter="url(#pid-64-svgo-c)" xlink:href="#pid-64-svgo-d"/><use fill="#FFF" xlink:href="#pid-64-svgo-d"/></g></g></svg>`,
     indicator: `
@@ -6114,11 +5486,10 @@
     fullscreenWebOn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_172"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_172)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -26,-20 -26,-20 C-27.049999237060547,-20 -27.920000076293945,-19.18000030517578 -27.989999771118164,-18.149999618530273 C-27.989999771118164,-18.149999618530273 -28,-18 -28,-18 C-28,-18 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -22,-4 -22,-4 C-20.950000762939453,-4 -20.079999923706055,-4.820000171661377 -20.010000228881836,-5.849999904632568 C-20.010000228881836,-5.849999904632568 -20,-6 -20,-6 C-20,-6 -20,-12 -20,-12 C-20,-12 -14,-12 -14,-12 C-12.949999809265137,-12 -12.079999923706055,-12.819999694824219 -12.010000228881836,-13.850000381469727 C-12.010000228881836,-13.850000381469727 -12,-14 -12,-14 C-12,-14 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M26,-20 C26,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-14 12,-14 C12,-12.949999809265137 12.819999694824219,-12.079999923706055 13.850000381469727,-12.010000228881836 C13.850000381469727,-12.010000228881836 14,-12 14,-12 C14,-12 20,-12 20,-12 C20,-12 20,-6 20,-6 C20,-4.949999809265137 20.81999969482422,-4.079999923706055 21.850000381469727,-4.010000228881836 C21.850000381469727,-4.010000228881836 22,-4 22,-4 C22,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-18 28,-18 C28,-19.049999237060547 27.18000030517578,-19.920000076293945 26.149999618530273,-19.989999771118164 C26.149999618530273,-19.989999771118164 26,-20 26,-20z M-22,4 C-22,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,18 -28,18 C-28,19.049999237060547 -27.18000030517578,19.920000076293945 -26.149999618530273,19.989999771118164 C-26.149999618530273,19.989999771118164 -26,20 -26,20 C-26,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,14 -12,14 C-12,12.949999809265137 -12.819999694824219,12.079999923706055 -13.850000381469727,12.010000228881836 C-13.850000381469727,12.010000228881836 -14,12 -14,12 C-14,12 -20,12 -20,12 C-20,12 -20,6 -20,6 C-20,4.949999809265137 -20.81999969482422,4.079999923706055 -21.850000381469727,4.010000228881836 C-21.850000381469727,4.010000228881836 -22,4 -22,4z M26,4 C26,4 22,4 22,4 C20.950000762939453,4 20.079999923706055,4.820000171661377 20.010000228881836,5.849999904632568 C20.010000228881836,5.849999904632568 20,6 20,6 C20,6 20,12 20,12 C20,12 14,12 14,12 C12.949999809265137,12 12.079999923706055,12.819999694824219 12.010000228881836,13.850000381469727 C12.010000228881836,13.850000381469727 12,14 12,14 C12,14 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 26,20 26,20 C27.049999237060547,20 27.920000076293945,19.18000030517578 27.989999771118164,18.149999618530273 C27.989999771118164,18.149999618530273 28,18 28,18 C28,18 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
     fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
   };
-  const ArtPlayerCommonOption = () => {
+  var ArtPlayerCommonOption = () => {
     return {
       container: "",
       url: "",
-
       volume: 1,
       isLive: false,
       muted: false,
@@ -6145,25 +5516,21 @@
       fastForward: true,
       theme: BilibiliData.theme,
       lang: navigator.language.toLowerCase(),
-      moreVideoAttr: {
-        crossOrigin: "anonymous",
-      },
+      moreVideoAttr: { crossOrigin: "anonymous" },
       icons: ArtPlayerBiliBiliIcon,
     };
   };
-  const TAG$1 = "[artplayer-plugin-quality]：";
-  const ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
-  const VideoCodingCodeMap = {
+  var TAG$1 = "[artplayer-plugin-quality]：";
+  var ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
+  var VideoCodingCodeMap = {
     AVC: 7,
     HEVC: 12,
     AV1: 13,
   };
-  class VideoEncoding {
+  var VideoEncoding = class {
     art;
     from;
-    $key = {
-      SETTING_KEY: "video-playback-codeid",
-    };
+    $key = { SETTING_KEY: "video-playback-codeid" };
     constructor(art, from) {
       this.art = art;
       this.from = from;
@@ -6174,16 +5541,14 @@
       if (Array.isArray(codeIdConfig?.acceptCodeIdList)) {
         for (let index = 0; index < setting.selector.length; index++) {
           const selectorItem = setting.selector[index];
-          let findIndex = codeIdConfig.acceptCodeIdList.findIndex(
-            (item) => item.toString() === selectorItem.value.toString()
-          );
-          if (findIndex === -1) {
+          if (
+            codeIdConfig.acceptCodeIdList.findIndex((item) => item.toString() === selectorItem.value.toString()) === -1
+          ) {
             setting.selector.splice(index, 1);
             index--;
           }
         }
-        let hasDefault = setting.selector.find((it) => it.default);
-        if (!hasDefault && setting.selector.length) {
+        if (!setting.selector.find((it) => it.default) && setting.selector.length)
           if (typeof codeIdConfig?.defaultCodeId === "number") {
             let findDefaultIndex = setting.selector.findIndex((it) => it.value === codeIdConfig.defaultCodeId);
             if (findDefaultIndex !== -1) {
@@ -6197,13 +5562,9 @@
             setting.selector[0].default = true;
             setting.tooltip = setting.selector[0].html;
           }
-        }
       }
-      if (this.art.setting.find(this.$key.SETTING_KEY)) {
-        this.art.setting.update(setting);
-      } else {
-        this.art.setting.add(setting);
-      }
+      if (this.art.setting.find(this.$key.SETTING_KEY)) this.art.setting.update(setting);
+      else this.art.setting.add(setting);
     }
     getSetting() {
       const that = this;
@@ -6221,13 +5582,8 @@
           html: "AVC",
           value: VideoCodingCodeMap["AVC"],
         },
-      ].map((it) =>
-        Object.assign(it, {
-          default: it.value === userChooseVideoCodingCode,
-        })
-      );
-      let findValue = selectorList.find((it) => it.default);
-      if (!findValue) {
+      ].map((it) => Object.assign(it, { default: it.value === userChooseVideoCodingCode }));
+      if (!selectorList.find((it) => it.default)) {
         selectorList = selectorList.map((it, index) => {
           it.default = index === 0;
           return it;
@@ -6266,8 +5622,8 @@
       }
       return codingCode;
     }
-  }
-  class VideoQuality extends VideoEncoding {
+  };
+  var VideoQuality = class extends VideoEncoding {
     $data = {
       qualityOption: null,
       qualityOptionList: [],
@@ -6302,9 +5658,7 @@
           defaultCodeId: this.$data.currentQualityCodecId,
         });
         this.art.url = currentSelectQualityInfo.url;
-      } else {
-        this.removeControls();
-      }
+      } else this.removeControls();
     }
     getControlsOption() {
       const that = this;
@@ -6321,7 +5675,7 @@
           bandwidth: itemInfo.bandwidth,
         };
       });
-      const controlsOption = {
+      return {
         name: ArtPlayer_PLUGIN_QUALITY_KEY,
         index: 10,
         position: "right",
@@ -6331,9 +5685,7 @@
           let itemInfo = selector;
           console.log(TAG$1 + "切换画质", itemInfo);
           that.art.switchQuality(itemInfo.url);
-          that.art.storage.set(that.getStorageKey(that.$data.qualityOption.from), {
-            quality: itemInfo.quality,
-          });
+          that.art.storage.set(that.getStorageKey(that.$data.qualityOption.from), { quality: itemInfo.quality });
           that.setCurrentQualityOption({
             html: itemInfo.html,
             url: itemInfo.url,
@@ -6347,12 +5699,10 @@
           return selector.html;
         },
       };
-      return controlsOption;
     }
     addControls() {
-      if (this.isAddControls()) {
-        this.updateQualityControls();
-      } else {
+      if (this.isAddControls()) this.updateQualityControls();
+      else {
         let controlOption = this.getControlsOption();
         this.art.controls.add(controlOption);
       }
@@ -6397,9 +5747,7 @@
           currentSelectQualityInfo.url = findQuality.url;
           currentSelectQualityInfo.html = findQuality.html;
           this.setCurrentQualityOption(findQuality);
-        } else {
-          console.warn(TAG$1 + "没有找到上次选的画质，使用当前默认第一个画质");
-        }
+        } else console.warn(TAG$1 + "没有找到上次选的画质，使用当前默认第一个画质");
       }
       this.$data.currentSelectQualityInfo = null;
       this.$data.currentSelectQualityInfo = currentSelectQualityInfo;
@@ -6411,9 +5759,7 @@
       this.art.controls.update(controlOption);
     }
     removeControls() {
-      if (this.isAddControls()) {
-        this.art.controls.remove(ArtPlayer_PLUGIN_QUALITY_KEY);
-      }
+      if (this.isAddControls()) this.art.controls.remove(ArtPlayer_PLUGIN_QUALITY_KEY);
     }
     isAddControls() {
       return Reflect.has(this.art.controls, ArtPlayer_PLUGIN_QUALITY_KEY);
@@ -6425,19 +5771,17 @@
         acceptCodeIdList: this.$data.qualityCodeIdList,
         defaultCodeId: this.$data.currentQualityCodecId,
       });
-      if (this.$data.currentSelectQualityInfo) {
-        this.art.url = this.$data.currentSelectQualityInfo.url;
-      }
+      if (this.$data.currentSelectQualityInfo) this.art.url = this.$data.currentSelectQualityInfo.url;
     }
-  }
-  const artplayPluginQuality = (option) => {
+  };
+  var artplayPluginQuality = (option) => {
     return (art) => {
       let videoQuality = new VideoQuality(art, option.from);
       videoQuality.update(option);
       return {
         name: ArtPlayer_PLUGIN_QUALITY_KEY,
-        update(option2) {
-          videoQuality.update(option2);
+        update(option) {
+          videoQuality.update(option);
         },
         getCurrentQualityOption() {
           return videoQuality.$data.currentQualityOption;
@@ -6445,16 +5789,10 @@
       };
     };
   };
-  const Toast = {
-    $data: {
-      art: null,
-    },
-    $key: {
-      plugin_KEY: "artplayer-plugin-toast",
-    },
-    $flag: {
-      isInitCSS: false,
-    },
+  var Toast = {
+    $data: { art: null },
+    $key: { plugin_KEY: "artplayer-plugin-toast" },
+    $flag: { isInitCSS: false },
     $config: {
       originToast: "art-layer-auto-playback",
       hideClassName: "art-toast-hide-opacity",
@@ -6466,20 +5804,12 @@
       },
     },
     toast(config) {
-      if (typeof config === "string") {
-        config = {
-          text: config,
-        };
-      }
+      if (typeof config === "string") config = { text: config };
       this.initCSS();
       let $parent = config.parent ?? this.$el.$originPlayer;
-      if (!$parent) {
-        throw new TypeError("toast parent is null");
-      }
+      if (!$parent) throw new TypeError("toast parent is null");
       this.mutationMPlayerOriginToast($parent);
-      let $toast = domUtils.createElement("div", {
-        "data-from": "gm",
-      });
+      let $toast = domUtils.createElement("div", { "data-from": "gm" });
       domUtils.addClass($toast, this.$config.prefix);
       if (config.showCloseBtn) {
         let $closeBtn = domUtils.createElement("div", {
@@ -6496,9 +5826,7 @@
             domUtils.preventEvent(event);
             this.closeToast($toast);
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       }
       let $text = domUtils.createElement("span", {
@@ -6528,9 +5856,7 @@
               config.jumpClickCallback(event);
             }
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       }
       this.setTransitionendEvent($toast, config);
@@ -6549,12 +5875,9 @@
       };
     },
     initCSS() {
-      if (this.$flag.isInitCSS) {
-        return;
-      }
+      if (this.$flag.isInitCSS) return;
       this.$flag.isInitCSS = true;
-      addStyle(
-        `
+      addStyle(`
 		.${this.$config.prefix}.mplayer-show {
 			opacity: 1;
 			visibility: visible;
@@ -6607,25 +5930,18 @@
             color: var(--art-theme);
             cursor: pointer;
 		}
-		`
-      );
-      addStyle(
-        `
+		`);
+      addStyle(`
         .${this.$config.hideClassName}{
             opacity: 0;
             visibility: hidden;
         }
-        `
-      );
+        `);
     },
     mutationMPlayerOriginToast($parent) {
       let $mplayer = this.$el.$originPlayer;
-      if (!$mplayer) {
-        return;
-      }
-      if ($mplayer.hasAttribute("data-mutation")) {
-        return;
-      }
+      if (!$mplayer) return;
+      if ($mplayer.hasAttribute("data-mutation")) return;
       log.success(`添加观察器，动态更新toast的位置`);
       $mplayer.setAttribute("data-mutation", "gm");
       utils.mutationObserver($mplayer, {
@@ -6644,8 +5960,10 @@
         Array.from($$(".".concat(this.$config.originToast)))
       );
       if (pageToastList.length) {
-        pageToastList.length - 1;
+        let count = pageToastList.length - 1;
+        const toastHeight = 46;
         pageToastList.forEach(($pageToast, index) => {
+          toastHeight + toastHeight * (count - index);
           $pageToast.setAttribute("data-transition", "move");
           $pageToast.style.bottom = `calc( calc( var(--art-control-height) + var(--art-bottom-gap) ) * ${index + 1} + 10px)`;
         });
@@ -6666,9 +5984,7 @@
         function (event) {
           let dataTransition = $toast.getAttribute("data-transition");
           if ($toast.classList.contains(that.$config.hideClassName)) {
-            if (typeof config === "object" && typeof config?.closeCallback === "function") {
-              config.closeCallback();
-            }
+            if (typeof config === "object" && typeof config?.closeCallback === "function") config.closeCallback();
             $toast.remove();
             return;
           }
@@ -6677,13 +5993,11 @@
             return;
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const artplayerPluginToast = (option) => {
+  var artplayerPluginToast = (option) => {
     return (art) => {
       Toast.$data.art = art;
       return {
@@ -6694,17 +6008,15 @@
       };
     };
   };
-  const ArtPlayer_PLUGIN_TOAST_KEY = Toast.$key.plugin_KEY;
-  class VideoStatistics {
+  var ArtPlayer_PLUGIN_TOAST_KEY = Toast.$key.plugin_KEY;
+  var VideoStatistics = class {
     art;
     option;
     $key = {
       plugin_KEY: "artplayer-plugin-videoStatistics",
       setting_name: "video-statistics",
     };
-    $data = {
-      intervalId: void 0,
-    };
+    $data = { intervalId: void 0 };
     constructor(art, option) {
       this.art = art;
       this.option = option;
@@ -6732,11 +6044,8 @@
               event.stopImmediatePropagation();
               event.preventDefault();
               this.art.setting.show = false;
-              if (this.isRegisterLayer()) {
-                this.updateLayer();
-              } else {
-                this.showLayer(true);
-              }
+              if (this.isRegisterLayer()) this.updateLayer();
+              else this.showLayer(true);
             },
             { capture: true }
           );
@@ -6762,18 +6071,13 @@
             key: "Mime Type:",
             value: `${currentQualityOption.mimeType}`,
           };
-          if (currentQualityOption.codecs.trim() !== "") {
-            mimeType.value += `;codecs="${currentQualityOption.codecs}"`;
-          }
-          if (currentQualityOption.frameRate.trim() !== "") {
-            resolution.value += "@" + currentQualityOption.frameRate;
-          }
-          if (currentQualityOption.bandwidth) {
+          if (currentQualityOption.codecs.trim() !== "") mimeType.value += `;codecs="${currentQualityOption.codecs}"`;
+          if (currentQualityOption.frameRate.trim() !== "") resolution.value += "@" + currentQualityOption.frameRate;
+          if (currentQualityOption.bandwidth)
             videoDataRate = {
               key: "Video DataRate:",
               value: (currentQualityOption.bandwidth / 1024).toFixed(0) + "Kbps",
             };
-          }
         }
       }
       let m4sAudioPlugin = this.art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
@@ -6789,13 +6093,9 @@
             value: m4sAudioPlugin.getAudio().currentTime.toString(),
           };
           if (mimeType) {
-            if (mimeType.value.trim() !== "") {
-              mimeType.value += ", ";
-            }
+            if (mimeType.value.trim() !== "") mimeType.value += ", ";
             mimeType.value += `${currentAudioOption.mimeType}`;
-            if (currentAudioOption.codecs.trim() !== "") {
-              mimeType.value += `;codecs="${currentAudioOption.codecs}"`;
-            }
+            if (currentAudioOption.codecs.trim() !== "") mimeType.value += `;codecs="${currentAudioOption.codecs}"`;
           }
           audioDataRate = {
             key: "Audio DataRate:",
@@ -6807,11 +6107,11 @@
           };
         }
       }
-      let data2 = [
+      let data = [
         mimeType,
         {
           key: "Player Type",
-          value: "ArtPlayer@" + Artplayer.version,
+          value: "ArtPlayer@" + artplayer.default.version,
         },
         resolution,
         videoDataRate,
@@ -6832,7 +6132,7 @@
         },
         audioDuration,
       ];
-      data2.push(...(this?.option?.data || []));
+      data.push(...(this?.option?.data || []));
       return {
         name: this.$key.setting_name,
         html: `
@@ -6916,7 +6216,7 @@
                     </div>
                 </div>
                 <div class="art-player-video-statistics-panel">
-                    ${data2
+                    ${data
                       .filter((it) => it != null)
                       .map((item) => {
                         return `
@@ -6963,9 +6263,7 @@
       this.art.on("m4sAudio:loadedmetadata", this.updateLayerEvent_once, this);
       this.art.on("pause", this.updateLayerEvent_clear_interval, this);
       this.art.on("video:ended", this.updateLayerEvent_clear_interval, this);
-      if (this.art.playing) {
-        this.updateLayerEvent_interval();
-      }
+      if (this.art.playing) this.updateLayerEvent_interval();
     }
     unbindUpdateLayerEvent() {
       this.art.off("play", this.updateLayerEvent_interval);
@@ -6994,19 +6292,19 @@
     update(option) {
       this.option = option;
     }
-  }
-  const artplayerPluginVideoStatistics = (option) => {
+  };
+  var artplayerPluginVideoStatistics = (option) => {
     return (art) => {
       let videoStatistics = new VideoStatistics(art, option);
       return {
         name: videoStatistics.$key.plugin_KEY,
-        update(option2) {
-          videoStatistics.update(option2);
+        update(option) {
+          videoStatistics.update(option);
         },
       };
     };
   };
-  const ArtPlayerDanmakuCommonOption = () => {
+  var ArtPlayerDanmakuCommonOption = () => {
     return {
       heatmap: false,
       color: "#FFFFFF",
@@ -7022,7 +6320,7 @@
       theme: utils.isThemeDark() ? "dark" : "light",
     };
   };
-  const generateVideoSelectSetting = (option) => {
+  var generateVideoSelectSetting = (option) => {
     let epList = option.epList || [];
     if (epList.length === 1) {
       let parentEp = epList[0];
@@ -7049,7 +6347,7 @@
           },
         };
       });
-    } else {
+    } else
       return epList.map((epInfo) => {
         return {
           isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
@@ -7072,24 +6370,20 @@
           },
         };
       });
-    }
   };
-  const BilibiliVideoArtPlayer = {
+  var BilibiliVideoArtPlayer = {
     $data: {
       art: null,
       currentOption: null,
     },
     resetEnv(isInit) {
-      if (isInit) {
-        Reflect.set(this.$data, "art", null);
-      }
+      if (isInit) Reflect.set(this.$data, "art", null);
       Reflect.set(this.$data, "currentOption", null);
     },
     async init(option) {
       this.resetEnv(true);
       this.$data.currentOption = option;
-      const localArtDanmakuOption_KEY = "artplayer-video-danmaku-option";
-      const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper(localArtDanmakuOption_KEY);
+      const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper("artplayer-video-danmaku-option");
       const localArtDanmakuOption = artPlayerDanmakuOptionHelper.getLocalArtDanmakuOption();
       const artOption = {
         ...ArtPlayerCommonOption(),
@@ -7105,12 +6399,11 @@
         ],
       };
       artOption.type = "mp4";
-      if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-danmaku-enable"))
         artOption.plugins.push(
-          artplayerPluginDanmuku({
+          (0, artplayer_plugin_danmuku.default)({
             ...ArtPlayerDanmakuCommonOption(),
             danmuku: option.danmukuUrl,
-
             speed: localArtDanmakuOption.speed,
             margin: localArtDanmakuOption["margin"],
             opacity: localArtDanmakuOption["opacity"],
@@ -7129,24 +6422,22 @@
             },
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-m4sAudioSupport-enable"))
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: "video",
+            showSetting: true,
             audioList: option.audioList || [],
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-video-epChoose-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-epChoose-enable"))
         artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateVideoSelectSetting(option),
             automaticBroadcast: true,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-video-cc-subtitle-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-cc-subtitle-enable"))
         artOption.plugins.push(
           artplayerPluginBilibiliCCSubTitle({
             from: "video",
@@ -7155,8 +6446,7 @@
             bvid: option.bvid,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
+      if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable"))
         artOption.plugins.push(
           artplayerPluginTopToolBar({
             onlineInfoParams: {
@@ -7170,19 +6460,13 @@
             showOnlineTotal: true,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-video-statistics-enable")) {
-        artOption.plugins.push(
-          artplayerPluginVideoStatistics({
-            data: [],
-          })
-        );
-      }
+      if (Panel.getValue("artplayer-plugin-video-statistics-enable"))
+        artOption.plugins.push(artplayerPluginVideoStatistics({ data: [] }));
       if (Panel.getValue("bili-video-playerAutoPlayVideo")) {
         artOption.muted = true;
         artOption.autoplay = true;
       }
-      this.$data.art = new Artplayer(artOption);
+      this.$data.art = new artplayer.default(artOption);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
@@ -7199,30 +6483,25 @@
       log.info("播放");
     },
     updatePluginInfo(art, option) {
-      let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
-      plugin_quality.update({
+      art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY].update({
         from: "video",
         qualityList: option.quality,
       });
       log.info(`更新画质`, option.quality);
       if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {
-        art.plugins.artplayerPluginDanmuku.config({
-          danmuku: option.danmukuUrl,
-        });
+        art.plugins.artplayerPluginDanmuku.config({ danmuku: option.danmukuUrl });
         art.plugins.artplayerPluginDanmuku.load();
         log.info(`更新弹幕姬`, option.danmukuUrl);
       }
       if (Panel.getValue("artplayer-plugin-video-m4sAudioSupport-enable")) {
-        let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
-        plugin_m4sAudioSupport.update({
+        art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY].update({
           from: "video",
           audioList: option.audioList || [],
         });
         log.info(`更新音频`, option.audioList);
       }
       if (Panel.getValue("artplayer-plugin-video-epChoose-enable")) {
-        let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
-        plugin_epChoose.update({
+        art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY].update({
           EP_LIST: generateVideoSelectSetting(option),
           automaticBroadcast: true,
         });
@@ -7259,14 +6538,12 @@
       }
     },
   };
-  const artPlayerCSS$1 =
+  var artplayer_default$1 =
     ".artplayer-container {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  overflow: hidden;\n}\n";
   function handleDashVideoQualityInfo$1(dashInfo) {
     let result = [];
     dashInfo.video.forEach((dashVideoInfo) => {
-      if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) {
-        return;
-      }
+      if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) return;
       let findSupportFormat = dashInfo.support_formats.find((formatsItem) => formatsItem.quality === dashVideoInfo.id);
       let videoUrl = BilibiliCDNProxy.findBetterCDN(
         dashVideoInfo.base_url,
@@ -7291,7 +6568,7 @@
     });
     return result;
   }
-  const GenerateArtPlayerOption$1 = async (option) => {
+  var GenerateArtPlayerOption$1 = async (option) => {
     const audioInfo = [];
     let qualityInfo = [];
     if (Panel.getValue("bili-video-playType", "mp4") === "mp4") {
@@ -7306,9 +6583,7 @@
         setPlatformHTML5: true,
       });
       log.info(["视频播放地址信息：", videoPlayInfo]);
-      if (!videoPlayInfo) {
-        return;
-      }
+      if (!videoPlayInfo) return;
       let currentDurl = videoPlayInfo["durl"][0];
       let findSupportFormat = videoPlayInfo.support_formats.find(
         (formatsItem) => formatsItem.quality === videoPlayInfo.quality
@@ -7331,7 +6606,7 @@
       const videoPlayInfo = await BilibiliVideoApi.playUrl({
         bvid: option.bvid,
         cid: option.cid,
-        fnval: 16 | 1024 | 2048,
+        fnval: 3088,
         fnver: 0,
         fourk: 1,
         high_quality: 1,
@@ -7339,9 +6614,7 @@
         setPlatformHTML5: false,
       });
       log.info(["视频播放地址信息：", videoPlayInfo]);
-      if (!videoPlayInfo) {
-        return;
-      }
+      if (!videoPlayInfo) return;
       videoPlayInfo.dash.audio.forEach((item) => {
         let audioUrl = BilibiliCDNProxy.findBetterCDN(item.baseUrl, item.base_url, item.baseUrl, item.backup_url);
         audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl, true);
@@ -7394,7 +6667,7 @@
       quality: currentVideoQuality,
     };
     artPlayerOption.url = qualityInfo?.[0]?.url;
-    if (audioInfo.length) {
+    if (audioInfo.length)
       artPlayerOption.audioList = audioInfo.map((item, index) => {
         return {
           isDefault: index === 0,
@@ -7407,41 +6680,34 @@
           size: item.size,
         };
       });
-    }
     return artPlayerOption;
   };
-  const BilibiliVideoPlayer = {
-    $data: {
-      art: null,
-    },
+  var BilibiliVideoPlayer = {
+    $data: { art: null },
     init() {
       Panel.execMenu("bili-video-enableArtPlayer", () => {
         this.coverVideoPlayer();
       });
     },
     coverVideoPlayer() {
-      if ($("#artplayer")) {
-        log.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
-      } else {
+      if ($("#artplayer")) log.warn("已使用ArtPlayer覆盖原播放器，更新播放信息");
+      else {
         log.info(`覆盖播放器`);
-        addStyle(
-          `
+        addStyle(`
             /* 隐藏原本的播放器 */
 			${BilibiliData.className.video} .m-video-player .player-container,
 			${BilibiliData.className.mVideo} .m-video-player .player-container{
 				display: none !important;
 			}
 			
-			${artPlayerCommonCSS}
+			${player_default}
 			
-			${artPlayerCSS$1}
+			${artplayer_default$1}
 
-			`
-        );
+			`);
         let controlsPadding = Panel.getValue("bili-video-artplayer-controlsPadding-left-right", 0);
-        if (controlsPadding != 0) {
-          addStyle(
-            `
+        if (controlsPadding != 0)
+          addStyle(`
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
 					/* 底部 */
@@ -7455,9 +6721,7 @@
 						--art-lock-left-size: ${controlsPadding}px;
 					}
 				}
-				`
-          );
-        }
+				`);
       }
       this.updateArtPlayerVideoInfo();
     },
@@ -7480,12 +6744,8 @@
           const p_findIndex = pages.findIndex((it) => it.page === p);
           if (p_findIndex !== 0) {
             const findPage = pages[p_findIndex];
-            if (typeof findPage?.cid === "number") {
-              cid = findPage.cid;
-            }
-            if (typeof findPage?.part === "string") {
-              title = findPage.part;
-            }
+            if (typeof findPage?.cid === "number") cid = findPage.cid;
+            if (typeof findPage?.part === "string") title = findPage.part;
           }
         }
         return {
@@ -7508,9 +6768,7 @@
               typeof cid === "number" &&
               BilibiliVideoArtPlayer.$data.currentOption.cid !== cid
             );
-          } else {
-            return typeof aid === "number" && typeof bvid === "string" && typeof cid === "number";
-          }
+          } else return typeof aid === "number" && typeof bvid === "string" && typeof cid === "number";
         },
         async set(vueInst) {
           const $mVideoPlayer = queryMVideoPlayer();
@@ -7522,14 +6780,12 @@
           const partVueIns = VueUtils.getVue($partNew);
           if (seasonVueIns) {
             let videoList = seasonVueIns?.videoList;
-            if (Array.isArray(videoList)) {
-              epInfoList = videoList;
-            }
+            if (Array.isArray(videoList)) epInfoList = videoList;
           } else if (partVueIns) {
             let info = partVueIns?.info;
             let currentPage = partVueIns?.p;
             let pages = partVueIns?.pages || partVueIns?.info?.pages;
-            if (Array.isArray(pages)) {
+            if (Array.isArray(pages))
               epInfoList.push({
                 season_id: 0,
                 section_id: 0,
@@ -7566,9 +6822,8 @@
                 page: info?.pages?.[currentPage],
                 pages: info?.pages,
               });
-            }
           }
-          if (videoInfo == null) {
+          if (videoInfo == null)
             videoInfo = {
               aid,
               bvid,
@@ -7577,12 +6832,9 @@
               title,
               epList: epInfoList,
             };
-          }
           log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
           const artPlayerOption = await GenerateArtPlayerOption$1(videoInfo);
-          if (artPlayerOption == null) {
-            return;
-          }
+          if (artPlayerOption == null) return;
           let $artPlayer = $("#artplayer");
           if (!$artPlayer) {
             const $artContainer = domUtils.createElement("div", {
@@ -7597,11 +6849,8 @@
           artPlayerOption.container = $artPlayer;
           if (that.$data.art == null) {
             let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
-            if (art) {
-              that.$data.art = art;
-            } else {
-              return;
-            }
+            if (art) that.$data.art = art;
+            else return;
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
@@ -7627,7 +6876,7 @@
       });
     },
   };
-  const BilibiliVideo = {
+  var BilibiliVideo = {
     $data: {
       isAddBeautifyCSS: false,
       isInitCommentModule: false,
@@ -7657,8 +6906,7 @@
       log.info("美化显示");
       if (!this.$data.isAddBeautifyCSS) {
         this.$data.isAddBeautifyCSS = true;
-        addStyle(
-          `
+        addStyle(`
 				@charset "UTF-8";
 				${BilibiliData.className.video} .video-list .card-box {
 					--left-card-width: 33%;
@@ -7785,8 +7033,7 @@
 					overflow: hidden;
 				}
 
-			`
-        );
+			`);
       }
       domUtils.waitNode(BilibiliData.className.video + " .bottom-tab .list-view .card-box", 1e4).then(($cardBox) => {
         if (!$cardBox) {
@@ -7804,14 +7051,14 @@
               log.error("美化显示-handleVCardToApp：获取up主名字失败");
               return;
             }
-            $vCard.querySelector(".count");
+            let $originCount = $vCard.querySelector(".count");
             let $title = $originTitle.cloneNode(true);
             let $left = $originLeft.cloneNode(true);
             domUtils.hide($originTitle);
-            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
-            if ($isOpenAppWeakened) {
-              domUtils.hide($isOpenAppWeakened);
+            if ($originCount) {
             }
+            let $isOpenAppWeakened = $vCard.querySelector(".open-app.weakened");
+            if ($isOpenAppWeakened) domUtils.hide($isOpenAppWeakened);
             let $upInfo = document.createElement("div");
             $upInfo.className = "gm-up-name";
             $upInfo.innerHTML = `
@@ -7887,7 +7134,7 @@
           });
         }, 25);
         let $videoRoot = $(BilibiliData.className.video);
-        if ($videoRoot) {
+        if ($videoRoot)
           utils.mutationObserver($videoRoot, {
             config: {
               subtree: true,
@@ -7898,15 +7145,12 @@
               lockFunc.run();
             },
           });
-        } else {
-          log.error("未找到视频根节点");
-        }
+        else log.error("未找到视频根节点");
       });
     },
     repairVideoBottomAreaHeight() {
       log.info("修复视频底部区域高度");
-      return addStyle(
-        `
+      return addStyle(`
 		${BilibiliData.className.video},
 		${BilibiliData.className.mVideo} {
 			/* 修复视频区域底部的高度 */
@@ -7930,8 +7174,7 @@
 				}
 			}
 		}
-		`
-      );
+		`);
     },
     coverUpWrapper() {
       log.info(`修复up主信息区域的点击事件`);
@@ -7943,8 +7186,7 @@
           BilibiliData.className.mVideo + " .bottom-wrapper .up-wrapper",
         ],
         function (event) {
-          let $click = event.target;
-          let $bottomWrapper = $click.closest(".bottom-wrapper");
+          let $bottomWrapper = event.target.closest(".bottom-wrapper");
           if (!$bottomWrapper) {
             log.error("获取元素.bottom-wrapper失败");
             return;
@@ -7955,15 +7197,10 @@
             return;
           }
           let mid = vueInstance?.upInfo?.card?.mid;
-          if (typeof mid === "string") {
-            BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
-          } else {
-            Qmsg.error("获取mid失败");
-          }
+          if (typeof mid === "string") BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
+          else qmsg.default.error("获取mid失败");
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     coverBottomRecommendVideo() {
@@ -7979,25 +7216,22 @@
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
-            Qmsg.error("获取相关视频的__vue__失败");
+            qmsg.default.error("获取相关视频的__vue__失败");
             return;
           }
           let bvid = vueObj.bvid;
-          if (utils.isNull(bvid)) {
-            if (vueObj.$children && vueObj.$children[0] && utils.isNotNull(vueObj.$children[0].bvid)) {
+          if (utils.isNull(bvid))
+            if (vueObj.$children && vueObj.$children[0] && utils.isNotNull(vueObj.$children[0].bvid))
               bvid = vueObj.$children[0].bvid;
-            } else {
-              Qmsg.error("获取相关视频的bvid失败");
+            else {
+              qmsg.default.error("获取相关视频的bvid失败");
               return;
             }
-          }
           log.info("相关视频的bvid: " + bvid);
           BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
           domUtils.preventEvent(event);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     coverSeasonNew() {
@@ -8006,12 +7240,12 @@
         let $click = event.target;
         let vueObj = VueUtils.getVue($click);
         if (!vueObj) {
-          Qmsg.error("获取选集视频的目标视频的__vue__失败");
+          qmsg.default.error("获取选集视频的目标视频的__vue__失败");
           return;
         }
         let bvid = vueObj.bvid;
         if (utils.isNull(bvid)) {
-          Qmsg.error("获取相关视频的bvid失败");
+          qmsg.default.error("获取相关视频的bvid失败");
           return;
         }
         log.info("相关视频的bvid: " + bvid);
@@ -8026,9 +7260,7 @@
           BilibiliData.className.mVideo + " .m-video-season-new .video-card .launch-app-btn",
         ],
         ClickCallBack,
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       domUtils.on(
         document,
@@ -8038,9 +7270,7 @@
           BilibiliData.className.mVideo + " .m-video-season-panel .season-video-item .launch-app-btn",
         ],
         ClickCallBack,
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     repairLinkJump() {
@@ -8069,11 +7299,8 @@
           .waitVueByInterval(
             $app,
             () => {
-              let vueObj = VueUtils.getVue($app);
-              if (vueObj == null) {
-                return false;
-              }
-              return typeof vueObj?.$router?.options?.scrollBehavior != null;
+              if (VueUtils.getVue($app) == null) return false;
+              return true;
             },
             250,
             1e4
@@ -8108,15 +7335,10 @@
           vueInst: appVue,
           hash: "#/seeCommentReply",
           callback(isFromPopState) {
-            if (!isFromPopState) {
-              return false;
-            }
+            if (!isFromPopState) return false;
             let $dialogCloseIcon = $(".dialog-close-icon");
-            if ($dialogCloseIcon) {
-              $dialogCloseIcon.click();
-            } else {
-              log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
-            }
+            if ($dialogCloseIcon) $dialogCloseIcon.click();
+            else log.error("评论区关闭失败，原因：元素dialog-close-icon获取失败");
             return true;
           },
         });
@@ -8139,7 +7361,7 @@
       domUtils.waitNode(".mplayer-btn-widescreen", 5e3).then(($btnWideScreen) => {
         if (!$btnWideScreen) {
           log.error("获取全屏按钮失败");
-          Qmsg.error("获取全屏按钮失败");
+          qmsg.default.error("获取全屏按钮失败");
           return;
         }
         if ($btnWideScreen.closest(".mplayer-wide")) {
@@ -8168,9 +7390,7 @@
         (event) => {
           if (checkNodeIsNull($mVideoPlayer)) {
             $mVideoPlayer = $(".m-video-player");
-            if (checkNodeIsNull($mVideoPlayer)) {
-              return;
-            }
+            if (checkNodeIsNull($mVideoPlayer)) return;
             if (videoPlayerMaxHeight == 0) {
               const videoPlayerRect = $mVideoPlayer.getBoundingClientRect();
               videoPlayerMaxHeight = videoPlayerRect.height;
@@ -8181,54 +7401,38 @@
           }
           if (checkNodeIsNull($mVideoInfoNew)) {
             $mVideoInfoNew = $(".m-video-info-new");
-            if (checkNodeIsNull($mVideoInfoNew)) {
-              return;
-            }
+            if (checkNodeIsNull($mVideoInfoNew)) return;
           }
           if (checkNodeIsNull($mNavBar)) {
             $mNavBar = $(".m-navbar");
-            if (checkNodeIsNull($mNavBar)) {
-              return;
-            }
+            if (checkNodeIsNull($mNavBar)) return;
           }
           if (checkNodeIsNull($bottomTab)) {
             $bottomTab = $(".bottom-tab");
-            if (checkNodeIsNull($bottomTab)) {
-              return;
-            }
+            if (checkNodeIsNull($bottomTab)) return;
           }
           if (checkNodeIsNull($bottomTabVAffix)) {
             $bottomTabVAffix = $(".bottom-tab .v-affix");
-            if (checkNodeIsNull($bottomTabVAffix)) {
-              return;
-            }
+            if (checkNodeIsNull($bottomTabVAffix)) return;
           }
           let videoInfoNewTop = $mVideoInfoNew.getBoundingClientRect().top;
-          if (videoInfoNewTop >= 0) {
-            if (videoInfoNewTop <= videoPlayerMaxHeight) {
-              $mVideoPlayer.style.paddingTop = videoInfoNewTop + "px";
-            } else {
-              $mVideoPlayer.style.paddingTop = "";
-            }
-          } else {
-            $mVideoPlayer.style.paddingTop = "0px";
-          }
+          if (videoInfoNewTop >= 0)
+            if (videoInfoNewTop <= videoPlayerMaxHeight) $mVideoPlayer.style.paddingTop = videoInfoNewTop + "px";
+            else $mVideoPlayer.style.paddingTop = "";
+          else $mVideoPlayer.style.paddingTop = "0px";
           let navbarHeight = domUtils.height($mNavBar);
-          let bottomTabTop = $bottomTab.getBoundingClientRect().top;
-          if (bottomTabTop < navbarHeight) {
-            if ($bottomTabVAffix.hasAttribute("data-is-fixed"));
-            else {
+          if ($bottomTab.getBoundingClientRect().top < navbarHeight)
+            if ($bottomTabVAffix.hasAttribute("data-is-fixed")) {
+            } else {
               $bottomTabVAffix.style.cssText = `position: fixed;left: 0px;top: ${navbarHeight}px;z-index: 10000;width: 100%;`;
               $bottomTabVAffix.setAttribute("data-is-fixed", "true");
             }
-          } else {
+          else {
             $bottomTabVAffix.style.cssText = "";
             $bottomTabVAffix.removeAttribute("data-is-fixed");
           }
         },
-        {
-          passive: true,
-        }
+        { passive: true }
       );
     },
     disableSwipeTab() {
@@ -8259,9 +7463,8 @@
       if (!this.$data.isInitCommentModule) {
         this.$data.isInitCommentModule = true;
         CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
-        addStyle(MobileCommentModuleStyle);
-        addStyle(
-          `
+        addStyle(MobileCommentModule_default);
+        addStyle(`
 				.comment-container{
 					position: relative;
 				}
@@ -8298,10 +7501,8 @@
 					border-radius: 100%;
 					background-color: var(--bili-color);
 				}
-			`
-        );
-        addStyle(
-          `
+			`);
+        addStyle(`
 				.comment-module-show-btn{
 					display: flex;
 					justify-content: center;
@@ -8312,8 +7513,7 @@
 					border-radius: 4px;
 					background-color: var(--bili-color);
 				}
-			`
-        );
+			`);
       }
       domUtils.waitNode(".m-video-info", 1e4).then(($videoInfo) => {
         if (!$videoInfo) {
@@ -8323,18 +7523,13 @@
         domUtils.remove(".comment-module-show-btn");
         domUtils.remove(".close-comment-module-btn");
         domUtils.remove("#comment-module-wrapper");
-        const history_hash = "comment-module";
         let gestureBack = new GestureBack({
-          hash: history_hash,
+          hash: "comment-module",
           useUrl: true,
           beforeHistoryBackCallBack(isUrlChange) {
             let $viewerClose = $(".viewer-button.viewer-close");
-            if ($viewerClose) {
-              $viewerClose.click();
-            }
-            if (isUrlChange) {
-              $closeCommentModuleBtn.click();
-            }
+            if ($viewerClose) $viewerClose.click();
+            if (isUrlChange) $closeCommentModuleBtn.click();
           },
         });
         let $commentModuleShowBtn = domUtils.createElement("div", {
@@ -8358,9 +7553,7 @@
           gestureBack.quitGestureBackMode(false);
         });
         domUtils.append($videoInfo, $commentModuleShowBtn);
-        let $commentModuleWrapper = domUtils.createElement("div", {
-          id: "comment-module-wrapper",
-        });
+        let $commentModuleWrapper = domUtils.createElement("div", { id: "comment-module-wrapper" });
         domUtils.append(document.body, $commentModuleWrapper);
         domUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
         MobileCommentModule.init($commentModuleWrapper);
@@ -8370,17 +7563,14 @@
       log.info(`新增简介模块`);
       if (!this.$data.isInitDescModule) {
         this.$data.isInitDescModule = true;
-        addStyle(
-          `
+        addStyle(`
 				${BilibiliData.className.mVideo} .m-video-info .bottom-wrapper{
 					flex-direction: column;
 					align-items: flex-start;
 					height: auto;
 				}
-			`
-        );
-        addStyle(
-          `
+			`);
+        addStyle(`
 				.video-desc-wrapper {
 					color: #9499A0;
 					font-size: 14px;
@@ -8424,8 +7614,7 @@
 					}
 				}
 	
-			`
-        );
+			`);
       }
       domUtils.remove(BilibiliData.className.mVideo + "  .m-video-info .video-desc-wrapper");
       VueUtils.waitVuePropToSet(BilibiliData.className.mVideo + "  .m-video-info .bottom-wrapper", {
@@ -8566,12 +7755,10 @@
       });
     },
   };
-  const artPlayerCSS = ".artplayer-container {\n  width: 100vw;\n  height: 35vh;\n}\n";
-  const BilibiliOpenApp = {
+  var artplayer_default = ".artplayer-container {\n  width: 100vw;\n  height: 35vh;\n}\n";
+  var BilibiliOpenApp = {
     getUrl($ele) {
-      if ($ele == null) {
-        return;
-      }
+      if ($ele == null) return;
       return $ele.getAttribute("universallink");
     },
     jumpToUrl(event) {
@@ -8579,31 +7766,30 @@
       let $biliOpenApp = $click.querySelector("bili-open-app") || $click.querySelector("m-open-app");
       if ($biliOpenApp) {
         let url = BilibiliOpenApp.getUrl($biliOpenApp);
-        if (url) {
-          BilibiliUtils.goToUrl(url);
-        } else {
-          Qmsg.error("获取bili-open-app的Url失败");
+        if (url) BilibiliUtils.goToUrl(url);
+        else {
+          qmsg.default.error("获取bili-open-app的Url失败");
           log.error("获取bili-open-app的Url失败");
         }
       } else {
-        Qmsg.error("未获取到<bili-open-app>元素");
+        qmsg.default.error("未获取到<bili-open-app>元素");
         log.error("未获取到<bili-open-app>元素");
       }
     },
   };
-  const BilibiliLogUtils = {
-    filteringSensitiveSearchParamData(data2) {
-      const sensitiveData = utils.assign({}, data2, true);
+  var BilibiliLogUtils = {
+    filteringSensitiveSearchParamData(data) {
+      const sensitiveData = utils.assign({}, data, true);
       Reflect.deleteProperty(sensitiveData, "access_key");
       Reflect.deleteProperty(sensitiveData, "access_token");
       return sensitiveData;
     },
-    failToast(data2) {
-      log.error(data2);
-      alert(JSON.stringify(data2, null, 4));
+    failToast(data) {
+      log.error(data);
+      alert(JSON.stringify(data, null, 4));
     },
   };
-  const BilibiliBangumiApi = {
+  var BilibiliBangumiApi = {
     async getPlayUrl(option) {
       let searchParamsData = {
         avid: "",
@@ -8611,8 +7797,7 @@
         ep_id: "",
         qn: 127,
         fnver: 0,
-        fnval: 16 | 1024 | 2048,
-
+        fnval: 3088,
         fourk: 1,
       };
       searchParamsData = utils.assign(searchParamsData, option);
@@ -8629,45 +7814,35 @@
         if (serverHost !== BilibiliApiConfig.web_host) {
           utils.assign(
             proxyServerSearchParamsData,
-            BilibiliApiProxy.getBangumiProxySearchParam({
-              area: serverHostInfo.area,
-            }),
+            BilibiliApiProxy.getBangumiProxySearchParam({ area: serverHostInfo.area }),
             true
           );
           log.info(`代理服务器数据: ${JSON.stringify(serverHostInfo)}`);
           log.info(
-            `代理服务器请求参数：${JSON.stringify(
-              BilibiliLogUtils.filteringSensitiveSearchParamData(proxyServerSearchParamsData)
-            )}`
+            `代理服务器请求参数：${JSON.stringify(BilibiliLogUtils.filteringSensitiveSearchParamData(proxyServerSearchParamsData))}`
           );
         }
-        const url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(
-          searchParamsData
-        )}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
+        const url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(searchParamsData)}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
         const response = await httpx.get(url, {
           responseType: "json",
           fetch: false,
           allowInterceptConfig: false,
-          headers: {
-            Referer: "https://www.bilibili.com/",
-          },
+          headers: { Referer: "https://www.bilibili.com/" },
         });
         if (!response.status) {
           log.error(`代理服务器：${serverHost} 请求失败`);
           continue;
         }
-        const data2 = utils.toJSON(response.data.responseText);
-        if (!BilibiliApiResponseCheck.isWebApiSuccess(data2) || BilibiliApiResponseCheck.isAreaLimit(data2)) {
-          log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(data2)}`);
-          failReponseJSON.push(data2);
+        const data = utils.toJSON(response.data.responseText);
+        if (!BilibiliApiResponseCheck.isWebApiSuccess(data) || BilibiliApiResponseCheck.isAreaLimit(data)) {
+          log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(data)}`);
+          failReponseJSON.push(data);
           continue;
         }
-        result = data2.result;
+        result = data.result;
         break;
       }
-      if (result == null) {
-        BilibiliLogUtils.failToast(failReponseJSON);
-      }
+      if (result == null) BilibiliLogUtils.failToast(failReponseJSON);
       return result;
     },
     async getPlayUrlHTML5(option) {
@@ -8679,8 +7854,7 @@
       };
       searchParamsData = utils.assign(searchParamsData, option);
       log.info(`（原版api）番剧播放地址请求数据`);
-      const urlPath = "/pgc/player/web/playurl/html5";
-      let url = `https://${BilibiliApiConfig.web_host}${urlPath}?${utils.toSearchParamsStr(searchParamsData)}`;
+      let url = `https://${BilibiliApiConfig.web_host}/pgc/player/web/playurl/html5?${utils.toSearchParamsStr(searchParamsData)}`;
       let getResponse = await httpx.get(url, {
         responseType: "json",
         fetch: true,
@@ -8689,76 +7863,54 @@
           Referer: "https://www.bilibili.com",
         },
       });
-      if (!getResponse.status) {
-        return;
-      }
+      if (!getResponse.status) return;
       let responseData = utils.toJSON(getResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData)) {
         BilibiliLogUtils.failToast(responseData);
         return;
       }
-      let responseResult = responseData.result;
-      return responseResult;
+      return responseData.result;
     },
   };
-  const ReactUtils = {
+  var ReactUtils = {
     async waitReactPropsToSet($el, reactPropNameOrNameList, checkOption) {
-      if (!Array.isArray(reactPropNameOrNameList)) {
-        reactPropNameOrNameList = [reactPropNameOrNameList];
-      }
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
+      if (!Array.isArray(reactPropNameOrNameList)) reactPropNameOrNameList = [reactPropNameOrNameList];
+      if (!Array.isArray(checkOption)) checkOption = [checkOption];
       function getTarget() {
         let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
+        if (typeof $el === "string") __target__ = domUtils.selector($el);
+        else if (typeof $el === "function") __target__ = $el();
+        else if ($el instanceof HTMLElement) __target__ = $el;
         return __target__;
       }
       if (typeof $el === "string") {
-        let __$el = await domUtils.waitNode($el, 1e4);
-        if (!__$el) {
-          return;
-        }
+        if (!(await domUtils.waitNode($el, 1e4))) return;
       }
       checkOption.forEach((option) => {
-        if (typeof option.msg === "string") {
-          log.info(option.msg);
-        }
+        if (typeof option.msg === "string") log.info(option.msg);
         const checkTarget = function () {
           let $target = getTarget();
-          if ($target == null) {
+          if ($target == null)
             return {
               status: false,
               isTimeout: true,
               inst: null,
               $el: $target,
             };
-          }
           const reactInst = utils.getReactInstance($target);
-          if (reactInst == null) {
+          if (reactInst == null)
             return {
               status: false,
               isTimeout: false,
               inst: null,
               $el: $target,
             };
-          }
           const findPropNameIndex = Array.from(reactPropNameOrNameList).findIndex((__propName__) => {
-            const reactPropInst2 = reactInst[__propName__];
-            if (!reactPropInst2) {
-              return false;
-            }
-            const flag = Boolean(option.check(reactPropInst2, $target));
-            return flag;
+            const reactPropInst = reactInst[__propName__];
+            if (!reactPropInst) return false;
+            return Boolean(option.check(reactPropInst, $target));
           });
-          const reactPropName = reactPropNameOrNameList[findPropNameIndex];
-          const reactPropInst = reactInst[reactPropName];
+          const reactPropInst = reactInst[reactPropNameOrNameList[findPropNameIndex]];
           return {
             status: findPropNameIndex !== -1,
             isTimeout: false,
@@ -8780,17 +7932,13 @@
             if (checkTargetResult.status) {
               const reactInst = checkTargetResult.inst;
               option.set(reactInst, checkTargetResult.$el);
-            } else {
-              if (typeof option.failWait === "function") {
-                option.failWait(checkTargetResult.isTimeout);
-              }
-            }
+            } else if (typeof option.failWait === "function") option.failWait(checkTargetResult.isTimeout);
           });
       });
     },
   };
-  const TAG = "[artplayer-plugin-airborneHelper]：";
-  const AirborneHelperEvent = {
+  var TAG = "[artplayer-plugin-airborneHelper]：";
+  var AirborneHelperEvent = {
     $data: {
       tipJumpToastTimeoutId: void 0,
       tipJumpToastInfo: void 0,
@@ -8798,30 +7946,16 @@
     },
     $event: {
       "video:timeupdate": () => {
-        if (AirborneHelperEvent.$data.tipJumpToastTimeoutId != null) {
-          return;
-        }
-        if (!AirborneHelper.$data.art.playing) {
-          return;
-        }
+        if (AirborneHelperEvent.$data.tipJumpToastTimeoutId != null) return;
+        if (!AirborneHelper.$data.art.playing) return;
         const beforeToastTime = 5;
         let currentTime = AirborneHelper.$data.art.currentTime;
         let findIndex = AirborneHelper.$data.option.clip_info_list.findIndex((item) => {
           let jumpTime = item.start;
-          if (jumpTime === 0) {
-            return currentTime <= 1;
-          } else {
-            return currentTime >= jumpTime - beforeToastTime && currentTime < jumpTime;
-          }
+          if (jumpTime === 0) return currentTime <= 1;
+          else return currentTime >= jumpTime - beforeToastTime && currentTime < jumpTime;
         });
         if (findIndex !== -1) {
-          let toastCloseCallBack = function () {
-            clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
-            AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
-            AirborneHelperEvent.$data.tipJumpToastInfo?.close();
-            AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
-            AirborneHelper.$data.option.clip_info_list.splice(findIndex, 1);
-          };
           let findValue = AirborneHelper.$data.option.clip_info_list[findIndex];
           let plugin_toast = AirborneHelper.$data.art.plugins[ArtPlayer_PLUGIN_TOAST_KEY];
           let timeout = (findValue.start - currentTime) * 1e3;
@@ -8842,6 +7976,13 @@
           if (AirborneHelperEvent.$data.tipJumpToastInfo) {
             AirborneHelperEvent.$data.tipJumpToastInfo.close();
             AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+          }
+          function toastCloseCallBack() {
+            clearTimeout(AirborneHelperEvent.$data.tipJumpToastTimeoutId);
+            AirborneHelperEvent.$data.tipJumpToastTimeoutId = void 0;
+            AirborneHelperEvent.$data.tipJumpToastInfo?.close();
+            AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+            AirborneHelper.$data.option.clip_info_list.splice(findIndex, 1);
           }
           AirborneHelperEvent.$data.tipJumpToastInfo = plugin_toast.toast({
             text: typeof findValue.toastText === "string" ? findValue.toastText : "站稳扶好，准备起飞~",
@@ -8885,10 +8026,8 @@
       }
     },
   };
-  const AirborneHelper = {
-    $key: {
-      plugin_KEY: "plugin-airborne-helper",
-    },
+  var AirborneHelper = {
+    $key: { plugin_KEY: "plugin-airborne-helper" },
     $data: {
       art: null,
       option: null,
@@ -8901,25 +8040,23 @@
       this.$data.option = option;
       console.log(TAG + "更新配置", option);
       AirborneHelperEvent.unbind();
-      if (option.clip_info_list.length) {
-        AirborneHelperEvent.bind();
-      }
+      if (option.clip_info_list.length) AirborneHelperEvent.bind();
     },
   };
-  const artplayerPluginAirborneHelper = (option) => {
+  var artplayerPluginAirborneHelper = (option) => {
     return (art) => {
       AirborneHelper.init(art, option);
       return {
         name: AirborneHelper.$key.plugin_KEY,
-        update(option2) {
-          AirborneHelper.update(option2);
+        update(option) {
+          AirborneHelper.update(option);
         },
       };
     };
   };
-  const ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY = AirborneHelper.$key.plugin_KEY;
-  const TAG_FLV = "[flvjs]：";
-  const generateBangumiVideoSelectSetting = (option) => {
+  var ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY = AirborneHelper.$key.plugin_KEY;
+  var TAG_FLV = "[flvjs]：";
+  var generateBangumiVideoSelectSetting = (option) => {
     return option.epList.map((item) => {
       return {
         isDefault: item.ep_id === option.ep_id && item.aid === option.aid && item.cid === option.cid,
@@ -8934,7 +8071,7 @@
       };
     });
   };
-  const BilibiliBangumiArtPlayer = {
+  var BilibiliBangumiArtPlayer = {
     $data: {
       art: null,
       flv: null,
@@ -8960,8 +8097,8 @@
       }
       let currentOption = this.$data.currentOption;
       console.log(TAG_FLV + "加载视频", flvInfoList);
-      if (flvInfoList.length > 1) {
-        this.$data.flv = flvjs.createPlayer(
+      if (flvInfoList.length > 1)
+        this.$data.flv = flv_js.default.createPlayer(
           {
             type: "flv",
             filesize: currentOption.flvTotalSize,
@@ -8974,29 +8111,23 @@
               };
             }),
           },
-          {
-            stashInitialSize: 1024 * 100,
-          }
+          { stashInitialSize: 1024 * 100 }
         );
-      } else {
-        this.$data.flv = flvjs.createPlayer(
+      else
+        this.$data.flv = flv_js.default.createPlayer(
           {
             type: "flv",
             url: flvInfoList[0].url,
           },
-          {
-            stashInitialSize: 1024 * 100,
-          }
+          { stashInitialSize: 1024 * 100 }
         );
-      }
       this.$data.flv.attachMediaElement(this.$data.art.video);
       this.$data.flv.load();
     },
     async init(option) {
       this.resetEnv(true);
       this.$data.currentOption = option;
-      const localArtDanmakuOption_KEY = "artplayer-bangumi-danmaku-option";
-      const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper(localArtDanmakuOption_KEY);
+      const artPlayerDanmakuOptionHelper = new ArtPlayerDanmakuOptionHelper("artplayer-bangumi-danmaku-option");
       const localArtDanmakuOption = artPlayerDanmakuOptionHelper.getLocalArtDanmakuOption();
       const artOption = {
         ...ArtPlayerCommonOption(),
@@ -9011,11 +8142,8 @@
         ],
       };
       if (option.isFlv) {
-        if (Array.isArray(artOption.quality)) {
-          artOption.quality.length = 0;
-        } else {
-          artOption.quality = [];
-        }
+        if (Array.isArray(artOption.quality)) artOption.quality.length = 0;
+        else artOption.quality = [];
         artOption.type = "flv";
         if (option.flvInfo.length === 0) {
           BilibiliLogUtils.failToast("视频播放地址为空，无法播放！");
@@ -9024,22 +8152,19 @@
         artOption.url = option.flvInfo[0].url;
         artOption.customType = {
           flv: (video, url, art) => {
-            if (!flvjs.isSupported()) {
+            if (!flv_js.default.isSupported()) {
               art.notice.show = "Unsupported playback format: flv";
               return;
             }
             this.flvPlayer();
           },
         };
-      } else {
-        artOption.type = "mp4";
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
+      } else artOption.type = "mp4";
+      if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable"))
         artOption.plugins.push(
-          artplayerPluginDanmuku({
+          (0, artplayer_plugin_danmuku.default)({
             ...ArtPlayerDanmakuCommonOption(),
             danmuku: option.danmukuUrl,
-
             speed: localArtDanmakuOption.speed,
             margin: localArtDanmakuOption["margin"],
             opacity: localArtDanmakuOption["opacity"],
@@ -9058,24 +8183,22 @@
             },
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable"))
         artOption.plugins.push(
           artplayerPluginM4SAudioSupport({
             from: BilibiliBangumiArtPlayer.$data.from,
             audioList: option.audioList || [],
+            showSetting: true,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable"))
         artOption.plugins.push(
           artplayerPluginEpChoose({
             EP_LIST: generateBangumiVideoSelectSetting(option),
             automaticBroadcast: true,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable"))
         artOption.plugins.push(
           artplayerPluginBilibiliCCSubTitle({
             from: BilibiliBangumiArtPlayer.$data.from,
@@ -9085,8 +8208,7 @@
             ep_id: option.ep_id,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
+      if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable"))
         artOption.plugins.push(
           artplayerPluginTopToolBar({
             onlineInfoParams: {
@@ -9100,22 +8222,11 @@
             showOnlineTotal: true,
           })
         );
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
-        artOption.plugins.push(
-          artplayerPluginAirborneHelper({
-            clip_info_list: option.clip_info_list,
-          })
-        );
-      }
-      if (Panel.getValue("artplayer-plugin-bangumi-statistics-enable")) {
-        artOption.plugins.push(
-          artplayerPluginVideoStatistics({
-            data: [],
-          })
-        );
-      }
-      this.$data.art = new Artplayer(artOption);
+      if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable"))
+        artOption.plugins.push(artplayerPluginAirborneHelper({ clip_info_list: option.clip_info_list }));
+      if (Panel.getValue("artplayer-plugin-bangumi-statistics-enable"))
+        artOption.plugins.push(artplayerPluginVideoStatistics({ data: [] }));
+      this.$data.art = new artplayer.default(artOption);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
@@ -9132,30 +8243,25 @@
       log.info("播放");
     },
     updatePluginInfo(art, option) {
-      let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY];
-      plugin_quality.update({
+      art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY].update({
         from: BilibiliBangumiArtPlayer.$data.from,
         qualityList: option.quality,
       });
       log.info(`更新画质`, option.quality);
       if (Panel.getValue("artplayer-plugin-bangumi-danmaku-enable")) {
-        art.plugins.artplayerPluginDanmuku.config({
-          danmuku: option.danmukuUrl,
-        });
+        art.plugins.artplayerPluginDanmuku.config({ danmuku: option.danmukuUrl });
         art.plugins.artplayerPluginDanmuku.load();
         log.info(`更新弹幕姬`, option.danmukuUrl);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
-        let plugin_m4sAudioSupport = art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY];
-        plugin_m4sAudioSupport.update({
+        art.plugins[ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY].update({
           from: BilibiliBangumiArtPlayer.$data.from,
           audioList: option.audioList || [],
         });
         log.info(`更新音频`, option.audioList);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
-        let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY];
-        plugin_epChoose.update({
+        art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY].update({
           EP_LIST: generateBangumiVideoSelectSetting(option),
           automaticBroadcast: true,
         });
@@ -9191,10 +8297,7 @@
         log.info(`更新顶部标题`, topToolBarOption);
       }
       if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
-        let plugin_airborneHelper = art.plugins[ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY];
-        plugin_airborneHelper.update({
-          clip_info_list: option.clip_info_list,
-        });
+        art.plugins[ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY].update({ clip_info_list: option.clip_info_list });
         log.info(`更新空降助手信息`, option.clip_info_list);
       }
     },
@@ -9202,9 +8305,7 @@
   function handleDashVideoQualityInfo(dashInfo) {
     let acceptVideoQualityInfoList = [];
     dashInfo.video.forEach((dashVideoInfo) => {
-      if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) {
-        return;
-      }
+      if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) return;
       let findSupportFormat = dashInfo.support_formats.find((formatsItem) => formatsItem.quality === dashVideoInfo.id);
       let videoUrl = BilibiliCDNProxy.findBetterCDN(
         dashVideoInfo.base_url,
@@ -9230,10 +8331,10 @@
     });
     return acceptVideoQualityInfoList;
   }
-  const GenerateVideoTitle = (ep_id, title) => {
+  var GenerateVideoTitle = (ep_id, title) => {
     return `第${ep_id}话 ${title}`;
   };
-  const handleQueryVideoQualityData = (bangumiInfo, userChooseVideoCodingCode) => {
+  var handleQueryVideoQualityData = (bangumiInfo, userChooseVideoCodingCode) => {
     let qualityInfoList = [];
     if (bangumiInfo?.dash?.video?.length) {
       let dashBangumiInfo = bangumiInfo;
@@ -9261,20 +8362,15 @@
     } else {
       let mp4BangumiInfo = bangumiInfo;
       if (mp4BangumiInfo.durls.length === 0) {
-        if (mp4BangumiInfo.durl != null) {
+        if (mp4BangumiInfo.durl != null)
           mp4BangumiInfo.durls.push({
             quality: mp4BangumiInfo.quality,
             durl: mp4BangumiInfo.durl,
           });
-        }
       }
       mp4BangumiInfo.durls.forEach((durlInfo) => {
-        if (!mp4BangumiInfo.accept_quality.includes(durlInfo.quality)) {
-          return;
-        }
-        if (!durlInfo.durl.length) {
-          return;
-        }
+        if (!mp4BangumiInfo.accept_quality.includes(durlInfo.quality)) return;
+        if (!durlInfo.durl.length) return;
         let currentDurl = durlInfo["durl"][0];
         let findSupportFormat = bangumiInfo.support_formats.find(
           (formatsItem) => formatsItem.quality === durlInfo.quality
@@ -9298,7 +8394,7 @@
     }
     return qualityInfoList;
   };
-  const GenerateArtPlayerOption = async (EP_INFO, EP_LIST) => {
+  var GenerateArtPlayerOption = async (EP_INFO, EP_LIST) => {
     const { aid, bvid, cid, ep_id, title, long_title } = EP_INFO;
     log.info(`解析番剧信息 aid:${aid} cid:${cid} ep_id:${ep_id}`);
     const videoTitle = GenerateVideoTitle(title, long_title);
@@ -9315,14 +8411,9 @@
         cid,
         ep_id,
       });
-      if (!bangumiInfo) {
-        return;
-      }
-      if (Array.isArray(bangumiInfo?.clip_info_list)) {
-        clip_info_list = bangumiInfo.clip_info_list;
-      } else if (Array.isArray(bangumiInfo?.clip_info)) {
-        clip_info_list = bangumiInfo.clip_info;
-      }
+      if (!bangumiInfo) return;
+      if (Array.isArray(bangumiInfo?.clip_info_list)) clip_info_list = bangumiInfo.clip_info_list;
+      else if (Array.isArray(bangumiInfo?.clip_info)) clip_info_list = bangumiInfo.clip_info;
       if (bangumiInfo.type.toLowerCase() === "flv") {
         isFlv = true;
         bangumiInfo.durl.forEach((durlInfo) => {
@@ -9365,14 +8456,9 @@
         cid,
         ep_id,
       });
-      if (!bangumiInfo) {
-        return;
-      }
-      if (Array.isArray(bangumiInfo?.clip_info_list)) {
-        clip_info_list = bangumiInfo.clip_info_list;
-      } else if (Array.isArray(bangumiInfo?.clip_info)) {
-        clip_info_list = bangumiInfo.clip_info;
-      }
+      if (!bangumiInfo) return;
+      if (Array.isArray(bangumiInfo?.clip_info_list)) clip_info_list = bangumiInfo.clip_info_list;
+      else if (Array.isArray(bangumiInfo?.clip_info)) clip_info_list = bangumiInfo.clip_info;
       qualityInfo = qualityInfo.concat(handleQueryVideoQualityData(bangumiInfo));
     }
     const currentVideoQuality = qualityInfo.map((item, index) => {
@@ -9404,7 +8490,7 @@
       flvTotalSize,
     };
     artPlayerOption.url = qualityInfo?.[0]?.url;
-    if (audioInfo.length) {
+    if (audioInfo.length)
       artPlayerOption.audioList = audioInfo.map((item, index) => {
         return {
           isDefault: index === 0,
@@ -9417,13 +8503,10 @@
           size: item.size,
         };
       });
-    }
     return artPlayerOption;
   };
-  const BlibiliBangumiPlayer = {
-    $data: {
-      art: null,
-    },
+  var BlibiliBangumiPlayer = {
+    $data: { art: null },
     updateArtPlayerVideoInfo(ep_info, ep_list) {
       const that = this;
       ReactUtils.waitReactPropsToSet(
@@ -9438,24 +8521,18 @@
           async set(reactInstance) {
             let epInfo = reactInstance?.return?.memoizedState?.queue?.lastRenderedState?.[0]?.epInfo;
             const $playerWrapper = $("#bilibiliPlayer");
-            if (ep_info == null) {
-              ep_info = epInfo;
-            }
+            if (ep_info == null) ep_info = epInfo;
             if (ep_list == null) {
               ep_list = [];
               let $epList = $(BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`);
               if ($epList) {
-                let react = utils.getReactInstance($epList);
-                let epList = react?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
-                if (Array.isArray(epList)) {
-                  ep_list = epList;
-                }
+                let epList =
+                  utils.getReactInstance($epList)?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
+                if (Array.isArray(epList)) ep_list = epList;
               }
             }
             const artPlayerOption = await GenerateArtPlayerOption(ep_info, ep_list);
-            if (artPlayerOption == null) {
-              return;
-            }
+            if (artPlayerOption == null) return;
             let $artPlayer = $("#artplayer");
             if (!$artPlayer) {
               const $artPlayerContainer = domUtils.createElement("div", {
@@ -9470,24 +8547,17 @@
             artPlayerOption.container = $artPlayer;
             if (that.$data.art == null) {
               let art = await BilibiliBangumiArtPlayer.init(artPlayerOption);
-              if (art) {
-                that.$data.art = art;
-              } else {
-                return;
-              }
+              if (art) that.$data.art = art;
+              else return;
               that.$data.art.volume = 1;
-            } else {
-              BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
-            }
+            } else BilibiliBangumiArtPlayer.update(that.$data.art, artPlayerOption);
           },
         }
       );
     },
   };
-  const BilibiliBangumi = {
-    $data: {
-      art: null,
-    },
+  var BilibiliBangumi = {
+    $data: { art: null },
     init() {
       Panel.execMenuOnce("bili-bangumi-initialScale", () => {
         BilibiliUtils.initialScale();
@@ -9509,8 +8579,7 @@
     hookCallApp() {
       let oldSetTimeout = _unsafeWindow.setTimeout;
       _unsafeWindow.setTimeout = function (...args) {
-        let callString = args[0].toString();
-        if (callString.includes("autoOpenApp")) {
+        if (args[0].toString().includes("autoOpenApp")) {
           log.success("阻止唤醒App", args);
           return;
         }
@@ -9530,9 +8599,7 @@
               domUtils.preventEvent(event);
               BilibiliOpenApp.jumpToUrl(event);
             },
-            {
-              capture: true,
-            }
+            { capture: true }
           );
         });
       domUtils
@@ -9547,9 +8614,7 @@
               domUtils.preventEvent(event);
               BilibiliOpenApp.jumpToUrl(event);
             },
-            {
-              capture: true,
-            }
+            { capture: true }
           );
         });
       domUtils.waitNode(BilibiliData.className.bangumi + " .ep-list-pre-header").then(($preHeader) => {
@@ -9560,9 +8625,7 @@
           function (event) {
             domUtils.preventEvent(event);
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       });
       domUtils.on(
@@ -9575,14 +8638,12 @@
         (event, selectorTarget) => {
           let url = BilibiliOpenApp.getUrl(selectorTarget);
           if (!url) {
-            Qmsg.error("获取跳转链接失败");
+            qmsg.default.error("获取跳转链接失败");
             return;
           }
           BilibiliUtils.goToUrl(url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     setClickOtherVideo() {
@@ -9598,9 +8659,7 @@
               domUtils.preventEvent(event);
               BilibiliOpenApp.jumpToUrl(event);
             },
-            {
-              capture: true,
-            }
+            { capture: true }
           );
         });
       domUtils.waitNode(BilibiliData.className.bangumi + " .section-preview-header").then(($previewHeader) => {
@@ -9611,9 +8670,7 @@
           function (event) {
             domUtils.preventEvent(event);
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       });
       domUtils.on(
@@ -9623,14 +8680,12 @@
         (event, selectorTarget) => {
           let url = BilibiliOpenApp.getUrl(selectorTarget);
           if (!url) {
-            Qmsg.error("获取跳转链接失败");
+            qmsg.default.error("获取跳转链接失败");
             return;
           }
           BilibiliUtils.goToUrl(url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     setRecommendClickEvent() {
@@ -9644,9 +8699,7 @@
             domUtils.preventEvent(event);
             BilibiliOpenApp.jumpToUrl(event);
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       });
       domUtils.on(
@@ -9656,42 +8709,36 @@
         (event, selectorTarget) => {
           let url = BilibiliOpenApp.getUrl(selectorTarget);
           if (!url) {
-            Qmsg.error("获取跳转链接失败");
+            qmsg.default.error("获取跳转链接失败");
             return;
           }
           BilibiliUtils.goToUrl(url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     coverVideoPlayer() {
-      if ($("#artplayer")) {
-        log.warn("已存在播放器，更新播放信息");
-      } else {
-        addStyle(
-          `
+      if ($("#artplayer")) log.warn("已存在播放器，更新播放信息");
+      else {
+        addStyle(`
 			.player-wrapper,
 			.open-app-bar,
 			${BilibiliData.className.bangumi_new} [class^="Player_videoWrap"] > div:not(.artplayer-container){
 				display: none !important;
 			}
 			
-			${artPlayerCommonCSS}
+			${player_default}
 			
-			${artPlayerCSS}
+			${artplayer_default}
 			
 			.artplayer-container{
 				height: -webkit-fill-available;
 				height: 100%;
 			}
-			`
-        );
+			`);
         let controlsPadding = Panel.getValue("bili-bangumi-artplayer-controlsPadding-left-right", 0);
-        if (controlsPadding != 0) {
-          addStyle(
-            `
+        if (controlsPadding != 0)
+          addStyle(`
 				@media (orientation: landscape) {
 					.art-video-player .art-layers .art-layer-top-wrap,
 					/* 底部 */
@@ -9705,14 +8752,12 @@
 						--art-lock-left-size: ${controlsPadding}px;
 					}
 				}
-				`
-          );
-        }
+				`);
       }
       BlibiliBangumiPlayer.updateArtPlayerVideoInfo();
     },
   };
-  const BilibiliSearchApi = {
+  var BilibiliSearchApi = {
     async getSearchInputPlaceholder() {
       const response = await httpx.get(`https://${BilibiliApiConfig.web_host}/x/web-interface/wbi/search/default`, {
         fetch: true,
@@ -9730,18 +8775,14 @@
         },
         allowInterceptConfig: false,
       });
-      if (!response.status) {
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        return;
-      }
-      return data2.data;
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return;
+      return data.data;
     },
     async getBangumiSearchResult(config) {
       const accessToken = BilibiliQrCodeLogin.getAccessToken();
-      if (utils.isNull(accessToken)) {
+      if (utils.isNull(accessToken))
         return {
           isSuccess: false,
           data: {
@@ -9749,7 +8790,6 @@
             message: "请先使用脚本菜单的【通过扫码并解析access_key】",
           },
         };
-      }
       const searchParamsData = {
         search_type: "media_bangumi",
         keyword: config.keyword,
@@ -9762,36 +8802,30 @@
       const url = `https://${config.host}/x/web-interface/search/type?${await wbi(searchParamsData)}`;
       const response = await httpx.get(url, {
         fetch: false,
-        headers: {
-          "User-Agent": utils.getRandomAndroidUA(),
-        },
+        headers: { "User-Agent": utils.getRandomAndroidUA() },
       });
-      if (!response.status) {
-        return;
-      }
-      const data2 = utils.toJSON(response.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
+      if (!response.status) return;
+      const data = utils.toJSON(response.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
         log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
-        log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data2)}`);
+        log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data)}`);
         return {
           isSuccess: false,
-          data: data2,
+          data,
         };
       }
       return {
         isSuccess: true,
-        data: data2.data.result,
+        data: data.data.result,
       };
     },
   };
-  const beautifyCSS =
+  var beautify_default =
     "#app .m-search {\n  --card-img-width: 90px;\n  --card-img-height: calc(var(--card-img-width) * 1.33);\n  --card-desc-color: #808080;\n  --card-desc-size: 0.8em;\n  --card-badge-item-size: 0.7em;\n  --card-badge-item-padding: 0.1em 0.2em;\n  --card-badge-item-border-radius: 3px;\n  --card-ep-item-border-radius: 4px;\n  --card-ep-item-padding-top-bottom: 13px;\n  --card-ep-item-padding-left-right: 13px;\n  --card-ep-item-badge-padding: 2px;\n}\n.gm-result-panel {\n  padding-top: 23.46667vmin;\n  background: #f4f4f4;\n}\n.gm-card-cover {\n  position: relative;\n}\n.gm-card-cover img {\n  width: var(--card-img-width);\n  height: var(--card-img-height);\n  border-radius: 8px;\n}\n.gm-card-container {\n  display: flex;\n  gap: 15px;\n}\n\n.gm-card-box {\n  padding: 0px 10px;\n}\n\n.gm-card-item em {\n  color: var(--bili-color);\n  font-style: unset;\n}\n\n.gm-card-title {\n  font-family: 微软雅黑;\n  font-size: 1em;\n}\n\n.gm-card-display-info,\n.gm-card-styles,\nspan.gm-card-media_score-user_count {\n  font-size: var(--card-desc-size);\n  color: var(--card-desc-color);\n}\n\n.gm-card-info-container {\n  display: flex;\n  flex-direction: column;\n  gap: 3px;\n  justify-content: flex-start;\n}\n.gm-card-info {\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n}\nspan.gm-card-media_score-score {\n  color: #f77c2e;\n  font-size: 1.2em;\n  font-weight: bold;\n}\n\n.gm-card-media_score {\n  display: flex;\n  align-items: flex-end;\n  gap: 0.5em;\n}\n.gm-card-item {\n  padding: 1.6vmin;\n  background: #fff;\n  margin: 10px 0px;\n  border-radius: 6px;\n  display: flex;\n  flex-direction: column;\n  gap: 15px;\n  overflow: hidden;\n}\n.gm-card-badges {\n  background: var(--bili-color);\n  color: #fff;\n  padding: 3px;\n  font-size: 12px;\n  border-radius: 3px;\n  white-space: nowrap;\n  position: absolute;\n  top: 5px;\n  right: 5px;\n}\n.gm-card-badge-info-item {\n  font-size: var(--card-badge-item-size);\n  padding: var(--card-badge-item-padding);\n  border-radius: var(--card-badge-item-border-radius);\n}\n.gm-card-eps {\n  display: flex;\n  overflow: auto;\n  gap: 10px;\n}\n\n.gm-card-ep-conatiner {\n  text-align: center;\n  white-space: nowrap;\n  padding: var(--card-ep-item-padding-top-bottom) var(--card-ep-item-padding-left-right);\n  background: #edeff3;\n  border-radius: var(--card-ep-item-border-radius);\n  font-size: 14px;\n  position: relative;\n}\n\n.gm-card-ep-badges-container {\n  position: absolute;\n  top: 0;\n  right: 0;\n  font-size: calc(var(--card-ep-item-padding-top-bottom) - var(--card-ep-item-badge-padding));\n}\n\n.gm-card-ep-badge-top-right {\n  border-top-right-radius: var(--card-ep-item-border-radius);\n  border-bottom-left-radius: var(--card-ep-item-border-radius);\n  padding: var(--card-ep-item-badge-padding);\n}\n.gm-card-ep-info-container {\n  min-width: 30px;\n}\n";
-  const BilibiliExtraSearch = {
-    $flag_css: {
-      enableOtherAreaSearchBangumi: false,
-    },
+  var BilibiliExtraSearch = {
+    $flag_css: { enableOtherAreaSearchBangumi: false },
     init() {
-      addStyle(beautifyCSS);
+      addStyle(beautify_default);
       domUtils.onReady(() => {
         Panel.execMenu("bili-search-enableOtherAreaSearchBangumi", () => {
           this.enableOtherAreaSearchBangumi();
@@ -9801,8 +8835,7 @@
     enableOtherAreaSearchBangumi() {
       if (!this.$flag_css.enableOtherAreaSearchBangumi) {
         this.$flag_css.enableOtherAreaSearchBangumi = true;
-        addStyle(
-          `
+        addStyle(`
 			.m-search-result .tabs{
 				overflow: auto;
 				white-space: nowrap;
@@ -9826,13 +8859,11 @@
 				color: var(--bili-color);
 				border-bottom: 0.53333vmin solid var(--bili-color);
 			}
-			`
-        );
+			`);
       }
       let $loading = null;
       domUtils.waitNode(".m-search-result .tabs:not(:has(.gm-tab-item))").then(($tabs) => {
-        const enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
-        enableSearchServer.forEach((proxyServerInfo) => {
+        BilibiliApiProxy.getSearchProxyHost().forEach((proxyServerInfo) => {
           const $tab = domUtils.createElement(
             "a",
             {
@@ -9852,13 +8883,11 @@
           $loading?.close();
         };
         const updateSearchHost = () => {
-          const enableSearchServer2 = BilibiliApiProxy.getSearchProxyHost();
+          const enableSearchServer = BilibiliApiProxy.getSearchProxyHost();
           $$(".tab-item.gm-tab-item").forEach(($el) => {
             const area = $el.getAttribute("data-area");
-            const findValue = enableSearchServer2.find((item) => item.area === area);
-            if (findValue) {
-              $el.setAttribute("data-host", findValue.host);
-            }
+            const findValue = enableSearchServer.find((item) => item.area === area);
+            if (findValue) $el.setAttribute("data-host", findValue.host);
           });
         };
         domUtils.on($tabs, "click", ".tab-item", async (event) => {
@@ -9871,9 +8900,7 @@
             $oldGmResultPanel.remove();
             domUtils.show($resultPanel);
           }
-          if (!$tab.classList.contains("gm-tab-item")) {
-            return;
-          }
+          if (!$tab.classList.contains("gm-tab-item")) return;
           const area = $tab.dataset.area;
           const host = $tab.dataset.host;
           const $searchResult = $(".m-search-result");
@@ -9881,7 +8908,7 @@
           vueInst.switchTab(233);
           domUtils.hide($resultPanel);
           const keyword = vueInst.keyword;
-          $loading = Qmsg.loading("搜索中，请稍后...", {
+          $loading = qmsg.default.loading("搜索中，请稍后...", {
             onClose() {
               $loading = null;
             },
@@ -9892,9 +8919,7 @@
             host,
           });
           $loading.close();
-          if (!searchBangumiResultInfo) {
-            return;
-          }
+          if (!searchBangumiResultInfo) return;
           const searchBangumiResultData = searchBangumiResultInfo.data;
           if (!searchBangumiResultInfo.isSuccess || !Array.isArray(searchBangumiResultData)) {
             alert(CommonUtil.toStr(searchBangumiResultData));
@@ -9970,12 +8995,8 @@
       });
       let $displayInfo = $item.querySelector(".gm-card-display-info");
       let totalDisplayInfo = [];
-      if (Array.isArray(option?.display_info)) {
-        totalDisplayInfo = totalDisplayInfo.concat(option.display_info);
-      }
-      if (Array.isArray(option?.badges)) {
-        totalDisplayInfo = totalDisplayInfo.concat(option.badges);
-      }
+      if (Array.isArray(option?.display_info)) totalDisplayInfo = totalDisplayInfo.concat(option.display_info);
+      if (Array.isArray(option?.badges)) totalDisplayInfo = totalDisplayInfo.concat(option.badges);
       totalDisplayInfo = utils.uniqueArray(totalDisplayInfo, (item) => item.text);
       totalDisplayInfo.forEach((displayInfo) => {
         let $displayInfoItem = domUtils.createElement("span", {
@@ -9988,24 +9009,22 @@
         }
         domUtils.append($displayInfo, $displayInfoItem);
       });
-      if (option.pubtime) {
+      if (option.pubtime)
         domUtils.append(
           $displayInfo,
           `
 				<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
 				`
         );
-      }
       let areas = option.areas || Reflect.get(option, "area");
       if (areas) {
-        if ($displayInfo.children.length) {
+        if ($displayInfo.children.length)
           domUtils.append(
             $displayInfo,
             `
 					<span> | </span>
 				`
           );
-        }
         domUtils.append(
           $displayInfo,
           `
@@ -10014,7 +9033,7 @@
         );
       }
       let $mediaScore = $item.querySelector(".gm-card-media_score");
-      if (option.media_score && option.media_score.user_count) {
+      if (option.media_score && option.media_score.user_count)
         domUtils.append(
           $mediaScore,
           `
@@ -10022,76 +9041,66 @@
 				<span class="gm-card-media_score-user_count">${option.media_score?.user_count || 0}人参与</span>
 				`
         );
-      }
       let $eps = $item.querySelector(".gm-card-eps");
-      let epsList = [...(option.eps || []), ...(Reflect.get(option, "episodes_new") || [])].filter((item) =>
-        utils.isNotNull(item)
-      );
-      epsList.forEach((epsItem) => {
-        let title = epsItem.title || epsItem.long_title;
-        let url = epsItem.url || Reflect.get(epsItem, "uri");
-        let $epItem = domUtils.createElement(
-          "div",
-          {
-            className: "gm-card-ep-conatiner",
-            innerHTML: `
+      [...(option.eps || []), ...(Reflect.get(option, "episodes_new") || [])]
+        .filter((item) => utils.isNotNull(item))
+        .forEach((epsItem) => {
+          let title = epsItem.title || epsItem.long_title;
+          let url = epsItem.url || Reflect.get(epsItem, "uri");
+          let $epItem = domUtils.createElement(
+            "div",
+            {
+              className: "gm-card-ep-conatiner",
+              innerHTML: `
 				<div class="gm-card-ep-badges-container">
 					
 				</div>
 				<div class="gm-card-ep-info-container">
 					${title}
 				</div>`,
-          },
-          {
-            "data-id": epsItem.id,
-            "data-url": url,
-            "data-title": title,
-            "data-long_title": epsItem.long_title,
+            },
+            {
+              "data-id": epsItem.id,
+              "data-url": url,
+              "data-title": title,
+              "data-long_title": epsItem.long_title,
+            }
+          );
+          let $epBadges = $epItem.querySelector(".gm-card-ep-badges-container");
+          $epItem.querySelector(".gm-card-ep-info-container");
+          if (Array.isArray(epsItem.badges) && epsItem.badges.length) {
+            let epItemBadgeInfo = epsItem.badges[0];
+            let $badge = domUtils.createElement("span", {
+              className: "gm-card-ep-badge-top-right",
+              innerText: epItemBadgeInfo.text,
+            });
+            if (typeof epItemBadgeInfo.bg_color === "string") $badge.style.backgroundColor = epItemBadgeInfo.bg_color;
+            if (typeof epItemBadgeInfo.text_color === "string") $badge.style.color = epItemBadgeInfo.text_color;
+            domUtils.append($epBadges, $badge);
           }
-        );
-        let $epBadges = $epItem.querySelector(".gm-card-ep-badges-container");
-        $epItem.querySelector(".gm-card-ep-info-container");
-        if (Array.isArray(epsItem.badges) && epsItem.badges.length) {
-          let epItemBadgeInfo = epsItem.badges[0];
-          let $badge = domUtils.createElement("span", {
-            className: "gm-card-ep-badge-top-right",
-            innerText: epItemBadgeInfo.text,
+          domUtils.on($epItem, "click", (event) => {
+            domUtils.preventEvent(event);
+            window.open(url, "_blank");
           });
-          if (typeof epItemBadgeInfo.bg_color === "string") {
-            $badge.style.backgroundColor = epItemBadgeInfo.bg_color;
-          }
-          if (typeof epItemBadgeInfo.text_color === "string") {
-            $badge.style.color = epItemBadgeInfo.text_color;
-          }
-          domUtils.append($epBadges, $badge);
-        }
-        domUtils.on($epItem, "click", (event) => {
-          domUtils.preventEvent(event);
-          window.open(url, "_blank");
+          $eps.appendChild($epItem);
         });
-        $eps.appendChild($epItem);
-      });
       return $item;
     },
     searchBangumi() {},
   };
-  const BilibiliSearchBeautify = {
+  var BilibiliSearchBeautify = {
     $flag: { mutationSearchResult: false },
     init() {
       this.mutationSearchResult();
     },
     mutationSearchResult() {
-      if (this.$flag.mutationSearchResult) {
-        return;
-      }
+      if (this.$flag.mutationSearchResult) return;
       this.$flag.mutationSearchResult = true;
-      addStyle(
-        `
+      addStyle(`
         .bangumi-list{
             padding: 0 10px;
         }
-        `
-      );
+        `);
       utils.mutationObserver(document, {
         config: {
           subtree: true,
@@ -10100,13 +9109,9 @@
         callback: utils.debounce(() => {
           document.querySelectorAll(".m-search-bangumi-item").forEach(($bangumiItem) => {
             let vueIns = VueUtils.getVue($bangumiItem);
-            if (!vueIns) {
-              return;
-            }
+            if (!vueIns) return;
             let info = vueIns.info;
-            if (!info) {
-              return;
-            }
+            if (!info) return;
             let $newBangumiItem = BilibiliExtraSearch.createSearchResultVideoItem(info);
             domUtils.after($bangumiItem, $newBangumiItem);
             $bangumiItem.remove();
@@ -10115,7 +9120,7 @@
       });
     },
   };
-  const BilibiliSearchVueProp = {
+  var BilibiliSearchVueProp = {
     init() {
       Panel.execMenuOnce("bili-search-vue-prop-noCallApp", () => {
         this.noCallApp();
@@ -10128,9 +9133,7 @@
       let lockFn = new utils.LockFunction(() => {
         $$(".video-list .card-box > div:not([data-gm-inject-no-call-app])").forEach(($card) => {
           let vueIns = VueUtils.getVue($card);
-          if (!vueIns) {
-            return;
-          }
+          if (!vueIns) return;
           if (typeof vueIns.noCallApp === "boolean") {
             Object.defineProperty(vueIns, "noCallApp", {
               value: true,
@@ -10156,9 +9159,7 @@
       let lockFn = new utils.LockFunction(() => {
         $$(".video-list .card-box > div:not([data-gm-inject-openAppDialog])").forEach(($card) => {
           let vueIns = VueUtils.getVue($card);
-          if (!vueIns) {
-            return;
-          }
+          if (!vueIns) return;
           if (typeof vueIns.openAppDialog === "boolean") {
             Object.defineProperty(vueIns, "openAppDialog", {
               value: false,
@@ -10181,11 +9182,9 @@
       });
     },
   };
-  const BilibiliSearch = {
+  var BilibiliSearch = {
     init() {
-      if (BilibiliRouter.isSearchResult()) {
-        BilibiliExtraSearch.init();
-      }
+      if (BilibiliRouter.isSearchResult()) BilibiliExtraSearch.init();
       BilibiliSearchVueProp.init();
       Panel.execMenuOnce("bili-search-cover-cancel", () => {
         this.coverCancel();
@@ -10217,8 +9216,7 @@
       );
     },
     inputAutoFocus() {
-      let searchParams = new URLSearchParams(window.location.search);
-      if (searchParams.has("keyword")) {
+      if (new URLSearchParams(window.location.search).has("keyword")) {
         log.warn(`当前在搜索结果页面，不执行输入框自动获取焦点`);
         return;
       }
@@ -10240,23 +9238,17 @@
         (evt, selectorTarget) => {
           let $card = selectorTarget;
           let vueIns = VueUtils.getVue($card);
-          if (!vueIns) {
-            return;
-          }
+          if (!vueIns) return;
           let cardClick = vueIns.cardClick;
-          if (typeof cardClick !== "function") {
-            return;
-          }
+          if (typeof cardClick !== "function") return;
           domUtils.preventEvent(evt);
           cardClick(evt);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const BilibiliLiveBlockNode = {
+  var BilibiliLiveBlockNode = {
     init() {
       Panel.execMenuOnce("bili-live-block-chatRoom", () => {
         return this.blockChatRoom();
@@ -10281,7 +9273,7 @@
       return CommonUtil.addBlockCSS(".control-panel");
     },
   };
-  const BilibiliLive = {
+  var BilibiliLive = {
     init() {
       BilibiliLiveBlockNode.init();
       Panel.execMenuOnce("bili-live-prevent-openAppBtn", () => {
@@ -10297,23 +9289,18 @@
           ".open-app-btn",
           function (event, selectorTarget) {
             const vueInst = VueUtils.getVue(selectorTarget);
-            if (typeof vueInst?.open === "function") {
+            if (typeof vueInst?.open === "function")
               vueInst.open = function () {
                 log.info(`成功阻止.open-app-btn元素触发点击事件`);
               };
-            }
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       });
     },
   };
-  const BilibiliOpusVariable = {
-    $data: {
-      dispatchCallBackList: [],
-    },
+  var BilibiliOpusVariable = {
+    $data: { dispatchCallBackList: [] },
     init() {
       Panel.execMenu("bili-opus-variable-autoOpenApp", () => {
         this.autoOpenApp();
@@ -10333,9 +9320,8 @@
               typeof vueInstance?.showComment === "boolean" &&
               vueInstance.showComment &&
               typeof vueInstance?.initFullComment === "function"
-            ) {
+            )
               vueInstance.initFullComment();
-            }
             return false;
           }
         });
@@ -10404,17 +9390,11 @@
     },
     dispatch(callback) {
       let callbackStr = callback.toString();
-      for (let index = 0; index < this.$data.dispatchCallBackList.length; index++) {
-        const fn = this.$data.dispatchCallBackList[index];
-        if (fn.toString() === callbackStr) {
-          return;
-        }
-      }
+      for (let index = 0; index < this.$data.dispatchCallBackList.length; index++)
+        if (this.$data.dispatchCallBackList[index].toString() === callbackStr) return;
       log.info(`添加dispatch回调判断`);
       this.$data.dispatchCallBackList.push(callback);
-      if (this.$data.dispatchCallBackList.length > 1) {
-        return;
-      }
+      if (this.$data.dispatchCallBackList.length > 1) return;
       const that = this;
       VueUtils.waitVuePropToSet(BilibiliData.className.opus, {
         msg: "等待 覆盖函数dispatch",
@@ -10430,9 +9410,7 @@
               const fn = that.$data.dispatchCallBackList[index];
               if (typeof fn === "function") {
                 let result = fn(vueInstance, fnName);
-                if (typeof result === "boolean" && !result) {
-                  return;
-                }
+                if (typeof result === "boolean" && !result) return;
               }
             }
             return Reflect.apply(originDispatch, this, args);
@@ -10441,7 +9419,7 @@
       });
     },
   };
-  const BilibiliOpus = {
+  var BilibiliOpus = {
     init() {
       BilibiliOpusVariable.init();
       Panel.execMenuOnce("bili-opus-cover-topicJump", () => {
@@ -10465,37 +9443,32 @@
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
-            Qmsg.error("获取话题的__vue__失败");
+            qmsg.default.error("获取话题的__vue__失败");
             return;
           }
-          let data2 = vueObj?.$props?.data;
-          let jump_url = data2?.jump_url;
+          let data = vueObj?.$props?.data;
+          let jump_url = data?.jump_url;
           if (utils.isNull(jump_url)) {
-            Qmsg.error("获取话题的jump_url失败");
+            qmsg.default.error("获取话题的jump_url失败");
             return;
           }
-          log.info("话题的跳转信息: ", data2);
+          log.info("话题的跳转信息: ", data);
           BilibiliUtils.goToUrl(jump_url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     automaticallyExpandToReadFullText() {
       log.info("自动展开阅读全文");
-      let result = [
+      return [
         CommonUtil.addBlockCSS(BilibiliData.className.opus + " .opus-read-more"),
-        addStyle(
-          `
+        addStyle(`
 			${BilibiliData.className.opus} .opus-module-content{
 				overflow: unset !important;
 				max-height: unset !important;
 			}
-			`
-        ),
+			`),
       ];
-      return result;
     },
     coverHeaderJump() {
       log.info("覆盖header点击事件");
@@ -10508,23 +9481,22 @@
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
-            Qmsg.error("获取vue属性失败");
+            qmsg.default.error("获取vue属性失败");
             return;
           }
           let mid = vueObj?.data?.mid;
           if (!mid) {
-            Qmsg.error("获取mid失败");
+            qmsg.default.error("获取mid失败");
             return;
           }
           BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceUrl(mid));
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const BilibiliDynamic = {
+  var BilibiliTopicDetail = { init() {} };
+  var BilibiliDynamic = {
     init() {
       Panel.execMenuOnce("bili-dynamic-cover-topicJump", () => {
         this.coverTopicJump();
@@ -10550,19 +9522,17 @@
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
-            Qmsg.error("获取vue属性失败");
+            qmsg.default.error("获取vue属性失败");
             return;
           }
           let url = vueObj.url;
           if (!url) {
-            Qmsg.error("获取url失败");
+            qmsg.default.error("获取url失败");
             return;
           }
           BilibiliUtils.goToUrl(url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     coverTopicJump() {
@@ -10576,21 +9546,19 @@
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
-            Qmsg.error("获取vue属性失败");
+            qmsg.default.error("获取vue属性失败");
             return;
           }
-          let data2 = vueObj?.$props?.data;
-          let jump_url = data2?.jump_url;
+          let data = vueObj?.$props?.data;
+          let jump_url = data?.jump_url;
           if (utils.isNull(jump_url)) {
-            Qmsg.error("获取jump_url失败");
+            qmsg.default.error("获取jump_url失败");
             return;
           }
-          log.info("话题的跳转信息: ", data2);
+          log.info("话题的跳转信息: ", data);
           BilibiliUtils.goToUrl(jump_url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     coverAtJump() {
@@ -10604,15 +9572,13 @@
           let $click = event.target;
           let oid = $click.getAttribute("data-oid") || VueUtils.getVue($click)?.$props?.rid;
           if (utils.isNull(oid)) {
-            Qmsg.error("获取data-oid或rid失败");
+            qmsg.default.error("获取data-oid或rid失败");
             return;
           }
           log.info("用户的oid: " + oid);
           BilibiliUtils.goToUrl(BilibiliUrl.getUserSpaceDynamicUrl(oid));
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
     coverReferenceJump() {
@@ -10623,17 +9589,14 @@
         BilibiliData.className.dynamic + " .dyn-content .reference .dyn-orig-author",
         function (event) {
           domUtils.preventEvent(event);
-          let $click = event.target;
-          let url = $click.getAttribute("data-url");
+          let url = event.target.getAttribute("data-url");
           if (!url) {
-            Qmsg.error("获取data-url失败");
+            qmsg.default.error("获取data-url失败");
             return;
           }
           BilibiliUtils.goToUrl(url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       domUtils.on(
         document,
@@ -10644,23 +9607,21 @@
           let $click = event.target;
           let vueObj = VueUtils.getVue($click);
           if (!vueObj) {
-            Qmsg.error("获取vue属性失败");
+            qmsg.default.error("获取vue属性失败");
             return;
           }
           let jump_url = vueObj?.data?.jump_url;
           if (utils.isNull(jump_url)) {
-            Qmsg.error("获取jump_url失败");
+            qmsg.default.error("获取jump_url失败");
             return;
           }
           BilibiliUtils.goToUrl(jump_url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const BilibiliHook = {
+  var BilibiliHook = {
     $isHook: {
       windowPlayerAgent: false,
       hookWebpackJsonp_openApp: false,
@@ -10668,9 +9629,7 @@
       overRideBiliOpenApp: false,
       overRideWxTaghandleClick: false,
     },
-    $data: {
-      setTimeout: [],
-    },
+    $data: { setTimeout: [] },
     windowWebPack(webpackName = "webpackJsonp", mainCoreData, checkCallBack) {
       let originObject = void 0;
       OriginPrototype.Object.defineProperty(_unsafeWindow, webpackName, {
@@ -10688,7 +9647,7 @@
               (Array.isArray(mainCoreData) &&
                 Array.isArray(_mainCoreData) &&
                 JSON.stringify(mainCoreData) === JSON.stringify(_mainCoreData))
-            ) {
+            )
               Object.keys(args[0][1]).forEach((keyName) => {
                 let originSwitchFunc = args[0][1][keyName];
                 args[0][1][keyName] = function (..._args) {
@@ -10697,7 +9656,6 @@
                   return result;
                 };
               });
-            }
             return originPush.call(this, ...args);
           };
         },
@@ -10719,18 +9677,11 @@
       };
     },
     overRideLaunchAppBtn_Vue_openApp() {
-      if (this.$isHook.overRideLaunchAppBtn_Vue_openApp) {
-        return;
-      }
+      if (this.$isHook.overRideLaunchAppBtn_Vue_openApp) return;
       this.$isHook.overRideLaunchAppBtn_Vue_openApp = true;
       function overrideOpenApp(vueObj) {
-        if (typeof vueObj.openApp !== "function") {
-          return;
-        }
-        let openAppStr = vueObj.openApp.toString();
-        if (openAppStr.includes("阻止唤醒App")) {
-          return;
-        }
+        if (typeof vueObj.openApp !== "function") return;
+        if (vueObj.openApp.toString().includes("阻止唤醒App")) return;
         vueObj.openApp = function (...args) {
           log.success("openApp：阻止唤醒App", args);
         };
@@ -10745,23 +9696,18 @@
         callback() {
           $$(".launch-app-btn").forEach(($launchAppBtn) => {
             let vueObj = VueUtils.getVue($launchAppBtn);
-            if (!vueObj) {
-              return;
-            }
+            if (!vueObj) return;
             overrideOpenApp(vueObj);
-            if (vueObj.$children && vueObj.$children.length) {
+            if (vueObj.$children && vueObj.$children.length)
               vueObj.$children.forEach(($child) => {
                 overrideOpenApp($child);
               });
-            }
           });
         },
       });
     },
     overRideBiliOpenApp() {
-      if (this.$isHook.overRideBiliOpenApp) {
-        return;
-      }
+      if (this.$isHook.overRideBiliOpenApp) return;
       this.$isHook.overRideBiliOpenApp = true;
       utils.mutationObserver(document, {
         config: {
@@ -10772,20 +9718,13 @@
         immediate: true,
         callback() {
           [...Array.from($$("bili-open-app")), ...Array.from($$("m-open-app"))].forEach(($biliOpenApp) => {
-            if ($biliOpenApp.hasAttribute("data-inject-opener-open")) {
-              return;
-            }
+            if ($biliOpenApp.hasAttribute("data-inject-opener-open")) return;
             let opener = Reflect.get($biliOpenApp, "opener");
-            if (opener == null) {
-              return;
-            }
-            let originOpen = opener?.open;
-            if (typeof originOpen === "function") {
+            if (opener == null) return;
+            if (typeof opener?.open === "function") {
               Reflect.set(opener, "open", (config) => {
                 log.success(`拦截bili-open-app.open跳转: ${JSON.stringify(config)}`);
-                if (typeof config?.universalLink === "string") {
-                  BilibiliUtils.goToUrl(config.universalLink);
-                }
+                if (typeof config?.universalLink === "string") BilibiliUtils.goToUrl(config.universalLink);
               });
               $biliOpenApp.setAttribute("data-inject-opener-open", "true");
             }
@@ -10794,9 +9733,7 @@
       });
     },
     overRideWxTaghandleClick() {
-      if (this.$isHook.overRideWxTaghandleClick) {
-        return;
-      }
+      if (this.$isHook.overRideWxTaghandleClick) return;
       this.$isHook.overRideWxTaghandleClick = true;
       utils.mutationObserver(document, {
         config: {
@@ -10807,20 +9744,13 @@
         immediate: true,
         callback() {
           [...Array.from($$(".wx-tag"))].forEach(($el) => {
-            if ($el.hasAttribute("data-inject-vueins-handle-click")) {
-              return;
-            }
+            if ($el.hasAttribute("data-inject-vueins-handle-click")) return;
             let vueIns = VueUtils.getVue($el);
             if (vueIns) {
               if (typeof vueIns?.handleClick === "function") {
                 vueIns.handleClick = function () {
-                  if (typeof vueIns["goToVideo"] === "function") {
-                    vueIns.goToVideo();
-                  } else {
-                    Qmsg.error(".wx-tag不存在goToVideo函数", {
-                      consoleLogContent: true,
-                    });
-                  }
+                  if (typeof vueIns["goToVideo"] === "function") vueIns.goToVideo();
+                  else qmsg.default.error(".wx-tag不存在goToVideo函数", { consoleLogContent: true });
                 };
                 $el.setAttribute("data-inject-vueins-handle-click", "true");
               }
@@ -10828,21 +9758,59 @@
                 Array.isArray(vueIns?.$children) &&
                 vueIns.$children.length &&
                 typeof vueIns.$children[0].handleClick === "function"
-              ) {
+              )
                 vueIns.$children[0].handleClick = vueIns.handleClick;
-              }
             }
           });
         },
       });
     },
   };
-  const BilibiliRecommendCSS =
+  var BilibiliRecommend_default =
     '#app .m-head .m-recommend-view {\n  display: none;\n}\n\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) .v-switcher__header__anchor {\n  display: none !important;\n}\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.v-switcher__header__tabs__item {\n  color: #505050 !important;\n}\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag {\n  color: var(--bili-color) !important;\n}\n#app .m-head .suspension .channel-menu:has(.recommend-tag.is-avtive) a.recommend-tag span:after {\n  content: " ";\n  position: relative;\n  background: var(--bili-color);\n  width: 30.4375px;\n  height: 0.53333vmin;\n  display: block;\n  bottom: 3px;\n}\n\n#app .m-head:has(.recommend-tag.is-avtive) .suspension + div {\n  display: none;\n}\n#app .m-head:has(.recommend-tag.is-avtive) .m-recommend-view {\n  display: unset;\n}\n\n#app .m-head .m-recommend-view {\n  background-color: #f0f1f3;\n}\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list {\n  padding: 0 1.33333vmin;\n  margin-bottom: 5.33333vmin;\n}\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-wrap: wrap;\n  flex-wrap: wrap;\n}\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card {\n  position: relative;\n}\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .bfs-img-wrap {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  overflow: hidden;\n}\n#app\n  .m-head\n  .m-recommend-view\n  .list-view\n  .video-list-box\n  .video-list\n  .card-box\n  .v-card\n  .card\n  .bfs-img-wrap\n  .bfs-img.b-img {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  overflow: hidden;\n  background: transparent;\n}\n#app\n  .m-head\n  .m-recommend-view\n  .list-view\n  .video-list-box\n  .video-list\n  .card-box\n  .v-card\n  .card\n  .bfs-img-wrap\n  .bfs-img.b-img\n  picture.b-img__inner {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\n#app\n  .m-head\n  .m-recommend-view\n  .list-view\n  .video-list-box\n  .video-list\n  .card-box\n  .v-card\n  .card\n  .bfs-img-wrap\n  .bfs-img.b-img\n  picture.b-img__inner\n  img {\n  width: 100%;\n  height: 100%;\n  -o-object-fit: cover;\n  object-fit: cover;\n}\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .card .count {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  font-size: 3.2vmin;\n  padding: 1.33333vmin 1.6vmin;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: justify;\n  -ms-flex-pack: justify;\n  justify-content: space-between;\n  color: #fff;\n  background: linear-gradient(0deg, rgba(0, 0, 0, 0.85), transparent);\n}\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .title {\n  font-size: 3.2vmin;\n  color: #212121;\n  margin-top: 1.6vmin;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  display: -webkit-box;\n  -webkit-line-clamp: 2;\n  -webkit-box-orient: vertical;\n}\n#app\n  .m-head\n  .m-recommend-view\n  .list-view\n  .video-list-box\n  .video-list\n  .card-box\n  .v-card\n  .gm-up-info\n  .gm-up-name\n  .gm-picture-text {\n  padding: 1px 4px;\n  border: 1px solid var(--bili-color);\n  color: var(--bili-color);\n  border-radius: 2px;\n  margin-right: 4px;\n  font-size: 2vmin;\n}\n\n#app .m-head .m-recommend-view .list-view .video-list-box .video-list .card-box .v-card .count > span {\n  display: flex;\n  align-items: center;\n  gap: 1.33333vmin;\n}\n';
-  const XOR_CODE = 23442827791579n;
-  const MAX_AID = 1n << 51n;
-  const BASE = 58n;
-  const data = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf";
+  var android;
+  (function (_android) {
+    _android.CardGoto = (function (CardGoto) {
+      CardGoto["AV"] = "av";
+      CardGoto["Bangumi"] = "bangumi";
+      CardGoto["Picture"] = "picture";
+      return CardGoto;
+    })({});
+    _android.CardType = (function (CardType) {
+      CardType["SmallCoverV2"] = "small_cover_v2";
+      return CardType;
+    })({});
+    _android.ToastEnum = (function (ToastEnum) {
+      ToastEnum["将优化首页此类内容"] = "将优化首页此类内容";
+      ToastEnum["将减少相似内容推荐"] = "将减少相似内容推荐";
+      return ToastEnum;
+    })({});
+    _android.Subtitle = (function (Subtitle) {
+      Subtitle["选择后将优化首页此类内容"] = "(选择后将优化首页此类内容)";
+      Subtitle["选择后将减少相似内容推荐"] = "(选择后将减少相似内容推荐)";
+      return Subtitle;
+    })({});
+    _android.Title = (function (Title) {
+      Title["反馈"] = "反馈";
+      Title["我不想看"] = "我不想看";
+      Title["添加至稍后再看"] = "添加至稍后再看";
+      return Title;
+    })({});
+    _android.Type = (function (Type) {
+      Type["Dislike"] = "dislike";
+      Type["Feedback"] = "feedback";
+      Type["WatchLater"] = "watch_later";
+      return Type;
+    })({});
+    _android.TrackID = (function (TrackID) {
+      TrackID["All20ShylfAIGalaxy1011673305601416500"] = "all_20.shylf-ai-galaxy-101.1673305601416.500";
+      return TrackID;
+    })({});
+  })(android || (android = {}));
+  var XOR_CODE = 23442827791579n;
+  var MAX_AID = 1n << 51n;
+  var BASE = 58n;
+  var data = "FcwAPNKTMug3GV5Lj7EJnHpWsx4tb8haYeviqBz6rkCy12mUSDQX9RdoZf";
   function av2bv(aid) {
     const bytes = ["B", "V", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0"];
     let bvIndex = bytes.length - 1;
@@ -10856,13 +9824,11 @@
     [bytes[4], bytes[7]] = [bytes[7], bytes[4]];
     return bytes.join("");
   }
-  const fixCover = (url) => {
-    if (url.startsWith("http://")) {
-      url = url.replace(/^http/, "https");
-    }
+  var fixCover = (url) => {
+    if (url.startsWith("http://")) url = url.replace(/^http/, "https");
     return url;
   };
-  const BilibiliRecommend = {
+  var BilibiliRecommend = {
     $flag: {
       isInitCSS: false,
       isLoadingNextPage: false,
@@ -10889,11 +9855,9 @@
       });
     },
     setCSS() {
-      if (this.$flag.isInitCSS) {
-        return;
-      }
+      if (this.$flag.isInitCSS) return;
       this.$flag.isInitCSS = true;
-      addStyle(BilibiliRecommendCSS);
+      addStyle(BilibiliRecommend_default);
     },
     reset() {
       log.info("重置状态");
@@ -10904,13 +9868,11 @@
       });
     },
     addRecommendTag() {
-      if ($(".channel-menu a.recommend-tag")) {
-        return;
-      }
+      if ($(".channel-menu a.recommend-tag")) return;
       let $vSwitcher = $(".channel-menu .v-switcher");
       if (!$vSwitcher) {
         log.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
-        Qmsg.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
+        qmsg.default.error("添加推荐标签失败，原因：.channel-menu .v-switcher不存在");
         return;
       }
       let $recommendTag = domUtils.createElement(
@@ -10919,9 +9881,7 @@
           className: "v-switcher__header__tabs__item recommend-tag",
           innerHTML: "<span>推荐</span>",
         },
-        {
-          href: "javascript:;",
-        }
+        { href: "javascript:;" }
       );
       let $recommendView = domUtils.createElement("div", {
         className: "m-recommend-view",
@@ -10947,9 +9907,7 @@
       this.$ele.$listViewShim = $recommendView.querySelector(".list-view__shim");
       this.$ele.$listViewShim.style.cssText = `z-index:-1;user-select:none;pointer-events:none;background:transparent;left:0;bottom:0;width:100%;height:200px;`;
       let $myHead = document.querySelector("#app .m-head");
-      if ($myHead) {
-        $myHead.appendChild($recommendView);
-      }
+      if ($myHead) $myHead.appendChild($recommendView);
       domUtils.on($recommendTag, "click", (event) => {
         domUtils.preventEvent(event);
         $recommendTag.classList.add("is-avtive");
@@ -10961,9 +9919,7 @@
         () => {
           $recommendTag.classList.remove("is-avtive");
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       domUtils.on(this.$ele.$cardBox, "click", ".v-card", (event) => {
         domUtils.preventEvent(event);
@@ -10992,12 +9948,13 @@
               domUtils.hide(this.$ele.$listViewShim, false);
               await utils.sleep(500);
               domUtils.show(this.$ele.$listViewShim, false);
-            } else {
-              domUtils.show(this.$ele.$listViewShim, false);
-            }
+            } else domUtils.show(this.$ele.$listViewShim, false);
           }
         },
-        { threshold: 0, rootMargin: "0px 0px 0px 0px" }
+        {
+          threshold: 0,
+          rootMargin: "0px 0px 0px 0px",
+        }
       );
       this.$data.intersectionObserver.observe(this.$ele.$listViewShim);
     },
@@ -11007,23 +9964,17 @@
     },
     async scrollEvent() {
       let videoInfo = await this.getRecommendVideoInfo();
-      if (!videoInfo) {
-        return false;
-      }
+      if (!videoInfo) return false;
       log.success("获取推荐视频信息", videoInfo);
       let $fragment = document.createDocumentFragment();
       let allowLoadPictureCard = Panel.getValue("bili-head-recommend-push-graphic");
       videoInfo.forEach((videoInfoItem) => {
         let $ele = null;
-        if (videoInfoItem.goto === this.$cardGoto.av) {
-          $ele = this.getRecommendItemAVElement(videoInfoItem);
-        } else if (videoInfoItem.goto === this.$cardGoto.picture) {
-          if (allowLoadPictureCard) {
-            $ele = this.getRecommendItemPictureElement(videoInfoItem);
-          } else {
-            return;
-          }
-        } else {
+        if (videoInfoItem.goto === this.$cardGoto.av) $ele = this.getRecommendItemAVElement(videoInfoItem);
+        else if (videoInfoItem.goto === this.$cardGoto.picture)
+          if (allowLoadPictureCard) $ele = this.getRecommendItemPictureElement(videoInfoItem);
+          else return;
+        else {
           log.error("该goto暂未适配", videoInfoItem);
           return;
         }
@@ -11038,30 +9989,25 @@
         appkey: AppKeyInfo.ios.appkey,
         access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
       };
-      let Api = "https://app.bilibili.com/x/v2/feed/index";
-      let getResp = await httpx.get(Api + "?" + utils.toSearchParamsStr(getData), {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+      let getResp = await httpx.get("https://app.bilibili.com/x/v2/feed/index?" + utils.toSearchParamsStr(getData), {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-      if (!getResp.status) {
+      if (!getResp.status) return;
+      let data = utils.toJSON(getResp.data.responseText);
+      if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
+        qmsg.default.error(data["message"]);
         return;
       }
-      let data2 = utils.toJSON(getResp.data.responseText);
-      if (!BilibiliApiResponseCheck.isWebApiSuccess(data2)) {
-        Qmsg.error(data2["message"]);
-        return;
-      }
-      return data2.data.items;
+      return data.data.items;
     },
-    getRecommendItemPictureElement(data2) {
-      let goto = data2.goto;
-      let param = data2.param;
+    getRecommendItemPictureElement(data) {
+      let goto = data.goto;
+      let param = data.param;
       let url = "/opus/" + param;
-      let upName = data2.args.up_name;
-      let title = data2.title;
-      let cover = fixCover(data2.cover);
-      let likeCount = data2.cover_left_text_1;
+      let upName = data.args.up_name;
+      let title = data.title;
+      let cover = fixCover(data.cover);
+      let likeCount = data.cover_left_text_1;
       let $vCard = domUtils.createElement(
         "a",
         {
@@ -11105,20 +10051,19 @@
           "data-goto": goto,
         }
       );
-      $vCard["data-picture"] = data2;
+      $vCard["data-picture"] = data;
       return $vCard;
     },
-    getRecommendItemAVElement(data2) {
-      let goto = data2.goto;
-      let aid = data2?.player_args?.aid || data2.args.aid;
-      let bvid = av2bv(aid);
-      let url = "/video/" + bvid;
-      let upName = data2.args.up_name;
-      let title = data2.title;
-      let cover = fixCover(data2.cover);
-      let playCount = data2.cover_left_text_1;
-      let commentCount = data2.cover_left_text_2;
-      let videoTime = data2.cover_right_text;
+    getRecommendItemAVElement(data) {
+      let goto = data.goto;
+      let aid = data?.player_args?.aid || data.args.aid;
+      let url = "/video/" + av2bv(aid);
+      let upName = data.args.up_name;
+      let title = data.title;
+      let cover = fixCover(data.cover);
+      let playCount = data.cover_left_text_1;
+      let commentCount = data.cover_left_text_2;
+      let videoTime = data.cover_right_text;
       let $vCard = domUtils.createElement(
         "a",
         {
@@ -11174,11 +10119,11 @@
           "data-goto": goto,
         }
       );
-      $vCard["data-video"] = data2;
+      $vCard["data-video"] = data;
       return $vCard;
     },
   };
-  const BilibiliHead = {
+  var BilibiliHead = {
     $flag: {
       isInit_reconfigurationTinyAppSettingButton: false,
       isInit_beautifyTopNavBar_css: false,
@@ -11193,8 +10138,7 @@
     },
     addVideoListUPInfo() {
       log.info("添加视频列表UP主信息");
-      addStyle(
-        `
+      addStyle(`
 		${BilibiliData.className.head} .video-list .card-box .gm-up-info {
 			display: flex;
 			justify-content: space-between;
@@ -11215,8 +10159,7 @@
 		${BilibiliData.className.head} .gm-video-duration{
 			margin: 0 auto;
 		}
-        `
-      );
+        `);
       domUtils.waitNode(BilibiliData.className.head + " .video-list .card-box").then(() => {
         let lockFunc = new utils.LockFunction(() => {
           $$(BilibiliData.className.head + " .video-list .card-box .v-card").forEach(($vcard) => {
@@ -11270,8 +10213,7 @@
       log.info(`重构tinyApp右上角的设置按钮图标`);
       if (!this.$flag.isInit_reconfigurationTinyAppSettingButton) {
         this.$flag.isInit_reconfigurationTinyAppSettingButton = true;
-        addStyle(
-          `
+        addStyle(`
 
 			.nav-bar .right{
 				display: -webkit-box;
@@ -11308,8 +10250,7 @@
 				-o-object-fit: cover;
 				object-fit: cover;
 			}
-			`
-        );
+			`);
       }
       let $iconConfig = await domUtils.waitNode(".nav-bar .icon-config", 1e4);
       if (!$iconConfig) {
@@ -11344,32 +10285,25 @@
               }
               userInfo?.uname;
               $img.src = userInfo?.face || $img.src;
-            } else {
-              log.warn(`经检测，Bilibili尚未登录账号`);
-            }
+            } else log.warn(`经检测，Bilibili尚未登录账号`);
           },
         },
       ]);
       domUtils.on($gmFace, "click", (event) => {
         domUtils.preventEvent(event);
-        if (isLogin) {
+        if (isLogin)
           if (uid != null) {
             let url = BilibiliUrl.getUserSpaceUrl(uid);
             BilibiliUtils.goToUrl(url, false);
-          } else {
-            Qmsg.error("获取用户id失败");
-          }
-        } else {
-          BilibiliUtils.goToLogin(window.location.href);
-        }
+          } else qmsg.default.error("获取用户id失败");
+        else BilibiliUtils.goToLogin(window.location.href);
       });
     },
     beautifyTopNavBar() {
       log.info(`美化顶部navbar`);
       if (!this.$flag.isInit_beautifyTopNavBar_css) {
         this.$flag.isInit_beautifyTopNavBar_css = true;
-        addStyle(
-          `
+        addStyle(`
 			/* 隐藏logo */
 			.${BilibiliData.className.head} .m-navbar .logo,
 			/* 隐藏原有的搜索图标 */
@@ -11426,16 +10360,11 @@
 				align-items: center;
 				padding: 2px 6px;
 			}
-			`
-        );
+			`);
       }
       domUtils.waitNode(".m-head .m-navbar .icon-search", 1e4).then(async ($iconSearch) => {
-        if (!$iconSearch) {
-          return;
-        }
-        if ($iconSearch.parentElement.querySelector(".gm-input-area")) {
-          return;
-        }
+        if (!$iconSearch) return;
+        if ($iconSearch.parentElement.querySelector(".gm-input-area")) return;
         let $inputAreaContainer = domUtils.createElement("div", {
           className: "gm-input-area",
           innerHTML: `
@@ -11457,7 +10386,7 @@
       });
     },
   };
-  const BilibiliReadMobile = {
+  var BilibiliReadMobile = {
     init() {
       this.removeAds();
       Panel.onceExec("bili-pc-read-mobile-autoExpand", () => {
@@ -11470,18 +10399,16 @@
     autoExpand() {
       log.info("自动展开");
       return [
-        addStyle(
-          `
+        addStyle(`
 			${BilibiliPCData.className.read.mobile} .limit{
 				overflow: unset !important;
 				max-height: unset !important;
-			}`
-        ),
+			}`),
         CommonUtil.addBlockCSS(BilibiliPCData.className.read.mobile + " .read-more"),
       ];
     },
   };
-  const BilibiliSpace = {
+  var BilibiliSpace = {
     init() {
       Panel.execMenuOnce("bili-space-repairRealJump", () => {
         this.repairRealJump();
@@ -11494,9 +10421,7 @@
       let lockFn = new utils.LockFunction(() => {
         $$(BilibiliData.className.space + " .wx-tag.open-app-wrapper").forEach(($el) => {
           let vueIns = VueUtils.getVue($el);
-          if (typeof vueIns?.disabled === "boolean") {
-            vueIns.disabled = false;
-          }
+          if (typeof vueIns?.disabled === "boolean") vueIns.disabled = false;
         });
       });
       utils.mutationObserver(document, {
@@ -11509,7 +10434,6 @@
           lockFn.run();
         },
       });
-      return;
     },
     coverDynamicStateCardVideo() {
       log.info(`覆盖动态视频的点击事件`);
@@ -11518,31 +10442,28 @@
         "click",
         ".card-content .main .wings",
         (event) => {
-          let $wings = event.target;
-          let $card = $wings.closest(".card");
+          let $card = event.target.closest(".card");
           if (!$card) {
-            Qmsg.error("未找到对应的.card元素");
+            qmsg.default.error("未找到对应的.card元素");
             return;
           }
           let vueIns = VueUtils.getVue($card);
           if (!vueIns) {
-            Qmsg.error("未找到对应的vue实例");
+            qmsg.default.error("未找到对应的vue实例");
             return;
           }
           let url = vueIns?.shareData?.default?.url;
           if (!url) {
-            Qmsg.error("未找到对应的url");
+            qmsg.default.error("未找到对应的url");
             return;
           }
           BilibiliUtils.goToUrl(url);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
     },
   };
-  const BilibiliVueProp = {
+  var BilibiliVueProp = {
     init() {
       Panel.execMenu("bili-noCallApp", () => {
         this.noCallApp();
@@ -11569,25 +10490,20 @@
       ]);
     },
     setLogin() {
-      let GM_Cookie = new utils.DocumentCookieHandler();
-      let cookie_DedeUserID = GM_Cookie.get("DedeUserID");
-      if (cookie_DedeUserID != null) {
-        log.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
-      } else {
+      const GM_Cookie = new utils.DocumentCookieHandler();
+      const cookie_DedeUserID = GM_Cookie.get("DedeUserID");
+      if (cookie_DedeUserID != null) log.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
+      else
         GM_Cookie.set(
           {
             name: "DedeUserID",
             value: "2333",
           },
           (error) => {
-            if (error) {
-              log.error(error);
-            } else {
-              log.success("Cookie成功设置DedeUserID=>2333");
-            }
+            if (error) log.error(error);
+            else log.success("Cookie成功设置DedeUserID=>2333");
           }
         );
-      }
       VueUtils.waitVuePropToSet("#app", [
         {
           msg: "设置参数 $store.state.common.userInfo.isLogin",
@@ -11676,20 +10592,18 @@
             vueIns.$store.state.common.tinyApp = true;
             log.success("成功设置参数 $store.state.common.tinyApp=true");
             Panel.onceExec("bili-tinyApp-init-css", () => {
-              addStyle(
-                `
+              addStyle(`
 							.tiny-app .reply-input,.tiny-app .reply-item .info .name .right,.tiny-app .reply-item .info .toolbar,.tiny-app .sub-reply-input {
 								display: block;
 							}
-						`
-              );
+						`);
             });
           },
         },
       ]);
     },
   };
-  const UIButton = function (
+  var UIButton = function (
     text,
     description,
     buttonText,
@@ -11713,18 +10627,16 @@
       buttonType,
       buttonText,
       callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
+        if (typeof clickCallBack === "function") clickCallBack(event);
       },
       afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(disable);
+      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
     });
     return result;
   };
-  const UIInputPassword = function (
+  var UIInputPassword = function (
     text,
     key,
     defaultValue,
@@ -11744,33 +10656,29 @@
       placeholder,
       afterAddToUListCallBack,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
         if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value);
-          if (result2) {
-            return;
-          }
+          if (changeCallback(event, value)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISelect = function (text, key, defaultValue, data2, selectCallBack, description, valueChangeCallBack) {
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     const result = {
       text,
       type: "select",
@@ -11778,39 +10686,33 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
+        if (isSelectedInfo == null) return;
         const value = isSelectedInfo.value;
         log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
+          if (selectCallBack(isSelectedInfo)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
       },
-      data: data2,
+      data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISlider = function (
+  var UISlider = function (
     text,
     key,
     defaultValue,
@@ -11829,19 +10731,18 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
+        if (typeof getToolTipContent === "function") return getToolTipContent(value);
+        else return `${value}`;
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
       min,
       max,
@@ -11850,16 +10751,16 @@
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISwitch = function (
+  var UISwitch = function (
     text,
     key,
     defaultValue = false,
@@ -11870,6 +10771,14 @@
     valueChangeCallBack,
     shortCutOption
   ) {
+    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
+      const shortCutKey = shortCutOption.key ?? key;
+      shortCutOption.handler.add({
+        key: shortCutKey,
+        name: text,
+      });
+      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
+    }
     const result = {
       text,
       type: "switch",
@@ -11878,31 +10787,122 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        return value;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, __value) {
         const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
-      afterAddToUListCallBack: (...args) => {},
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+        if (shortCutOption) {
+          const shortCut = shortCutOption.handler.shortCut;
+          const shortCutKey = shortCutOption.key ?? key;
+          const [_, container] = args;
+          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
+          if (!$leftMainText) return;
+          const renderKeyboard = () => {
+            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
+            const $wrapper = domUtils.createElement(
+              "div",
+              {
+                className: "pops-switch-shortcut-wrapper",
+                innerHTML: `
+              <i class="pops-bottom-icon" is-loading="false">
+                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
+                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
+                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
+                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
+                </svg>
+              </i>
+            `,
+              },
+              { style: "margin-right: 5px;display: inline-flex;" }
+            );
+            const $icon = $wrapper.querySelector(".pops-bottom-icon");
+            domUtils.on(
+              $icon,
+              "click",
+              function (evt) {
+                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
+                $tooltip.toolTip.offEvent();
+                $tooltip.toolTip.close();
+                $tooltip.toolTip.destory();
+                $wrapper.remove();
+              },
+              { once: true }
+            );
+            const $tooltip = __pops__.tooltip({
+              $target: $icon,
+              content: () => {
+                return tooltipShowText;
+              },
+              className: "github-tooltip",
+              isFixed: true,
+              only: true,
+            });
+            domUtils.empty($leftMainText);
+            domUtils.append($leftMainText, $wrapper, text);
+          };
+          __pops__.rightClickMenu({
+            $target: $leftMainText,
+            only: true,
+            data: [
+              {
+                text: () => {
+                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
+                  else return "添加快捷键";
+                },
+                icon: __pops__.config.iconSVG.keyboard,
+                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
+                  if (shortCut.isWaitKeyboardPress()) {
+                    qmsg.default.warning("请先执行当前的录入操作");
+                    return;
+                  }
+                  const $loading = qmsg.default.loading("请按下快捷键...", {
+                    showClose: true,
+                    onClose() {
+                      shortCut.cancelEnterShortcutKeys();
+                    },
+                  });
+                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
+                    $loading.close();
+                    if (status) {
+                      log.success("录入快捷键", option);
+                      qmsg.default.success("录入成功");
+                      renderKeyboard();
+                    } else
+                      qmsg.default.error(
+                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
+                      );
+                  });
+                },
+              },
+            ],
+          });
+          if (!shortCut.hasOption(shortCutKey)) return;
+          renderKeyboard();
+        }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UITextArea = function (
+  var UITextArea = function (
     text,
     key,
     defaultValue,
@@ -11921,44 +10921,40 @@
       placeholder,
       disabled,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        if (Array.isArray(value)) {
-          return value.join("\n");
-        }
+        const value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) return value.join("\n");
         return value;
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const PanelComponents = {
+  var PanelComponents = {
     $data: {
       __storeApiFn: null,
       get storeApiValue() {
-        if (!this.__storeApiFn) {
-          this.__storeApiFn = new utils$1.Dictionary();
-        }
+        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
         return this.__storeApiFn;
       },
     },
     getStorageApi(type) {
-      if (!this.hasStorageApi(type)) {
-        return;
-      }
+      if (!this.hasStorageApi(type)) return;
       return this.$data.storeApiValue.get(type);
     },
     hasStorageApi(type) {
@@ -11969,18 +10965,15 @@
     },
     initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
-      if (this.hasStorageApi(type)) {
-        propsStorageApi = this.getStorageApi(type);
-      } else {
-        propsStorageApi = storageApiValue;
-      }
+      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
+      else propsStorageApi = storageApiValue;
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
     setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  const UIInput = function (
+  var UIInput = function (
     text,
     key,
     defaultValue,
@@ -12001,29 +10994,30 @@
       placeholder,
       afterAddToUListCallBack,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        const isValid = event.target.validity.valid;
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value, isValid)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value, isValid);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  class RuleEditView {
+  var RuleEditView = class {
     option;
     constructor(option) {
       this.option = option;
@@ -12055,9 +11049,7 @@
           true
         ),
         drag: true,
-        mask: {
-          enable: true,
-        },
+        mask: { enable: true },
         style: `
       ${__pops__.config.cssText.panelCSS}
       
@@ -12123,19 +11115,14 @@
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        const result = await this.option.onsubmit($form, await this.option.data());
-        if (!result.success) {
-          return;
-        }
+        if (!(await this.option.onsubmit($form, await this.option.data())).success) return;
         $dialog.close();
-        if (typeof this.option.dialogCloseCallBack === "function") {
-          await this.option.dialogCloseCallBack(true);
-        }
+        if (typeof this.option.dialogCloseCallBack === "function") await this.option.dialogCloseCallBack(true);
       };
       return $dialog;
     }
-  }
-  class RuleView {
+  };
+  var RuleView = class {
     option;
     constructor(option) {
       this.option = option;
@@ -12246,9 +11233,7 @@
               $popsConfirm.close();
             },
           },
-          cancel: {
-            enable: false,
-          },
+          cancel: { enable: false },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
             type: "xiaomi-primary",
@@ -12268,16 +11253,12 @@
                     enable: true,
                     callback: async () => {
                       log.success("清空所有");
-                      if (typeof this.option?.bottomControls?.clear?.callback === "function") {
+                      if (typeof this.option?.bottomControls?.clear?.callback === "function")
                         this.option.bottomControls.clear.callback();
-                      }
-                      const data2 = await this.option.data();
-                      if (data2.length) {
-                        Qmsg.error("清理失败");
+                      if ((await this.option.data()).length) {
+                        qmsg.default.error("清理失败");
                         return;
-                      } else {
-                        Qmsg.success("清理成功");
-                      }
+                      } else qmsg.default.success("清理成功");
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
@@ -12295,9 +11276,7 @@
             },
           },
         },
-        mask: {
-          enable: true,
-        },
+        mask: { enable: true },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
       });
@@ -12307,45 +11286,35 @@
       if (this.option.bottomControls?.filter?.enable) {
         let externalSelectInfo = null;
         let ruleValueSelectInfo = null;
-        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+        if (Array.isArray(this.option.bottomControls?.filter?.option))
           domUtils.append(
             $externalSelect,
             this.option.bottomControls?.filter?.option.map((option) => {
-              const $option = domUtils.createElement("option", {
-                innerText: option.name,
-              });
+              const $option = domUtils.createElement("option", { innerText: option.name });
               Reflect.set($option, "data-value", option);
               return $option;
             })
           );
-        }
-        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption))
           domUtils.append(
             $ruleValueSelect,
             this.option.bottomControls?.filter?.inputOption.map((option) => {
-              const $option = domUtils.createElement("option", {
-                innerText: option.name,
-              });
+              const $option = domUtils.createElement("option", { innerText: option.name });
               Reflect.set($option, "data-value", option);
               return $option;
             })
           );
-        }
         domUtils.on($externalSelect, "change", async () => {
           const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") {
-            selectInfo.selectedCallBack(selectInfo);
-          }
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
           externalSelectInfo = selectInfo;
           await execFilter(false);
         });
         domUtils.on($ruleValueSelect, "change", async () => {
           const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") {
-            selectInfo.selectedCallBack(selectInfo);
-          }
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
           ruleValueSelectInfo = selectInfo;
           await execFilter(false);
         });
@@ -12363,9 +11332,7 @@
         };
         const execFilter = async (isUpdateSelectData) => {
           this.clearContent($popsConfirm.$shadowRoot);
-          if (isUpdateSelectData) {
-            updateSelectData();
-          }
+          if (isUpdateSelectData) updateSelectData();
           const allData = await this.option.data();
           const filteredData = [];
           const searchText = domUtils.val($searchInput);
@@ -12373,29 +11340,18 @@
             const item = allData[index];
             if (typeof filterCallBack === "function") {
               const flag = await filterCallBack(item);
-              if (typeof flag === "boolean" && !flag) {
-                continue;
-              }
+              if (typeof flag === "boolean" && !flag) continue;
             }
             if (externalSelectInfo) {
               const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
-                continue;
-              }
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) continue;
             }
             if (ruleValueSelectInfo) {
               let flag = true;
-              if (searchText === "") {
-                flag = true;
-              } else {
-                flag = false;
-              }
-              if (!flag) {
-                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-              }
-              if (!flag) {
-                continue;
-              }
+              if (searchText === "") flag = true;
+              else flag = false;
+              if (!flag) flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              if (!flag) continue;
             }
             filteredData.push(item);
           }
@@ -12403,60 +11359,40 @@
         };
         if (typeof filterCallBack === "object" && filterCallBack != null) {
           let externalIndex;
-          if (typeof filterCallBack.external === "number") {
-            externalIndex = filterCallBack.external;
-          } else {
+          if (typeof filterCallBack.external === "number") externalIndex = filterCallBack.external;
+          else
             externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-              const data2 = Reflect.get(option, "data-value");
-              return data2.value === filterCallBack.external;
+              return Reflect.get(option, "data-value").value === filterCallBack.external;
             });
-          }
-          if (externalIndex !== -1) {
-            $externalSelect.selectedIndex = externalIndex;
-          }
+          if (externalIndex !== -1) $externalSelect.selectedIndex = externalIndex;
           let ruleIndex;
-          if (typeof filterCallBack.rule === "number") {
-            ruleIndex = filterCallBack.rule;
-          } else {
+          if (typeof filterCallBack.rule === "number") ruleIndex = filterCallBack.rule;
+          else
             ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-              const data2 = Reflect.get(option, "data-value");
-              return data2.value === filterCallBack.rule;
+              return Reflect.get(option, "data-value").value === filterCallBack.rule;
             });
-          }
-          if (ruleIndex !== -1) {
-            $ruleValueSelect.selectedIndex = ruleIndex;
-          }
+          if (ruleIndex !== -1) $ruleValueSelect.selectedIndex = ruleIndex;
         }
         await execFilter(true);
-      } else {
-        domUtils.hide($searchContainer, false);
-      }
+      } else domUtils.hide($searchContainer, false);
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
-          if (typeof submitCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            submitCallBack(newData);
-          }
+          if (typeof submitCallBack === "function") submitCallBack(await this.option.getData(editData));
         } else {
-          if (!isEdit) {
-            await this.option.deleteData(editData);
-          }
-          if (typeof updateDataCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            updateDataCallBack(newData);
-          }
+          if (!isEdit) await this.option.deleteData(editData);
+          if (typeof updateDataCallBack === "function") updateDataCallBack(await this.option.getData(editData));
         }
       };
-      let editView = new RuleEditView({
+      new RuleEditView({
         title: isEdit ? "编辑" : "添加",
         data: () => {
           return editData;
         },
         dialogCloseCallBack,
-        getView: async (data2) => {
-          return await this.option.itemControls.edit.getView(data2, isEdit);
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
         },
         btn: {
           ok: {
@@ -12476,67 +11412,49 @@
             },
           },
         },
-        onsubmit: async ($form, data2) => {
-          let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data2);
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
-              Qmsg.success("修改成功");
-              if ($parentShadowRoot) {
+              qmsg.default.success("修改成功");
+              if ($parentShadowRoot)
                 await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
-              }
-            } else {
-              if ($parentShadowRoot) {
-                await this.appendRuleItemElement($parentShadowRoot, result.data);
-              }
-            }
-          } else {
-            if (isEdit) {
-              log.error("修改失败");
-            }
-          }
+            } else if ($parentShadowRoot) await this.appendRuleItemElement($parentShadowRoot, result.data);
+          } else if (isEdit) log.error("修改失败");
           return result;
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
         height: this.option.itemControls.edit.height,
-      });
-      editView.showView();
+      }).showView();
     }
     parseViewElement($shadowRoot) {
       const $container = $shadowRoot.querySelector(".rule-view-container");
       const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
-      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
-      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
-      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
         $searchContainer,
-        $externalSelect,
-        $ruleValueSelect,
-        $searchInput,
+        $externalSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-status"),
+        $ruleValueSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-value"),
+        $searchInput: $searchContainer.querySelector(".pops-panel-input input"),
       };
     }
     parseRuleItemElement($ruleElement) {
       const $enable = $ruleElement.querySelector(".rule-controls-enable");
-      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      const $edit = $ruleElement.querySelector(".rule-controls-edit");
-      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
-        $enableSwitch,
-        $enableSwitchInput,
-        $enableSwitchCore,
-        $edit,
-        $delete,
+        $enableSwitch: $enable.querySelector(".pops-panel-switch"),
+        $enableSwitchInput: $enable.querySelector(".pops-panel-switch__input"),
+        $enableSwitchCore: $enable.querySelector(".pops-panel-switch__core"),
+        $edit: $ruleElement.querySelector(".rule-controls-edit"),
+        $delete: $ruleElement.querySelector(".rule-controls-delete"),
         data: Reflect.get($ruleElement, "data-rule"),
       };
     }
-    async createRuleItemElement(data2, $shadowRoot) {
-      const name = await this.option.getDataItemName(data2);
+    async createRuleItemElement(data, $shadowRoot) {
+      const name = await this.option.getDataItemName(data);
       const $ruleItem = domUtils.createElement("div", {
         className: "rule-item",
         innerHTML: `
@@ -12560,7 +11478,7 @@
 			</div>
 			`,
       });
-      Reflect.set($ruleItem, "data-rule", data2);
+      Reflect.set($ruleItem, "data-rule", data);
       const switchCheckedClassName = "pops-panel-switch-is-checked";
       const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
         this.parseRuleItemElement($ruleItem);
@@ -12575,26 +11493,20 @@
             isChecked = true;
           }
           $enableSwitchInput.checked = isChecked;
-          await this.option.itemControls.enable.callback(data2, isChecked);
+          await this.option.itemControls.enable.callback(data, isChecked);
         });
-        if (await this.option.itemControls.enable.getEnable(data2)) {
-          $enableSwitch.classList.add(switchCheckedClassName);
-        }
-      } else {
-        $enable.remove();
-      }
-      if (this.option.itemControls.edit.enable) {
+        if (await this.option.itemControls.enable.getEnable(data)) $enableSwitch.classList.add(switchCheckedClassName);
+      } else $enable.remove();
+      if (this.option.itemControls.edit.enable)
         domUtils.on($edit, "click", (event) => {
           domUtils.preventEvent(event);
-          this.showEditView(true, data2, $shadowRoot, $ruleItem, (newData) => {
-            data2 = null;
-            data2 = newData;
+          this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
+            data = null;
+            data = newData;
           });
         });
-      } else {
-        $edit.remove();
-      }
-      if (this.option.itemControls.delete.enable) {
+      else $edit.remove();
+      if (this.option.itemControls.delete.enable)
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
           const $askDialog = __pops__.confirm({
@@ -12611,15 +11523,12 @@
                 enable: true,
                 callback: async () => {
                   log.success("删除数据");
-                  const flag = await this.option.itemControls.delete.deleteCallBack(data2);
-                  if (flag) {
-                    Qmsg.success("成功删除该数据");
+                  if (await this.option.itemControls.delete.deleteCallBack(data)) {
+                    qmsg.default.success("成功删除该数据");
                     $ruleItem.remove();
                     await this.updateDeleteAllBtnText($shadowRoot);
                     $askDialog.close();
-                  } else {
-                    Qmsg.error("删除该数据失败");
-                  }
+                  } else qmsg.default.error("删除该数据失败");
                 },
               },
               cancel: {
@@ -12627,22 +11536,18 @@
                 enable: true,
               },
             },
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: "300px",
             height: "200px",
           });
         });
-      } else {
-        $delete.remove();
-      }
+      else $delete.remove();
       return $ruleItem;
     }
-    async appendRuleItemElement($shadowRoot, data2) {
+    async appendRuleItemElement($shadowRoot, data) {
       const { $container } = this.parseViewElement($shadowRoot);
       const $ruleItem = [];
-      const iteratorData = Array.isArray(data2) ? data2 : [data2];
+      const iteratorData = Array.isArray(data) ? data : [data];
       for (let index = 0; index < iteratorData.length; index++) {
         const item = iteratorData[index];
         const $item = await this.createRuleItemElement(item, $shadowRoot);
@@ -12654,12 +11559,12 @@
     }
     async updateRuleContaienrElement($shadowRoot) {
       this.clearContent($shadowRoot);
-      const data2 = await this.option.data();
-      await this.appendRuleItemElement($shadowRoot, data2);
+      const data = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data);
       await this.updateDeleteAllBtnText($shadowRoot);
     }
-    async updateRuleItemElement(data2, $oldRuleItem, $shadowRoot) {
-      const $newRuleItem = await this.createRuleItemElement(data2, $shadowRoot);
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
       $oldRuleItem.after($newRuleItem);
       $oldRuleItem.remove();
     }
@@ -12669,49 +11574,41 @@
     }
     setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
-      if (isHTML) {
-        domUtils.html($deleteBtn, text);
-      } else {
-        domUtils.text($deleteBtn, text);
-      }
+      if (isHTML) domUtils.html($deleteBtn, text);
+      else domUtils.text($deleteBtn, text);
     }
     async updateDeleteAllBtnText($shadowRoot) {
-      let data2 = await this.option.data();
-      this.setDeleteBtnText($shadowRoot, `清空所有(${data2.length})`);
+      let data = await this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
-  }
-  const BilibiliComponentDetectionRule = {
+  };
+  var BilibiliComponentDetectionRule = {
     $data: {
       whiteList: [],
       ruleData: [],
     },
-    $key: {
-      STORAGE_KEY: "bili-componentDetection-rule",
-    },
+    $key: { STORAGE_KEY: "bili-componentDetection-rule" },
     init() {
       this.$data.whiteList.length = 0;
       this.$data.ruleData.length = 0;
-      let allData = this.getData();
-      allData.forEach((data2) => {
-        if (!data2.enable) {
-          return;
-        }
-        this.$data.ruleData.push(data2);
+      this.getData().forEach((data) => {
+        if (!data.enable) return;
+        this.$data.ruleData.push(data);
       });
     },
     showView() {
       let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
-      function generateStorageApi(data2, handler) {
+      function generateStorageApi(data, handler) {
         return {
           get(key, defaultValue) {
-            return data2[key] ?? defaultValue;
+            return data[key] ?? defaultValue;
           },
           set(key, value) {
-            data2[key] = value;
+            data[key] = value;
           },
         };
       }
-      let ruleView = new RuleView({
+      new RuleView({
         title: "成分检测",
         data: () => {
           return this.getData();
@@ -12719,51 +11616,47 @@
         getAddData: () => {
           return this.getTemplateData();
         },
-        getDataItemName: (data2) => {
-          return data2["name"];
+        getDataItemName: (data) => {
+          return data["name"];
         },
-        updateData: (data2) => {
-          return this.updateData(data2);
+        updateData: (data) => {
+          return this.updateData(data);
         },
-        deleteData: (data2) => {
-          return this.deleteData(data2);
+        deleteData: (data) => {
+          return this.deleteData(data);
         },
-        getData: (data2) => {
-          let allData = this.getData();
-          let findValue = allData.find((item) => item.uuid === data2.uuid);
-          return findValue ?? data2;
+        getData: (data) => {
+          return this.getData().find((item) => item.uuid === data.uuid) ?? data;
         },
         itemControls: {
           enable: {
             enable: true,
-            getEnable(data2) {
-              return data2.enable;
+            getEnable(data) {
+              return data.enable;
             },
-            callback: (data2, enable) => {
-              data2.enable = enable;
-              this.updateData(data2);
+            callback: (data, enable) => {
+              data.enable = enable;
+              this.updateData(data);
             },
           },
           edit: {
             enable: true,
-            getView: (data2, isEdit) => {
+            getView: (data, isEdit) => {
               let $fragment = document.createDocumentFragment();
               let templateData = this.getTemplateData();
-              if (!isEdit) {
-                data2 = templateData;
-              }
+              if (!isEdit) data = templateData;
               let enable_template = UISwitch("启用", "enable", templateData.enable);
-              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data2));
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
               let name_template = UIInput("规则名称", "name", "", templateData.name, void 0, "必填");
-              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data2));
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
               let isShowDisplayName_template = UISwitch(
                 "是否显示标签名称",
                 "isShowDisplayName",
                 templateData.data.isShowDisplayName
               );
-              Reflect.set(isShowDisplayName_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
+              Reflect.set(isShowDisplayName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $isShowDisplayName =
                 panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayName_template).$el;
               let displayName_template = UIInput(
@@ -12772,14 +11665,14 @@
                 templateData.data.displayName,
                 "例如：原神"
               );
-              Reflect.set(displayName_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
+              Reflect.set(displayName_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $displayName = panelHandlerComponents.createSectionContainerItem_input(displayName_template).$el;
               let isShowDisplayIcon_template = UISwitch(
                 "是否显示标签图标",
                 "isShowDisplayIcon",
                 templateData.data.isShowDisplayIcon
               );
-              Reflect.set(isShowDisplayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
+              Reflect.set(isShowDisplayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $isShowDisplayIcon =
                 panelHandlerComponents.createSectionContainerItem_switch(isShowDisplayIcon_template).$el;
               let displayIcon_template = UIInput(
@@ -12788,7 +11681,7 @@
                 templateData.data.displayIcon,
                 "Url或base64"
               );
-              Reflect.set(displayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data2.data));
+              Reflect.set(displayIcon_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
               let $displayIcon = panelHandlerComponents.createSectionContainerItem_input(displayIcon_template).$el;
               let keywords_template = UITextArea(
                 "关键词",
@@ -12800,63 +11693,55 @@
               );
               Reflect.set(keywords_template.props, PROPS_STORAGE_API, {
                 get(key, defaultValue) {
-                  let value = data2.data[key] ?? defaultValue;
-                  if (typeof value === "string") {
-                    return value.split("\n");
-                  }
+                  let value = data.data[key] ?? defaultValue;
+                  if (typeof value === "string") return value.split("\n");
                   return value;
                 },
                 set(key, value) {
-                  if (typeof value === "string") {
-                    value = value.split("\n");
-                  }
-                  data2.data[key] = value;
+                  if (typeof value === "string") value = value.split("\n");
+                  data.data[key] = value;
                 },
               });
               let $keywords = panelHandlerComponents.createSectionContainerItem_textarea(keywords_template).$el;
               let followings_template = UITextArea("关注的用户", "followings", "", "用户id", void 0, "多个用户id换行");
               Reflect.set(followings_template.props, PROPS_STORAGE_API, {
                 get(key, defaultValue) {
-                  let value = data2.data[key] ?? defaultValue;
-                  if (typeof value === "string") {
+                  let value = data.data[key] ?? defaultValue;
+                  if (typeof value === "string")
                     return value
                       .split("\n")
                       .map((it) => Number(it))
                       .filter((it) => !isNaN(it));
-                  }
                   return value;
                 },
                 set(key, value) {
-                  if (typeof value === "string") {
+                  if (typeof value === "string")
                     value = value
                       .split("\n")
                       .map((it) => Number(it))
                       .filter((it) => !isNaN(it));
-                  }
-                  data2.data[key] = value;
+                  data.data[key] = value;
                 },
               });
               let $followings = panelHandlerComponents.createSectionContainerItem_textarea(followings_template).$el;
               let blacklist_template = UITextArea("黑名单", "blacklist", "", "", void 0, "多个用户id换行");
               Reflect.set(blacklist_template.props, PROPS_STORAGE_API, {
                 get(key, defaultValue) {
-                  let value = data2.data[key] ?? defaultValue;
-                  if (typeof value === "string") {
+                  let value = data.data[key] ?? defaultValue;
+                  if (typeof value === "string")
                     return value
                       .split("\n")
                       .map((it) => Number(it))
                       .filter((it) => !isNaN(it));
-                  }
                   return value;
                 },
                 set(key, value) {
-                  if (typeof value === "string") {
+                  if (typeof value === "string")
                     value = value
                       .split("\n")
                       .map((it) => Number(it))
                       .filter((it) => !isNaN(it));
-                  }
-                  data2.data[key] = value;
+                  data.data[key] = value;
                 },
               });
               let $blacklist = panelHandlerComponents.createSectionContainerItem_textarea(blacklist_template).$el;
@@ -12875,10 +11760,8 @@
             },
             onsubmit: ($form, isEdit, editData) => {
               let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
-              let data2 = this.getTemplateData();
-              if (isEdit) {
-                data2.uuid = editData.uuid;
-              }
+              let data = this.getTemplateData();
+              if (isEdit) data.uuid = editData.uuid;
               try {
                 $ulist_li.forEach(($li) => {
                   let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
@@ -12887,37 +11770,32 @@
                   let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                   let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                   let value = storageApi.get(key, defaultValue);
-                  if (Reflect.has(data2, key)) {
-                    Reflect.set(data2, key, value);
-                  } else if (Reflect.has(data2.data, key)) {
-                    Reflect.set(data2.data, key, value);
-                  } else {
-                    log.error(`${key}不在数据中`);
-                  }
+                  if (Reflect.has(data, key)) Reflect.set(data, key, value);
+                  else if (Reflect.has(data.data, key)) Reflect.set(data.data, key, value);
+                  else log.error(`${key}不在数据中`);
                 });
-                if (data2.name.trim() === "") {
-                  Qmsg.error("规则名称不能为空");
+                if (data.name.trim() === "") {
+                  qmsg.default.error("规则名称不能为空");
                   return {
                     success: false,
-                    data: data2,
+                    data,
                   };
                 }
-                if (isEdit) {
+                if (isEdit)
                   return {
-                    success: this.updateData(data2),
-                    data: data2,
+                    success: this.updateData(data),
+                    data,
                   };
-                } else {
+                else
                   return {
-                    success: this.addData(data2),
-                    data: data2,
+                    success: this.addData(data),
+                    data,
                   };
-                }
               } catch (error) {
                 log.error(error);
                 return {
                   success: false,
-                  data: data2,
+                  data,
                 };
               } finally {
                 this.init();
@@ -12938,8 +11816,8 @@
           },
           delete: {
             enable: true,
-            deleteCallBack: (data2) => {
-              return this.deleteData(data2);
+            deleteCallBack: (data) => {
+              return this.deleteData(data);
             },
           },
         },
@@ -12957,15 +11835,15 @@
               {
                 name: "启用",
                 value: "enable",
-                filterCallBack(data2) {
-                  return data2.enable;
+                filterCallBack(data) {
+                  return data.enable;
                 },
               },
               {
                 name: "未启用",
                 value: "notEnable",
-                filterCallBack(data2) {
-                  return !data2.enable;
+                filterCallBack(data) {
+                  return !data.enable;
                 },
               },
             ],
@@ -12973,23 +11851,21 @@
               {
                 name: "规则名",
                 value: "name",
-                filterCallBack(data2, matchText) {
-                  return Boolean(data2.name.match(matchText));
+                filterCallBack(data, matchText) {
+                  return Boolean(data.name.match(matchText));
                 },
               },
               {
                 name: "关键词",
                 value: "keywords",
-                filterCallBack(data2, matchText) {
-                  const find = data2.data.keywords.find((it) => Boolean(it.match(matchText)));
-                  return !!find;
+                filterCallBack(data, matchText) {
+                  return !!data.data.keywords.find((it) => Boolean(it.match(matchText)));
                 },
               },
             ],
           },
         },
-      });
-      ruleView.showView();
+      }).showView();
     },
     getTemplateData() {
       return {
@@ -13010,34 +11886,31 @@
     getData() {
       return _GM_getValue(this.$key.STORAGE_KEY, []);
     },
-    setData(data2) {
-      _GM_setValue(this.$key.STORAGE_KEY, data2);
+    setData(data) {
+      _GM_setValue(this.$key.STORAGE_KEY, data);
     },
-    addData(data2) {
+    addData(data) {
       let localData = this.getData();
-      let findIndex = localData.findIndex((item) => item.uuid == data2.uuid);
-      if (findIndex === -1) {
-        localData.push(data2);
+      if (localData.findIndex((item) => item.uuid == data.uuid) === -1) {
+        localData.push(data);
         _GM_setValue(this.$key.STORAGE_KEY, localData);
         return true;
-      } else {
-        return false;
-      }
+      } else return false;
     },
-    updateData(data2) {
+    updateData(data) {
       let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data2.uuid);
+      let index = localData.findIndex((item) => item.uuid == data.uuid);
       let updateFlag = false;
       if (index !== -1) {
         updateFlag = true;
-        localData[index] = data2;
+        localData[index] = data;
       }
       this.setData(localData);
       return updateFlag;
     },
-    deleteData(data2) {
+    deleteData(data) {
       let localData = this.getData();
-      let index = localData.findIndex((item) => item.uuid == data2.uuid);
+      let index = localData.findIndex((item) => item.uuid == data.uuid);
       let deleteFlag = false;
       if (index !== -1) {
         deleteFlag = true;
@@ -13096,21 +11969,19 @@
           type: "file",
           accept: ".json",
         });
-        domUtils.on($input, ["propertychange", "input"], (event2) => {
-          if (!$input.files?.length) {
-            return;
-          }
+        domUtils.on($input, ["propertychange", "input"], (event) => {
+          if (!$input.files?.length) return;
           let uploadFile = $input.files[0];
           let fileReader = new FileReader();
           fileReader.onload = () => {
-            let data2 = utils.toJSON(fileReader.result);
-            if (!Array.isArray(data2)) {
-              log.error("不是正确的规则文件", data2);
-              Qmsg.error("不是正确的规则文件");
+            let data = utils.toJSON(fileReader.result);
+            if (!Array.isArray(data)) {
+              log.error("不是正确的规则文件", data);
+              qmsg.default.error("不是正确的规则文件");
               return;
             }
-            this.setData(data2);
-            Qmsg.success(`成功导入 ${data2.length}条规则`);
+            this.setData(data);
+            qmsg.default.success(`成功导入 ${data.length}条规则`);
           };
           fileReader.readAsText(uploadFile, "UTF-8");
         });
@@ -13131,25 +12002,23 @@
           },
           btn: {
             ok: {
-              callback: async (eventDetails, event2) => {
+              callback: async (eventDetails, event) => {
                 let url = eventDetails.text;
                 if (utils.isNull(url)) {
-                  Qmsg.error("请填入完整的url");
+                  qmsg.default.error("请填入完整的url");
                   return;
                 }
                 let response = await httpx.get(url);
-                if (!response.status) {
+                if (!response.status) return;
+                let data = utils.toJSON(response.data.responseText);
+                if (!Array.isArray(data)) {
+                  log.error("不是正确的规则文件", response, data);
+                  qmsg.default.error("不是正确的规则文件");
                   return;
                 }
-                let data2 = utils.toJSON(response.data.responseText);
-                if (!Array.isArray(data2)) {
-                  log.error("不是正确的规则文件", response, data2);
-                  Qmsg.error("不是正确的规则文件");
-                  return;
-                }
-                this.setData(data2);
+                this.setData(data);
                 eventDetails.close();
-                Qmsg.success(`成功导入 ${data2.length}条规则`);
+                qmsg.default.success(`成功导入 ${data.length}条规则`);
               },
             },
           },
@@ -13159,7 +12028,7 @@
       });
     },
   };
-  const BilibiliComponentDetection = {
+  var BilibiliComponentDetection = {
     $data: {
       searchIcon: `
             <svg viewBox="0 0 24 24" fill="none">
@@ -13169,8 +12038,7 @@
     },
     init() {
       BilibiliComponentDetectionRule.init();
-      addStyle(
-        `
+      addStyle(`
             .composition-checkable,
 			.composition-checked{
                 display: inline-flex;
@@ -13248,8 +12116,7 @@
 			.composition-checked .composition-badge .composition-name{
 				margin: 0;
 			}
-        `
-      );
+        `);
       domUtils.onReady(() => {
         let lockFn = new utils.LockFunction(async () => {
           $$(".reply-item:not([data-is-inject-search-label])").forEach(($replyItem) => {
@@ -13258,13 +12125,9 @@
               $replyItem.querySelector(".info .floor-time") || $replyItem.querySelector(".content-warp .user-info");
             let { $container, $compositionNameControl } = this.createSearchButton(() => {
               let $userName = $replyItem.querySelector(".user-name[data-user-id]");
-              if (!$userName) {
-                throw new TypeError("获取用户名元素失败");
-              }
+              if (!$userName) throw new TypeError("获取用户名元素失败");
               let mid = $userName.getAttribute("data-user-id");
-              if (mid == null) {
-                throw new TypeError("获取mid失败");
-              }
+              if (mid == null) throw new TypeError("获取mid失败");
               return mid;
             });
             domUtils.after($floorTime, $container);
@@ -13277,11 +12140,8 @@
             $memberLink.setAttribute("data-is-inject-search-label", "");
             let { $container: $memberContainer, $compositionNameControl: $memberCompositionNameControl } =
               this.createSearchButton(() => {
-                let spaceUrl = $memberLink.getAttribute("href");
-                let mid = spaceUrl.match(/space.bilibili.com\/([\d]+)/i)?.[1];
-                if (mid == null) {
-                  throw new TypeError("获取mid失败");
-                }
+                let mid = $memberLink.getAttribute("href").match(/space.bilibili.com\/([\d]+)/i)?.[1];
+                if (mid == null) throw new TypeError("获取mid失败");
                 return mid;
               });
             domUtils.after($memberLink, $memberContainer);
@@ -13291,13 +12151,9 @@
             let $spaceInfo = $base.closest(".m-space-info");
             let { $container } = this.createSearchButton(() => {
               let vueIns = VueUtils.getVue($spaceInfo);
-              if (!vueIns) {
-                throw new TypeError("获取vue属性失败");
-              }
+              if (!vueIns) throw new TypeError("获取vue属性失败");
               let mid = vueIns.info.mid;
-              if (mid == null) {
-                throw new TypeError("获取mid失败");
-              }
+              if (mid == null) throw new TypeError("获取mid失败");
               return mid;
             });
             domUtils.after($base, $container);
@@ -13329,13 +12185,9 @@
           log.error("获取关注列表失败，原因：" + followingData);
           break;
         }
-        if (!followingData.list.length) {
-          break;
-        }
+        if (!followingData.list.length) break;
         allFollowingData = allFollowingData.concat(followingData.list);
-        if (followingData.list.length === followingData.total && followingPN === 1) {
-          break;
-        }
+        if (followingData.list.length === followingData.total && followingPN === 1) break;
         followingPN++;
         utils.sleep(250);
       }
@@ -13353,14 +12205,10 @@
           log.error("获取用户空间动态数据失败，原因：" + spaceData);
           break;
         }
-        if (spaceOffset === spaceData.offset && spaceOffset != "") {
-          break;
-        }
+        if (spaceOffset === spaceData.offset && spaceOffset != "") break;
         spaceOffset = spaceData.offset;
         allSpaceContentData = allSpaceContentData.concat(spaceData.items);
-        if (!spaceData.has_more) {
-          break;
-        }
+        if (!spaceData.has_more) break;
         spacePNCount++;
         if (spacePNCount > 5) {
           log.info(`最多请求5页空间动态的数据`);
@@ -13387,9 +12235,7 @@
             pub_ts: spaceData.modules.module_author.pub_ts * 1e3,
             id_str: spaceData.id_str,
           };
-          result.space.push({
-            contentInfo,
-          });
+          result.space.push({ contentInfo });
         } else {
           let contentInfo = {
             title: null,
@@ -13410,13 +12256,11 @@
           if (
             typeof forwardInfo.desc === "string" &&
             Array.isArray(spaceData.orig.modules.module_dynamic?.desc?.rich_text_nodes)
-          ) {
+          )
             spaceData.orig.modules.module_dynamic.desc.rich_text_nodes.forEach((richInfo) => {
-              if (richInfo.type === "RICH_TEXT_NODE_TYPE_AT") {
+              if (richInfo.type === "RICH_TEXT_NODE_TYPE_AT")
                 forwardInfo.desc = forwardInfo.desc?.replace(richInfo.text, "");
-              }
             });
-          }
           result.space.push({
             contentInfo,
             forwardInfo,
@@ -13447,7 +12291,7 @@
         domUtils.html($compositionNameControl, "...");
         try {
           if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
-            Qmsg.warning("未配置规则，请在设置中进行添加");
+            qmsg.default.warning("未配置规则，请在设置中进行添加");
             domUtils.html($compositionNameControl, this.$data.searchIcon);
             return;
           }
@@ -13458,9 +12302,7 @@
           domUtils.html($compositionNameControl, this.$data.searchIcon);
         } catch (error) {
           log.error(error);
-          Qmsg.error(error.message, {
-            timeout: 3500,
-          });
+          qmsg.default.error(error.message, { timeout: 3500 });
           domUtils.html($compositionNameControl, "重试");
         } finally {
           $compositionCheckable.removeAttribute("data-is-searching");
@@ -13471,7 +12313,7 @@
         $compositionNameControl,
       };
     },
-    createLabel(data2) {
+    createLabel(data) {
       let $label = domUtils.createElement("div", {
         className: "composition-checked",
         innerHTML: `
@@ -13480,33 +12322,32 @@
 			`,
       });
       let $badge = $label.querySelector(".composition-badge");
-      if (data2.rule.data.isShowDisplayName) {
+      if (data.rule.data.isShowDisplayName) {
         let $compositionName = domUtils.createElement("span", {
           className: "composition-name",
-          innerHTML: data2.rule.data.displayName,
+          innerHTML: data.rule.data.displayName,
         });
         domUtils.append($badge, $compositionName);
       }
-      if (data2.rule.data.isShowDisplayIcon) {
+      if (data.rule.data.isShowDisplayIcon) {
         let $compositionIcon = null;
-        if (data2.rule.data.displayIcon.startsWith("http")) {
+        if (data.rule.data.displayIcon.startsWith("http"))
           $compositionIcon = domUtils.createElement(
             "img",
             {
               className: "composition-icon",
-              src: data2.rule.data.displayIcon,
+              src: data.rule.data.displayIcon,
             },
             {
               referrer: "no-referrer",
               referrerPolicy: "no-referrer",
             }
           );
-        } else {
+        else
           $compositionIcon = domUtils.createElement("span", {
             className: "composition-icon",
-            innerHTML: data2.rule.data.displayIcon,
+            innerHTML: data.rule.data.displayIcon,
           });
-        }
         domUtils.append($badge, $compositionIcon);
       }
       domUtils.on($badge, "click", (event) => {
@@ -13519,7 +12360,7 @@
           },
           content: {
             text: `
-						${data2.matchedInfoList
+						${data.matchedInfoList
               .map((it) => {
                 let $el = domUtils.createElement("div", {
                   className: "reason-container",
@@ -13549,14 +12390,10 @@
 					`,
             html: true,
           },
-          btn: {
-            ok: { enable: false },
-          },
+          btn: { ok: { enable: false } },
           mask: {
             enable: true,
-            clickEvent: {
-              toClose: true,
-            },
+            clickEvent: { toClose: true },
           },
           width: PanelUISize.setting.width,
           height: PanelUISize.setting.height,
@@ -13573,36 +12410,27 @@
     clearLabel($ele) {
       while (true) {
         let $prev = domUtils.prev($ele);
-        if (!$prev) {
-          break;
-        }
-        if ($prev?.classList?.contains("composition-checked")) {
-          $prev.remove();
-        } else {
-          break;
-        }
+        if (!$prev) break;
+        if ($prev?.classList?.contains("composition-checked")) $prev.remove();
+        else break;
       }
     },
-    handleShowLabel(mid, data2, $searchContainer) {
+    handleShowLabel(mid, data, $searchContainer) {
       if (BilibiliComponentDetectionRule.$data.ruleData.length === 0) {
-        Qmsg.warning("未配置规则，请在设置中进行添加");
+        qmsg.default.warning("未配置规则，请在设置中进行添加");
         return;
       }
       mid = mid.toString();
-      if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) {
-        return;
-      }
+      if (BilibiliComponentDetectionRule.$data.whiteList.includes(mid)) return;
       let matchedAllRule = [];
       let pushMatchedRule = (rule, matchedInfo) => {
         let findValue = matchedAllRule.find((it) => it.rule === rule);
-        if (findValue) {
-          findValue.matchedInfoList.push(matchedInfo);
-        } else {
+        if (findValue) findValue.matchedInfoList.push(matchedInfo);
+        else
           matchedAllRule.push({
             rule,
             matchedInfoList: [matchedInfo],
           });
-        }
       };
       BilibiliComponentDetectionRule.$data.ruleData.forEach((ruleData) => {
         if (Array.isArray(ruleData.data.blacklist) && ruleData.data.blacklist.find((it) => it.toString() === mid)) {
@@ -13617,67 +12445,50 @@
         if (Array.isArray(ruleData.data.followings)) {
           let reason = "关注列表";
           let reasonText = "";
-          let checkFlag = ruleData.data.followings.some((followId) => {
-            let __check__flag__ = data2.following.some((followingData) => {
-              return followingData.mid.toString() === followId.toString();
-            });
-            if (__check__flag__) {
-              reasonText = followId.toString();
-            }
-            return __check__flag__;
-          });
-          if (checkFlag) {
+          if (
+            ruleData.data.followings.some((followId) => {
+              let __check__flag__ = data.following.some((followingData) => {
+                return followingData.mid.toString() === followId.toString();
+              });
+              if (__check__flag__) reasonText = followId.toString();
+              return __check__flag__;
+            })
+          )
             pushMatchedRule(ruleData, {
               reason,
               reasonText,
               reasonLink: BilibiliUrl.getUserSpaceUrl(reasonText),
               reasonTime: null,
             });
-          }
         }
-        if (Array.isArray(ruleData.data.keywords)) {
+        if (Array.isArray(ruleData.data.keywords))
           ruleData.data.keywords.forEach((keyword) => {
-            for (let spaceIndex = 0; spaceIndex < data2.space.length; spaceIndex++) {
-              const spaceData = data2.space[spaceIndex];
+            for (let spaceIndex = 0; spaceIndex < data.space.length; spaceIndex++) {
+              const spaceData = data.space[spaceIndex];
               let reason = "";
               let reasonText = keyword;
               let reasonLink = `/opus/${spaceData.contentInfo.id_str}`;
               let reasonTime = spaceData.contentInfo.pub_ts;
               if (spaceData.forwardInfo == null) {
-                if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
+                if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword))
                   reason = "投稿视频简介";
-                } else if (
-                  typeof spaceData.contentInfo.title === "string" &&
-                  spaceData.contentInfo.title.match(keyword)
-                ) {
+                else if (typeof spaceData.contentInfo.title === "string" && spaceData.contentInfo.title.match(keyword))
                   reason = "投稿视频标题";
-                }
-              } else {
-                if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword)) {
-                  reason = "空间动态转发";
-                } else if (
-                  typeof spaceData.forwardInfo?.title === "string" &&
-                  spaceData.forwardInfo.title.match(keyword)
-                ) {
-                  reason = "空间动态视频标题";
-                } else if (
-                  typeof spaceData.forwardInfo?.desc === "string" &&
-                  spaceData.forwardInfo.desc.match(keyword)
-                ) {
-                  reason = "空间动态视频简介";
-                }
-              }
-              if (reason !== "") {
+              } else if (typeof spaceData.contentInfo.desc === "string" && spaceData.contentInfo.desc.match(keyword))
+                reason = "空间动态转发";
+              else if (typeof spaceData.forwardInfo?.title === "string" && spaceData.forwardInfo.title.match(keyword))
+                reason = "空间动态视频标题";
+              else if (typeof spaceData.forwardInfo?.desc === "string" && spaceData.forwardInfo.desc.match(keyword))
+                reason = "空间动态视频简介";
+              if (reason !== "")
                 pushMatchedRule(ruleData, {
                   reason,
                   reasonText,
                   reasonLink,
                   reasonTime,
                 });
-              }
             }
           });
-        }
       });
       utils.sortListByProperty(
         matchedAllRule,
@@ -13692,13 +12503,9 @@
       });
     },
   };
-  const BilibiliPlayListPlayer = {
-    $flag: {
-      isWatchVideoChange: false,
-    },
-    $data: {
-      art: null,
-    },
+  var BilibiliPlayListPlayer = {
+    $flag: { isWatchVideoChange: false },
+    $data: { art: null },
     init() {},
     updateArtPlayerVideoInfo(videoInfo, isEpChoose) {
       const that = this;
@@ -13719,7 +12526,7 @@
           let { aid, cid, bvid } = vueInstance;
           let { title, cover: pic } = playerContainerVueInstance.video;
           log.info(`视频播放信息 => aid：${aid} bvid：${bvid} cid：${cid}`);
-          if (videoInfo == null) {
+          if (videoInfo == null)
             videoInfo = {
               aid,
               bvid,
@@ -13727,11 +12534,8 @@
               pic,
               title,
             };
-          }
           const artPlayerOption = await GenerateArtPlayerOption$1(videoInfo);
-          if (artPlayerOption == null) {
-            return;
-          }
+          if (artPlayerOption == null) return;
           let $artPlayer = $("#artplayer");
           if (!$artPlayer) {
             const $artPlayerContainer = domUtils.createElement("div", {
@@ -13746,11 +12550,8 @@
           artPlayerOption.container = $artPlayer;
           if (that.$data.art == null) {
             let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
-            if (art) {
-              that.$data.art = art;
-            } else {
-              return;
-            }
+            if (art) that.$data.art = art;
+            else return;
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
@@ -13769,22 +12570,19 @@
                 log.error("未找到播放列表，无法自动播放下一集");
                 return;
               }
-              let controlVueInstance = VueUtils.getVue($controlPanel);
-              if (controlVueInstance == null) {
+              if (VueUtils.getVue($controlPanel) == null) {
                 log.error("未找到播放列表的Vue实例，无法自动播放下一集");
                 return;
               }
               let { playMode, mediaList, videoIndex } = vueInstance.$store.state.playlist;
-              if (videoIndex >= mediaList.length - 1) {
-                log.info(`播放列表已播放完毕`);
-              } else {
+              if (videoIndex >= mediaList.length - 1) log.info(`播放列表已播放完毕`);
+              else {
                 let $currentVideoCard = $(`.video-card[index="${videoIndex}"]`);
                 let currentVideoCardVueInstance = VueUtils.getVue($currentVideoCard);
                 let p = currentVideoCardVueInstance.p;
                 if (p >= currentVideoCardVueInstance.video.page) {
                   let $nextVideoCard = $(`.video-card[index="${videoIndex + 1}"]`);
-                  let nextVideoCardVueInstance = VueUtils.getVue($nextVideoCard);
-                  nextVideoCardVueInstance.changeVideo();
+                  VueUtils.getVue($nextVideoCard).changeVideo();
                   log.info(`当前播放列表共：${mediaList.length - 1}个，即将播放下一个视频，第${videoIndex + 2}个`);
                 } else {
                   p++;
@@ -13793,9 +12591,7 @@
                 }
               }
             });
-          } else {
-            await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
-          }
+          } else await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
         },
       });
       VueUtils.waitVuePropToSet(BilibiliData.className.playlist + " .playlist-player", {
@@ -13815,45 +12611,39 @@
       });
     },
   };
-  const BilibiliPlayList = {
+  var BilibiliPlayList = {
     init() {
       this.coverVideoPlayer();
     },
     coverVideoPlayer() {
-      if ($("#artplayer")) {
-        log.warn("已存在播放器，更新播放信息");
-      } else {
-        addStyle(
-          `
+      if ($("#artplayer")) log.warn("已存在播放器，更新播放信息");
+      else
+        addStyle(`
 			#app .playlist .playlist-player .player-container{
 				display: none !important;
 			}
 			
-			${artPlayerCommonCSS}
+			${player_default}
 			
-			${artPlayerCSS$1}
+			${artplayer_default$1}
 			
-			`
-        );
-      }
+			`);
       BilibiliPlayListPlayer.updateArtPlayerVideoInfo();
     },
   };
-  const Bilibili = {
+  var Bilibili = {
     init() {
       BilibiliNetworkHook.init();
       BilibiliGlobalData.init();
       BilibiliVueProp.init();
       Panel.execMenuOnce("bili-allowCopy", () => {
-        return addStyle(
-          `
+        return addStyle(`
 				.v-drawer{
 					-webkit-user-select: unset !important;
 					-moz-user-select: unset !important;
 					user-select: unset !important;
 				}
-			`
-        );
+			`);
       });
       Panel.onceExec("listenRouterChange", () => {
         this.listenRouterChange();
@@ -13878,7 +12668,7 @@
       });
       Panel.execMenuOnce("bili-head-beautify", () => {
         log.info("添加美化CSS");
-        return addStyle(BilibiliBeautifyCSS);
+        return addStyle(beautify_default$1);
       });
       Panel.execMenuOnce("bili-componentDetection", () => {
         BilibiliComponentDetection.init();
@@ -13906,6 +12696,7 @@
         BilibiliLive.init();
       } else if (BilibiliRouter.isTopicDetail()) {
         log.info("Router: 话题");
+        BilibiliTopicDetail.init();
       } else if (BilibiliRouter.isHead()) {
         log.info("Router: 首页之类的");
         BilibiliHead.init();
@@ -13915,9 +12706,7 @@
       } else if (BilibiliRouter.isPlayList()) {
         log.info(`Router: 播放列表`);
         BilibiliPlayList.init();
-      } else {
-        log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
-      }
+      } else log.error("该Router暂未适配，可能是首页之类：" + window.location.href);
     },
     listenRouterChange() {
       VueUtils.waitVuePropToSet("#app", {
@@ -13987,7 +12776,7 @@
       });
     },
   };
-  const SettingUICommon = {
+  var SettingUICommon = {
     id: "panel-common",
     title: "通用",
     views: [
@@ -14281,7 +13070,7 @@
       },
     ],
   };
-  const SettingUIHead = {
+  var SettingUIHead = {
     id: "panel-head",
     title: "首页",
     views: [
@@ -14341,7 +13130,7 @@
       },
     ],
   };
-  const SettingUIVideo = {
+  var SettingUIVideo = {
     id: "panel-video",
     title: "视频",
     isDefault() {
@@ -14367,7 +13156,6 @@
                     void 0,
                     "用于处理内存泄露问题"
                   ),
-
                   UISwitch("新增评论模块", "bili-video-addCommentModule", true, void 0, "用于查看当前视频的评论"),
                   UISwitch(
                     "新增简介模块",
@@ -14563,7 +13351,7 @@
       },
     ],
   };
-  const SettingUIOpus = {
+  var SettingUIOpus = {
     id: "panel-opus",
     title: "专栏",
     isDefault() {
@@ -14632,7 +13420,7 @@
       },
     ],
   };
-  const SettingUIDynamic = {
+  var SettingUIDynamic = {
     id: "panel-dynamic",
     title: "动态",
     isDefault() {
@@ -14669,7 +13457,7 @@
       },
     ],
   };
-  const SettingUIBangumi = {
+  var SettingUIBangumi = {
     id: "panel-bangumi",
     title: "番剧",
     isDefault() {
@@ -14925,7 +13713,7 @@
       },
     ],
   };
-  const SettingUISearch = {
+  var SettingUISearch = {
     id: "panel-search",
     title: "搜索",
     isDefault() {
@@ -15031,7 +13819,7 @@
       },
     ],
   };
-  const SettingUISpace = {
+  var SettingUISpace = {
     id: "panel-space",
     title: "个人空间",
     isDefault() {
@@ -15084,7 +13872,7 @@
       },
     ],
   };
-  const SettingUILive = {
+  var SettingUILive = {
     id: "panel-live",
     title: "直播",
     isDefault() {
@@ -15179,7 +13967,7 @@
       },
     ],
   };
-  const SettingUITopicDetail = {
+  var SettingUITopicDetail = {
     id: "panel-topic-detail",
     title: "话题",
     isDefault() {
@@ -15187,10 +13975,9 @@
     },
     views: [],
   };
-  const RunningFlag = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss") + "BilibiliPerfScriptRunning";
-  if (Reflect.has(_unsafeWindow, RunningFlag)) {
-    log.error(`${_SCRIPT_NAME_}运行异常，请勿重复运行脚本：${RunningFlag}`);
-  } else {
+  var RunningFlag = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss") + "BilibiliPerfScriptRunning";
+  if (Reflect.has(_unsafeWindow, RunningFlag)) log.error(`${_SCRIPT_NAME_}运行异常，请勿重复运行脚本：${RunningFlag}`);
+  else {
     Reflect.set(_unsafeWindow, RunningFlag, true);
     PanelContent.addContentConfig([
       SettingUICommon,

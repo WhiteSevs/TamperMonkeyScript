@@ -1,10 +1,11 @@
 import { $, DOMUtils, MountVue, httpx, log, utils } from "@/env";
+import { BaiduRouter } from "@/router/BaiduRouter";
 import { GM_RESOURCE_MAPPING } from "@components/GM_Resource_Mapping";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { GestureBack } from "@components/utils/GestureBack";
 import { VueUtils } from "@components/utils/VueUtils";
-import { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
+import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import Qmsg from "qmsg";
 import Viewer from "viewerjs";
 import { TieBaApi } from "../api/TiebaApi";
@@ -15,7 +16,6 @@ import App from "./App.vue";
 import pinia from "./stores";
 import { TiebaComment } from "./TiebaComment";
 import { TiebaReply } from "./TiebaReply";
-import { BaiduRouter } from "@/router/BaiduRouter";
 
 interface PostImg {
   bsize: string;

@@ -2,7 +2,7 @@ import { $, $$, DOMUtils, addStyle, httpx, loadingView, log, pops, utils } from 
 import { LoadingView } from "@/utils/LoadingView";
 import { Panel } from "@components/setting/panel";
 import { VueUtils } from "@components/utils/VueUtils";
-import { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx.js";
+import type { HttpxRequestOption } from "@whitesev/utils/dist/types/src/types/Httpx.js";
 import Qmsg from "qmsg";
 import { ref } from "vue";
 import { TiebaCore } from "../TiebaCore";
@@ -12,8 +12,8 @@ import { TiebaPostApi } from "../api/TiebaPostApi";
 import { TiebaPageDataHandler } from "../handler/TiebaPageDataHandler";
 import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
 import { TiebaData } from "../home/data";
-import { CommentData } from "../types/CommentType";
-import { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
+import type { CommentData } from "../types/CommentType";
+import type { FloorCommentData, LzlItemData, PageComment } from "../types/PostsType";
 import { Toolbar } from "./Toolbar";
 import { TiebaGlobalData } from "../data/GlobalData";
 

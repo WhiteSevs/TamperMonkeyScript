@@ -13,7 +13,7 @@ import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "../link-click-m
 import { NetDisk } from "../NetDisk";
 import { NetDiskRuleManager } from "../NetDiskRuleManager";
 import { NetDiskUserRuleUI } from "../rule/user-rule/NetDiskUserRuleUI";
-import { LinkViewRegisterContextMenuShowTextOption, NetDiskLinkView } from "./link-view/NetDiskLinkView";
+import { type LinkViewRegisterContextMenuShowTextOption, NetDiskLinkView } from "./link-view/NetDiskLinkView";
 import { NetDiskLinkViewEvent } from "./link-view/NetDiskLinkViewEvent";
 import { NetDiskView } from "./NetDiskView";
 import { NetDiskSettingView } from "./setting/NetDiskSettingView";

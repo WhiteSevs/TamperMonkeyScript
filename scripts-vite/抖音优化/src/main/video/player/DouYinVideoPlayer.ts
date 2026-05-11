@@ -354,9 +354,9 @@ export const DouYinVideoPlayer = {
         }
       },
       {
-        capture: true,
         eventType: "click",
-        checkClickTime: 300,
+        checkClickTime: 288,
+        capture: true,
         overrideTarget: false,
       }
     );

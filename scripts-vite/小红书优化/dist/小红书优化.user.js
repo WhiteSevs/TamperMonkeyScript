@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.11
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
@@ -32,34 +32,73 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, pops, Utils, Viewer) {
+(function (qmsg, _whitesev_domutils, _whitesev_pops, _whitesev_utils, viewerjs) {
   "use strict";
-
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
-  const GM_RESOURCE_MAPPING = {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __copyProps = (to, from, except, desc) => {
+    if ((from && typeof from === "object") || typeof from === "function")
+      for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+        key = keys[i];
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, {
+            get: ((k) => from[k]).bind(null, key),
+            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+          });
+      }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
+    __copyProps(
+      isNodeMode || !mod || !mod.__esModule
+        ? __defProp(target, "default", {
+            value: mod,
+            enumerable: true,
+          })
+        : target,
+      mod
+    )
+  );
+  qmsg = __toESM(qmsg);
+  _whitesev_domutils = __toESM(_whitesev_domutils);
+  _whitesev_pops = __toESM(_whitesev_pops);
+  _whitesev_utils = __toESM(_whitesev_utils);
+  viewerjs = __toESM(viewerjs);
+  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
+  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
+  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
+  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
+  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
+  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
+  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
+  var _GM_removeValueChangeListener =
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
+  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
+  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
+  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
+  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
+  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
+  var _monkeyWindow = window;
+  var GM_RESOURCE_MAPPING = {
+    ElementPlus: {
+      keyName: "ElementPlusResourceCSS",
+      url: "https://fastly.jsdelivr.net/npm/element-plus@latest/dist/index.min.css",
+    },
     Viewer: {
       keyName: "ViewerCSS",
       url: "https://fastly.jsdelivr.net/npm/viewerjs@latest/dist/viewer.min.css",
     },
+    Hljs: {
+      keyName: "HljsCSS",
+      url: "https://fastly.jsdelivr.net/npm/highlight.js@latest/styles/github-dark.min.css",
+    },
   };
-  const PanelSettingConfig = {
+  var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom",
@@ -72,62 +111,52 @@
       key: "qmsg-config-showreverse",
       defaultValue: false,
     },
+    httpx_cookie_manager_enable: {
+      key: "httpx-use-cookie-enable",
+      defaultValue: false,
+    },
+    httpx_cookie_manager_use_document_cookie: {
+      key: "httpx-use-document-cookie",
+      defaultValue: false,
+    },
   };
-  const CommonUtil = {
+  var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
-        if (typeof selector !== "string") {
-          return;
-        }
-        DOMUtils.waitNodeList(selector).then((nodeList) => {
+        if (typeof selector !== "string") return;
+        _whitesev_domutils.default.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
     },
     createBlockCSSNode(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return DOMUtils.createElement("style", {
+      return _whitesev_domutils.default.createElement("style", {
         type: "text/css",
         innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
     addBlockCSS(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+      if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
-      if (typeof cssText === "string" && cssText) {
-        return addStyle(cssText);
-      } else {
-        return CommonUtil.loadStyleLink(resourceMapData.url);
-      }
+      if (typeof cssText === "string" && cssText) return addStyle(cssText);
+      else return CommonUtil.loadStyleLink(resourceMapData.url);
     },
     async loadStyleLink(url) {
       let $link = document.createElement("link");
@@ -135,7 +164,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.onReady(() => {
+        _whitesev_domutils.default.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -153,32 +182,21 @@
     },
     fixUrl(url) {
       url = url.trim();
-      if (url.startsWith("data:")) {
-        return url;
-      }
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else if (url.startsWith("//")) {
-        if (url.startsWith("///"));
-        else {
-          url = window.location.protocol + url;
-        }
+      if (url.startsWith("data:")) return url;
+      if (url.match(/^http(s|):\/\//i)) return url;
+      else if (url.startsWith("//")) {
+        if (url.startsWith("///")) {
+        } else url = window.location.protocol + url;
         return url;
       } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
+        if (!url.startsWith("/")) url += "/";
         url = window.location.origin + url;
         return url;
       }
     },
     fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
+      if (url.startsWith("https://")) return url;
+      if (!url.startsWith("http://")) return url;
       try {
         let urlInstance = new URL(url);
         urlInstance.protocol = "https:";
@@ -222,9 +240,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions
-          .query({
-            name: "clipboard-read",
-          })
+          .query({ name: "clipboard-read" })
           .then(() => {
             readClipboardText(resolve);
           })
@@ -234,12 +250,8 @@
           });
       }
       function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
+        if (typeof navigator?.clipboard?.readText !== "function") return false;
+        if (typeof navigator?.permissions?.query !== "function") return false;
         return true;
       }
       return new Promise((resolve) => {
@@ -247,19 +259,15 @@
           resolve("");
           return;
         }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard(resolve);
-        } else {
+        if (document.hasFocus()) requestPermissionsWithClipboard(resolve);
+        else
           window.addEventListener(
             "focus",
             () => {
               requestPermissionsWithClipboard(resolve);
             },
-            {
-              once: true,
-            }
+            { once: true }
           );
-        }
       });
     },
     escapeHtml(unsafe) {
@@ -308,66 +316,44 @@
     },
     findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
-        let $parent = DOMUtils.closest($el, parentSelector);
-        if ($parent) {
-          let $target = $parent.querySelector(selector);
-          return $target;
-        }
+        let $parent = _whitesev_domutils.default.closest($el, parentSelector);
+        if ($parent) return $parent.querySelector(selector);
       } else {
-        if (DOMUtils.matches($el, selector)) {
-          return $el;
-        }
-        let $parent = DOMUtils.closest($el, selector);
-        return $parent;
+        if (_whitesev_domutils.default.matches($el, selector)) return $el;
+        return _whitesev_domutils.default.closest($el, selector);
       }
     },
     toStr(data, space = 2) {
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
-      const dataStr = JSON.stringify(
+      return JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
         space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
-      return dataStr;
     },
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
     },
     isMobileDevice(size = 768) {
-      const isVerticalScreen = this.isVerticalScreen();
-      if (isVerticalScreen) {
-        return globalThis.innerWidth < size;
-      } else {
-        return globalThis.innerHeight < size;
-      }
+      if (this.isVerticalScreen()) return globalThis.innerWidth < size;
+      else return globalThis.innerHeight < size;
     },
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
     formatVideoDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
       const zeroPadding = function (num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
+        if (num < 10) return `0${num}`;
+        else return num;
       };
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
-        return `${minutes}:${zeroPadding(seconds)}`;
-      } else {
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else {
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor(duration / 60) % 60;
         const seconds = duration % 60;
@@ -376,78 +362,64 @@
     },
     formatTimeStamp(time, endTime) {
       if (typeof time === "number") {
-        if (time < 1e12) {
+        if (time < 0xe8d4a51000) {
           const padZeroLength = String(Date.now()).length - String(time).length;
           time = time * Math.pow(10, padZeroLength);
         }
       }
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
-      let currentTime = new Date(endTime ?? Date.now());
-      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
       let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0) {
-        if (days > 7) {
-          result = utils.formatTime(oldTime.getTime());
-        } else {
-          result = days + "天前";
-        }
-      } else {
+      if (days > 0)
+        if (days > 7) result = utils.formatTime(oldTime.getTime());
+        else result = days + "天前";
+      else {
         let leave1 = timeDifference % (24 * 3600 * 1e3);
         let hours = Math.floor(leave1 / (3600 * 1e3));
-        if (hours > 0) {
-          result = hours + "小时前";
-        } else {
+        if (hours > 0) result = hours + "小时前";
+        else {
           let leave2 = leave1 % (3600 * 1e3);
           let minutes = Math.floor(leave2 / (60 * 1e3));
-          if (minutes > 0) {
-            result = minutes + "分钟前";
-          } else {
+          if (minutes > 0) result = minutes + "分钟前";
+          else {
             let leave3 = leave2 % (60 * 1e3);
-            let seconds = Math.round(leave3 / 1e3);
-            result = seconds + "秒前";
+            result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
       }
       return result;
     },
   };
-  const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.fn.Utils.AnyTouch();
+  var utils = _whitesev_utils.default.noConflict();
+  var domUtils = _whitesev_domutils.default.noConflict();
+  var __pops__ = _whitesev_pops.default;
+  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
     tag: true,
   });
-  const getPageMaxZIndex = () => {
+  var getPageMaxZIndex = () => {
     const deviation = 100;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
     const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-    const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
-    return maxZIndex;
+    return Math.max(deviation, popsZIndex, pointZIndex);
   };
-  Qmsg.config({
+  qmsg.default.config({
     isHTML: true,
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
+      if (qmsgType === "loading") return false;
       const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
+      if (qmsgType === "warning") log.warn(content);
+      else if (qmsgType === "error") log.error(content);
+      else log.info(content);
       return false;
     },
     get position() {
@@ -485,13 +457,13 @@
     },
     drag: true,
   });
-  const MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  const httpx = new utils.Httpx({
+  var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
     logDetails: false,
   });
@@ -504,19 +476,14 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") {
-        Qmsg.warning("请求取消", { consoleLogContent: true });
-      } else if (data.type === "onerror") {
-        Qmsg.error("请求异常", { consoleLogContent: true });
-      } else if (data.type === "ontimeout") {
-        Qmsg.error("请求超时", { consoleLogContent: true });
-      } else {
-        Qmsg.error("其它错误", { consoleLogContent: true });
-      }
+      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
+      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
+      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
+      else qmsg.default.error("其它错误", { consoleLogContent: true });
       return data;
     }
   );
-  const OriginPrototype = {
+  var OriginPrototype = {
     Object: {
       defineProperty: _unsafeWindow.Object.defineProperty,
       keys: _unsafeWindow.Object.keys,
@@ -526,72 +493,64 @@
       apply: _unsafeWindow.Function.prototype.apply,
       call: _unsafeWindow.Function.prototype.call,
     },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
+    Element: { appendChild: _unsafeWindow.Element.prototype.appendChild },
     setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
     clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
     setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
-  const addStyle = domUtils.addStyle.bind(domUtils);
+  var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.CookieManagerService({
-    baseCookieHandler: "GM_cookie",
-  });
-  if (!cookieManager.isSupportGM_cookie) {
-    if (cookieManager.isSupportCookieStore) {
-      cookieManager.setOptions({
-        baseCookieHandler: "cookieStore",
-      });
-    } else {
-      cookieManager.setOptions({
-        baseCookieHandler: "document.cookie",
-      });
-    }
-  }
+  var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
+  var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
+  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  if (!cookieManager.isSupportGM_cookie)
+    if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
+    else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils.DocumentCookieHandler();
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelSizeUtil = {
+  var KEY = "GM_Panel";
+  var ATTRIBUTE_INIT = "data-init";
+  var ATTRIBUTE_KEY = "data-key";
+  var ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  var ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  var ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+  var PROPS_STORAGE_API = "data-storage-api";
+  var PanelSizeUtil = {
+    followBrowserSize: false,
     get width() {
-      return globalThis.innerWidth;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
     },
     get height() {
-      return globalThis.innerHeight;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
     },
   };
-  const PanelUISize = {
+  var PanelUISize = {
     setting: {
       get width() {
-        if (PanelSizeUtil.width < 550) {
-          return "88vw";
-        } else if (PanelSizeUtil.width < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
+        if (PanelSizeUtil.width < 550) return "88vw";
+        else if (PanelSizeUtil.width < 700) return "550px";
+        else return "700px";
       },
       get height() {
-        if (PanelSizeUtil.height < 450) {
-          return "70vh";
-        } else if (PanelSizeUtil.height < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
+        if (PanelSizeUtil.height < 450) return "70vh";
+        else if (PanelSizeUtil.height < 550) return "450px";
+        else return "550px";
       },
     },
     settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
+      },
+    },
+    settingBig: {
+      get width() {
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       },
     },
     info: {
@@ -603,21 +562,17 @@
       },
     },
   };
-  const PanelContent = {
+  var PanelContent = {
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) {
-          this.__contentConfig = new utils.Dictionary();
-        }
+        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) {
-        configList = [configList];
-      }
+      if (!Array.isArray(configList)) configList = [configList];
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
@@ -628,34 +583,28 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig(config) {
-      if (this.$data.__defaultBottomContentConfig.length) {
-        return this.$data.__defaultBottomContentConfig;
-      }
+      if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
       let isDoubleClick = false;
       let timer = void 0;
       const translateCallback = (text, translateMap) => {
-        if (config && typeof config.translateCallback === "function") {
+        if (config && typeof config.translateCallback === "function")
           return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const exportToFile = (fileName, fileData) => {
-        if (typeof fileData !== "string") {
-          fileData = CommonUtil.toStr(fileData);
-        }
+        if (typeof fileData !== "string") fileData = CommonUtil.toStr(fileData);
         const blob = new Blob([fileData]);
         const blobUrl = globalThis.URL.createObjectURL(blob);
-        const $anchor = domUtils.createElement("a", {
-          href: blobUrl,
-          download: fileName,
-        });
-        $anchor.click();
+        domUtils
+          .createElement("a", {
+            href: blobUrl,
+            download: fileName,
+          })
+          .click();
         utils.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
@@ -684,9 +633,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -708,43 +655,29 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm(
-              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
-            );
-            if (clearLocalStorage) {
-              if (typeof _GM_listValues === "function") {
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
+              if (typeof _GM_listValues === "function")
                 if (typeof _GM_deleteValue === "function") {
-                  const localStorageKeys = _GM_listValues();
-                  localStorageKeys.forEach((key) => {
+                  _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
-                } else {
-                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-                }
-              } else {
-                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
-              }
-            }
-            if (typeof _GM_setValues === "function") {
-              _GM_setValues(data);
-            } else {
-              const keys = Object.keys(data);
-              keys.forEach((key) => {
+                  qmsg.default.success(translateCallback("已清空脚本存储的配置"));
+                } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
+              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            if (typeof _GM_setValues === "function") _GM_setValues(data);
+            else
+              Object.keys(data).forEach((key) => {
                 const value = data[key];
                 _GM_setValue(key, value);
               });
-            }
-            Qmsg.success(translateCallback("配置导入完毕"));
+            qmsg.default.success(translateCallback("配置导入完毕"));
+            importEndCallBack?.();
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
-              if (Object.keys(data).length === 0) {
-                Qmsg.warning(translateCallback("解析为空配置，不导入"));
-              } else {
-                await updateConfigToStorage(data);
-              }
+              if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
+              else await updateConfigToStorage(data);
               resolve(true);
             });
           };
@@ -756,9 +689,7 @@
               accept: ".json",
             });
             domUtils.on($input, ["propertychange", "input"], () => {
-              if (!$input.files?.length) {
-                return;
-              }
+              if (!$input.files?.length) return;
               const uploadFile = $input.files[0];
               const fileReader = new FileReader();
               fileReader.onload = () => {
@@ -793,53 +724,37 @@
                   callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error(translateCallback("请填入完整的url"));
+                      qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
-                    const response = await httpx.get(url, {
-                      allowInterceptConfig: false,
-                    });
+                    const $loading = qmsg.default.loading(translateCallback("正在获取配置..."));
+                    const response = await httpx.get(url, { allowInterceptConfig: false });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
+                      qmsg.default.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
-                    const flag = await importFile(response.data.responseText);
-                    if (!flag) {
-                      return;
-                    }
+                    if (!(await importFile(response.data.responseText))) return;
                     details.close();
                   },
                 },
-                cancel: {
-                  enable: false,
-                },
+                cancel: { enable: false },
               },
               drag: true,
-              mask: {
-                enable: true,
-              },
+              mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
             domUtils.on($promptInput, ["input", "propertychange"], () => {
-              const value = domUtils.val($promptInput);
-              if (value === "") {
-                domUtils.attr($promptOk, "disabled", "true");
-              } else {
-                domUtils.removeAttr($promptOk, "disabled");
-              }
+              if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+              else domUtils.removeAttr($promptOk, "disabled");
             });
             domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
-                const value = domUtils.val($promptInput);
-                if (value !== "") {
-                  domUtils.emit($promptOk, "click");
-                }
+                if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
               }
             });
             domUtils.emit($promptInput, "input");
@@ -849,13 +764,10 @@
             $alert.close();
             let clipboardText = await CommonUtil.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
+              qmsg.default.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
-            const flag = await importFile(clipboardText);
-            if (!flag) {
-              return;
-            }
+            if (!(await importFile(clipboardText))) return;
           });
         };
         const exportConfig = (
@@ -884,9 +796,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -912,48 +822,46 @@
               exportToFile(fileName, fileData);
               $alert.close();
             } catch (error) {
-              Qmsg.error(error.toString(), { consoleLogContent: true });
+              qmsg.default.error(error.toString(), { consoleLogContent: true });
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            const result = await utils.copy(fileData);
-            if (result) {
-              Qmsg.success(translateCallback("复制成功"));
+            if (await utils.copy(fileData)) {
+              qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
-            } else {
-              Qmsg.error(translateCallback("复制失败"));
-            }
+            } else qmsg.default.error(translateCallback("复制失败"));
           });
         };
-        const $dialog = __pops__.confirm({
-          title: {
-            text: translateCallback("配置"),
-            position: "center",
-          },
-          content: {
-            text: `<textarea name="config-value" id="config" readonly></textarea>`,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              type: "primary",
-              text: translateCallback("导入"),
-              callback() {
-                importConfig();
+        const $textarea = __pops__
+          .confirm({
+            title: {
+              text: translateCallback("配置"),
+              position: "center",
+            },
+            content: {
+              text: `<textarea name="config-value" id="config" readonly></textarea>`,
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                type: "primary",
+                text: translateCallback("导入"),
+                callback() {
+                  importConfig();
+                },
+              },
+              cancel: {
+                enable: true,
+                text: translateCallback("导出"),
+                callback() {
+                  exportConfig(void 0, configDataStr);
+                },
               },
             },
-            cancel: {
-              enable: true,
-              text: translateCallback("导出"),
-              callback() {
-                exportConfig(void 0, configDataStr);
-              },
-            },
-          },
-          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
-          height: "auto",
-          style: `
+            width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+            height: "auto",
+            style: `
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -985,17 +893,16 @@
             --textarea-bd-color: #c0c4cc;
           }
         `,
-        });
-        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+          })
+          .$shadowRoot.querySelector("textarea");
         const configData = {};
-        if (typeof _GM_listValues === "function") {
-          const LocalKeys = _GM_listValues();
-          LocalKeys.forEach((key) => {
+        if (typeof _GM_listValues === "function")
+          _GM_listValues().forEach((key) => {
             const value = _GM_getValue(key);
             Reflect.set(configData, key, value);
           });
-        } else {
-          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
+        else {
+          qmsg.default.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -1004,9 +911,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-          window.open(supportURL, "_blank");
-        }
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -1019,9 +924,8 @@
           clickFirstCallback() {
             return false;
           },
-          afterRender(config2) {
-            const anyTouch = new AnyTouch(config2.$asideLiElement);
-            anyTouch.on("tap", function () {
+          afterRender(config) {
+            new AnyTouch(config.$asideLiElement).on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1043,7 +947,7 @@
       this.$data.__defaultBottomContentConfig = config;
     },
   };
-  const PanelMenu = {
+  var PanelMenu = {
     $data: {
       __menuOption: [
         {
@@ -1067,28 +971,20 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!CommonUtil.isTopWindow()) {
-        return;
-      }
+      if (!CommonUtil.isTopWindow()) return;
       MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       this.$data.menuOption.push(...option);
     },
     updateMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       option.forEach((optionItem) => {
         let findIndex = this.$data.menuOption.findIndex((it) => {
           return it.key === optionItem.key;
         });
-        if (findIndex !== -1) {
-          this.$data.menuOption[findIndex] = optionItem;
-        }
+        if (findIndex !== -1) this.$data.menuOption[findIndex] = optionItem;
       });
     },
     getMenuOption(index = 0) {
@@ -1098,7 +994,7 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
-  class PanelMenuResultsHandler {
+  var PanelMenuResultsHandler = class {
     data = {
       storeNodeList: [],
       destoryFnList: [],
@@ -1111,40 +1007,26 @@
       const dynamicMenuStoreNodeList = [];
       const dynamicDestoryFnList = [];
       let resultValueList = [];
-      if (Array.isArray(args)) {
-        resultValueList = resultValueList.concat(args);
-      } else {
+      if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
+      else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null) {
-            if (obj instanceof Element) {
-              resultValueList.push(obj);
-            } else {
-              if (Array.isArray(obj)) {
-                handleArgs(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else if ($css instanceof Element) {
-                    resultValueList.push($css);
-                  } else;
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
+          if (typeof obj === "object" && obj != null)
+            if (obj instanceof Element) resultValueList.push(obj);
+            else if (Array.isArray(obj)) handleArgs(obj);
+            else {
+              const { $css, destory } = obj;
+              if ($css != null) {
+                if (Array.isArray($css)) resultValueList = resultValueList.concat($css);
+                else if ($css instanceof Element) resultValueList.push($css);
               }
+              if (typeof destory === "function") resultValueList.push(destory);
             }
-          } else {
-            resultValueList.push(obj);
-          }
+          else resultValueList.push(obj);
         };
         handleArgs(args);
       }
       const handleResult = (it) => {
-        if (it == null) {
-          return;
-        }
+        if (it == null) return;
         if (it instanceof Element) {
           dynamicMenuStoreNodeList.push(it);
           return;
@@ -1156,17 +1038,12 @@
       };
       for (const it of resultValueList) {
         const flag = handleResult(it);
-        if (typeof flag === "boolean" && !flag) {
-          break;
-        }
-        if (Array.isArray(it)) {
+        if (typeof flag === "boolean" && !flag) break;
+        if (Array.isArray(it))
           for (const it2 of it) {
             const flag2 = handleResult(it2);
-            if (typeof flag2 === "boolean" && !flag2) {
-              break;
-            }
+            if (typeof flag2 === "boolean" && !flag2) break;
           }
-        }
       }
       this.clearStoreNodeList();
       this.execDestoryFnAndClear();
@@ -1181,8 +1058,7 @@
     }
     clearStoreNodeList = () => {
       for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
-        const $css = this.data.storeNodeList[index];
-        $css?.remove();
+        this.data.storeNodeList[index]?.remove();
         this.data.storeNodeList.splice(index, 1);
       }
     };
@@ -1195,15 +1071,12 @@
     };
     checkMenuExec() {
       let flag = false;
-      if (typeof this.option.checkExec === "function") {
-        flag = this.option.checkExec(this.option.keyList);
-      } else {
-        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
-      }
+      if (typeof this.option.checkExec === "function") flag = this.option.checkExec(this.option.keyList);
+      else flag = this.option.keyList.every((key) => this.getEnableStatus(key));
       return flag;
     }
-  }
-  class StorageUtils {
+  };
+  var StorageUtils = class {
     storageKey;
     listenerData;
     cacheData;
@@ -1211,14 +1084,10 @@
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key can not be empty string");
-        }
+        if (trimKey == "") throw new Error("key can not be empty string");
         this.storageKey = trimKey;
-      } else {
-        throw new TypeError("key must be a string");
-      }
-      this.listenerData = new Utils.Dictionary();
+      } else throw new TypeError("key must be a string");
+      this.listenerData = new _whitesev_utils.default.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
       this.setLocalValue = this.setLocalValue.bind(this);
       this.destory = this.destory.bind(this);
@@ -1265,9 +1134,7 @@
           _GM_removeValueChangeListener(listenerId);
         });
         return localValue;
-      } else {
-        return this.cacheData;
-      }
+      } else return this.cacheData;
     }
     setLocalValue(value) {
       this.cacheData = null;
@@ -1286,8 +1153,7 @@
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
+      return this.getLocalValue();
     }
     delete(key) {
       const oldValue = this.get(key);
@@ -1343,19 +1209,16 @@
     }
     async emitValueChangeListener(...args) {
       const [key, newValue, oldValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
+      if (!this.listenerData.has(key)) return;
       const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
           let __newValue;
           let __oldValue;
-          if (args.length === 1);
-          else if (args.length === 2) {
-            __newValue = newValue;
-          } else if (args.length === 3) {
+          if (args.length === 1) {
+          } else if (args.length === 2) __newValue = newValue;
+          else if (args.length === 3) {
             __newValue = newValue;
             __oldValue = oldValue;
           }
@@ -1363,9 +1226,9 @@
         }
       }
     }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
-  const Panel = {
+  };
+  var PopsPanelStorageApi = new StorageUtils(KEY);
+  var Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
       __onceExecMenuData: null,
@@ -1375,28 +1238,20 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) {
-          this.__contentConfigInitDefaultValue = new utils.Dictionary();
-        }
+        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) {
-          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
-        }
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
+        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -1418,19 +1273,13 @@
     },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
-          return;
-        }
+        if (!config.attributes) return;
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") return;
         const attributes = config.attributes;
         const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           const __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) return;
         }
         const menuDefaultConfig = new Map();
         const key = attributes[ATTRIBUTE_KEY];
@@ -1439,56 +1288,46 @@
           menuDefaultConfig.set(key, defaultValue);
         }
         const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
-          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            const defaultValue = moreMenuDefaultConfig[key2];
-            menuDefaultConfig.set(key2, defaultValue);
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig)
+          Object.keys(moreMenuDefaultConfig).forEach((key) => {
+            const defaultValue = moreMenuDefaultConfig[key];
+            menuDefaultConfig.set(key, defaultValue);
           });
-        }
         if (!menuDefaultConfig.size) {
           log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
           const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
-          if (typeof disabled === "boolean" && disabled) {
+          if (typeof disabled === "boolean" && disabled)
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
-          }
         }
-        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
-          this.setDefaultValue(__key, __defaultValue);
-        }
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) this.setDefaultValue(__key, __defaultValue);
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           const configItem = configList[index];
           initDefaultValue(configItem);
           const childViews = configItem.views;
-          if (childViews && Array.isArray(childViews)) {
-            loopInitDefaultValue(childViews);
-          }
+          if (childViews && Array.isArray(childViews)) loopInitDefaultValue(childViews);
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         const leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.views) {
-          continue;
-        }
+        if (!leftContentConfigItem.views) continue;
         const rightContentConfigList = leftContentConfigItem.views;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+        if (rightContentConfigList && Array.isArray(rightContentConfigList))
           loopInitDefaultValue(rightContentConfigList);
-        }
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     setDefaultValue(key, defaultValue) {
-      if (this.$data.contentConfigInitDefaultValue.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key))
         log.warn("该key已存在，初始化默认值失败: ", {
           key,
           initValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
-      }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     getDefaultValue(key) {
@@ -1500,9 +1339,7 @@
     getValue(key, defaultValue) {
       const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.contentConfigInitDefaultValue.has(key)) {
-          return this.$data.contentConfigInitDefaultValue.get(key);
-        }
+        if (this.$data.contentConfigInitDefaultValue.has(key)) return this.$data.contentConfigInitDefaultValue.get(key);
         return defaultValue;
       }
       return localValue;
@@ -1517,11 +1354,8 @@
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       if (option?.immediate || option?.immediateAll) {
         const value = this.getValue(key);
-        if (option?.immediate) {
-          callback(key, value, value);
-        } else if (option?.immediateAll) {
-          Panel.emitMenuValueChange(key, value, value);
-        }
+        if (option?.immediate) callback(key, value, value);
+        else if (option?.immediateAll) Panel.emitMenuValueChange(key, value, value);
       }
       return listenerId;
     },
@@ -1533,20 +1367,15 @@
     },
     async exec(queryKey, callback, checkExec, once = true) {
       let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) queryKeyFn = () => queryKey;
+      else queryKeyFn = queryKey;
       let isArrayKey = false;
       const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
         keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
+      } else keyList.push(queryKeyResult);
       const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -1554,9 +1383,7 @@
       }
       const storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return this.$data.onceExecMenuData.get(storageKey);
-        }
+        if (this.$data.onceExecMenuData.has(storageKey)) return this.$data.onceExecMenuData.get(storageKey);
       }
       const listenerIdList = [];
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1565,13 +1392,10 @@
           const value = this.getValue(key);
           return Boolean(value);
         },
-        checkExec(keyList2) {
+        checkExec(keyList) {
           let flag = false;
-          if (typeof checkExec === "function") {
-            flag = checkExec(keyList2);
-          } else {
-            flag = keyList2.every((key) => this.getValue(key));
-          }
+          if (typeof checkExec === "function") flag = checkExec(keyList);
+          else flag = keyList.every((key) => this.getValue(key));
           return flag;
         },
       });
@@ -1591,16 +1415,17 @@
         }
         panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
-      if (once) {
+      if (once)
         keyList.forEach((key) => {
-          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
             return valueChangeCallback({
-              key: key2,
+              key,
+              newValue,
+              oldValue,
             });
           });
           listenerIdList.push(listenerId);
         });
-      }
       await valueChangeCallback();
       const result = {
         checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
@@ -1624,9 +1449,7 @@
           });
         },
         clearOnceExecMenuData() {
-          if (once) {
-            Panel.$data.onceExecMenuData.delete(storageKey);
-          }
+          if (once) Panel.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1639,19 +1462,15 @@
           return await callback(...args);
         },
         (keyList) => {
-          const execFlag = keyList.every((__key__) => {
+          return keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            if (isReverse) {
-              flag = !flag;
-            }
+            if (isReverse) flag = !flag;
             return flag;
           });
-          return execFlag;
         },
         once
       );
@@ -1672,16 +1491,14 @@
     async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
       const results = await Promise.all(
         menus.map(async ([key, callback]) => {
-          const menuResult = await this.execMenu(
+          return await this.execMenu(
             key,
             (...args) => {
-              const result = callback(...args);
-              return result;
+              return callback(...args);
             },
             isReverse,
             once
           );
-          return menuResult;
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1696,23 +1513,14 @@
         panelMenuResultsHandler.clearStoreNodeList();
         panelMenuResultsHandler.execDestoryFnAndClear();
         if (removeListener) {
-          for (const listenerId of listenerIdList) {
-            this.removeValueChangeListener(listenerId);
-          }
-          for (const result of results) {
-            if (result) {
-              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
-            }
-          }
+          for (const listenerId of listenerIdList) this.removeValueChangeListener(listenerId);
+          for (const result of results) if (result) this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
         }
       };
       const __allExecCallback__ = () => {
         const allExecFlag = results.every((result) => {
-          if (result) {
-            return result.checkMenuExec();
-          } else {
-            return true;
-          }
+          if (result) return result.checkMenuExec();
+          else return true;
         });
         __destory__(false);
         if (allExecFlag) {
@@ -1721,7 +1529,7 @@
         }
       };
       __allExecCallback__();
-      for (const result of results) {
+      for (const result of results)
         if (result) {
           const listenerId = this.addValueChangeListener(result.keyList[0], () => {
             __allExecCallback__();
@@ -1735,58 +1543,42 @@
             this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
           }
         }
-      }
       return {
         clear() {
-          for (const result of results) {
-            result?.clear();
-          }
+          for (const result of results) result?.clear();
           this.execDestoryFnAndClear();
           this.removeValueChangeListener();
         },
         execDestoryFnAndClear() {
-          for (const result of results) {
-            result?.execDestoryFnAndClear();
-          }
+          for (const result of results) result?.execDestoryFnAndClear();
           __destory__(false);
         },
         removeValueChangeListener() {
-          for (const result of results) {
-            result?.removeValueChangeListener();
-          }
+          for (const result of results) result?.removeValueChangeListener();
           __destory__(true);
         },
       };
     },
     async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
-      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
-      return results;
+      return await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
+      return PopsPanelStorageApi.removeValueChangeListener(key);
     },
     onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
+      if (typeof key !== "string") throw new TypeError("key 必须是字符串");
+      if (this.$data.onceExecData.has(key)) return;
       if (runWithMenuEnable) {
-        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
-          const menuEnable = !!Panel.getValue(it);
-          if (!menuEnable) {
-            return true;
-          }
-        });
-        if (findIndex !== -1) {
+        if (
+          (Array.isArray(key) ? key : [key]).findIndex((it) => {
+            if (!!!Panel.getValue(it)) return true;
+          }) !== -1
+        )
           return;
-        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1814,9 +1606,7 @@
     },
     async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
-      for (const callback of values) {
-        await callback(config);
-      }
+      for (const callback of values) await callback(config);
     },
     showPanel(
       content,
@@ -1828,12 +1618,12 @@
       this.$data.panelContent = [];
       const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-          return isBottom && it.id === "script-version";
+          return (
+            (typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom)) && it.id === "script-version"
+          );
         }) !== -1;
-      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
+      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig)
         content.push(...PanelContent.getDefaultBottomContentConfig());
-      }
       const $panel = __pops__.panel({
         title: {
           text: title,
@@ -1879,33 +1669,30 @@
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
-      if (!preventRegisterSearchPlugin) {
-        this.registerConfigSearch({ $panel, content });
-      }
-      return { $panel, content };
+      if (!preventRegisterSearchPlugin)
+        this.registerConfigSearch({
+          $panel,
+          content,
+        });
+      return {
+        $panel,
+        content,
+      };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
       const translateCallback = (text, translateMap) => {
-        if (typeof config.translateCallback === "function") {
-          return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        if (typeof config.translateCallback === "function") return config.translateCallback(text, translateMap);
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const asyncQueryProperty = async (target, handler) => {
-        if (target == null) {
-          return;
-        }
+        if (target == null) return;
         const handleResult = await handler(target);
-        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-          return handleResult.data;
-        }
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) return handleResult.data;
         return await asyncQueryProperty(handleResult.data, handler);
       };
       const scrollToElementAndListen = ($el, callback) => {
@@ -1924,7 +1711,10 @@
           }
         );
         observer.observe($el);
-        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+        $el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
@@ -1934,9 +1724,7 @@
         $el.classList.add(flashingClassName);
       };
       const dbclick_callback = (evt) => {
-        if (evt.type === "dblclick" && isMobileTouch) {
-          return;
-        }
+        if (evt.type === "dblclick" && isMobileTouch) return;
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
@@ -1952,14 +1740,8 @@
 					`,
             html: true,
           },
-          btn: {
-            ok: { enable: false },
-          },
-          mask: {
-            clickEvent: {
-              toClose: true,
-            },
-          },
+          btn: { ok: { enable: false } },
+          mask: { clickEvent: { toClose: true } },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
@@ -2012,17 +1794,16 @@
         };
         const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
-            if (target?.next) {
+            if (target?.next)
               return {
                 isFind: false,
                 data: target.next,
               };
-            } else {
+            else
               return {
                 isFind: true,
                 data: target,
               };
-            }
           });
           const $item = domUtils.createElement("div", {
             className: "search-result-item",
@@ -2033,16 +1814,11 @@
           });
           const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
-            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
+            const $targetAsideItem = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
-            );
-            const $targetAsideItem = $asideItems2[pathInfo.index];
+            )[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(
-                translateCallback(`左侧项下标{{index}}不存在`, {
-                  index: pathInfo.index,
-                })
-              );
+              qmsg.default.error(translateCallback(`左侧项下标{{index}}不存在`, { index: pathInfo.index }));
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -2060,10 +1836,9 @@
                     }
                   );
                 }, 2500);
-                if ($findDeepMenu) {
-                  $findDeepMenu.click();
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
+                if ($findDeepMenu) $findDeepMenu.click();
+                else {
+                  qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -2077,8 +1852,10 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
-                      return viewConfig === target.matchedData?.formConfig;
+                      return (
+                        Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey) ===
+                        target.matchedData?.formConfig
+                      );
                     }
                   );
                 }, 2500);
@@ -2086,16 +1863,13 @@
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
-                    $foldWrapper.click();
+                    $fold.querySelector(".pops-panel-forms-fold-container").click();
                     await utils.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
                   });
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的菜单项"));
-                }
+                } else qmsg.default.error(translateCallback("未找到对应的菜单项"));
                 return {
                   isFind: true,
                   data: target,
@@ -2116,21 +1890,18 @@
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
-                  deepNext.next = {
-                    name: configItem.text,
-                  };
+                  deepNext.next = { name: configItem.text };
                 }
                 loopContentConfig(childViewConfig, deepMenuPath);
               } else {
@@ -2139,15 +1910,9 @@
                 if (configItem.type === "own") {
                   let searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                   if (searchConfig) {
-                    if (typeof searchConfig === "function") {
-                      searchConfig = searchConfig();
-                    }
-                    if (typeof searchConfig.text === "string") {
-                      text = searchConfig.text;
-                    }
-                    if (typeof searchConfig.desc === "string") {
-                      description = searchConfig.desc;
-                    }
+                    if (typeof searchConfig === "function") searchConfig = searchConfig();
+                    if (typeof searchConfig.text === "string") text = searchConfig.text;
+                    if (typeof searchConfig.desc === "string") description = searchConfig.desc;
                   }
                 } else {
                   text = configItem.text;
@@ -2155,25 +1920,22 @@
                 }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
-                  if (typeof configText !== "string") {
-                    return;
-                  }
+                  if (typeof configText !== "string") return;
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
                   const matchedPath = utils.deepClone(path);
                   const deepNext = utils.queryProperty(matchedPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   deepNext.next = {
                     name: text,
@@ -2187,20 +1949,17 @@
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
-                    if (typeof name === "string" && name.trim() !== "") {
-                      pathList.push(name);
-                    }
-                    if (target?.next) {
+                    if (typeof name === "string" && name.trim() !== "") pathList.push(name);
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   const pathStr = pathList.join(CommonUtil.escapeHtml(" - "));
                   deepNext.next.matchedData.path = pathStr;
@@ -2211,18 +1970,12 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.views) {
-              continue;
-            }
-            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
-              continue;
-            }
+            if (!leftContentConfigItem.views) continue;
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") continue;
             const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
-              if (typeof text === "function") {
-                text = text();
-              }
+              if (typeof text === "function") text = text();
               loopContentConfig(rightContentConfigList, {
                 index,
                 name: text,
@@ -2251,12 +2004,11 @@
           }, 200)
         );
       };
-      const $asideItems = $panel.$shadowRoot.querySelectorAll(
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
-      );
-      $asideItems.forEach(($asideItem) => {
-        domUtils.on($asideItem, "dblclick", dbclick_callback);
-      });
+      $panel.$shadowRoot
+        .querySelectorAll(`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`)
+        .forEach(($asideItem) => {
+          domUtils.on($asideItem, "dblclick", dbclick_callback);
+        });
       const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
@@ -2281,9 +2033,7 @@
             clickMap.set($selector, evt);
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
@@ -2314,16 +2064,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key)) {
+      if (Array.isArray(key))
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
-        } else {
-          return key[0];
-        }
-      } else {
-        return key;
-      }
+        } else return key[0];
+      else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2345,9 +2091,9 @@
       };
     },
   };
-  const _SCRIPT_NAME_ = SCRIPT_NAME || "小红书优化";
-  const __viewer = Viewer;
-  const XHSRouter = {
+  var _SCRIPT_NAME_ = SCRIPT_NAME || "小红书优化";
+  var __viewer = viewerjs.default;
+  var XHSRouter = {
     isArticle() {
       return (
         globalThis.location.pathname.startsWith("/discovery/item/") ||
@@ -2367,8 +2113,8 @@
       return globalThis.location.pathname.startsWith("/search_result/");
     },
   };
-  const XHS_BASE_URL = "https://edith.xiaohongshu.com";
-  const XHSApi = {
+  var XHS_BASE_URL = "https://edith.xiaohongshu.com";
+  var XHSApi = {
     async getPageInfo(note_id, cursor = "", xsec_token = "", top_comment_id = "", image_formats = "jpg,webp") {
       const Api = `/api/sns/web/v2/comment/page`;
       const SearchParamsData = {
@@ -2387,18 +2133,12 @@
           Referer: "https://www.xiaohongshu.com/",
         },
       });
-      if (!getResp.status) {
-        return;
-      }
+      if (!getResp.status) return;
       let data = utils.toJSON(getResp.data.responseText);
       log.info(["获取页信息", data]);
-      if (data["code"] === 0 || data["success"]) {
-        return data["data"];
-      } else if (data["code"] === -101) {
-        return;
-      } else {
-        Qmsg.error(data["msg"]);
-      }
+      if (data["code"] === 0 || data["success"]) return data["data"];
+      else if (data["code"] === -101) return;
+      else qmsg.default.error(data["msg"]);
     },
     async getLzlPageInfo(
       note_id = "",
@@ -2417,7 +2157,7 @@
         image_formats,
         top_comment_id,
       };
-      Api + "?" + utils.toSearchParamsStr(ApiData);
+      Api + "" + utils.toSearchParamsStr(ApiData);
       let url = `${XHS_BASE_URL}${Api}?${utils.toSearchParamsStr(ApiData)}`;
       let getResp = await httpx.get(url, {
         headers: {
@@ -2431,45 +2171,31 @@
         onerror() {},
       });
       if (!getResp.status) {
-        if (getResp.data.status === 406 && utils.isNotNull(getResp.data.responseText)) {
-          let errorData = utils.toJSON(getResp.data.responseText);
-          if (errorData["code"] == -1) {
-            Qmsg.error("获取楼中楼信息失败，验证x-s、x-t、x-s-common失败");
-          } else {
-            Qmsg.error("获取楼中楼信息失败");
-          }
-        } else {
-          Qmsg.error("请求异常");
-        }
+        if (getResp.data.status === 406 && utils.isNotNull(getResp.data.responseText))
+          if (utils.toJSON(getResp.data.responseText)["code"] == -1)
+            qmsg.default.error("获取楼中楼信息失败，验证x-s、x-t、x-s-common失败");
+          else qmsg.default.error("获取楼中楼信息失败");
+        else qmsg.default.error("请求异常");
         log.error(["获取楼中楼信息失败", getResp]);
         return;
       }
       let data = utils.toJSON(getResp.data.responseText);
       log.info(["获取楼中楼页信息", data]);
-      if (data["code"] === 0 || data["success"]) {
-        return data["data"];
-      } else {
-        Qmsg.error(data["msg"]);
-      }
+      if (data["code"] === 0 || data["success"]) return data["data"];
+      else qmsg.default.error(data["msg"]);
     },
     async getSearchRecommend(searchText) {
       let getResp = await httpx.get(
         `https://edith.xiaohongshu.com/api/sns/web/v1/search/recommend?keyword=${searchText}`,
-        {
-          fetch: true,
-        }
+        { fetch: true }
       );
-      if (!getResp.status) {
-        return;
-      }
+      if (!getResp.status) return;
       let data = utils.toJSON(getResp.data.responseText);
-      if (!(data.success || data.code === 1e3)) {
-        return;
-      }
+      if (!(data.success || data.code === 1e3)) return;
       return data.data.sug_items;
     },
   };
-  const Hook = {
+  var Hook = {
     $data: {
       document_addEventListener: [],
       element_addEventListener: [],
@@ -2482,9 +2208,7 @@
     document_addEventListener(handler) {
       this.$data.document_addEventListener.push(handler);
       log.info("document.addEventListener hook新增劫持判断回调");
-      if (this.$data.document_addEventListener.length > 1) {
-        return;
-      }
+      if (this.$data.document_addEventListener.length > 1) return;
       const that = this;
       const weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.document.addEventListener;
@@ -2505,9 +2229,7 @@
               options,
             });
             break;
-          } else if (typeof result === "boolean" && !result) {
-            return;
-          }
+          } else if (typeof result === "boolean" && !result) return;
         }
         return Reflect.apply(originAddEventListener, this, args);
       };
@@ -2519,21 +2241,16 @@
           const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
           if (eventName === __eventName__) {
-            if (typeof options === "boolean" && options === __options__) {
-              flag = true;
-            } else if (
+            if (typeof options === "boolean" && options === __options__) flag = true;
+            else if (
               typeof options === "object" &&
               typeof __options__ === "object" &&
               options["capture"] === __options__["capture"]
-            ) {
+            )
               flag = true;
-            } else if (options == options) {
-              flag = true;
-            }
+            else if (options == options) flag = true;
           }
-          if (flag) {
-            args[1] = __listener__;
-          }
+          if (flag) args[1] = __listener__;
         }
         return Reflect.apply(originRemoveEventListener, this, args);
       };
@@ -2541,9 +2258,7 @@
     element_addEventListener(handler) {
       this.$data.element_addEventListener.push(handler);
       log.info("Element.prototype.addEventListener hook新增劫持判断回调");
-      if (this.$data.element_addEventListener.length > 1) {
-        return;
-      }
+      if (this.$data.element_addEventListener.length > 1) return;
       const that = this;
       const weakMap = new WeakMap();
       const originAddEventListener = _unsafeWindow.Element.prototype.addEventListener;
@@ -2564,9 +2279,7 @@
               options,
             });
             break;
-          } else if (typeof result === "boolean" && !result) {
-            return;
-          }
+          } else if (typeof result === "boolean" && !result) return;
         }
         return Reflect.apply(originAddEventListener, this, args);
       };
@@ -2578,21 +2291,16 @@
           const { eventName: __eventName__, fn: __listener__, options: __options__ } = weakMap.get(listener);
           let flag = false;
           if (__eventName__ === eventName) {
-            if (typeof options === "boolean" && options === __options__) {
-              flag = true;
-            } else if (
+            if (typeof options === "boolean" && options === __options__) flag = true;
+            else if (
               typeof options === "object" &&
               typeof __options__ === "object" &&
               options["capture"] === __options__["capture"]
-            ) {
+            )
               flag = true;
-            } else if (options == __options__) {
-              flag = true;
-            }
+            else if (options == __options__) flag = true;
           }
-          if (flag) {
-            args[1] = __listener__;
-          }
+          if (flag) args[1] = __listener__;
         }
         return Reflect.apply(originRemoveEventListener, this, args);
       };
@@ -2600,9 +2308,7 @@
     setTimeout(handler) {
       this.$data.setTimeout.push(handler);
       log.info("window.setTimeout hook新增劫持");
-      if (this.$data.setTimeout.length > 1) {
-        return;
-      }
+      if (this.$data.setTimeout.length > 1) return;
       const that = this;
       const originSetTimeout = _unsafeWindow.setTimeout;
       _unsafeWindow.setTimeout = function (...args) {
@@ -2611,9 +2317,7 @@
         for (let index = 0; index < that.$data.setTimeout.length; index++) {
           const item = that.$data.setTimeout[index];
           const result = item(fn, timeout);
-          if (typeof result === "boolean" && !result) {
-            return;
-          }
+          if (typeof result === "boolean" && !result) return;
           if (typeof result === "function") {
             args[0] = result;
             break;
@@ -2625,9 +2329,7 @@
     setInterval(handler) {
       this.$data.setInterval.push(handler);
       log.info("window.setInterval hook新增劫持");
-      if (this.$data.setInterval.length > 1) {
-        return;
-      }
+      if (this.$data.setInterval.length > 1) return;
       const that = this;
       const originSetInterval = _unsafeWindow.setInterval;
       _unsafeWindow.setInterval = function (...args) {
@@ -2636,9 +2338,7 @@
         for (let index = 0; index < that.$data.setInterval.length; index++) {
           const item = that.$data.setInterval[index];
           const result = item(fn, timeout);
-          if (typeof result === "boolean" && !result) {
-            return;
-          }
+          if (typeof result === "boolean" && !result) return;
           if (typeof result === "function") {
             args[0] = result;
             break;
@@ -2650,9 +2350,7 @@
     function_apply(handler) {
       this.$data.function_apply.push(handler);
       log.info("Function.prototype.apply hook新增劫持");
-      if (this.$data.function_apply.length > 1) {
-        return;
-      }
+      if (this.$data.function_apply.length > 1) return;
       const that = this;
       const originApply = _unsafeWindow.Function.prototype.apply;
       _unsafeWindow.Function.prototype.apply = function (...args) {
@@ -2665,20 +2363,12 @@
             const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
             if (handlerResult != null) {
               if (handlerResult.args) {
-                if ("thisArg" in handlerResult.args) {
-                  args[0] = handlerResult.args.thisArg;
-                }
-                if ("argArray" in handlerResult.args) {
-                  args[1] = handlerResult.args.argArray;
-                }
-                if (typeof handlerResult.args.fn === "function") {
-                  fn = handlerResult.args.fn;
-                }
+                if ("thisArg" in handlerResult.args) args[0] = handlerResult.args.thisArg;
+                if ("argArray" in handlerResult.args) args[1] = handlerResult.args.argArray;
+                if (typeof handlerResult.args.fn === "function") fn = handlerResult.args.fn;
               }
               if (handlerResult.preventDefault) {
-                if ("result" in handlerResult) {
-                  return handlerResult.result;
-                }
+                if ("result" in handlerResult) return handlerResult.result;
                 return;
               }
               break;
@@ -2690,9 +2380,7 @@
           const item = that.$data.function_apply[index];
           if (typeof item.returnsHandler === "function") {
             let handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
-            if (handlerResult != null && "result" in handlerResult) {
-              result = handlerResult.result;
-            }
+            if (handlerResult != null && "result" in handlerResult) result = handlerResult.result;
           }
         }
         return result;
@@ -2701,9 +2389,7 @@
     function_call(handler) {
       this.$data.function_call.push(handler);
       log.info("Function.prototype.call hook新增劫持");
-      if (this.$data.function_call.length > 1) {
-        return;
-      }
+      if (this.$data.function_call.length > 1) return;
       const that = this;
       const originCall = _unsafeWindow.Function.prototype.call;
       _unsafeWindow.Function.prototype.call = function (...args) {
@@ -2716,20 +2402,12 @@
             const handlerResult = item.paramsHandler(fn, thisArg, argArray, args);
             if (handlerResult != null) {
               if (handlerResult.args) {
-                if ("thisArg" in handlerResult.args) {
-                  args[0] = handlerResult.args.thisArg;
-                }
-                if ("argArray" in handlerResult.args) {
-                  args.splice(1, argArray.length, ...handlerResult.args.argArray);
-                }
-                if (typeof handlerResult.args.fn === "function") {
-                  fn = handlerResult.args.fn;
-                }
+                if ("thisArg" in handlerResult.args) args[0] = handlerResult.args.thisArg;
+                if ("argArray" in handlerResult.args) args.splice(1, argArray.length, ...handlerResult.args.argArray);
+                if (typeof handlerResult.args.fn === "function") fn = handlerResult.args.fn;
               }
               if (handlerResult.preventDefault) {
-                if ("result" in handlerResult) {
-                  return handlerResult.result;
-                }
+                if ("result" in handlerResult) return handlerResult.result;
                 return;
               }
               break;
@@ -2741,9 +2419,7 @@
           const item = that.$data.function_call[index];
           if (typeof item.returnsHandler === "function") {
             const handlerResult = item.returnsHandler(fn, args[0], args[1], result, args);
-            if (handlerResult != null && "result" in handlerResult) {
-              result = handlerResult.result;
-            }
+            if (handlerResult != null && "result" in handlerResult) result = handlerResult.result;
           }
         }
         return result;
@@ -2752,9 +2428,7 @@
     defineProperty(handler) {
       this.$data.defineProperty.push(handler);
       log.info("Object.defineProperty hook新增劫持");
-      if (this.$data.defineProperty.length > 1) {
-        return;
-      }
+      if (this.$data.defineProperty.length > 1) return;
       const that = this;
       const originDefineProperty = _unsafeWindow.Object.defineProperty;
       _unsafeWindow.Object.defineProperty = function (...args) {
@@ -2788,30 +2462,25 @@
             let isCoreIdMatched = false;
             if (typeof mainCoreData === "function") {
               const ret = mainCoreData(__mainCoreData);
-              if (typeof ret === "boolean") {
-                isCoreIdMatched = ret;
-              }
+              if (typeof ret === "boolean") isCoreIdMatched = ret;
             } else {
               isCoreIdMatched = mainCoreData == __mainCoreData;
               if (!isCoreIdMatched) {
-                if (Array.isArray(mainCoreData) && Array.isArray(__mainCoreData)) {
+                if (Array.isArray(mainCoreData) && Array.isArray(__mainCoreData))
                   isCoreIdMatched = JSON.stringify(mainCoreData) === JSON.stringify(__mainCoreData);
-                }
               }
             }
             if (isCoreIdMatched) {
               const exportObj = args[0][1];
-              const keys = OriginPrototype.Object.keys(exportObj);
-              keys.forEach((keyName) => {
+              OriginPrototype.Object.keys(exportObj).forEach((keyName) => {
                 const fn = exportObj[keyName];
-                if (typeof fn === "function") {
+                if (typeof fn === "function")
                   args[0][1][keyName] = function (...args2) {
                     const result = fn.call(this, ...args2);
-                    const exports$1 = args2[0];
-                    args2[0] = handler(exports$1);
+                    const exports = args2[0];
+                    args2[0] = handler(exports);
                     return result;
                   };
-                }
               });
             }
             return originPush.call(this, ...args);
@@ -2820,11 +2489,10 @@
       });
     },
   };
-  const XHSHook = {
+  var XHSHook = {
     webpackChunkranchi() {
       let originObject = void 0;
-      let webpackName = "webpackChunkranchi";
-      Object.defineProperty(_unsafeWindow, webpackName, {
+      Object.defineProperty(_unsafeWindow, "webpackChunkranchi", {
         get() {
           return originObject;
         },
@@ -2833,7 +2501,7 @@
           const oldPush = originObject.push;
           originObject.push = function (...args) {
             args[0][0];
-            if (typeof args[0][1] === "object") {
+            if (typeof args[0][1] === "object")
               Object.keys(args[0][1]).forEach((keyName, index) => {
                 if (
                   typeof args[0][1][keyName] === "function" &&
@@ -2848,10 +2516,10 @@
                     args_1[2].d = function (...args_2) {
                       if (args_2.length === 2 && typeof args_2[1]?.["Z"] === "function") {
                         let oldZ = args_2[1]["Z"];
-                        if (oldZ.toString() === "function(){return y}") {
+                        if (oldZ.toString() === "function(){return y}")
                           args_2[1]["Z"] = function (...args_3) {
                             let result = oldZ.call(this, ...args_3);
-                            if (typeof result === "function" && result.toString().includes("jumpToApp")) {
+                            if (typeof result === "function" && result.toString().includes("jumpToApp"))
                               return function () {
                                 return {
                                   jumpToApp(data) {
@@ -2864,10 +2532,8 @@
                                   },
                                 };
                               };
-                            }
                             return result;
                           };
-                        }
                       }
                       return oldD.call(this, ...args_2);
                     };
@@ -2875,7 +2541,6 @@
                   };
                 }
               });
-            }
             return oldPush.call(this, ...args);
           };
         },
@@ -2934,27 +2599,23 @@
             };
           } else if (typeof thisArg === "string" && thisArg.startsWith("https://oia.xiaohongshu.com/oia")) {
             log.success([`成功劫持call跳转下载页面`, fn, thisArg, argArray]);
-            return {
-              preventDefault: true,
-            };
+            return { preventDefault: true };
           }
         },
       });
     },
   };
-  const blockCSS$2 =
+  var block_default$1 =
     "/* 底部的App内打开 */\n.bottom-button-box,\n/* 顶部的打开看看 */\n.nav-bar-box {\n  display: none !important;\n}\n";
-  const M_XHSArticleBlock = {
+  var M_XHSArticleBlock = {
     allowCopy() {
       log.info("允许复制");
-      return addStyle(
-        `
+      return addStyle(`
         *{
             -webkit-user-select: unset;
             user-select: unset;
         }
-        `
-      );
+        `);
     },
     blockBottomSearchFind() {
       log.info("屏蔽底部搜索发现");
@@ -2973,11 +2634,10 @@
       return CommonUtil.addBlockCSS("#new-note-view-container .recommend-box");
     },
   };
-  const M_XHSArticleVideo = {
+  var M_XHSArticleVideo = {
     optimizeVideoNoteDesc() {
       log.info("优化视频笔记的描述（可滚动）");
-      return addStyle(
-        `
+      return addStyle(`
     .author-box .author-desc-wrapper .author-desc{
       max-height: 70px !important;
       overflow: auto !important;
@@ -2985,13 +2645,12 @@
     /* 展开按钮 */
     .author-box .author-desc-wrapper .author-desc .author-desc-trigger{
       display: none !important;
-    }`
-      );
+    }`);
     },
   };
-  const M_XHSArticle = {
+  var M_XHSArticle = {
     init() {
-      addStyle(blockCSS$2);
+      addStyle(block_default$1);
       if (
         Panel.getValue("little-red-book-hijack-webpack-mask") ||
         Panel.getValue("little-red-book-hijack-webpack-scheme")
@@ -3128,16 +2787,14 @@
                 innerText: `展开 ${endReplyCount} 条回复`,
               });
               async function showMoreEvent() {
-                let QmsgLoading = Qmsg.loading("加载中，请稍后...");
-                let pageInfo2 = await XHSApi.getLzlPageInfo(Comments.noteId, id, 10, lzlCursor, void 0);
+                let QmsgLoading = qmsg.default.loading("加载中，请稍后...");
+                let pageInfo = await XHSApi.getLzlPageInfo(Comments.noteId, id, 10, lzlCursor, void 0);
                 QmsgLoading.close();
-                if (!pageInfo2) {
-                  return;
-                }
-                lzlCursor = pageInfo2.cursor;
-                endReplyCount = endReplyCount - pageInfo2.comments.length;
+                if (!pageInfo) return;
+                lzlCursor = pageInfo.cursor;
+                endReplyCount = endReplyCount - pageInfo.comments.length;
                 showMoreElement.innerText = `展开 ${endReplyCount} 条回复`;
-                pageInfo2.comments.forEach((subCommentInfo) => {
+                pageInfo.comments.forEach((subCommentInfo) => {
                   let subCommentElement = domUtils.createElement("div", {
                     className: "little-red-book-comments-reply-container",
                     innerHTML: Comments.getCommentHTML({
@@ -3151,16 +2808,12 @@
                   });
                   domUtils.before(showMoreElement, subCommentElement);
                 });
-                if (!pageInfo2.has_more) {
-                  domUtils.off(showMoreElement, "click", void 0, showMoreEvent, {
-                    capture: true,
-                  });
+                if (!pageInfo.has_more) {
+                  domUtils.off(showMoreElement, "click", void 0, showMoreEvent, { capture: true });
                   showMoreElement.remove();
                 }
               }
-              domUtils.on(showMoreElement, "click", void 0, showMoreEvent, {
-                capture: true,
-              });
+              domUtils.on(showMoreElement, "click", void 0, showMoreEvent, { capture: true });
               commentItemElement.appendChild(showMoreElement);
             }
           }
@@ -3168,37 +2821,30 @@
         },
         converContent(content) {
           Comments.emojiNameList.forEach((emojiName) => {
-            if (content.includes(emojiName)) {
+            if (content.includes(emojiName))
               content = content.replaceAll(
                 emojiName,
                 `<img class="little-red-book-note-content-emoji" crossorigin="anonymous" src="${Comments.emojiMap[emojiName]}">`
               );
-            }
           });
           return content;
         },
         async scrollEvent() {
-          if (!utils.isNearBottom(window.innerHeight / 3)) {
-            return;
-          }
-          if (this.QmsgLoading == null) {
-            this.QmsgLoading = Qmsg.loading("加载中，请稍后...");
-          }
-          let pageInfo2 = await XHSApi.getPageInfo(Comments.noteId, Comments.currentCursor, Comments.xsec_token);
+          if (!utils.isNearBottom(window.innerHeight / 3)) return;
+          if (this.QmsgLoading == null) this.QmsgLoading = qmsg.default.loading("加载中，请稍后...");
+          let pageInfo = await XHSApi.getPageInfo(Comments.noteId, Comments.currentCursor, Comments.xsec_token);
           if (this.QmsgLoading) {
             this.QmsgLoading.close();
             this.QmsgLoading = void 0;
           }
-          if (!pageInfo2) {
-            return;
-          }
-          Comments.currentCursor = pageInfo2.cursor;
-          pageInfo2.comments.forEach((commentItem) => {
+          if (!pageInfo) return;
+          Comments.currentCursor = pageInfo.cursor;
+          pageInfo.comments.forEach((commentItem) => {
             let commentItemElement = Comments.getCommentElement(commentItem);
             Comments.commentContainer.appendChild(commentItemElement);
           });
-          if (!pageInfo2.has_more) {
-            Qmsg.info("已加载全部评论");
+          if (!pageInfo.has_more) {
+            qmsg.default.info("已加载全部评论");
             Comments.removeScrollEventListener();
             return;
           }
@@ -3213,9 +2859,7 @@
         },
         removeScrollEventListener() {
           log.success("移除滚动监听事件");
-          domUtils.off(document, "scroll", void 0, Comments.scrollFunc.run, {
-            capture: true,
-          });
+          domUtils.off(document, "scroll", void 0, Comments.scrollFunc.run, { capture: true });
         },
       };
       domUtils.waitNode(".narmal-note-container").then(async () => {
@@ -3354,10 +2998,7 @@
         imgSrcList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
         });
-        const $viewerUL = domUtils.createElement("ul", {
-          innerHTML: viewerULNodeHTML,
-        });
-        const viewer = new __viewer($viewerUL, {
+        const viewer = new __viewer(domUtils.createElement("ul", { innerHTML: viewerULNodeHTML }), {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,
@@ -3374,19 +3015,15 @@
         let imgElement = $click.querySelector("img");
         let imgList = [];
         let imgBoxList = [];
-        if ($click.closest(".onix-carousel-item")) {
+        if ($click.closest(".onix-carousel-item"))
           imgBoxList = Array.from($click.closest(".onix-carousel-item").parentElement.querySelectorAll("img"));
-        } else {
-          imgBoxList = [imgElement];
-        }
+        else imgBoxList = [imgElement];
         let index = imgBoxList.findIndex((value) => {
           return value == imgElement;
         });
         imgBoxList.forEach((element) => {
           let imgSrc = element.getAttribute("src") || element.getAttribute("data-src") || element.getAttribute("alt");
-          if (imgSrc) {
-            imgList.push(imgSrc);
-          }
+          if (imgSrc) imgList.push(imgSrc);
         });
         log.success(["点击浏览图片👉", imgList[index]]);
         viewIMG(imgList, index);
@@ -3400,9 +3037,9 @@
       ];
     },
   };
-  const blockCSS$1 =
+  var block_default =
     "/* 用户主页 */\n/* 底部的-App内打开 */\n.launch-app-container.bottom-bar,\n/* 顶部的-打开看看 */\n.main-container > .scroll-view-container > .launch-app-container:first-child,\n/* 底部的-打开小红书看更多精彩内容 */\n.bottom-launch-app-tip.show-bottom-bar,\n/* 首页-顶部横幅 */\n#app .launch-app-container,\n/* 笔记-顶部横幅 */\n.note-view-container .nav-bar-box-expand ,\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\n/* 404页面 顶部的打开看看 */\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\n/* 404页面 底部的-App内打开 */\n.not-found-container #fmp {\n  display: none !important;\n}\n";
-  const M_XHSHome = {
+  var M_XHSHome = {
     init() {
       domUtils.onReady(() => {
         Panel.execMenuOnce("little-red-book-repariClick", () => {
@@ -3415,30 +3052,22 @@
       const callback = (event) => {
         const $click = event.target;
         log.info(["点击的按钮元素", $click]);
-        if ($click?.className?.includes("follow-btn")) {
-          log.success("点击-关注按钮");
-        } else if ($click?.closest("button.reds-button.message-btn")) {
-          log.success("点击-私信按钮");
-        } else if ($click?.closest("div.reds-tab-item")) {
-          log.success("点击-笔记/收藏按钮");
-        } else if ($click?.closest("section.reds-note-card")) {
+        if ($click?.className?.includes("follow-btn")) log.success("点击-关注按钮");
+        else if ($click?.closest("button.reds-button.message-btn")) log.success("点击-私信按钮");
+        else if ($click?.closest("div.reds-tab-item")) log.success("点击-笔记/收藏按钮");
+        else if ($click?.closest("section.reds-note-card")) {
           log.success("点击-笔记卡片");
           const $section = $click?.closest("section.reds-note-card");
           const note_id =
             $section.getAttribute("id") ||
             utils.toJSON($section.getAttribute("impression"))?.["noteTarget"]?.["value"]?.["noteId"];
-          if (note_id) {
-            window.open(`https://www.xiaohongshu.com/discovery/item/${note_id}`, "_blank");
-          } else {
-            Qmsg.error("获取笔记note_id失败");
-          }
+          if (note_id) window.open(`https://www.xiaohongshu.com/discovery/item/${note_id}`, "_blank");
+          else qmsg.default.error("获取笔记note_id失败");
         }
         domUtils.preventEvent(event);
         return false;
       };
-      const listener = domUtils.on(document, "click", callback, {
-        capture: true,
-      });
+      const listener = domUtils.on(document, "click", callback, { capture: true });
       return [
         () => {
           listener.off();
@@ -3446,92 +3075,72 @@
       ];
     },
   };
-  const M_XHS = {
+  var M_XHS = {
     init() {
       Panel.execMenuOnce("little-red-book-shieldAd", () => {
         log.info("注入默认屏蔽CSS");
-        return addStyle(blockCSS$1);
+        return addStyle(block_default);
       });
       Panel.execMenuOnce("little-red-book-allowCopy", () => {
         return M_XHS.allowCopy();
       });
-      if (XHSRouter.isArticle()) {
-        M_XHSArticle.init();
-      } else if (XHSRouter.isUserHome()) {
-        M_XHSHome.init();
-      }
+      if (XHSRouter.isArticle()) M_XHSArticle.init();
+      else if (XHSRouter.isUserHome()) M_XHSHome.init();
     },
     allowCopy() {
       log.info("允许复制文字");
-      return addStyle(
-        `
+      return addStyle(`
         *{
             -webkit-user-select: unset !important;
             user-select: unset !important;
         }
-        `
-      );
+        `);
     },
   };
-  const XHSUrlApi = {
+  var XHSUrlApi = {
     getSearchUrl(searchText) {
       return `https://www.xiaohongshu.com/search_result?keyword=${searchText}&source=web_explore_feed`;
     },
   };
-  const VueUtils = {
+  var VueUtils = {
     getVue($el) {
-      if ($el == null) {
-        return;
-      }
+      if ($el == null) return;
       return $el["__vue__"] || $el["__Ivue__"] || $el["__IVue__"];
     },
     getVue3($el) {
-      if ($el == null) {
-        return;
-      }
+      if ($el == null) return;
       return $el["__vueParentComponent"];
     },
     waitVuePropToSet($el, checkOption) {
-      if (!Array.isArray(checkOption)) {
-        checkOption = [checkOption];
-      }
+      if (!Array.isArray(checkOption)) checkOption = [checkOption];
       function getTarget() {
         let __target__ = null;
-        if (typeof $el === "string") {
-          __target__ = domUtils.selector($el);
-        } else if (typeof $el === "function") {
-          __target__ = $el();
-        } else if ($el instanceof HTMLElement) {
-          __target__ = $el;
-        }
+        if (typeof $el === "string") __target__ = domUtils.selector($el);
+        else if (typeof $el === "function") __target__ = $el();
+        else if ($el instanceof HTMLElement) __target__ = $el;
         return __target__;
       }
       checkOption.forEach((needSetOption) => {
-        if (typeof needSetOption.msg === "string") {
-          log.info(needSetOption.msg);
-        }
+        if (typeof needSetOption.msg === "string") log.info(needSetOption.msg);
         const checkTarget = function () {
           const $targetEl = getTarget();
-          if ($targetEl == null) {
+          if ($targetEl == null)
             return {
               status: false,
               isTimeout: true,
               inst: null,
               $el: $targetEl,
             };
-          }
           const vueInst = VueUtils.getVue($targetEl);
-          if (vueInst == null) {
+          if (vueInst == null)
             return {
               status: false,
               isTimeout: false,
               inst: null,
               $el: $targetEl,
             };
-          }
-          const checkResult = Boolean(needSetOption.check(vueInst, $targetEl));
           return {
-            status: checkResult,
+            status: Boolean(needSetOption.check(vueInst, $targetEl)),
             isTimeout: false,
             inst: vueInst,
             $el: $targetEl,
@@ -3551,11 +3160,8 @@
             if (checkTargetResult.status) {
               const vueInst = checkTargetResult.inst;
               needSetOption.set(vueInst, checkTargetResult.$el);
-            } else {
-              if (typeof needSetOption.failWait === "function") {
-                needSetOption.failWait(checkTargetResult.isTimeout);
-              }
-            }
+            } else if (typeof needSetOption.failWait === "function")
+              needSetOption.failWait(checkTargetResult.isTimeout);
           });
       });
     },
@@ -3574,7 +3180,7 @@
           },
           set(vueInstance) {
             let removeWatch = null;
-            if (typeof key === "function") {
+            if (typeof key === "function")
               removeWatch = vueInstance.$watch(
                 () => {
                   return key(vueInstance);
@@ -3584,7 +3190,7 @@
                 },
                 config
               );
-            } else {
+            else
               removeWatch = vueInstance.$watch(
                 key,
                 (newValue, oldValue) => {
@@ -3592,7 +3198,6 @@
                 },
                 config
               );
-            }
             resolve(removeWatch);
           },
           failWait,
@@ -3601,32 +3206,26 @@
     },
     goToUrl($el, path, useRouter = false) {
       if ($el == null) {
-        Qmsg.error("跳转Url: $vueNode为空");
+        qmsg.default.error("跳转Url: $vueNode为空");
         log.error("跳转Url: $vueNode为空：" + path);
         return;
       }
       let vueInstance = VueUtils.getVue($el);
       if (vueInstance == null) {
-        Qmsg.error("获取vue属性失败", { consoleLogContent: true });
+        qmsg.default.error("获取vue属性失败", { consoleLogContent: true });
         return;
       }
       let $router = vueInstance.$router;
       let isBlank = true;
       log.info("即将跳转URL：" + path);
-      if (useRouter) {
-        isBlank = false;
-      }
-      if (isBlank) {
-        window.open(path, "_blank");
-      } else {
+      if (useRouter) isBlank = false;
+      if (isBlank) window.open(path, "_blank");
+      else {
         if (path.startsWith("http") || path.startsWith("//")) {
-          if (path.startsWith("//")) {
-            path = window.location.protocol + path;
-          }
+          if (path.startsWith("//")) path = window.location.protocol + path;
           let urlObj = new URL(path);
-          if (urlObj.origin === window.location.origin) {
-            path = urlObj.pathname + urlObj.search + urlObj.hash;
-          } else {
+          if (urlObj.origin === window.location.origin) path = urlObj.pathname + urlObj.search + urlObj.hash;
+          else {
             log.info("不同域名，直接本页打开，不用Router：" + path);
             window.location.href = path;
             return;
@@ -3648,47 +3247,36 @@
       }
       async function resumeBack(isFromPopState = false) {
         domUtils.off(_unsafeWindow, "popstate", popstateEvent);
-        let callbackResult = option.callback(isFromPopState);
-        if (callbackResult) {
-          return;
-        }
-        while (true) {
+        if (option.callback(isFromPopState)) return;
+        while (true)
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();
             await utils.sleep(250);
-          } else {
-            return;
-          }
-        }
+          } else return;
       }
       banBack();
-      return {
-        resumeBack,
-      };
+      return { resumeBack };
     },
   };
-  const XHSArticle = {
+  var XHSArticle = {
     init() {
-      if (Panel.getValue("pc-xhs-search-open-blank-btn") || Panel.getValue("pc-xhs-search-open-blank-keyboard-enter")) {
+      if (Panel.getValue("pc-xhs-search-open-blank-btn") || Panel.getValue("pc-xhs-search-open-blank-keyboard-enter"))
         this.optimizationSearch();
-      }
       Panel.exec(
         ["pc-xhs-search-open-blank-btn", "pc-xhs-search-open-blank-keyboard-enter"],
         () => {
           return this.optimizationSearch();
         },
         (keyList) => {
-          const execFlag = keyList.some((__key__) => {
+          return keyList.some((__key__) => {
             let flag = !!Panel.getValue(__key__);
-            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
               flag = false;
               log.warn(`.exec ${__key__} 被禁用`);
             }
             return flag;
           });
-          return execFlag;
         }
       );
       Panel.execMenuOnce("pc-xhs-article-fullWidth", () => {
@@ -3697,16 +3285,17 @@
     },
     optimizationSearch() {
       const blankSearchText = function (searchText, isBlank = true) {
-        {
+        if (searchText == null) {
           const $searchText = $("#search-input");
           if ($searchText) {
-            const searchText2 = $searchText.value;
-            const searchUrl = XHSUrlApi.getSearchUrl(searchText2);
-            log.info("搜索内容: " + searchText2);
+            const searchText = $searchText.value;
+            const searchUrl = XHSUrlApi.getSearchUrl(searchText);
+            log.info("搜索内容: " + searchText);
             window.open(searchUrl, isBlank ? "_blank" : "_self");
-          } else {
-            Qmsg.error("未找到搜索的输入框");
-          }
+          } else qmsg.default.error("未找到搜索的输入框");
+        } else {
+          log.info("搜索内容: " + searchText);
+          window.open(searchText, isBlank ? "_blank" : "_self");
         }
       };
       domUtils.waitNode("#search-input").then(($searchInput) => {
@@ -3732,9 +3321,7 @@
               log.info("点击搜索按钮");
               blankSearchText();
             },
-            {
-              capture: true,
-            }
+            { capture: true }
           );
         });
       });
@@ -3743,8 +3330,7 @@
       log.info("笔记宽屏");
       const noteContainerWidth = Panel.getValue("pc-xhs-article-fullWidth-widthSize", 90);
       const imageSize = Panel.getValue("pc-xhs-article-fullWidth-imageSize", 80);
-      return addStyle(
-        `
+      return addStyle(`
 		.main-container .main-content{
 			padding-left: 0 !important;
 		}
@@ -3770,33 +3356,25 @@
 				width: auto !important;
 			}
 		}
-		`
-      );
+		`);
     },
     transformPublishTime() {
       log.info(`转换笔记发布时间`);
       const lockFn = new utils.LockFunction(() => {
         $$(".note-content:not([data-edit-date])").forEach(($noteContent) => {
           const vueInst = VueUtils.getVue($noteContent);
-          if (!vueInst) {
-            return;
-          }
+          if (!vueInst) return;
           const note = vueInst?._?.props?.note;
-          if (note == null) {
-            return;
-          }
+          if (note == null) return;
           const publishTime = note.time;
           const lastUpdateTime = note.lastUpdateTime;
           const ipLocation = note.ipLocation;
           if (typeof publishTime === "number") {
             const detailTimeLocationInfo = [];
             detailTimeLocationInfo.push(`发布：${utils.formatTime(publishTime)}`);
-            if (typeof lastUpdateTime === "number") {
+            if (typeof lastUpdateTime === "number")
               detailTimeLocationInfo.push(`修改：${utils.formatTime(lastUpdateTime)}`);
-            }
-            if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) {
-              detailTimeLocationInfo.push(ipLocation);
-            }
+            if (typeof ipLocation === "string" && utils.isNotNull(ipLocation)) detailTimeLocationInfo.push(ipLocation);
             const $date = $noteContent.querySelector(".date");
             domUtils.html($date, detailTimeLocationInfo.join("<br>"));
             $noteContent.setAttribute("data-edit-date", "");
@@ -3820,16 +3398,14 @@
       ];
     },
   };
-  const XHSNetworkHook = {
+  var XHSNetworkHook = {
     __ajaxHooker: null,
     get ajaxHooker() {
-      if (this.__ajaxHooker == null) {
-        this.__ajaxHooker = utils.ajaxHooker();
-      }
+      if (this.__ajaxHooker == null) this.__ajaxHooker = utils.ajaxHooker();
       return this.__ajaxHooker;
     },
   };
-  const UIButton = function (
+  var UIButton = function (
     text,
     description,
     buttonText,
@@ -3853,18 +3429,16 @@
       buttonType,
       buttonText,
       callback(event) {
-        if (typeof clickCallBack === "function") {
-          clickCallBack(event);
-        }
+        if (typeof clickCallBack === "function") clickCallBack(event);
       },
       afterAddToUListCallBack,
     };
     Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(disable);
+      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
     });
     return result;
   };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     const result = {
       text,
       type: "select",
@@ -3872,39 +3446,33 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
+        if (isSelectedInfo == null) return;
         const value = isSelectedInfo.value;
         log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
+          if (selectCallBack(isSelectedInfo)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
       },
       data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISelectMultiple = function (
+  var UISelectMultiple = function (
     text,
     key,
     defaultValue,
@@ -3916,11 +3484,8 @@
     valueChangeCallBack
   ) {
     let selectData = [];
-    if (typeof data === "function") {
-      selectData = data();
-    } else {
-      selectData = data;
-    }
+    if (typeof data === "function") selectData = data();
+    else selectData = data;
     const result = {
       text,
       type: "select-multiple",
@@ -3929,8 +3494,7 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       selectConfirmDialogConfig: selectConfirmDialogDetails,
       callback(selectInfo) {
@@ -3940,23 +3504,27 @@
           value.push(selectedInfo.value);
         });
         log.info(`多选-选择：`, value);
+        if (typeof selectCallBack === "function") {
+          if (selectCallBack(selectInfo)) return;
+        }
         storageApiValue.set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(selectInfo);
       },
       data: selectData,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select-multiple", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISlider = function (
+  var UISlider = function (
     text,
     key,
     defaultValue,
@@ -3975,25 +3543,18 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
+        if (typeof getToolTipContent === "function") return getToolTipContent(value);
+        else return `${value}`;
       },
       callback(event, value) {
         if (typeof changeCallback === "function") {
-          const result2 = changeCallback(event, value);
-          if (result2) {
-            return;
-          }
+          if (changeCallback(event, value)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
       min,
       max,
@@ -4002,16 +3563,16 @@
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISwitch = function (
+  var UISwitch = function (
     text,
     key,
     defaultValue = false,
@@ -4022,6 +3583,14 @@
     valueChangeCallBack,
     shortCutOption
   ) {
+    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
+      const shortCutKey = shortCutOption.key ?? key;
+      shortCutOption.handler.add({
+        key: shortCutKey,
+        name: text,
+      });
+      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
+    }
     const result = {
       text,
       type: "switch",
@@ -4030,31 +3599,122 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        return value;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, __value) {
         const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
-      afterAddToUListCallBack: (...args) => {},
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+        if (shortCutOption) {
+          const shortCut = shortCutOption.handler.shortCut;
+          const shortCutKey = shortCutOption.key ?? key;
+          const [_, container] = args;
+          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
+          if (!$leftMainText) return;
+          const renderKeyboard = () => {
+            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
+            const $wrapper = domUtils.createElement(
+              "div",
+              {
+                className: "pops-switch-shortcut-wrapper",
+                innerHTML: `
+              <i class="pops-bottom-icon" is-loading="false">
+                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
+                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
+                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
+                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
+                </svg>
+              </i>
+            `,
+              },
+              { style: "margin-right: 5px;display: inline-flex;" }
+            );
+            const $icon = $wrapper.querySelector(".pops-bottom-icon");
+            domUtils.on(
+              $icon,
+              "click",
+              function (evt) {
+                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
+                $tooltip.toolTip.offEvent();
+                $tooltip.toolTip.close();
+                $tooltip.toolTip.destory();
+                $wrapper.remove();
+              },
+              { once: true }
+            );
+            const $tooltip = __pops__.tooltip({
+              $target: $icon,
+              content: () => {
+                return tooltipShowText;
+              },
+              className: "github-tooltip",
+              isFixed: true,
+              only: true,
+            });
+            domUtils.empty($leftMainText);
+            domUtils.append($leftMainText, $wrapper, text);
+          };
+          __pops__.rightClickMenu({
+            $target: $leftMainText,
+            only: true,
+            data: [
+              {
+                text: () => {
+                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
+                  else return "添加快捷键";
+                },
+                icon: __pops__.config.iconSVG.keyboard,
+                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
+                  if (shortCut.isWaitKeyboardPress()) {
+                    qmsg.default.warning("请先执行当前的录入操作");
+                    return;
+                  }
+                  const $loading = qmsg.default.loading("请按下快捷键...", {
+                    showClose: true,
+                    onClose() {
+                      shortCut.cancelEnterShortcutKeys();
+                    },
+                  });
+                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
+                    $loading.close();
+                    if (status) {
+                      log.success("录入快捷键", option);
+                      qmsg.default.success("录入成功");
+                      renderKeyboard();
+                    } else
+                      qmsg.default.error(
+                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
+                      );
+                  });
+                },
+              },
+            ],
+          });
+          if (!shortCut.hasOption(shortCutKey)) return;
+          renderKeyboard();
+        }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UITextArea = function (
+  var UITextArea = function (
     text,
     key,
     defaultValue,
@@ -4073,44 +3733,40 @@
       placeholder,
       disabled,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        if (Array.isArray(value)) {
-          return value.join("\n");
-        }
+        const value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) return value.join("\n");
         return value;
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const PanelComponents = {
+  var PanelComponents = {
     $data: {
       __storeApiFn: null,
       get storeApiValue() {
-        if (!this.__storeApiFn) {
-          this.__storeApiFn = new Utils.Dictionary();
-        }
+        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
         return this.__storeApiFn;
       },
     },
     getStorageApi(type) {
-      if (!this.hasStorageApi(type)) {
-        return;
-      }
+      if (!this.hasStorageApi(type)) return;
       return this.$data.storeApiValue.get(type);
     },
     hasStorageApi(type) {
@@ -4121,18 +3777,15 @@
     },
     initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
-      if (this.hasStorageApi(type)) {
-        propsStorageApi = this.getStorageApi(type);
-      } else {
-        propsStorageApi = storageApiValue;
-      }
+      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
+      else propsStorageApi = storageApiValue;
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
     setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  const UIInput = function (
+  var UIInput = function (
     text,
     key,
     defaultValue,
@@ -4153,36 +3806,36 @@
       placeholder,
       afterAddToUListCallBack,
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, value) {
-        const $input = event.target;
-        $input.validity.valid;
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        const isValid = event.target.validity.valid;
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value, isValid)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value, isValid);
       },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("input", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  class RuleStorage {
+  var RuleStorage = class {
     option;
     constructor(option) {
       this.option = option;
     }
     getAllRule() {
-      const allRules = _GM_getValue(this.option.STORAGE_API_KEY, []);
-      return allRules;
+      return _GM_getValue(this.option.STORAGE_API_KEY, []);
     }
     setAllRule(rules) {
       _GM_setValue(this.option.STORAGE_API_KEY, rules);
@@ -4193,10 +3846,7 @@
     getRule(uuid) {
       const allRules = this.getAllRule();
       const findIndex = allRules.findIndex((item) => item.uuid === uuid);
-      if (findIndex !== -1) {
-        const rule = allRules[findIndex];
-        return rule;
-      }
+      if (findIndex !== -1) return allRules[findIndex];
     }
     setRule(rule) {
       const allRules = this.getAllRule();
@@ -4213,8 +3863,8 @@
       const allRules = this.getAllRule();
       const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
       let addFlag = false;
-      if (findIndex !== -1);
-      else {
+      if (findIndex !== -1) {
+      } else {
         allRules.push(rule);
         this.setAllRule(allRules);
         addFlag = true;
@@ -4224,11 +3874,8 @@
     updateRule(rule) {
       const allRules = this.getAllRule();
       const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      if (findIndex !== -1) {
-        allRules[findIndex] = rule;
-      } else {
-        allRules.push(rule);
-      }
+      if (findIndex !== -1) allRules[findIndex] = rule;
+      else allRules.push(rule);
       this.setAllRule(allRules);
     }
     deleteRule(rule) {
@@ -4239,9 +3886,7 @@
         allRules.splice(findIndex, 1);
         this.setAllRule(allRules);
         return true;
-      } else {
-        return false;
-      }
+      } else return false;
     }
     importRules(importEndCallBack) {
       const $alert = __pops__.alert({
@@ -4292,60 +3937,55 @@
         for (let index = 0; index < data.length; index++) {
           const dataItem = data[index];
           const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
-          if (findIndex !== -1) {
+          if (findIndex !== -1)
             repeatData.push({
               index: findIndex,
               data: dataItem,
             });
-          } else {
-            addNewData.push(dataItem);
-          }
+          else addNewData.push(dataItem);
         }
         if (repeatData.length) {
-          const confirmRepeat = await new Promise((resolve) => {
-            __pops__.alert({
-              title: {
-                text: "覆盖规则",
-                position: "center",
-              },
-              content: {
-                text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
-                html: true,
-              },
-              btn: {
-                close: {
-                  callback(details) {
-                    details.close();
-                    resolve(false);
+          if (
+            await new Promise((resolve) => {
+              __pops__.alert({
+                title: {
+                  text: "覆盖规则",
+                  position: "center",
+                },
+                content: {
+                  text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
+                  html: true,
+                },
+                btn: {
+                  close: {
+                    callback(details) {
+                      details.close();
+                      resolve(false);
+                    },
+                  },
+                  ok: {
+                    text: "覆盖",
+                    callback(details) {
+                      details.close();
+                      resolve(true);
+                    },
                   },
                 },
-                ok: {
-                  text: "覆盖",
-                  callback(details) {
-                    details.close();
-                    resolve(true);
-                  },
-                },
-              },
-              width: PanelUISize.info.width,
-              height: PanelUISize.info.height,
-              mask: { enable: true },
-              drag: true,
-            });
-          });
-          if (confirmRepeat) {
-            for (const repeatDataItem of repeatData) {
-              allData[repeatDataItem.index] = repeatDataItem.data;
-            }
+                width: PanelUISize.info.width,
+                height: PanelUISize.info.height,
+                mask: { enable: true },
+                drag: true,
+              });
+            })
+          ) {
+            for (const repeatDataItem of repeatData) allData[repeatDataItem.index] = repeatDataItem.data;
             isRepeat = true;
           }
         }
-        if (addNewData.length) {
-          allData = allData.concat(addNewData);
-        }
+        if (addNewData.length) allData = allData.concat(addNewData);
         this.setAllRule(allData);
         const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
-        Qmsg.success(message);
+        qmsg.default.success(message);
         importEndCallBack?.();
       };
       const importFile = (subscribeText) => {
@@ -4353,16 +3993,12 @@
           const data = utils.toJSON(subscribeText);
           if (!Array.isArray(data)) {
             log.error(data);
-            Qmsg.error("导入失败，格式不符合（不是数组）", {
-              consoleLogContent: true,
-            });
+            qmsg.default.error("导入失败，格式不符合（不是数组）", { consoleLogContent: true });
             resolve(false);
             return;
           }
           if (!data.length) {
-            Qmsg.error("导入失败，解析出的数据为空", {
-              consoleLogContent: true,
-            });
+            qmsg.default.error("导入失败，解析出的数据为空", { consoleLogContent: true });
             resolve(false);
             return;
           }
@@ -4378,9 +4014,7 @@
           accept: ".json",
         });
         domUtils.on($input, ["propertychange", "input"], () => {
-          if (!$input.files?.length) {
-            return;
-          }
+          if (!$input.files?.length) return;
           const uploadFile = $input.files[0];
           const fileReader = new FileReader();
           fileReader.onload = () => {
@@ -4415,29 +4049,22 @@
               callback: async (details) => {
                 const url = details.text;
                 if (utils.isNull(url)) {
-                  Qmsg.error("请填入完整的url");
+                  qmsg.default.error("请填入完整的url");
                   return;
                 }
-                const $loading = Qmsg.loading("正在获取配置...");
-                const response = await httpx.get(url, {
-                  allowInterceptConfig: false,
-                });
+                const $loading = qmsg.default.loading("正在获取配置...");
+                const response = await httpx.get(url, { allowInterceptConfig: false });
                 $loading.close();
                 if (!response.status) {
                   log.error(response);
-                  Qmsg.error("获取配置失败", { consoleLogContent: true });
+                  qmsg.default.error("获取配置失败", { consoleLogContent: true });
                   return;
                 }
-                const flag = await importFile(response.data.responseText);
-                if (!flag) {
-                  return;
-                }
+                if (!(await importFile(response.data.responseText))) return;
                 details.close();
               },
             },
-            cancel: {
-              enable: false,
-            },
+            cancel: { enable: false },
           },
           mask: { enable: true },
           drag: true,
@@ -4447,19 +4074,12 @@
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
         domUtils.on($promptInput, ["input", "propertychange"], () => {
-          const value = domUtils.val($promptInput);
-          if (value === "") {
-            domUtils.attr($promptOk, "disabled", "true");
-          } else {
-            domUtils.removeAttr($promptOk, "disabled");
-          }
+          if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+          else domUtils.removeAttr($promptOk, "disabled");
         });
         domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
           if (keyName === "Enter" && otherCodeList.length === 0) {
-            const value = domUtils.val($promptInput);
-            if (value !== "") {
-              domUtils.emit($promptOk, "click");
-            }
+            if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
           }
         });
         domUtils.emit($promptInput, "input");
@@ -4469,17 +4089,14 @@
         $alert.close();
         const clipboardInfo = await utils.getClipboardInfo();
         if (clipboardInfo.error != null) {
-          Qmsg.error(clipboardInfo.error.toString());
+          qmsg.default.error(clipboardInfo.error.toString());
           return;
         }
         if (clipboardInfo.content.trim() === "") {
-          Qmsg.warning("获取到的剪贴板内容为空");
+          qmsg.default.warning("获取到的剪贴板内容为空");
           return;
         }
-        const flag = await importFile(clipboardInfo.content);
-        if (!flag) {
-          return;
-        }
+        if (!(await importFile(clipboardInfo.content))) return;
       });
     }
     exportRules(fileName = "rule.json") {
@@ -4494,8 +4111,8 @@
         globalThis.URL.revokeObjectURL(blobUrl);
       }, 1500);
     }
-  }
-  class RuleEditView {
+  };
+  var RuleEditView = class {
     option;
     constructor(option) {
       this.option = option;
@@ -4527,9 +4144,7 @@
           true
         ),
         drag: true,
-        mask: {
-          enable: true,
-        },
+        mask: { enable: true },
         style: `
       ${__pops__.config.cssText.panelCSS}
       
@@ -4595,19 +4210,14 @@
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
       const submitSaveOption = async () => {
-        const result = await this.option.onsubmit($form, await this.option.data());
-        if (!result.success) {
-          return;
-        }
+        if (!(await this.option.onsubmit($form, await this.option.data())).success) return;
         $dialog.close();
-        if (typeof this.option.dialogCloseCallBack === "function") {
-          await this.option.dialogCloseCallBack(true);
-        }
+        if (typeof this.option.dialogCloseCallBack === "function") await this.option.dialogCloseCallBack(true);
       };
       return $dialog;
     }
-  }
-  class RuleView {
+  };
+  var RuleView = class {
     option;
     constructor(option) {
       this.option = option;
@@ -4718,9 +4328,7 @@
               $popsConfirm.close();
             },
           },
-          cancel: {
-            enable: false,
-          },
+          cancel: { enable: false },
           other: {
             enable: this.option?.bottomControls?.clear?.enable || true,
             type: "xiaomi-primary",
@@ -4740,16 +4348,12 @@
                     enable: true,
                     callback: async () => {
                       log.success("清空所有");
-                      if (typeof this.option?.bottomControls?.clear?.callback === "function") {
+                      if (typeof this.option?.bottomControls?.clear?.callback === "function")
                         this.option.bottomControls.clear.callback();
-                      }
-                      const data = await this.option.data();
-                      if (data.length) {
-                        Qmsg.error("清理失败");
+                      if ((await this.option.data()).length) {
+                        qmsg.default.error("清理失败");
                         return;
-                      } else {
-                        Qmsg.success("清理成功");
-                      }
+                      } else qmsg.default.success("清理成功");
                       await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
                       this.clearContent($popsConfirm.$shadowRoot);
                       $askDialog.close();
@@ -4767,9 +4371,7 @@
             },
           },
         },
-        mask: {
-          enable: true,
-        },
+        mask: { enable: true },
         width: window.innerWidth > 500 ? "500px" : "88vw",
         height: window.innerHeight > 500 ? "500px" : "80vh",
       });
@@ -4779,45 +4381,35 @@
       if (this.option.bottomControls?.filter?.enable) {
         let externalSelectInfo = null;
         let ruleValueSelectInfo = null;
-        if (Array.isArray(this.option.bottomControls?.filter?.option)) {
+        if (Array.isArray(this.option.bottomControls?.filter?.option))
           domUtils.append(
             $externalSelect,
             this.option.bottomControls?.filter?.option.map((option) => {
-              const $option = domUtils.createElement("option", {
-                innerText: option.name,
-              });
+              const $option = domUtils.createElement("option", { innerText: option.name });
               Reflect.set($option, "data-value", option);
               return $option;
             })
           );
-        }
-        if (Array.isArray(this.option.bottomControls?.filter?.inputOption)) {
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption))
           domUtils.append(
             $ruleValueSelect,
             this.option.bottomControls?.filter?.inputOption.map((option) => {
-              const $option = domUtils.createElement("option", {
-                innerText: option.name,
-              });
+              const $option = domUtils.createElement("option", { innerText: option.name });
               Reflect.set($option, "data-value", option);
               return $option;
             })
           );
-        }
         domUtils.on($externalSelect, "change", async () => {
           const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") {
-            selectInfo.selectedCallBack(selectInfo);
-          }
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
           externalSelectInfo = selectInfo;
           await execFilter(false);
         });
         domUtils.on($ruleValueSelect, "change", async () => {
           const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
           const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") {
-            selectInfo.selectedCallBack(selectInfo);
-          }
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
           ruleValueSelectInfo = selectInfo;
           await execFilter(false);
         });
@@ -4835,9 +4427,7 @@
         };
         const execFilter = async (isUpdateSelectData) => {
           this.clearContent($popsConfirm.$shadowRoot);
-          if (isUpdateSelectData) {
-            updateSelectData();
-          }
+          if (isUpdateSelectData) updateSelectData();
           const allData = await this.option.data();
           const filteredData = [];
           const searchText = domUtils.val($searchInput);
@@ -4845,29 +4435,18 @@
             const item = allData[index];
             if (typeof filterCallBack === "function") {
               const flag = await filterCallBack(item);
-              if (typeof flag === "boolean" && !flag) {
-                continue;
-              }
+              if (typeof flag === "boolean" && !flag) continue;
             }
             if (externalSelectInfo) {
               const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-              if (typeof externalFilterResult === "boolean" && !externalFilterResult) {
-                continue;
-              }
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) continue;
             }
             if (ruleValueSelectInfo) {
               let flag = true;
-              if (searchText === "") {
-                flag = true;
-              } else {
-                flag = false;
-              }
-              if (!flag) {
-                flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-              }
-              if (!flag) {
-                continue;
-              }
+              if (searchText === "") flag = true;
+              else flag = false;
+              if (!flag) flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              if (!flag) continue;
             }
             filteredData.push(item);
           }
@@ -4875,53 +4454,33 @@
         };
         if (typeof filterCallBack === "object" && filterCallBack != null) {
           let externalIndex;
-          if (typeof filterCallBack.external === "number") {
-            externalIndex = filterCallBack.external;
-          } else {
+          if (typeof filterCallBack.external === "number") externalIndex = filterCallBack.external;
+          else
             externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-              const data = Reflect.get(option, "data-value");
-              return data.value === filterCallBack.external;
+              return Reflect.get(option, "data-value").value === filterCallBack.external;
             });
-          }
-          if (externalIndex !== -1) {
-            $externalSelect.selectedIndex = externalIndex;
-          }
+          if (externalIndex !== -1) $externalSelect.selectedIndex = externalIndex;
           let ruleIndex;
-          if (typeof filterCallBack.rule === "number") {
-            ruleIndex = filterCallBack.rule;
-          } else {
+          if (typeof filterCallBack.rule === "number") ruleIndex = filterCallBack.rule;
+          else
             ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-              const data = Reflect.get(option, "data-value");
-              return data.value === filterCallBack.rule;
+              return Reflect.get(option, "data-value").value === filterCallBack.rule;
             });
-          }
-          if (ruleIndex !== -1) {
-            $ruleValueSelect.selectedIndex = ruleIndex;
-          }
+          if (ruleIndex !== -1) $ruleValueSelect.selectedIndex = ruleIndex;
         }
         await execFilter(true);
-      } else {
-        domUtils.hide($searchContainer, false);
-      }
+      } else domUtils.hide($searchContainer, false);
     }
     showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
       let dialogCloseCallBack = async (isSubmit) => {
         if (isSubmit) {
-          if (typeof submitCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            submitCallBack(newData);
-          }
+          if (typeof submitCallBack === "function") submitCallBack(await this.option.getData(editData));
         } else {
-          if (!isEdit) {
-            await this.option.deleteData(editData);
-          }
-          if (typeof updateDataCallBack === "function") {
-            let newData = await this.option.getData(editData);
-            updateDataCallBack(newData);
-          }
+          if (!isEdit) await this.option.deleteData(editData);
+          if (typeof updateDataCallBack === "function") updateDataCallBack(await this.option.getData(editData));
         }
       };
-      let editView = new RuleEditView({
+      new RuleEditView({
         title: isEdit ? "编辑" : "添加",
         data: () => {
           return editData;
@@ -4952,58 +4511,40 @@
           let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
           if (result.success) {
             if (isEdit) {
-              Qmsg.success("修改成功");
-              if ($parentShadowRoot) {
+              qmsg.default.success("修改成功");
+              if ($parentShadowRoot)
                 await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
-              }
-            } else {
-              if ($parentShadowRoot) {
-                await this.appendRuleItemElement($parentShadowRoot, result.data);
-              }
-            }
-          } else {
-            if (isEdit) {
-              log.error("修改失败");
-            }
-          }
+            } else if ($parentShadowRoot) await this.appendRuleItemElement($parentShadowRoot, result.data);
+          } else if (isEdit) log.error("修改失败");
           return result;
         },
         style: this.option.itemControls.edit.style,
         width: this.option.itemControls.edit.width,
         height: this.option.itemControls.edit.height,
-      });
-      editView.showView();
+      }).showView();
     }
     parseViewElement($shadowRoot) {
       const $container = $shadowRoot.querySelector(".rule-view-container");
       const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
       const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
-      const $externalSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-status");
-      const $ruleValueSelect = $searchContainer.querySelector(".pops-panel-select .select-rule-value");
-      const $searchInput = $searchContainer.querySelector(".pops-panel-input input");
       return {
         $container,
         $deleteBtn,
         $searchContainer,
-        $externalSelect,
-        $ruleValueSelect,
-        $searchInput,
+        $externalSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-status"),
+        $ruleValueSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-value"),
+        $searchInput: $searchContainer.querySelector(".pops-panel-input input"),
       };
     }
     parseRuleItemElement($ruleElement) {
       const $enable = $ruleElement.querySelector(".rule-controls-enable");
-      const $enableSwitch = $enable.querySelector(".pops-panel-switch");
-      const $enableSwitchInput = $enable.querySelector(".pops-panel-switch__input");
-      const $enableSwitchCore = $enable.querySelector(".pops-panel-switch__core");
-      const $edit = $ruleElement.querySelector(".rule-controls-edit");
-      const $delete = $ruleElement.querySelector(".rule-controls-delete");
       return {
         $enable,
-        $enableSwitch,
-        $enableSwitchInput,
-        $enableSwitchCore,
-        $edit,
-        $delete,
+        $enableSwitch: $enable.querySelector(".pops-panel-switch"),
+        $enableSwitchInput: $enable.querySelector(".pops-panel-switch__input"),
+        $enableSwitchCore: $enable.querySelector(".pops-panel-switch__core"),
+        $edit: $ruleElement.querySelector(".rule-controls-edit"),
+        $delete: $ruleElement.querySelector(".rule-controls-delete"),
         data: Reflect.get($ruleElement, "data-rule"),
       };
     }
@@ -5049,13 +4590,9 @@
           $enableSwitchInput.checked = isChecked;
           await this.option.itemControls.enable.callback(data, isChecked);
         });
-        if (await this.option.itemControls.enable.getEnable(data)) {
-          $enableSwitch.classList.add(switchCheckedClassName);
-        }
-      } else {
-        $enable.remove();
-      }
-      if (this.option.itemControls.edit.enable) {
+        if (await this.option.itemControls.enable.getEnable(data)) $enableSwitch.classList.add(switchCheckedClassName);
+      } else $enable.remove();
+      if (this.option.itemControls.edit.enable)
         domUtils.on($edit, "click", (event) => {
           domUtils.preventEvent(event);
           this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
@@ -5063,10 +4600,8 @@
             data = newData;
           });
         });
-      } else {
-        $edit.remove();
-      }
-      if (this.option.itemControls.delete.enable) {
+      else $edit.remove();
+      if (this.option.itemControls.delete.enable)
         domUtils.on($delete, "click", (event) => {
           domUtils.preventEvent(event);
           const $askDialog = __pops__.confirm({
@@ -5083,15 +4618,12 @@
                 enable: true,
                 callback: async () => {
                   log.success("删除数据");
-                  const flag = await this.option.itemControls.delete.deleteCallBack(data);
-                  if (flag) {
-                    Qmsg.success("成功删除该数据");
+                  if (await this.option.itemControls.delete.deleteCallBack(data)) {
+                    qmsg.default.success("成功删除该数据");
                     $ruleItem.remove();
                     await this.updateDeleteAllBtnText($shadowRoot);
                     $askDialog.close();
-                  } else {
-                    Qmsg.error("删除该数据失败");
-                  }
+                  } else qmsg.default.error("删除该数据失败");
                 },
               },
               cancel: {
@@ -5099,16 +4631,12 @@
                 enable: true,
               },
             },
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: "300px",
             height: "200px",
           });
         });
-      } else {
-        $delete.remove();
-      }
+      else $delete.remove();
       return $ruleItem;
     }
     async appendRuleItemElement($shadowRoot, data) {
@@ -5141,18 +4669,15 @@
     }
     setDeleteBtnText($shadowRoot, text, isHTML = false) {
       const { $deleteBtn } = this.parseViewElement($shadowRoot);
-      if (isHTML) {
-        domUtils.html($deleteBtn, text);
-      } else {
-        domUtils.text($deleteBtn, text);
-      }
+      if (isHTML) domUtils.html($deleteBtn, text);
+      else domUtils.text($deleteBtn, text);
     }
     async updateDeleteAllBtnText($shadowRoot) {
       let data = await this.option.data();
       this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
     }
-  }
-  class XHSArticleFilterBase {
+  };
+  var XHSArticleFilterBase = class {
     parseInfoDictData(info, showLog = false) {
       const note_card = info?.note_card;
       let articleId = info.id;
@@ -5162,9 +4687,7 @@
       let liked_count_str = info?.note_card?.interact_info?.liked_count;
       if (typeof liked_count_str === "string") {
         liked_count = parseInt(liked_count_str);
-        if (isNaN(liked_count)) {
-          liked_count = 0;
-        }
+        if (isNaN(liked_count)) liked_count = 0;
       }
       let nick_name = note_card?.user?.nick_name || note_card?.user?.nickname;
       let user_id = note_card?.user?.user_id;
@@ -5182,28 +4705,20 @@
       };
     }
     checkFilterWithRule(details) {
-      if (details.infoValue == null) {
-        return false;
-      }
-      if (details.ruleValue == null) {
-        return false;
-      }
+      if (details.infoValue == null) return false;
+      if (details.ruleValue == null) return false;
       if (typeof details.infoValue === "string") {
-        if (Boolean(details.infoValue.match(details.ruleValue))) {
-          return true;
-        }
+        if (Boolean(details.infoValue.match(details.ruleValue))) return true;
       } else if (typeof details.infoValue === "object") {
         if (Array.isArray(details.infoValue)) {
-          let findValue = details.infoValue.find((infoDictValue) => {
-            if (typeof infoDictValue === "string" && details.ruleValue != null) {
-              return Boolean(infoDictValue.match(details.ruleValue));
-            } else {
-              return false;
-            }
-          });
-          if (findValue) {
+          if (
+            details.infoValue.find((infoDictValue) => {
+              if (typeof infoDictValue === "string" && details.ruleValue != null)
+                return Boolean(infoDictValue.match(details.ruleValue));
+              else return false;
+            })
+          )
             return true;
-          }
         }
       } else if (typeof details.infoValue === "number") {
         if (typeof details.ruleValue === "string") {
@@ -5216,28 +4731,14 @@
           let compareNumber = Number(compareNumberMatch[1]);
           if (ruleValue.startsWith(">")) {
             if (ruleValue.startsWith(">=")) {
-              if (details.infoValue >= compareNumber) {
-                return true;
-              }
-            } else {
-              if (details.infoValue > compareNumber) {
-                return true;
-              }
-            }
+              if (details.infoValue >= compareNumber) return true;
+            } else if (details.infoValue > compareNumber) return true;
           } else if (ruleValue.startsWith("<")) {
             if (ruleValue.startsWith("<=")) {
-              if (details.infoValue <= compareNumber) {
-                return true;
-              }
-            } else {
-              if (details.infoValue < compareNumber) {
-                return true;
-              }
-            }
+              if (details.infoValue <= compareNumber) return true;
+            } else if (details.infoValue < compareNumber) return true;
           } else if (ruleValue.startsWith("=")) {
-            if (details.infoValue === compareNumber) {
-              return true;
-            }
+            if (details.infoValue === compareNumber) return true;
           } else {
             log.warn("视频过滤器-未经允许的比较符号: ", details);
             return false;
@@ -5262,39 +4763,33 @@
           : [filterOption.data.ruleName];
         for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
           const ruleName = ruleNameList[ruleNameIndex];
-          if (!Reflect.has(transformInfo, ruleName)) {
-            continue;
-          }
+          if (!Reflect.has(transformInfo, ruleName)) continue;
           let tagKey = ruleName;
-          let tagValue = transformInfo[tagKey];
           let details = {
             infoKey: tagKey,
-            infoValue: tagValue,
+            infoValue: transformInfo[tagKey],
             ruleKey: filterOption.data.ruleName,
             ruleValue: filterOption.data.ruleValue,
           };
           flag = this.checkFilterWithRule(details);
-          if (flag) {
+          if (flag)
             if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
               let dynamicDetailsList = [];
               for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
                 const dynamicOption = filterOption.dynamicData[dynamicIndex];
                 let dynamicTagKey = dynamicOption.ruleName;
-                let dynamicTagValue = transformInfo[dynamicTagKey];
                 let dynamicDetails = {
                   infoKey: dynamicTagKey,
-                  infoValue: dynamicTagValue,
+                  infoValue: transformInfo[dynamicTagKey],
                   ruleKey: dynamicOption.ruleName,
                   ruleValue: dynamicOption.ruleValue,
                 };
                 dynamicDetailsList.push(dynamicDetails);
                 let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
                 flag = flag && dynamicCheckFlag;
-                if (!flag) {
-                  break;
-                }
+                if (!flag) break;
               }
-              if (flag) {
+              if (flag)
                 log.success([
                   `视频过滤器-多组 ==> ${filterOption.name}`,
                   transformInfo,
@@ -5303,11 +4798,7 @@
                   info,
                   filterOption,
                 ]);
-              }
-            } else {
-              log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
-            }
-          }
+            } else log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
           if (flag) {
             matchedFilterOption = filterOption;
             break outerLoop;
@@ -5324,36 +4815,27 @@
     removeArticle(...args) {
       if (args.length === 1) {
         let $el = args[0];
-        if ($el != null && $el instanceof Element) {
-          $el.remove();
-        }
+        if ($el != null && $el instanceof Element) $el.remove();
       } else if (args.length === 2) {
         let infoList = args[0];
         let deleteIndex = args[1];
         if (typeof deleteIndex === "number") {
           let item = infoList[deleteIndex];
-          if (item != null && item instanceof Element) {
-            item.remove();
-          }
+          if (item != null && item instanceof Element) item.remove();
           infoList.splice(deleteIndex, 1);
         }
       }
     }
-  }
-  const XHSArticleFilter = {
-    $key: {
-      ENABLE_KEY: "shieldVideo-exec-network-enable",
-    },
+  };
+  var XHSArticleFilter = {
+    $key: { ENABLE_KEY: "shieldVideo-exec-network-enable" },
     $data: {
-      isFilterAwemeInfoList: new Utils.Dictionary(),
-      articleInfoMap: new Utils.Dictionary(),
+      isFilterAwemeInfoList: new _whitesev_utils.default.Dictionary(),
+      articleInfoMap: new _whitesev_utils.default.Dictionary(),
       __videoFilterRuleStorage: null,
       get videoFilterRuleStorage() {
-        if (this.__videoFilterRuleStorage == null) {
-          this.__videoFilterRuleStorage = new RuleStorage({
-            STORAGE_API_KEY: "xhs-article-filter-rule",
-          });
-        }
+        if (this.__videoFilterRuleStorage == null)
+          this.__videoFilterRuleStorage = new RuleStorage({ STORAGE_API_KEY: "xhs-article-filter-rule" });
         return this.__videoFilterRuleStorage;
       },
       get isReverse() {
@@ -5380,36 +4862,28 @@
               this.$data.isFilterAwemeInfoList.set(filterTransformInfoResult.transformInfo.articleId, filterOptionList);
             }
           }
-          if (typeof filterTransformInfoResult.transformInfo.articleId === "string") {
+          if (typeof filterTransformInfoResult.transformInfo.articleId === "string")
             this.$data.articleInfoMap.set(filterTransformInfoResult.transformInfo.articleId, {
               articleInfo: filterTransformInfoResult.info,
               transformArticleInfo: filterTransformInfoResult.transformInfo,
             });
-          }
         };
         let queryScopeFilterOptionList = (scopeName) => {
-          if (!Panel.getValue(this.$key.ENABLE_KEY)) {
-            return [];
-          }
+          if (!Panel.getValue(this.$key.ENABLE_KEY)) return [];
           let filterOptionList = this.$data.videoFilterRuleStorage.getAllRule();
-          if (!filterOptionList.length) {
-            return [];
-          }
+          if (!filterOptionList.length) return [];
           let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
-          let matchedFilterOptionList = filterOptionList.filter(
+          return filterOptionList.filter(
             (it) =>
               it.enable &&
               (it.data.scope.includes("all") ||
                 Array.from(scopeNameList).findIndex((item) => it.data.scope.includes(item)) !== -1)
           );
-          return matchedFilterOptionList;
         };
         let xhr_hook_callback_1 = (scopeName, request) => {
           request.response = (response) => {
             let filterOptionList = queryScopeFilterOptionList(scopeName);
-            if (!filterOptionList.length) {
-              return;
-            }
+            if (!filterOptionList.length) return;
             let data = utils.toJSON(response.responseText);
             let items = data?.["data"]?.["items"];
             if (Array.isArray(items)) {
@@ -5417,9 +4891,7 @@
                 let awemeInfo = items[index] || {};
                 let filterResult = filterBase.checkInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
-                if (filterResult.isFilter) {
-                  filterBase.removeArticle(items, index--);
-                }
+                if (filterResult.isFilter) filterBase.removeArticle(items, index--);
               }
               response.responseText = JSON.stringify(data);
             }
@@ -5427,10 +4899,7 @@
         };
         XHSNetworkHook.ajaxHooker.hook((request) => {
           let url = CommonUtil.fixUrl(request.url);
-          let urlInst = new URL(url);
-          if (urlInst.pathname.startsWith("/api/sns/web/v1/homefeed")) {
-            xhr_hook_callback_1("xhr-explore", request);
-          }
+          if (new URL(url).pathname.startsWith("/api/sns/web/v1/homefeed")) xhr_hook_callback_1("xhr-explore", request);
         });
       });
     },
@@ -5449,8 +4918,7 @@
       };
     },
     showView() {
-      let ruleView = this.getRuleViewInstance();
-      ruleView.showView();
+      this.getRuleViewInstance().showView();
     },
     getRuleViewInstance() {
       const that = this;
@@ -5465,7 +4933,7 @@
           },
         };
       }
-      let ruleView = new RuleView({
+      return new RuleView({
         title: "笔记过滤器",
         data: () => {
           return this.$data.videoFilterRuleStorage.getAllRule();
@@ -5483,9 +4951,7 @@
           return this.$data.videoFilterRuleStorage.deleteRule(data);
         },
         getData: (data) => {
-          let allData = this.$data.videoFilterRuleStorage.getAllRule();
-          let findValue = allData.find((item) => item.uuid === data.uuid);
-          return findValue ?? data;
+          return this.$data.videoFilterRuleStorage.getAllRule().find((item) => item.uuid === data.uuid) ?? data;
         },
         itemControls: {
           enable: {
@@ -5502,9 +4968,7 @@
             enable: true,
             getView: (data, isEdit) => {
               let $fragment = document.createDocumentFragment();
-              if (!isEdit) {
-                data = this.getTemplateData();
-              }
+              if (!isEdit) data = this.getTemplateData();
               let enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
               let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
@@ -5525,11 +4989,10 @@
                     value: "xhr-explore",
                   },
                 ].map((it) => {
-                  let result = {
+                  return {
                     ...it,
                     value: it.value,
                   };
-                  return result;
                 }),
                 void 0,
                 "选择需要在xxx上生效的作用域"
@@ -5546,13 +5009,10 @@
                 "videoDuration",
               ];
               let getDynamicProp = (storageData) => {
-                let ruleNameDefaultValue = Array.isArray(storageData["ruleName"])
-                  ? storageData["ruleName"]
-                  : [storageData["ruleName"]];
                 let ruleName_template = UISelectMultiple(
                   "属性名",
                   "ruleName",
-                  ruleNameDefaultValue,
+                  Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]],
                   keyNameHandlerInfo.map((item) => {
                     return {
                       text: item,
@@ -5563,18 +5023,23 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleName2 =
+                let $ruleName =
                   panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template).$el;
-                let ruleValue_template = UITextArea("属性值", "ruleValue", "", "如果是字符串，可正则，注意转义");
+                let ruleValue_template = UITextArea(
+                  "属性值",
+                  "ruleValue",
+                  "",
+                  "如果是字符串，可正则，注意转义",
+                  void 0
+                );
                 Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleValue2 = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template).$el;
-                let remarks_template = UITextArea("备注", "remarks", "", "");
+                let $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template).$el;
+                let remarks_template = UITextArea("备注", "remarks", "", "", void 0);
                 Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $remarks2 = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template).$el;
                 return {
-                  $ruleName: $ruleName2,
-                  $ruleValue: $ruleValue2,
-                  $remarks: $remarks2,
+                  $ruleName,
+                  $ruleValue,
+                  $remarks: panelHandlerComponents.createSectionContainerItem_textarea(remarks_template).$el,
                 };
               };
               let $dynamicContainer = domUtils.createElement("div", {
@@ -5622,9 +5087,7 @@
                   $dynamicUListContainer.remove();
                   if (Array.isArray(data.dynamicData)) {
                     let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
-                    if (findIndex !== -1) {
-                      data.dynamicData.splice(findIndex, 1);
-                    }
+                    if (findIndex !== -1) data.dynamicData.splice(findIndex, 1);
                   }
                 });
                 let $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
@@ -5642,12 +5105,11 @@
                 domUtils.preventEvent(event);
                 addDynamicElementItem();
               });
-              if (Array.isArray(data.dynamicData)) {
+              if (Array.isArray(data.dynamicData))
                 for (let index = 0; index < data.dynamicData.length; index++) {
                   const moreDataItem = data.dynamicData[index];
                   addDynamicElementItem(moreDataItem);
                 }
-              }
               let { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
               $fragment.append($enable, $name, $scope, $ruleName, $ruleValue, $remarks, $dynamicContainer);
               return $fragment;
@@ -5655,41 +5117,27 @@
             onsubmit: ($form, isEdit, editData) => {
               let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
               let data = this.getTemplateData();
-              if (isEdit) {
-                data.uuid = editData.uuid;
-              }
+              if (isEdit) data.uuid = editData.uuid;
               $ulist_li.forEach(($li) => {
                 let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-                if (!viewConfig) {
-                  return;
-                }
+                if (!viewConfig) return;
                 let attrs = Reflect.get(viewConfig, "attributes");
-                if (!attrs) {
-                  return;
-                }
+                if (!attrs) return;
                 let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                 let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                 let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
                 let value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) {
-                  Reflect.set(data, key, value);
-                } else if (Reflect.has(data.data, key)) {
-                  Reflect.set(data.data, key, value);
-                } else {
-                  log.error(`${key}不在数据中`);
-                }
+                if (Reflect.has(data, key)) Reflect.set(data, key, value);
+                else if (Reflect.has(data.data, key)) Reflect.set(data.data, key, value);
+                else log.error(`${key}不在数据中`);
               });
               $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
                 let dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
                   let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-                  if (!viewConfig) {
-                    return;
-                  }
+                  if (!viewConfig) return;
                   let attrs = Reflect.get(viewConfig, "attributes");
-                  if (!attrs) {
-                    return;
-                  }
+                  if (!attrs) return;
                   let storageApi = Reflect.get($li, PROPS_STORAGE_API);
                   let key = Reflect.get(attrs, ATTRIBUTE_KEY);
                   let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
@@ -5699,44 +5147,43 @@
                 data.dynamicData.push(dynamicData);
               });
               if (data.name.trim() === "") {
-                Qmsg.error("规则名称不能为空");
+                qmsg.default.error("规则名称不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
               if (data.data.scope.length === 0) {
-                Qmsg.error("请选择作用域");
+                qmsg.default.error("请选择作用域");
                 return {
                   success: false,
                   data,
                 };
               }
               if (data.data.ruleName.length === 0) {
-                Qmsg.error("请选择属性名");
+                qmsg.default.error("请选择属性名");
                 return {
                   success: false,
                   data,
                 };
               }
               if (data.data.ruleValue.trim() === "") {
-                Qmsg.error("属性值不能为空");
+                qmsg.default.error("属性值不能为空");
                 return {
                   success: false,
                   data,
                 };
               }
-              if (isEdit) {
+              if (isEdit)
                 return {
                   success: that.$data.videoFilterRuleStorage.setRule(data),
                   data,
                 };
-              } else {
+              else
                 return {
                   success: that.$data.videoFilterRuleStorage.addRule(data),
                   data,
                 };
-              }
             },
             style: `
                     .pops-panel-textarea textarea{
@@ -5821,11 +5268,10 @@
                 value: "remarks",
                 filterCallBack(data, value) {
                   let flag = !!data.data.remarks.match(value);
-                  if (!flag) {
+                  if (!flag)
                     flag = !!data.dynamicData?.find((it) => {
                       return !!it.remarks.match(value);
                     });
-                  }
                   return flag;
                 },
               },
@@ -5839,14 +5285,12 @@
           },
         },
       });
-      return ruleView;
     },
   };
-  const blockCSS = "";
-  const XHSBlock = {
+  var XHSBlock = {
     init() {
       Panel.execMenuOnce("pc-xhs-shieldAd", () => {
-        return addStyle(blockCSS);
+        return addStyle("");
       });
       Panel.execMenuOnce("pc-xhs-shield-select-text-search-position", () => {
         return this.blockSelectTextVisibleSearchPosition();
@@ -5891,8 +5335,7 @@
       log.info("【屏蔽】顶部工具栏");
       return [
         CommonUtil.addBlockCSS("#headerContainer", ".header-container"),
-        addStyle(
-          `
+        addStyle(`
 			/* 主内容去除padding */
 			#mfContainer{
 				padding-top: 0 !important;
@@ -5905,12 +5348,11 @@
 			#noteContainer{
 				height: 100%;
 			}
-			`
-        ),
+			`),
       ];
     },
   };
-  const XHS = {
+  var XHS = {
     init() {
       XHSArticleFilter.init();
       Panel.execMenuOnce("pc-xhs-hook-vue", () => {
@@ -5936,16 +5378,11 @@
       const callback = (event) => {
         domUtils.preventEvent(event);
         let selectText = _unsafeWindow.getSelection();
-        if (selectText) {
-          utils.copy(selectText.toString());
-        } else {
-          log.error("未选中任何内容");
-        }
+        if (selectText) utils.copy(selectText.toString());
+        else log.error("未选中任何内容");
         return false;
       };
-      const listener = domUtils.on(_unsafeWindow, "copy", callback, {
-        capture: true,
-      });
+      const listener = domUtils.on(_unsafeWindow, "copy", callback, { capture: true });
       return [
         () => {
           listener.off();
@@ -5957,21 +5394,16 @@
       const callback = (event, $click) => {
         if (!Panel.getValue("pc-xhs-open-blank-article")) return;
         domUtils.preventEvent(event);
-        const $url = $click.querySelector("a.cover[href]");
-        let url = $url?.href;
+        let url = $click.querySelector("a.cover[href]")?.href;
         if (url) {
           log.info("跳转文章: " + url);
           const urlInst = new URL(url);
           urlInst.pathname = urlInst.pathname.replace(/^\/user\/profile\/[a-z0-9A-Z]+\//i, "/discovery/item/");
           url = urlInst.toString();
           window.open(url, "_blank");
-        } else {
-          Qmsg.error("未找到文章链接");
-        }
+        } else qmsg.default.error("未找到文章链接");
       };
-      const listener = domUtils.on(document, "click", ".feeds-container .note-item", callback, {
-        capture: true,
-      });
+      const listener = domUtils.on(document, "click", ".feeds-container .note-item", callback, { capture: true });
       return [
         () => {
           listener.off();
@@ -5979,7 +5411,7 @@
       ];
     },
   };
-  const MSettingUI_Common = {
+  var MSettingUI_Common = {
     id: "little-red-book-panel-config-common",
     title: "通用",
     views: [
@@ -6101,7 +5533,7 @@
       },
     ],
   };
-  const MSettingUI_Home = {
+  var MSettingUI_Home = {
     id: "little-red-book-panel-config-home",
     title: "主页",
     views: [
@@ -6126,7 +5558,7 @@
       },
     ],
   };
-  const MSettingUI_Notes = {
+  var MSettingUI_Notes = {
     id: "little-red-book-panel-config-note",
     title: "笔记",
     views: [
@@ -6212,7 +5644,7 @@
       },
     ],
   };
-  const SettingUI_Article = {
+  var SettingUI_Article = {
     id: "xhs-panel-config-article",
     title: "笔记",
     views: [
@@ -6293,7 +5725,7 @@
       },
     ],
   };
-  const SettingUI_Common = {
+  var SettingUI_Common = {
     id: "xhs-panel-config-common",
     title: "通用",
     views: [
@@ -6514,16 +5946,14 @@
       },
     ],
   };
-  addStyle(
-    `
+  addStyle(`
 .qmsg svg.animate-turn {
     fill: none;
 }
-`
-  );
+`);
   PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
   PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
-  const defaultMenuOption = PanelMenu.getMenuOption();
+  var defaultMenuOption = PanelMenu.getMenuOption();
   defaultMenuOption.text = "⚙ PC-设置";
   PanelMenu.updateMenuOption(defaultMenuOption);
   PanelMenu.addMenuOption({
@@ -6539,59 +5969,48 @@
     },
   });
   Panel.init();
-  let isMobile = utils.isPhone();
-  let CHANGE_ENV_SET_KEY = "change_env_set";
-  let chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
+  var isMobile = utils.isPhone();
+  var CHANGE_ENV_SET_KEY = "change_env_set";
+  var chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
   MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
     text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
     autoReload: false,
     isStoreValue: false,
     showText(text) {
-      if (chooseMode == null) {
-        return text;
-      }
+      if (chooseMode == null) return text;
       return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
     },
     callback: () => {
       let allowValue = [0, 1, 2];
       let chooseText = window.prompt("请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2", "0");
-      if (!chooseText) {
+      if (!chooseText) return;
+      let chooseMode = parseInt(chooseText);
+      if (isNaN(chooseMode)) {
+        qmsg.default.error("输入的不是规范的数字");
         return;
       }
-      let chooseMode2 = parseInt(chooseText);
-      if (isNaN(chooseMode2)) {
-        Qmsg.error("输入的不是规范的数字");
+      if (!allowValue.includes(chooseMode)) {
+        qmsg.default.error("输入的值必须是0或1或2");
         return;
       }
-      if (!allowValue.includes(chooseMode2)) {
-        Qmsg.error("输入的值必须是0或1或2");
-        return;
-      }
-      if (chooseMode2 == 0) {
-        _GM_deleteValue(CHANGE_ENV_SET_KEY);
-      } else {
-        _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode2);
-      }
+      if (chooseMode == 0) _GM_deleteValue(CHANGE_ENV_SET_KEY);
+      else _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode);
     },
   });
   if (chooseMode != null) {
     log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
-    if (chooseMode == 1) {
-      M_XHS.init();
-    } else if (chooseMode == 2) {
-      XHS.init();
-    } else {
-      Qmsg.error("意外，手动判定的值不在范围内");
+    if (chooseMode == 1) M_XHS.init();
+    else if (chooseMode == 2) XHS.init();
+    else {
+      qmsg.default.error("意外，手动判定的值不在范围内");
       _GM_deleteValue(CHANGE_ENV_SET_KEY);
     }
+  } else if (isMobile) {
+    log.info("自动判定为移动端");
+    M_XHS.init();
   } else {
-    if (isMobile) {
-      log.info("自动判定为移动端");
-      M_XHS.init();
-    } else {
-      log.info("自动判定为PC端");
-      XHS.init();
-    }
+    log.info("自动判定为PC端");
+    XHS.init();
   }
 })(Qmsg, DOMUtils, pops, Utils, Viewer);

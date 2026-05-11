@@ -2,10 +2,10 @@ import { $$, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import { Panel } from "@components/setting/panel";
-import { ShortCut, ShortCutOption } from "@components/utils/ShortCut";
+import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
-import { DouYinVideoPlayer, VideoPlayerRate } from "./DouYinVideoPlayer";
+import { DouYinVideoPlayer, type VideoPlayerRate } from "./DouYinVideoPlayer";
 
 export const DouYinVideoPlayerShortCut = {
   shortCut: new ShortCut("video-short-cut"),

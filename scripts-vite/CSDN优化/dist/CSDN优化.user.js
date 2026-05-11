@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.2
+// @version      2026.5.11
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -9,10 +9,10 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.7/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.1/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
 // @grant        GM_addValueChangeListener
@@ -31,28 +31,58 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(function (Qmsg, DOMUtils, pops, Utils) {
+(function (qmsg, _whitesev_domutils, _whitesev_pops, _whitesev_utils) {
   "use strict";
-
-  var _GM_addValueChangeListener = (() =>
-    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
-  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
-  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
-  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
-  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
-  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
-  var _GM_registerMenuCommand = (() =>
-    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
-  var _GM_removeValueChangeListener = (() =>
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
-  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
-  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
-  var _GM_unregisterMenuCommand = (() =>
-    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
-  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
-  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
-  var _monkeyWindow = (() => window)();
-  const PanelSettingConfig = {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __copyProps = (to, from, except, desc) => {
+    if ((from && typeof from === "object") || typeof from === "function")
+      for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+        key = keys[i];
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, {
+            get: ((k) => from[k]).bind(null, key),
+            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+          });
+      }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
+    __copyProps(
+      isNodeMode || !mod || !mod.__esModule
+        ? __defProp(target, "default", {
+            value: mod,
+            enumerable: true,
+          })
+        : target,
+      mod
+    )
+  );
+  qmsg = __toESM(qmsg);
+  _whitesev_domutils = __toESM(_whitesev_domutils);
+  _whitesev_pops = __toESM(_whitesev_pops);
+  _whitesev_utils = __toESM(_whitesev_utils);
+  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
+  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
+  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
+  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
+  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
+  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
+  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
+  var _GM_removeValueChangeListener =
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
+  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
+  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
+  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
+  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
+  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
+  var _monkeyWindow = window;
+  var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
       defaultValue: "bottom",
@@ -65,62 +95,52 @@
       key: "qmsg-config-showreverse",
       defaultValue: false,
     },
+    httpx_cookie_manager_enable: {
+      key: "httpx-use-cookie-enable",
+      defaultValue: false,
+    },
+    httpx_cookie_manager_use_document_cookie: {
+      key: "httpx-use-document-cookie",
+      defaultValue: false,
+    },
   };
-  const CommonUtil$1 = {
+  var CommonUtil$1 = {
     waitRemove(...args) {
       args.forEach((selector) => {
-        if (typeof selector !== "string") {
-          return;
-        }
-        DOMUtils.waitNodeList(selector).then((nodeList) => {
+        if (typeof selector !== "string") return;
+        _whitesev_domutils.default.waitNodeList(selector).then((nodeList) => {
           nodeList.forEach(($el) => $el.remove());
         });
       });
     },
     createBlockCSSNode(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return DOMUtils.createElement("style", {
+      return _whitesev_domutils.default.createElement("style", {
         type: "text/css",
         innerHTML: `${selectorList.join(",\n")}{display: none !important;}`,
       });
     },
     addBlockCSS(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
-      return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+      selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+      if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
-      if (typeof cssText === "string" && cssText) {
-        return addStyle(cssText);
-      } else {
-        return CommonUtil$1.loadStyleLink(resourceMapData.url);
-      }
+      if (typeof cssText === "string" && cssText) return addStyle(cssText);
+      else return CommonUtil$1.loadStyleLink(resourceMapData.url);
     },
     async loadStyleLink(url) {
       let $link = document.createElement("link");
@@ -128,7 +148,7 @@
       $link.type = "text/css";
       $link.href = url;
       return new Promise((resolve) => {
-        DOMUtils.onReady(() => {
+        _whitesev_domutils.default.onReady(() => {
           document.head.appendChild($link);
           resolve($link);
         });
@@ -146,32 +166,21 @@
     },
     fixUrl(url) {
       url = url.trim();
-      if (url.startsWith("data:")) {
-        return url;
-      }
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else if (url.startsWith("//")) {
-        if (url.startsWith("///"));
-        else {
-          url = window.location.protocol + url;
-        }
+      if (url.startsWith("data:")) return url;
+      if (url.match(/^http(s|):\/\//i)) return url;
+      else if (url.startsWith("//")) {
+        if (url.startsWith("///")) {
+        } else url = window.location.protocol + url;
         return url;
       } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
+        if (!url.startsWith("/")) url += "/";
         url = window.location.origin + url;
         return url;
       }
     },
     fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
+      if (url.startsWith("https://")) return url;
+      if (!url.startsWith("http://")) return url;
       try {
         let urlInstance = new URL(url);
         urlInstance.protocol = "https:";
@@ -215,9 +224,7 @@
       }
       function requestPermissionsWithClipboard(resolve) {
         navigator.permissions
-          .query({
-            name: "clipboard-read",
-          })
+          .query({ name: "clipboard-read" })
           .then(() => {
             readClipboardText(resolve);
           })
@@ -227,12 +234,8 @@
           });
       }
       function checkClipboardApi() {
-        if (typeof navigator?.clipboard?.readText !== "function") {
-          return false;
-        }
-        if (typeof navigator?.permissions?.query !== "function") {
-          return false;
-        }
+        if (typeof navigator?.clipboard?.readText !== "function") return false;
+        if (typeof navigator?.permissions?.query !== "function") return false;
         return true;
       }
       return new Promise((resolve) => {
@@ -240,19 +243,15 @@
           resolve("");
           return;
         }
-        if (document.hasFocus()) {
-          requestPermissionsWithClipboard(resolve);
-        } else {
+        if (document.hasFocus()) requestPermissionsWithClipboard(resolve);
+        else
           window.addEventListener(
             "focus",
             () => {
               requestPermissionsWithClipboard(resolve);
             },
-            {
-              once: true,
-            }
+            { once: true }
           );
-        }
       });
     },
     escapeHtml(unsafe) {
@@ -301,66 +300,44 @@
     },
     findParentNode($el, selector, parentSelector) {
       if (parentSelector) {
-        let $parent = DOMUtils.closest($el, parentSelector);
-        if ($parent) {
-          let $target = $parent.querySelector(selector);
-          return $target;
-        }
+        let $parent = _whitesev_domutils.default.closest($el, parentSelector);
+        if ($parent) return $parent.querySelector(selector);
       } else {
-        if (DOMUtils.matches($el, selector)) {
-          return $el;
-        }
-        let $parent = DOMUtils.closest($el, selector);
-        return $parent;
+        if (_whitesev_domutils.default.matches($el, selector)) return $el;
+        return _whitesev_domutils.default.closest($el, selector);
       }
     },
     toStr(data, space = 2) {
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
-      const dataStr = JSON.stringify(
+      return JSON.stringify(
         data,
         (key, value) => {
           return value === void 0 ? undefinedReplacedStr : value;
         },
         space
       ).replace(new RegExp(`"${undefinedReplacedStr}"`, "g"), "undefined");
-      return dataStr;
     },
     isVerticalScreen() {
       return !globalThis.screen.orientation.type.includes("landscape");
     },
     isMobileDevice(size = 768) {
-      const isVerticalScreen = this.isVerticalScreen();
-      if (isVerticalScreen) {
-        return globalThis.innerWidth < size;
-      } else {
-        return globalThis.innerHeight < size;
-      }
+      if (this.isVerticalScreen()) return globalThis.innerWidth < size;
+      else return globalThis.innerHeight < size;
     },
     isTopWindow() {
       const win = typeof _unsafeWindow === "object" && _unsafeWindow != null ? _unsafeWindow : window;
       return win.top === win.self;
     },
     formatVideoDuration(duration) {
-      if (typeof duration !== "number") {
-        duration = parseInt(duration);
-      }
-      if (isNaN(duration)) {
-        return duration.toString();
-      }
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
       const zeroPadding = function (num) {
-        if (num < 10) {
-          return `0${num}`;
-        } else {
-          return num;
-        }
+        if (num < 10) return `0${num}`;
+        else return num;
       };
-      if (duration < 60) {
-        return `0:${zeroPadding(duration)}`;
-      } else if (duration >= 60 && duration < 3600) {
-        const minutes = Math.floor(duration / 60);
-        const seconds = duration % 60;
-        return `${minutes}:${zeroPadding(seconds)}`;
-      } else {
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else {
         const hours = Math.floor(duration / 3600);
         const minutes = Math.floor(duration / 60) % 60;
         const seconds = duration % 60;
@@ -369,78 +346,64 @@
     },
     formatTimeStamp(time, endTime) {
       if (typeof time === "number") {
-        if (time < 1e12) {
+        if (time < 0xe8d4a51000) {
           const padZeroLength = String(Date.now()).length - String(time).length;
           time = time * Math.pow(10, padZeroLength);
         }
       }
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
-      let currentTime = new Date(endTime ?? Date.now());
-      let timeDifference = currentTime.getTime() - oldTime.getTime();
+      let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
       let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0) {
-        if (days > 7) {
-          result = utils.formatTime(oldTime.getTime());
-        } else {
-          result = days + "天前";
-        }
-      } else {
+      if (days > 0)
+        if (days > 7) result = utils.formatTime(oldTime.getTime());
+        else result = days + "天前";
+      else {
         let leave1 = timeDifference % (24 * 3600 * 1e3);
         let hours = Math.floor(leave1 / (3600 * 1e3));
-        if (hours > 0) {
-          result = hours + "小时前";
-        } else {
+        if (hours > 0) result = hours + "小时前";
+        else {
           let leave2 = leave1 % (3600 * 1e3);
           let minutes = Math.floor(leave2 / (60 * 1e3));
-          if (minutes > 0) {
-            result = minutes + "分钟前";
-          } else {
+          if (minutes > 0) result = minutes + "分钟前";
+          else {
             let leave3 = leave2 % (60 * 1e3);
-            let seconds = Math.round(leave3 / 1e3);
-            result = seconds + "秒前";
+            result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
       }
       return result;
     },
   };
-  const utils = Utils.noConflict();
-  const domUtils = DOMUtils.noConflict();
-  const __pops__ = pops;
-  const log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
-  const SCRIPT_NAME = _GM_info?.script?.name || void 0;
-  const AnyTouch = pops.fn.Utils.AnyTouch();
+  var utils = _whitesev_utils.default.noConflict();
+  var domUtils = _whitesev_domutils.default.noConflict();
+  var __pops__ = _whitesev_pops.default;
+  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var SCRIPT_NAME = _GM_info?.script?.name || void 0;
+  var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
     debug: false,
     logMaxCount: 250,
     autoClearConsole: true,
     tag: true,
   });
-  const getPageMaxZIndex = () => {
+  var getPageMaxZIndex = () => {
     const deviation = 100;
-    const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+    const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
     const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
-    const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
-    return maxZIndex;
+    return Math.max(deviation, popsZIndex, pointZIndex);
   };
-  Qmsg.config({
+  qmsg.default.config({
     isHTML: true,
     autoClose: true,
     showClose: false,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
-      if (qmsgType === "loading") {
-        return false;
-      }
+      if (qmsgType === "loading") return false;
       const content = qmsgInst.setting.content;
-      if (qmsgType === "warning") {
-        log.warn(content);
-      } else if (qmsgType === "error") {
-        log.error(content);
-      } else {
-        log.info(content);
-      }
+      if (qmsgType === "warning") log.warn(content);
+      else if (qmsgType === "error") log.error(content);
+      else log.info(content);
       return false;
     },
     get position() {
@@ -478,13 +441,13 @@
     },
     drag: true,
   });
-  const MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  const httpx = new utils.Httpx({
+  var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
     logDetails: false,
   });
@@ -497,94 +460,75 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") {
-        Qmsg.warning("请求取消", { consoleLogContent: true });
-      } else if (data.type === "onerror") {
-        Qmsg.error("请求异常", { consoleLogContent: true });
-      } else if (data.type === "ontimeout") {
-        Qmsg.error("请求超时", { consoleLogContent: true });
-      } else {
-        Qmsg.error("其它错误", { consoleLogContent: true });
-      }
+      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
+      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
+      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
+      else qmsg.default.error("其它错误", { consoleLogContent: true });
       return data;
     }
   );
-  ({
-    Object: {
-      defineProperty: _unsafeWindow.Object.defineProperty,
-      keys: _unsafeWindow.Object.keys,
-      values: _unsafeWindow.Object.values,
-    },
-    Function: {
-      apply: _unsafeWindow.Function.prototype.apply,
-      call: _unsafeWindow.Function.prototype.call,
-    },
-    Element: {
-      appendChild: _unsafeWindow.Element.prototype.appendChild,
-    },
-    setTimeout: _unsafeWindow.setTimeout.bind(_unsafeWindow),
-    clearTimeout: _unsafeWindow.clearTimeout.bind(_unsafeWindow),
-    setInterval: _unsafeWindow.setInterval.bind(_unsafeWindow),
-    clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
-  });
-  const addStyle = domUtils.addStyle.bind(domUtils);
+  (_unsafeWindow.Object.defineProperty,
+    _unsafeWindow.Object.keys,
+    _unsafeWindow.Object.values,
+    _unsafeWindow.Function.prototype.apply,
+    _unsafeWindow.Function.prototype.call,
+    _unsafeWindow.Element.prototype.appendChild,
+    _unsafeWindow.setTimeout.bind(_unsafeWindow),
+    _unsafeWindow.clearTimeout.bind(_unsafeWindow),
+    _unsafeWindow.setInterval.bind(_unsafeWindow),
+    _unsafeWindow.clearInterval.bind(_unsafeWindow));
+  var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil$1.addBlockCSS.bind(CommonUtil$1);
-  const $ = DOMUtils.selector.bind(DOMUtils);
-  const $$ = DOMUtils.selectorAll.bind(DOMUtils);
-  const cookieManager = new utils.CookieManagerService({
-    baseCookieHandler: "GM_cookie",
-  });
-  if (!cookieManager.isSupportGM_cookie) {
-    if (cookieManager.isSupportCookieStore) {
-      cookieManager.setOptions({
-        baseCookieHandler: "cookieStore",
-      });
-    } else {
-      cookieManager.setOptions({
-        baseCookieHandler: "document.cookie",
-      });
-    }
-  }
+  var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
+  var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
+  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  if (!cookieManager.isSupportGM_cookie)
+    if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
+    else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils.DocumentCookieHandler();
-  const KEY = "GM_Panel";
-  const ATTRIBUTE_INIT = "data-init";
-  const ATTRIBUTE_KEY = "data-key";
-  const ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
-  const ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
-  const ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
-  const PROPS_STORAGE_API = "data-storage-api";
-  const PanelSizeUtil = {
+  var KEY = "GM_Panel";
+  var ATTRIBUTE_INIT = "data-init";
+  var ATTRIBUTE_KEY = "data-key";
+  var ATTRIBUTE_DEFAULT_VALUE = "data-default-value";
+  var ATTRIBUTE_INIT_MORE_VALUE = "data-init-more-value";
+  var ATTRIBUTE_PLUGIN_SEARCH_CONFIG = "data-plugin-search-config";
+  var PROPS_STORAGE_API = "data-storage-api";
+  var PanelSizeUtil = {
+    followBrowserSize: false,
     get width() {
-      return globalThis.innerWidth;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerWidth : globalThis.innerWidth;
     },
     get height() {
-      return globalThis.innerHeight;
+      return PanelSizeUtil.followBrowserSize ? globalThis.outerHeight : globalThis.innerHeight;
     },
   };
-  const PanelUISize = {
+  var PanelUISize = {
     setting: {
       get width() {
-        if (PanelSizeUtil.width < 550) {
-          return "88vw";
-        } else if (PanelSizeUtil.width < 700) {
-          return "550px";
-        } else {
-          return "700px";
-        }
+        if (PanelSizeUtil.width < 550) return "88vw";
+        else if (PanelSizeUtil.width < 700) return "550px";
+        else return "700px";
       },
       get height() {
-        if (PanelSizeUtil.height < 450) {
-          return "70vh";
-        } else if (PanelSizeUtil.height < 550) {
-          return "450px";
-        } else {
-          return "550px";
-        }
+        if (PanelSizeUtil.height < 450) return "70vh";
+        else if (PanelSizeUtil.height < 550) return "450px";
+        else return "550px";
       },
     },
     settingMiddle: {
       get width() {
         return PanelSizeUtil.width < 350 ? "88vw" : "350px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 450 ? "88vh" : "450px";
+      },
+    },
+    settingBig: {
+      get width() {
+        return PanelSizeUtil.width < 800 ? "92vw" : "800px";
+      },
+      get height() {
+        return PanelSizeUtil.height < 600 ? "80vh" : "600px";
       },
     },
     info: {
@@ -596,21 +540,17 @@
       },
     },
   };
-  const PanelContent = {
+  var PanelContent = {
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) {
-          this.__contentConfig = new utils.Dictionary();
-        }
+        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) {
-        configList = [configList];
-      }
+      if (!Array.isArray(configList)) configList = [configList];
       let index = this.$data.contentConfig.keys().length;
       this.$data.contentConfig.set(index, configList);
     },
@@ -621,34 +561,28 @@
       return this.$data.contentConfig.get(index) ?? [];
     },
     getDefaultBottomContentConfig(config) {
-      if (this.$data.__defaultBottomContentConfig.length) {
-        return this.$data.__defaultBottomContentConfig;
-      }
+      if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
       let isDoubleClick = false;
       let timer = void 0;
       const translateCallback = (text, translateMap) => {
-        if (config && typeof config.translateCallback === "function") {
+        if (config && typeof config.translateCallback === "function")
           return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const exportToFile = (fileName, fileData) => {
-        if (typeof fileData !== "string") {
-          fileData = CommonUtil$1.toStr(fileData);
-        }
+        if (typeof fileData !== "string") fileData = CommonUtil$1.toStr(fileData);
         const blob = new Blob([fileData]);
         const blobUrl = globalThis.URL.createObjectURL(blob);
-        const $anchor = domUtils.createElement("a", {
-          href: blobUrl,
-          download: fileName,
-        });
-        $anchor.click();
+        domUtils
+          .createElement("a", {
+            href: blobUrl,
+            download: fileName,
+          })
+          .click();
         utils.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
@@ -677,9 +611,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -701,43 +633,29 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            const clearLocalStorage = confirm(
-              translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")
-            );
-            if (clearLocalStorage) {
-              if (typeof _GM_listValues === "function") {
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
+              if (typeof _GM_listValues === "function")
                 if (typeof _GM_deleteValue === "function") {
-                  const localStorageKeys = _GM_listValues();
-                  localStorageKeys.forEach((key) => {
+                  _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
-                  Qmsg.success(translateCallback("已清空脚本存储的配置"));
-                } else {
-                  Qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-                }
-              } else {
-                Qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
-              }
-            }
-            if (typeof _GM_setValues === "function") {
-              _GM_setValues(data);
-            } else {
-              const keys = Object.keys(data);
-              keys.forEach((key) => {
+                  qmsg.default.success(translateCallback("已清空脚本存储的配置"));
+                } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
+              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            if (typeof _GM_setValues === "function") _GM_setValues(data);
+            else
+              Object.keys(data).forEach((key) => {
                 const value = data[key];
                 _GM_setValue(key, value);
               });
-            }
-            Qmsg.success(translateCallback("配置导入完毕"));
+            qmsg.default.success(translateCallback("配置导入完毕"));
+            importEndCallBack?.();
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
               const data = utils.toJSON(configText);
-              if (Object.keys(data).length === 0) {
-                Qmsg.warning(translateCallback("解析为空配置，不导入"));
-              } else {
-                await updateConfigToStorage(data);
-              }
+              if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
+              else await updateConfigToStorage(data);
               resolve(true);
             });
           };
@@ -749,9 +667,7 @@
               accept: ".json",
             });
             domUtils.on($input, ["propertychange", "input"], () => {
-              if (!$input.files?.length) {
-                return;
-              }
+              if (!$input.files?.length) return;
               const uploadFile = $input.files[0];
               const fileReader = new FileReader();
               fileReader.onload = () => {
@@ -786,53 +702,37 @@
                   callback: async (details) => {
                     const url = details.text;
                     if (utils.isNull(url)) {
-                      Qmsg.error(translateCallback("请填入完整的url"));
+                      qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
-                    const $loading = Qmsg.loading(translateCallback("正在获取配置..."));
-                    const response = await httpx.get(url, {
-                      allowInterceptConfig: false,
-                    });
+                    const $loading = qmsg.default.loading(translateCallback("正在获取配置..."));
+                    const response = await httpx.get(url, { allowInterceptConfig: false });
                     $loading.close();
                     if (!response.status) {
                       log.error(response);
-                      Qmsg.error(translateCallback("获取配置失败"), { consoleLogContent: true });
+                      qmsg.default.error(translateCallback("获取配置失败"), { consoleLogContent: true });
                       return;
                     }
-                    const flag = await importFile(response.data.responseText);
-                    if (!flag) {
-                      return;
-                    }
+                    if (!(await importFile(response.data.responseText))) return;
                     details.close();
                   },
                 },
-                cancel: {
-                  enable: false,
-                },
+                cancel: { enable: false },
               },
               drag: true,
-              mask: {
-                enable: true,
-              },
+              mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
             domUtils.on($promptInput, ["input", "propertychange"], () => {
-              const value = domUtils.val($promptInput);
-              if (value === "") {
-                domUtils.attr($promptOk, "disabled", "true");
-              } else {
-                domUtils.removeAttr($promptOk, "disabled");
-              }
+              if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+              else domUtils.removeAttr($promptOk, "disabled");
             });
             domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
               if (keyName === "Enter" && otherCodeList.length === 0) {
-                const value = domUtils.val($promptInput);
-                if (value !== "") {
-                  domUtils.emit($promptOk, "click");
-                }
+                if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
               }
             });
             domUtils.emit($promptInput, "input");
@@ -842,13 +742,10 @@
             $alert.close();
             let clipboardText = await CommonUtil$1.getClipboardText();
             if (clipboardText.trim() === "") {
-              Qmsg.warning(translateCallback("获取到的剪贴板内容为空"));
+              qmsg.default.warning(translateCallback("获取到的剪贴板内容为空"));
               return;
             }
-            const flag = await importFile(clipboardText);
-            if (!flag) {
-              return;
-            }
+            if (!(await importFile(clipboardText))) return;
           });
         };
         const exportConfig = (
@@ -877,9 +774,7 @@
               },
             },
             drag: true,
-            mask: {
-              enable: true,
-            },
+            mask: { enable: true },
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
@@ -905,48 +800,46 @@
               exportToFile(fileName, fileData);
               $alert.close();
             } catch (error) {
-              Qmsg.error(error.toString(), { consoleLogContent: true });
+              qmsg.default.error(error.toString(), { consoleLogContent: true });
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            const result = await utils.copy(fileData);
-            if (result) {
-              Qmsg.success(translateCallback("复制成功"));
+            if (await utils.copy(fileData)) {
+              qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
-            } else {
-              Qmsg.error(translateCallback("复制失败"));
-            }
+            } else qmsg.default.error(translateCallback("复制失败"));
           });
         };
-        const $dialog = __pops__.confirm({
-          title: {
-            text: translateCallback("配置"),
-            position: "center",
-          },
-          content: {
-            text: `<textarea name="config-value" id="config" readonly></textarea>`,
-            html: true,
-          },
-          btn: {
-            ok: {
-              enable: true,
-              type: "primary",
-              text: translateCallback("导入"),
-              callback() {
-                importConfig();
+        const $textarea = __pops__
+          .confirm({
+            title: {
+              text: translateCallback("配置"),
+              position: "center",
+            },
+            content: {
+              text: `<textarea name="config-value" id="config" readonly></textarea>`,
+              html: true,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                type: "primary",
+                text: translateCallback("导入"),
+                callback() {
+                  importConfig();
+                },
+              },
+              cancel: {
+                enable: true,
+                text: translateCallback("导出"),
+                callback() {
+                  exportConfig(void 0, configDataStr);
+                },
               },
             },
-            cancel: {
-              enable: true,
-              text: translateCallback("导出"),
-              callback() {
-                exportConfig(void 0, configDataStr);
-              },
-            },
-          },
-          width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
-          height: "auto",
-          style: `
+            width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+            height: "auto",
+            style: `
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -978,17 +871,16 @@
             --textarea-bd-color: #c0c4cc;
           }
         `,
-        });
-        const $textarea = $dialog.$shadowRoot.querySelector("textarea");
+          })
+          .$shadowRoot.querySelector("textarea");
         const configData = {};
-        if (typeof _GM_listValues === "function") {
-          const LocalKeys = _GM_listValues();
-          LocalKeys.forEach((key) => {
+        if (typeof _GM_listValues === "function")
+          _GM_listValues().forEach((key) => {
             const value = _GM_getValue(key);
             Reflect.set(configData, key, value);
           });
-        } else {
-          Qmsg.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
+        else {
+          qmsg.default.warning(translateCallback("不支持函数GM_listValues，仅导出菜单配置"));
           const panelLocalValue = _GM_getValue(KEY);
           Reflect.set(configData, KEY, panelLocalValue);
         }
@@ -997,9 +889,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) {
-          window.open(supportURL, "_blank");
-        }
+        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -1012,9 +902,8 @@
           clickFirstCallback() {
             return false;
           },
-          afterRender(config2) {
-            const anyTouch = new AnyTouch(config2.$asideLiElement);
-            anyTouch.on("tap", function () {
+          afterRender(config) {
+            new AnyTouch(config.$asideLiElement).on("tap", function () {
               clearTimeout(timer);
               timer = void 0;
               if (isDoubleClick) {
@@ -1036,7 +925,7 @@
       this.$data.__defaultBottomContentConfig = config;
     },
   };
-  const PanelMenu = {
+  var PanelMenu = {
     $data: {
       __menuOption: [
         {
@@ -1060,28 +949,20 @@
       this.initExtensionsMenu();
     },
     initExtensionsMenu() {
-      if (!CommonUtil$1.isTopWindow()) {
-        return;
-      }
+      if (!CommonUtil$1.isTopWindow()) return;
       MenuRegister.add(this.$data.menuOption);
     },
     addMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       this.$data.menuOption.push(...option);
     },
     updateMenuOption(option) {
-      if (!Array.isArray(option)) {
-        option = [option];
-      }
+      if (!Array.isArray(option)) option = [option];
       option.forEach((optionItem) => {
         let findIndex = this.$data.menuOption.findIndex((it) => {
           return it.key === optionItem.key;
         });
-        if (findIndex !== -1) {
-          this.$data.menuOption[findIndex] = optionItem;
-        }
+        if (findIndex !== -1) this.$data.menuOption[findIndex] = optionItem;
       });
     },
     getMenuOption(index = 0) {
@@ -1091,7 +972,7 @@
       this.$data.menuOption.splice(index, 1);
     },
   };
-  class PanelMenuResultsHandler {
+  var PanelMenuResultsHandler = class {
     data = {
       storeNodeList: [],
       destoryFnList: [],
@@ -1104,40 +985,26 @@
       const dynamicMenuStoreNodeList = [];
       const dynamicDestoryFnList = [];
       let resultValueList = [];
-      if (Array.isArray(args)) {
-        resultValueList = resultValueList.concat(args);
-      } else {
+      if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
+      else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null) {
-            if (obj instanceof Element) {
-              resultValueList.push(obj);
-            } else {
-              if (Array.isArray(obj)) {
-                handleArgs(obj);
-              } else {
-                const { $css, destory } = obj;
-                if ($css != null) {
-                  if (Array.isArray($css)) {
-                    resultValueList = resultValueList.concat($css);
-                  } else if ($css instanceof Element) {
-                    resultValueList.push($css);
-                  } else;
-                }
-                if (typeof destory === "function") {
-                  resultValueList.push(destory);
-                }
+          if (typeof obj === "object" && obj != null)
+            if (obj instanceof Element) resultValueList.push(obj);
+            else if (Array.isArray(obj)) handleArgs(obj);
+            else {
+              const { $css, destory } = obj;
+              if ($css != null) {
+                if (Array.isArray($css)) resultValueList = resultValueList.concat($css);
+                else if ($css instanceof Element) resultValueList.push($css);
               }
+              if (typeof destory === "function") resultValueList.push(destory);
             }
-          } else {
-            resultValueList.push(obj);
-          }
+          else resultValueList.push(obj);
         };
         handleArgs(args);
       }
       const handleResult = (it) => {
-        if (it == null) {
-          return;
-        }
+        if (it == null) return;
         if (it instanceof Element) {
           dynamicMenuStoreNodeList.push(it);
           return;
@@ -1149,17 +1016,12 @@
       };
       for (const it of resultValueList) {
         const flag = handleResult(it);
-        if (typeof flag === "boolean" && !flag) {
-          break;
-        }
-        if (Array.isArray(it)) {
+        if (typeof flag === "boolean" && !flag) break;
+        if (Array.isArray(it))
           for (const it2 of it) {
             const flag2 = handleResult(it2);
-            if (typeof flag2 === "boolean" && !flag2) {
-              break;
-            }
+            if (typeof flag2 === "boolean" && !flag2) break;
           }
-        }
       }
       this.clearStoreNodeList();
       this.execDestoryFnAndClear();
@@ -1174,8 +1036,7 @@
     }
     clearStoreNodeList = () => {
       for (let index = this.data.storeNodeList.length - 1; index >= 0; index--) {
-        const $css = this.data.storeNodeList[index];
-        $css?.remove();
+        this.data.storeNodeList[index]?.remove();
         this.data.storeNodeList.splice(index, 1);
       }
     };
@@ -1188,15 +1049,12 @@
     };
     checkMenuExec() {
       let flag = false;
-      if (typeof this.option.checkExec === "function") {
-        flag = this.option.checkExec(this.option.keyList);
-      } else {
-        flag = this.option.keyList.every((key) => this.getEnableStatus(key));
-      }
+      if (typeof this.option.checkExec === "function") flag = this.option.checkExec(this.option.keyList);
+      else flag = this.option.keyList.every((key) => this.getEnableStatus(key));
       return flag;
     }
-  }
-  class StorageUtils {
+  };
+  var StorageUtils = class {
     storageKey;
     listenerData;
     cacheData;
@@ -1204,14 +1062,10 @@
     constructor(key) {
       if (typeof key === "string") {
         const trimKey = key.trim();
-        if (trimKey == "") {
-          throw new Error("key can not be empty string");
-        }
+        if (trimKey == "") throw new Error("key can not be empty string");
         this.storageKey = trimKey;
-      } else {
-        throw new TypeError("key must be a string");
-      }
-      this.listenerData = new Utils.Dictionary();
+      } else throw new TypeError("key must be a string");
+      this.listenerData = new _whitesev_utils.default.Dictionary();
       this.getLocalValue = this.getLocalValue.bind(this);
       this.setLocalValue = this.setLocalValue.bind(this);
       this.destory = this.destory.bind(this);
@@ -1258,9 +1112,7 @@
           _GM_removeValueChangeListener(listenerId);
         });
         return localValue;
-      } else {
-        return this.cacheData;
-      }
+      } else return this.cacheData;
     }
     setLocalValue(value) {
       this.cacheData = null;
@@ -1279,8 +1131,7 @@
       return Reflect.get(localValue, key) ?? defaultValue;
     }
     getAll() {
-      const localValue = this.getLocalValue();
-      return localValue;
+      return this.getLocalValue();
     }
     delete(key) {
       const oldValue = this.get(key);
@@ -1336,19 +1187,16 @@
     }
     async emitValueChangeListener(...args) {
       const [key, newValue, oldValue] = args;
-      if (!this.listenerData.has(key)) {
-        return;
-      }
+      if (!this.listenerData.has(key)) return;
       const listenerData = this.listenerData.get(key);
       for (let index = 0; index < listenerData.length; index++) {
         const data = listenerData[index];
         if (typeof data.callback === "function") {
           let __newValue;
           let __oldValue;
-          if (args.length === 1);
-          else if (args.length === 2) {
-            __newValue = newValue;
-          } else if (args.length === 3) {
+          if (args.length === 1) {
+          } else if (args.length === 2) __newValue = newValue;
+          else if (args.length === 3) {
             __newValue = newValue;
             __oldValue = oldValue;
           }
@@ -1356,9 +1204,9 @@
         }
       }
     }
-  }
-  const PopsPanelStorageApi = new StorageUtils(KEY);
-  const Panel = {
+  };
+  var PopsPanelStorageApi = new StorageUtils(KEY);
+  var Panel = {
     $data: {
       __contentConfigInitDefaultValue: null,
       __onceExecMenuData: null,
@@ -1368,28 +1216,20 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) {
-          this.__contentConfigInitDefaultValue = new utils.Dictionary();
-        }
+        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) {
-          this.__onceExecMenuData = new utils.Dictionary();
-        }
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) {
-          this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
-        }
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) {
-          this.__onceExecData = new utils.Dictionary();
-        }
+        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -1411,19 +1251,13 @@
     },
     initContentDefaultValue() {
       const initDefaultValue = (config) => {
-        if (!config.attributes) {
-          return;
-        }
-        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") {
-          return;
-        }
+        if (!config.attributes) return;
+        if (config.type === "button" || config.type === "container" || config.type === "deepMenu") return;
         const attributes = config.attributes;
         const __attr_init__ = attributes[ATTRIBUTE_INIT];
         if (typeof __attr_init__ === "function") {
           const __attr_result__ = __attr_init__();
-          if (typeof __attr_result__ === "boolean" && !__attr_result__) {
-            return;
-          }
+          if (typeof __attr_result__ === "boolean" && !__attr_result__) return;
         }
         const menuDefaultConfig = new Map();
         const key = attributes[ATTRIBUTE_KEY];
@@ -1432,56 +1266,46 @@
           menuDefaultConfig.set(key, defaultValue);
         }
         const moreMenuDefaultConfig = attributes[ATTRIBUTE_INIT_MORE_VALUE];
-        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig) {
-          Object.keys(moreMenuDefaultConfig).forEach((key2) => {
-            const defaultValue = moreMenuDefaultConfig[key2];
-            menuDefaultConfig.set(key2, defaultValue);
+        if (typeof moreMenuDefaultConfig === "object" && moreMenuDefaultConfig)
+          Object.keys(moreMenuDefaultConfig).forEach((key) => {
+            const defaultValue = moreMenuDefaultConfig[key];
+            menuDefaultConfig.set(key, defaultValue);
           });
-        }
         if (!menuDefaultConfig.size) {
           log.warn("请先配置键", config);
           return;
         }
         if (config.type === "switch") {
           const disabled = typeof config.disabled === "function" ? config.disabled() : config.disabled;
-          if (typeof disabled === "boolean" && disabled) {
+          if (typeof disabled === "boolean" && disabled)
             this.$data.contentConfigInitDisabledKeys.push(...menuDefaultConfig.keys());
-          }
         }
-        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) {
-          this.setDefaultValue(__key, __defaultValue);
-        }
+        for (const [__key, __defaultValue] of menuDefaultConfig.entries()) this.setDefaultValue(__key, __defaultValue);
       };
       const loopInitDefaultValue = (configList) => {
         for (let index = 0; index < configList.length; index++) {
           const configItem = configList[index];
           initDefaultValue(configItem);
           const childViews = configItem.views;
-          if (childViews && Array.isArray(childViews)) {
-            loopInitDefaultValue(childViews);
-          }
+          if (childViews && Array.isArray(childViews)) loopInitDefaultValue(childViews);
         }
       };
       const contentConfigList = [...PanelContent.getAllContentConfig()];
       for (let index = 0; index < contentConfigList.length; index++) {
         const leftContentConfigItem = contentConfigList[index];
-        if (!leftContentConfigItem.views) {
-          continue;
-        }
+        if (!leftContentConfigItem.views) continue;
         const rightContentConfigList = leftContentConfigItem.views;
-        if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
+        if (rightContentConfigList && Array.isArray(rightContentConfigList))
           loopInitDefaultValue(rightContentConfigList);
-        }
       }
       this.$data.contentConfigInitDisabledKeys = [...new Set(this.$data.contentConfigInitDisabledKeys)];
     },
     setDefaultValue(key, defaultValue) {
-      if (this.$data.contentConfigInitDefaultValue.has(key)) {
+      if (this.$data.contentConfigInitDefaultValue.has(key))
         log.warn("该key已存在，初始化默认值失败: ", {
           key,
           initValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
-      }
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
     getDefaultValue(key) {
@@ -1493,9 +1317,7 @@
     getValue(key, defaultValue) {
       const localValue = PopsPanelStorageApi.get(key);
       if (localValue == null) {
-        if (this.$data.contentConfigInitDefaultValue.has(key)) {
-          return this.$data.contentConfigInitDefaultValue.get(key);
-        }
+        if (this.$data.contentConfigInitDefaultValue.has(key)) return this.$data.contentConfigInitDefaultValue.get(key);
         return defaultValue;
       }
       return localValue;
@@ -1510,11 +1332,8 @@
       const listenerId = PopsPanelStorageApi.addValueChangeListener(key, callback);
       if (option?.immediate || option?.immediateAll) {
         const value = this.getValue(key);
-        if (option?.immediate) {
-          callback(key, value, value);
-        } else if (option?.immediateAll) {
-          Panel.emitMenuValueChange(key, value, value);
-        }
+        if (option?.immediate) callback(key, value, value);
+        else if (option?.immediateAll) Panel.emitMenuValueChange(key, value, value);
       }
       return listenerId;
     },
@@ -1526,20 +1345,15 @@
     },
     async exec(queryKey, callback, checkExec, once = true) {
       let queryKeyFn;
-      if (typeof queryKey === "string" || Array.isArray(queryKey)) {
-        queryKeyFn = () => queryKey;
-      } else {
-        queryKeyFn = queryKey;
-      }
+      if (typeof queryKey === "string" || Array.isArray(queryKey)) queryKeyFn = () => queryKey;
+      else queryKeyFn = queryKey;
       let isArrayKey = false;
       const queryKeyResult = queryKeyFn();
       let keyList = [];
       if (Array.isArray(queryKeyResult)) {
         isArrayKey = true;
         keyList = queryKeyResult;
-      } else {
-        keyList.push(queryKeyResult);
-      }
+      } else keyList.push(queryKeyResult);
       const findNotInDataKey = keyList.find((it) => !this.$data.contentConfigInitDefaultValue.has(it));
       if (findNotInDataKey) {
         log.warn(`${findNotInDataKey} 键不存在`);
@@ -1547,9 +1361,7 @@
       }
       const storageKey = JSON.stringify(keyList);
       if (once) {
-        if (this.$data.onceExecMenuData.has(storageKey)) {
-          return this.$data.onceExecMenuData.get(storageKey);
-        }
+        if (this.$data.onceExecMenuData.has(storageKey)) return this.$data.onceExecMenuData.get(storageKey);
       }
       const listenerIdList = [];
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1558,13 +1370,10 @@
           const value = this.getValue(key);
           return Boolean(value);
         },
-        checkExec(keyList2) {
+        checkExec(keyList) {
           let flag = false;
-          if (typeof checkExec === "function") {
-            flag = checkExec(keyList2);
-          } else {
-            flag = keyList2.every((key) => this.getValue(key));
-          }
+          if (typeof checkExec === "function") flag = checkExec(keyList);
+          else flag = keyList.every((key) => this.getValue(key));
           return flag;
         },
       });
@@ -1584,16 +1393,17 @@
         }
         panelMenuResultsHandler.handlerResult(execFlag, callbackResult);
       };
-      if (once) {
+      if (once)
         keyList.forEach((key) => {
-          const listenerId = this.addValueChangeListener(key, (key2, newValue, oldValue) => {
+          const listenerId = this.addValueChangeListener(key, (key, newValue, oldValue) => {
             return valueChangeCallback({
-              key: key2,
+              key,
+              newValue,
+              oldValue,
             });
           });
           listenerIdList.push(listenerId);
         });
-      }
       await valueChangeCallback();
       const result = {
         checkMenuExec: panelMenuResultsHandler.checkMenuExec.bind(panelMenuResultsHandler),
@@ -1617,9 +1427,7 @@
           });
         },
         clearOnceExecMenuData() {
-          if (once) {
-            Panel.$data.onceExecMenuData.delete(storageKey);
-          }
+          if (once) Panel.$data.onceExecMenuData.delete(storageKey);
         },
       };
       this.$data.onceExecMenuData.set(storageKey, result);
@@ -1632,19 +1440,15 @@
           return await callback(...args);
         },
         (keyList) => {
-          const execFlag = keyList.every((__key__) => {
+          return keyList.every((__key__) => {
             let flag = !!this.getValue(__key__);
-            const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
-            if (disabled) {
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
               flag = false;
               log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
             }
-            if (isReverse) {
-              flag = !flag;
-            }
+            if (isReverse) flag = !flag;
             return flag;
           });
-          return execFlag;
         },
         once
       );
@@ -1665,16 +1469,14 @@
     async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
       const results = await Promise.all(
         menus.map(async ([key, callback]) => {
-          const menuResult = await this.execMenu(
+          return await this.execMenu(
             key,
             (...args) => {
-              const result = callback(...args);
-              return result;
+              return callback(...args);
             },
             isReverse,
             once
           );
-          return menuResult;
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
@@ -1689,23 +1491,14 @@
         panelMenuResultsHandler.clearStoreNodeList();
         panelMenuResultsHandler.execDestoryFnAndClear();
         if (removeListener) {
-          for (const listenerId of listenerIdList) {
-            this.removeValueChangeListener(listenerId);
-          }
-          for (const result of results) {
-            if (result) {
-              this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
-            }
-          }
+          for (const listenerId of listenerIdList) this.removeValueChangeListener(listenerId);
+          for (const result of results) if (result) this.removeUrlChangeWithExecMenuOnceListener(result.keyList);
         }
       };
       const __allExecCallback__ = () => {
         const allExecFlag = results.every((result) => {
-          if (result) {
-            return result.checkMenuExec();
-          } else {
-            return true;
-          }
+          if (result) return result.checkMenuExec();
+          else return true;
         });
         __destory__(false);
         if (allExecFlag) {
@@ -1714,7 +1507,7 @@
         }
       };
       __allExecCallback__();
-      for (const result of results) {
+      for (const result of results)
         if (result) {
           const listenerId = this.addValueChangeListener(result.keyList[0], () => {
             __allExecCallback__();
@@ -1728,58 +1521,42 @@
             this.addUrlChangeWithExecMenuOnceListener(result.keyList, urlChangeCallback);
           }
         }
-      }
       return {
         clear() {
-          for (const result of results) {
-            result?.clear();
-          }
+          for (const result of results) result?.clear();
           this.execDestoryFnAndClear();
           this.removeValueChangeListener();
         },
         execDestoryFnAndClear() {
-          for (const result of results) {
-            result?.execDestoryFnAndClear();
-          }
+          for (const result of results) result?.execDestoryFnAndClear();
           __destory__(false);
         },
         removeValueChangeListener() {
-          for (const result of results) {
-            result?.removeValueChangeListener();
-          }
+          for (const result of results) result?.removeValueChangeListener();
           __destory__(true);
         },
       };
     },
     async execMoreMenuOnce(menus, allExecCallback, isReverse = false, listenUrlChange = false) {
-      const results = await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
-      return results;
+      return await this.execMoreMenu(menus, allExecCallback, isReverse, true, listenUrlChange);
     },
     deleteExecMenuOnce(key) {
       key = this.transformKey(key);
       this.$data.onceExecMenuData.delete(key);
       this.$data.urlChangeReloadMenuExecOnce.delete(key);
-      const flag = PopsPanelStorageApi.removeValueChangeListener(key);
-      return flag;
+      return PopsPanelStorageApi.removeValueChangeListener(key);
     },
     onceExec(key, callback, runWithMenuEnable = false) {
       key = this.transformKey(key);
-      if (typeof key !== "string") {
-        throw new TypeError("key 必须是字符串");
-      }
-      if (this.$data.onceExecData.has(key)) {
-        return;
-      }
+      if (typeof key !== "string") throw new TypeError("key 必须是字符串");
+      if (this.$data.onceExecData.has(key)) return;
       if (runWithMenuEnable) {
-        const findIndex = (Array.isArray(key) ? key : [key]).findIndex((it) => {
-          const menuEnable = !!Panel.getValue(it);
-          if (!menuEnable) {
-            return true;
-          }
-        });
-        if (findIndex !== -1) {
+        if (
+          (Array.isArray(key) ? key : [key]).findIndex((it) => {
+            if (!!!Panel.getValue(it)) return true;
+          }) !== -1
+        )
           return;
-        }
       }
       callback();
       this.$data.onceExecData.set(key, 1);
@@ -1807,9 +1584,7 @@
     },
     async emitUrlChangeWithExecMenuOnceEvent(config) {
       const values = this.$data.urlChangeReloadMenuExecOnce.values();
-      for (const callback of values) {
-        await callback(config);
-      }
+      for (const callback of values) await callback(config);
     },
     showPanel(
       content,
@@ -1821,12 +1596,12 @@
       this.$data.panelContent = [];
       const checkHasBottomVersionContentConfig =
         content.findIndex((it) => {
-          const isBottom = typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom);
-          return isBottom && it.id === "script-version";
+          return (
+            (typeof it.isBottom === "function" ? it.isBottom() : Boolean(it.isBottom)) && it.id === "script-version"
+          );
         }) !== -1;
-      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig) {
+      if (!preventDefaultContentConfig && !checkHasBottomVersionContentConfig)
         content.push(...PanelContent.getDefaultBottomContentConfig());
-      }
       const $panel = __pops__.panel({
         title: {
           text: title,
@@ -1872,33 +1647,30 @@
       });
       this.$data.$panel = $panel;
       this.$data.panelContent = content;
-      if (!preventRegisterSearchPlugin) {
-        this.registerConfigSearch({ $panel, content });
-      }
-      return { $panel, content };
+      if (!preventRegisterSearchPlugin)
+        this.registerConfigSearch({
+          $panel,
+          content,
+        });
+      return {
+        $panel,
+        content,
+      };
     },
     registerConfigSearch(config) {
       const { $panel, content } = config;
       const translateCallback = (text, translateMap) => {
-        if (typeof config.translateCallback === "function") {
-          return config.translateCallback(text, translateMap);
-        } else {
-          if (typeof translateMap === "object" && translateMap) {
-            for (const key in translateMap) {
-              text = text.replaceAll(`{{${key}}}`, translateMap[key]);
-            }
-          }
+        if (typeof config.translateCallback === "function") return config.translateCallback(text, translateMap);
+        else {
+          if (typeof translateMap === "object" && translateMap)
+            for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
           return text;
         }
       };
       const asyncQueryProperty = async (target, handler) => {
-        if (target == null) {
-          return;
-        }
+        if (target == null) return;
         const handleResult = await handler(target);
-        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) {
-          return handleResult.data;
-        }
+        if (handleResult && typeof handleResult.isFind === "boolean" && handleResult.isFind) return handleResult.data;
         return await asyncQueryProperty(handleResult.data, handler);
       };
       const scrollToElementAndListen = ($el, callback) => {
@@ -1917,7 +1689,10 @@
           }
         );
         observer.observe($el);
-        $el.scrollIntoView({ behavior: "smooth", block: "center" });
+        $el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       };
       const addFlashingClass = ($el) => {
         const flashingClassName = "pops-flashing";
@@ -1927,9 +1702,7 @@
         $el.classList.add(flashingClassName);
       };
       const dbclick_callback = (evt) => {
-        if (evt.type === "dblclick" && isMobileTouch) {
-          return;
-        }
+        if (evt.type === "dblclick" && isMobileTouch) return;
         domUtils.preventEvent(evt);
         const $alert = __pops__.alert({
           title: {
@@ -1945,14 +1718,8 @@
 					`,
             html: true,
           },
-          btn: {
-            ok: { enable: false },
-          },
-          mask: {
-            clickEvent: {
-              toClose: true,
-            },
-          },
+          btn: { ok: { enable: false } },
+          mask: { clickEvent: { toClose: true } },
           width: PanelUISize.settingMiddle.width,
           height: "auto",
           drag: true,
@@ -2005,17 +1772,16 @@
         };
         const createSearchResultItem = (pathInfo) => {
           const searchPath = utils.queryProperty(pathInfo, (target) => {
-            if (target?.next) {
+            if (target?.next)
               return {
                 isFind: false,
                 data: target.next,
               };
-            } else {
+            else
               return {
                 isFind: true,
                 data: target,
               };
-            }
           });
           const $item = domUtils.createElement("div", {
             className: "search-result-item",
@@ -2026,16 +1792,11 @@
           });
           const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
           domUtils.on($item, "click", () => {
-            const $asideItems2 = $panel.$shadowRoot.querySelectorAll(
+            const $targetAsideItem = $panel.$shadowRoot.querySelectorAll(
               "aside.pops-panel-aside .pops-panel-aside-top-container li"
-            );
-            const $targetAsideItem = $asideItems2[pathInfo.index];
+            )[pathInfo.index];
             if (!$targetAsideItem) {
-              Qmsg.error(
-                translateCallback(`左侧项下标{{index}}不存在`, {
-                  index: pathInfo.index,
-                })
-              );
+              qmsg.default.error(translateCallback(`左侧项下标{{index}}不存在`, { index: pathInfo.index }));
               return;
             }
             $targetAsideItem.scrollIntoView({
@@ -2053,10 +1814,9 @@
                     }
                   );
                 }, 2500);
-                if ($findDeepMenu) {
-                  $findDeepMenu.click();
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的二级菜单"));
+                if ($findDeepMenu) $findDeepMenu.click();
+                else {
+                  qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
                     data: target,
@@ -2070,8 +1830,10 @@
                 const $findTargetMenu = await domUtils.waitNode(() => {
                   return Array.from($panel.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
                     ($menuItem) => {
-                      const viewConfig = Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey);
-                      return viewConfig === target.matchedData?.formConfig;
+                      return (
+                        Reflect.get($menuItem, panelHandlerComponents.$data.nodeStoreConfigKey) ===
+                        target.matchedData?.formConfig
+                      );
                     }
                   );
                 }, 2500);
@@ -2079,16 +1841,13 @@
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
-                    const $foldWrapper = $fold.querySelector(".pops-panel-forms-fold-container");
-                    $foldWrapper.click();
+                    $fold.querySelector(".pops-panel-forms-fold-container").click();
                     await utils.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
                   });
-                } else {
-                  Qmsg.error(translateCallback("未找到对应的菜单项"));
-                }
+                } else qmsg.default.error(translateCallback("未找到对应的菜单项"));
                 return {
                   isFind: true,
                   data: target,
@@ -2109,21 +1868,18 @@
                 const deepMenuPath = utils.deepClone(path);
                 if (configItem.type === "deepMenu") {
                   const deepNext = utils.queryProperty(deepMenuPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
-                  deepNext.next = {
-                    name: configItem.text,
-                  };
+                  deepNext.next = { name: configItem.text };
                 }
                 loopContentConfig(childViewConfig, deepMenuPath);
               } else {
@@ -2132,15 +1888,9 @@
                 if (configItem.type === "own") {
                   let searchConfig = Reflect.get(configItem.attributes || {}, ATTRIBUTE_PLUGIN_SEARCH_CONFIG);
                   if (searchConfig) {
-                    if (typeof searchConfig === "function") {
-                      searchConfig = searchConfig();
-                    }
-                    if (typeof searchConfig.text === "string") {
-                      text = searchConfig.text;
-                    }
-                    if (typeof searchConfig.desc === "string") {
-                      description = searchConfig.desc;
-                    }
+                    if (typeof searchConfig === "function") searchConfig = searchConfig();
+                    if (typeof searchConfig.text === "string") text = searchConfig.text;
+                    if (typeof searchConfig.desc === "string") description = searchConfig.desc;
                   }
                 } else {
                   text = configItem.text;
@@ -2148,25 +1898,22 @@
                 }
                 const delayMatchedTextList = [text, description];
                 const matchedIndex = delayMatchedTextList.findIndex((configText) => {
-                  if (typeof configText !== "string") {
-                    return;
-                  }
+                  if (typeof configText !== "string") return;
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
                   const matchedPath = utils.deepClone(path);
                   const deepNext = utils.queryProperty(matchedPath, (target) => {
-                    if (target?.next) {
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   deepNext.next = {
                     name: text,
@@ -2180,20 +1927,17 @@
                   const pathList = [];
                   utils.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
-                    if (typeof name === "string" && name.trim() !== "") {
-                      pathList.push(name);
-                    }
-                    if (target?.next) {
+                    if (typeof name === "string" && name.trim() !== "") pathList.push(name);
+                    if (target?.next)
                       return {
                         isFind: false,
                         data: target.next,
                       };
-                    } else {
+                    else
                       return {
                         isFind: true,
                         data: target,
                       };
-                    }
                   });
                   const pathStr = pathList.join(CommonUtil$1.escapeHtml(" - "));
                   deepNext.next.matchedData.path = pathStr;
@@ -2204,18 +1948,12 @@
           };
           for (let index = 0; index < content.length; index++) {
             const leftContentConfigItem = content[index];
-            if (!leftContentConfigItem.views) {
-              continue;
-            }
-            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") {
-              continue;
-            }
+            if (!leftContentConfigItem.views) continue;
+            if (leftContentConfigItem.isBottom && leftContentConfigItem.id === "script-version") continue;
             const rightContentConfigList = leftContentConfigItem.views;
             if (rightContentConfigList && Array.isArray(rightContentConfigList)) {
               let text = leftContentConfigItem.title;
-              if (typeof text === "function") {
-                text = text();
-              }
+              if (typeof text === "function") text = text();
               loopContentConfig(rightContentConfigList, {
                 index,
                 name: text,
@@ -2244,12 +1982,11 @@
           }, 200)
         );
       };
-      const $asideItems = $panel.$shadowRoot.querySelectorAll(
-        `aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`
-      );
-      $asideItems.forEach(($asideItem) => {
-        domUtils.on($asideItem, "dblclick", dbclick_callback);
-      });
+      $panel.$shadowRoot
+        .querySelectorAll(`aside.pops-panel-aside .pops-panel-aside-item:not(#script-version)`)
+        .forEach(($asideItem) => {
+          domUtils.on($asideItem, "dblclick", dbclick_callback);
+        });
       const clickMap = new WeakMap();
       let isDoubleClick = false;
       let timer = void 0;
@@ -2274,9 +2011,7 @@
             clickMap.set($selector, evt);
           }
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       $panel.$shadowRoot.appendChild(
         domUtils.createElement("style", {
@@ -2307,16 +2042,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key)) {
+      if (Array.isArray(key))
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
-        } else {
-          return key[0];
-        }
-      } else {
-        return key;
-      }
+        } else return key[0];
+      else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2338,7 +2069,7 @@
       };
     },
   };
-  class RouterBuilder {
+  var RouterBuilder = class RouterBuilder {
     __href__;
     get __href() {
       return this.__href__ || globalThis.location.href;
@@ -2360,14 +2091,10 @@
       value: void 0,
       type: "same",
     };
-    __searchParams = {
-      value: new Set(),
-    };
+    __searchParams = { value: new Set() };
     otherInstResultWithOr = false;
     constructor(href) {
-      if (typeof href === "string") {
-        this.href(href);
-      }
+      if (typeof href === "string") this.href(href);
     }
     href(url) {
       this.__href__ = url;
@@ -2606,27 +2333,19 @@
       return this;
     }
     build() {
-      if (!this.__host.value) {
-        throw new TypeError("host or hostName should be required");
-      }
-      const protocol = this.__protocol.value || "https";
-      const host = this.__host.value;
-      const pathname = this.__pathname.value || "/";
-      let url = `${protocol}://${host}${pathname}`;
+      if (!this.__host.value) throw new TypeError("host or hostName should be required");
+      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`;
       if (this.__searchParams.value.size > 0) {
         const searhList = [];
         this.__searchParams.value.forEach((it) => {
           if (typeof it.name === "string") {
             let value = "";
-            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean") {
+            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean")
               value = it.value.toString();
-            }
             searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
           }
         });
-        if (searhList.length) {
-          url += `?${searhList.join("&")}`;
-        }
+        if (searhList.length) url += `?${searhList.join("&")}`;
       }
       return url;
     }
@@ -2637,319 +2356,195 @@
       return routerBuilder;
     }
     r() {
-      if (this.otherInstResultWithOr) {
-        return this.otherInstResultWithOr;
-      }
+      if (this.otherInstResultWithOr) return this.otherInstResultWithOr;
       const urlInst = new URL(this.__href);
-      const flag = [
+      return [
         () => {
-          if (this.__origin.value) {
-            if (this.__origin.type === "same") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin === this.__origin.value;
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "startsWith") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin.startsWith(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "endsWith") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin.endsWith(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "includes") {
-              if (typeof this.__origin.value === "string") {
-                return urlInst.origin.includes(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be string by type " + this.__origin.type);
-              }
-            } else if (this.__origin.type === "match") {
-              if (this.__origin.value instanceof RegExp) {
-                return this.__origin.value.test(urlInst.origin);
-              } else if (typeof this.__origin.value === "string") {
-                return urlInst.origin.match(this.__origin.value);
-              } else {
-                throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-              }
-            } else {
-              throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-            }
-          } else {
-            return true;
-          }
+          if (this.__origin.value)
+            if (this.__origin.type === "same")
+              if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "startsWith")
+              if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "endsWith")
+              if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "includes")
+              if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            else if (this.__origin.type === "match")
+              if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
+              else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
+              else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
+            else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+          else return true;
         },
         () => {
-          if (this.__protocol.value) {
-            if (this.__protocol.type === "same") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol === this.__protocol.value;
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "startsWith") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.startsWith(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "endsWith") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.endsWith(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "includes") {
-              if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.includes(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              }
-            } else if (this.__protocol.type === "match") {
-              if (this.__protocol.value instanceof RegExp) {
-                return this.__protocol.value.test(urlInst.protocol);
-              } else if (typeof this.__protocol.value === "string") {
-                return urlInst.protocol.match(this.__protocol.value);
-              } else {
-                throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-              }
-            } else {
-              throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-            }
-          } else {
-            return true;
-          }
+          if (this.__protocol.value)
+            if (this.__protocol.type === "same")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "startsWith")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "endsWith")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "includes")
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            else if (this.__protocol.type === "match")
+              if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
+              else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
+              else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
+            else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+          else return true;
         },
-
         () => {
           if (this.__host.value) {
             const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same") {
-              if (typeof this.__host.value === "string") {
-                return this.__host.value === host;
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "startsWith") {
-              if (typeof this.__host.value === "string") {
-                return host.startsWith(this.__host.value);
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "endsWith") {
-              if (typeof this.__host.value === "string") {
-                return host.endsWith(this.__host.value);
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "includes") {
-              if (typeof this.__host.value === "string") {
-                return host.includes(this.__host.value);
-              } else {
-                throw new TypeError("host value should be string by type " + this.__host.type);
-              }
-            } else if (this.__host.type === "match") {
-              if (this.__host.value instanceof RegExp) {
-                return this.__host.value.test(host);
-              } else if (typeof this.__host.value === "string") {
-                return host.match(this.__host.value);
-              } else {
-                throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-              }
-            } else {
-              throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
-            }
-          } else {
-            return true;
-          }
+            if (this.__host.type === "same")
+              if (typeof this.__host.value === "string") return this.__host.value === host;
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "startsWith")
+              if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "endsWith")
+              if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "includes")
+              if (typeof this.__host.value === "string") return host.includes(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            else if (this.__host.type === "match")
+              if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
+              else if (typeof this.__host.value === "string") return host.match(this.__host.value);
+              else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
+            else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
-          if (this.__pathname.value) {
-            if (this.__pathname.type === "same") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname === this.__pathname.value;
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "startsWith") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.startsWith(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "endsWith") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.endsWith(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "includes") {
-              if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.includes(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              }
-            } else if (this.__pathname.type === "match") {
-              if (this.__pathname.value instanceof RegExp) {
-                return this.__pathname.value.test(urlInst.pathname);
-              } else if (typeof this.__pathname.value === "string") {
-                return urlInst.pathname.match(this.__pathname.value);
-              } else {
-                throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-              }
-            } else {
-              throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-            }
-          } else {
-            return true;
-          }
+          if (this.__pathname.value)
+            if (this.__pathname.type === "same")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "startsWith")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "endsWith")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "includes")
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            else if (this.__pathname.type === "match")
+              if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
+              else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
+              else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
+            else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+          else return true;
         },
-
         () => {
-          let flag2 = true;
+          let flag = true;
           const searchParamsList = [];
           this.__searchParams.value.forEach((item) => {
             searchParamsList.push(item);
           });
           for (let index = 0; index < searchParamsList.length; index++) {
             const item = searchParamsList[index];
-            if (item.type) {
-              if (item.type === "same") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+            if (item.type)
+              if (item.type === "same")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search === item.value.toString();
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "startsWith") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "startsWith")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.startsWith(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "endsWith") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "endsWith")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.endsWith(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "includes") {
-                if (
-                  typeof item.value === "string" ||
-                  typeof item.value === "number" ||
-                  typeof item.value === "boolean"
-                ) {
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "includes")
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.includes(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be string、number、boolean by type " + item.type);
-                }
-              } else if (item.type === "match") {
-                if (item.value instanceof RegExp) {
-                  return item.value.test(urlInst.search);
-                } else if (
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              else if (item.type === "match")
+                if (item.value instanceof RegExp) return item.value.test(urlInst.search);
+                else if (
                   typeof item.value === "string" ||
                   typeof item.value === "number" ||
                   typeof item.value === "boolean"
-                ) {
+                )
                   return urlInst.search.match(item.value.toString());
-                } else {
-                  throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
-                }
-              } else {
-                throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
-              }
-            } else {
-              if (typeof item.name === "string") {
-                let value = item.value;
-                if (
-                  value == null ||
-                  typeof value === "string" ||
-                  typeof value === "number" ||
-                  typeof value === "boolean"
-                ) {
-                  value = value == null ? void 0 : value.toString();
-                  if (!urlInst.searchParams.has(item.name, value)) {
-                    flag2 = false;
-                    break;
-                  }
-                } else if (value instanceof RegExp) {
-                  const targetValue = urlInst.searchParams.get(item.name);
-                  if (targetValue) {
-                    if (!value.test(targetValue)) {
-                      flag2 = false;
-                      break;
-                    }
-                  } else {
-                    flag2 = false;
-                    break;
-                  }
-                } else {
-                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
-                }
-              } else if (item.name instanceof RegExp) {
-                let targetKey = void 0;
-                let targetValue = void 0;
-                urlInst.searchParams.forEach((__value__, __key__) => {
-                  if (!targetKey && __key__.match(item.name)) {
-                    targetKey = __key__;
-                    targetValue = __value__;
-                  }
-                });
-                if (targetKey) {
-                  let value = item.value;
-                  if (value == null);
-                  else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-                    value = value.toString();
-                    flag2 = value === targetValue;
-                    if (!flag2) {
-                      break;
-                    }
-                  } else if (value instanceof RegExp) {
-                    if (targetValue) {
-                      if (!value.test(targetValue)) {
-                        flag2 = false;
-                        break;
-                      }
-                    } else {
-                      flag2 = false;
-                      break;
-                    }
-                  } else {
-                    throw new TypeError(
-                      "searchParams value should be string, RegExp, boolean, number, null, undefined"
-                    );
-                  }
-                } else {
-                  flag2 = false;
+                else throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+              else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            else if (typeof item.name === "string") {
+              let value = item.value;
+              if (
+                value == null ||
+                typeof value === "string" ||
+                typeof value === "number" ||
+                typeof value === "boolean"
+              ) {
+                value = value == null ? void 0 : value.toString();
+                if (!urlInst.searchParams.has(item.name, value)) {
+                  flag = false;
                   break;
                 }
+              } else if (value instanceof RegExp) {
+                const targetValue = urlInst.searchParams.get(item.name);
+                if (targetValue) {
+                  if (!value.test(targetValue)) {
+                    flag = false;
+                    break;
+                  }
+                } else {
+                  flag = false;
+                  break;
+                }
+              } else
+                throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
+            } else if (item.name instanceof RegExp) {
+              let targetKey = void 0;
+              let targetValue = void 0;
+              urlInst.searchParams.forEach((__value__, __key__) => {
+                if (!targetKey && __key__.match(item.name)) {
+                  targetKey = __key__;
+                  targetValue = __value__;
+                }
+              });
+              if (targetKey) {
+                let value = item.value;
+                if (value == null) {
+                } else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                  value = value.toString();
+                  flag = value === targetValue;
+                  if (!flag) break;
+                } else if (value instanceof RegExp)
+                  if (targetValue) {
+                    if (!value.test(targetValue)) {
+                      flag = false;
+                      break;
+                    }
+                  } else {
+                    flag = false;
+                    break;
+                  }
+                else
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
               } else {
-                throw new TypeError("searchParams name should be string or RegExp");
+                flag = false;
+                break;
               }
-            }
+            } else throw new TypeError("searchParams name should be string or RegExp");
           }
-          return flag2;
+          return flag;
         },
       ].every((it) => it());
-      return flag;
     }
-  }
-  const RouterUtil = {
+  };
+  var RouterUtil = {
     host(host, href) {
       return RouterUtil.builder(href).host(host);
     },
@@ -2972,7 +2567,7 @@
       return new RouterBuilder(href);
     },
   };
-  const CSDNRouter = {
+  var CSDNRouter = {
     isHuaWeiCloudBlog() {
       return RouterUtil.builder().originIncludes("huaweicloud.csdn.net").r();
     },
@@ -2998,7 +2593,7 @@
       return RouterUtil.hostName("download.csdn.net").r();
     },
   };
-  const CSDNLink = {
+  var CSDNLink = {
     init() {
       Panel.execMenuOnce("csdn-link-jumpRedirect", () => {
         this.jumpRedirect();
@@ -3013,28 +2608,26 @@
           let jumpUrl = decodeURIComponent(target);
           log.success(`跳转链接：${jumpUrl}`);
           window.location.href = jumpUrl;
-        } else {
-          log.error("解析跳转的链接失败，原因：搜索参数中没有target参数");
-        }
+        } else log.error("解析跳转的链接失败，原因：搜索参数中没有target参数");
       } catch (error) {
-        Qmsg.error("跳转链接失败：" + error.message);
+        qmsg.default.error("跳转链接失败：" + error.message);
       }
     },
   };
-  const M_CSDNLink = {
+  var M_CSDNLink = {
     init() {
       Panel.execMenuOnce("m-csdn-link-jumpRedirect", () => {
         CSDNLink.jumpRedirect();
       });
     },
   };
-  const ShieldCSS$4 =
+  var shield_default$5 =
     "/* 右下角的 免费赢华为平板xxxx */\n.org-main-content .siderbar-box {\n  display: none !important;\n}\n";
-  const ShieldCSS$3 =
+  var shield_default$4 =
     "/* 底部免费抽xxx奖品广告 */\ndiv.siderbar-box,\n/* 华为开发者联盟加入社区 */\ndiv.user-desc.user-desc-fix {\n  display: none !important;\n}\n";
-  const CSDNHuaWeiCloud = {
+  var CSDNHuaWeiCloud = {
     init() {
-      addStyle(ShieldCSS$3);
+      addStyle(shield_default$4);
       Panel.execMenuOnce("csdn-hua-wei-cloud-shieldCloudDeveloperTaskChallengeEvent", () => {
         return this.shieldCloudDeveloperTaskChallengeEvent();
       });
@@ -3088,9 +2681,9 @@
       return CommonUtil$1.addBlockCSS("div.more-article");
     },
   };
-  const M_CSDNHuaWeiCloud = {
+  var M_CSDNHuaWeiCloud = {
     init() {
-      addStyle(ShieldCSS$4);
+      addStyle(shield_default$5);
       Panel.execMenuOnce("m-csdn-hua-wei-cloud-autoExpandContent", () => {
         return CSDNHuaWeiCloud.autoExpandContent();
       });
@@ -3103,11 +2696,11 @@
       return CommonUtil$1.addBlockCSS(".user-desc");
     },
   };
-  const BlogCSS =
+  var CSDNBlog_default =
     "/*.blog_container_aside,\n#nav {\n	margin-left: -45px;\n}\n.recommend-right.align-items-stretch.clearfix,\n.dl_right_fixed {\n	margin-left: 45px;\n}*/\n";
-  const BlogShieldCSS =
+  var shield_default$3 =
     '.ecommend-item-box.recommend-recommend-box,\n.login-mark,\n.opt-box.text-center,\n.leftPop,\n#csdn-shop-window,\n.toolbar-advert,\n.hide-article-box,\n.user-desc.user-desc-fix,\n.recommend-card-box,\n.more-article,\n.article-show-more,\n#csdn-toolbar-profile-nologin,\n.guide-rr-first,\n#recommend-item-box-tow,\n/* 发文章得原力分图片提示 */\ndiv.csdn-toolbar-creative-mp,\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\n#toolBarBox div.write-guide-buttom-box,\n/* 觉得还不错? 一键收藏 */\nul.toolbox-list div.tool-active-list,\n/* 右边按钮组的最上面的创作话题 */\ndiv.csdn-side-toolbar .activity-swiper-box,\n.sidetool-writeguide-box .tip-box,\n/* 右下角的登录提示 */\n.passport-login-tip-container,\n/* 全屏双十一红包 */\n.csdn-reapck-select,\n/* 侧栏的618会员开通 */\n.csdn-side-toolbar  .sidecolumn-vip,\n/* 右边推荐的推广广告 */\n#recommendAdBox,\n/* 顶部导航栏的vip推广 */\n#csdn-plugin-vip,\n/* 顶部导航栏的会员中心的右边的推广图片，如：春招 */\n#csdn-toolbar .toolbar-btn a[href*="mall.csdn.net/vip"]>img[src],\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\n#sidecolumn-deepseek,\n/* 侧栏的【下载APP、公众号、视频号】 */\n.csdn-side-toolbar .option-box[data-type="app"],\n/* 右偏下的悬浮的 本文章已经生成可运行项目 */\nbody > .ins-code-runner-btn {\n  display: none !important;\n}\n';
-  const CSDNBlogBlock = {
+  var CSDNBlogBlock = {
     init() {
       Panel.onceExec("csdn-blog-blockCSS", () => {
         return this.addCSS();
@@ -3136,7 +2729,7 @@
     },
     addCSS() {
       log.info("添加屏蔽CSS和功能CSS");
-      return [addStyle(BlogShieldCSS), addStyle(BlogCSS)];
+      return [addStyle(shield_default$3), addStyle(CSDNBlog_default)];
     },
     shieldTopToolbar() {
       log.info("【屏蔽】顶部工具栏");
@@ -3167,7 +2760,7 @@
       return CommonUtil$1.addBlockCSS(`.runner-box`);
     },
   };
-  const CSDNBlog = {
+  var CSDNBlog = {
     init() {
       CSDNBlogBlock.init();
       domUtils.onReady(() => {
@@ -3182,15 +2775,9 @@
     removeClipboardHijacking() {
       log.info("拦截-复制的小尾巴");
       domUtils.remove(".article-copyright");
-      if (_unsafeWindow.articleType) {
-        _unsafeWindow.articleType = 0;
-      }
-      if (_unsafeWindow?.csdn?.copyright?.textData) {
-        _unsafeWindow.csdn.copyright.textData = "";
-      }
-      if (_unsafeWindow?.csdn?.copyright?.htmlData) {
-        _unsafeWindow.csdn.copyright.htmlData = "";
-      }
+      if (_unsafeWindow.articleType) _unsafeWindow.articleType = 0;
+      if (_unsafeWindow?.csdn?.copyright?.textData) _unsafeWindow.csdn.copyright.textData = "";
+      if (_unsafeWindow?.csdn?.copyright?.htmlData) _unsafeWindow.csdn.copyright.htmlData = "";
     },
     unBlockCopy() {
       log.info("劫持-禁止复制");
@@ -3211,19 +2798,13 @@
           utils.copy(copyText);
           $click.setAttribute("data-title", "复制成功");
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       const changeDataTitle = new utils.LockFunction(function (event) {
         const $mouse = event.target;
-        if ($mouse.localName !== "pre") {
-          return;
-        }
+        if ($mouse.localName !== "pre") return;
         const $hljsBtn = $mouse.querySelector(".hljs-button");
-        if ($hljsBtn) {
-          $hljsBtn.setAttribute("data-title", "复制");
-        }
+        if ($hljsBtn) $hljsBtn.setAttribute("data-title", "复制");
       });
       domUtils.on(
         document,
@@ -3231,28 +2812,21 @@
         function (event) {
           changeDataTitle.run(event);
         },
-        {
-          capture: true,
-        }
+        { capture: true }
       );
       domUtils.waitNode("#content_views").then(($content_views) => {
-        if (_unsafeWindow.$) {
-          _unsafeWindow.$("#content_views")?.unbind("copy");
-        }
+        if (_unsafeWindow.$) _unsafeWindow.$("#content_views")?.unbind("copy");
         domUtils.on(
           $content_views,
           "copy",
           function (event) {
             domUtils.preventEvent(event);
-            const selectText = _unsafeWindow.getSelection();
-            const copyText = selectText?.toString();
+            const copyText = _unsafeWindow.getSelection()?.toString();
             log.info("Ctrl+C复制内容：" + (copyText.length > 8 ? copyText.substring(0, 8) + "..." : copyText));
             utils.copy(copyText);
             return false;
           },
-          {
-            capture: true,
-          }
+          { capture: true }
         );
       });
       domUtils.waitNode(".hljs-button").then(() => {
@@ -3266,7 +2840,7 @@
       });
     },
   };
-  const CommonUtil = {
+  var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
         domUtils.waitNodeList(selector).then((nodeList) => {
@@ -3276,28 +2850,18 @@
     },
     addBlockCSS(...args) {
       let selectorList = [];
-      if (args.length === 0) {
-        return;
-      }
-      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") {
-        return;
-      }
+      if (args.length === 0) return;
+      if (args.length === 1 && typeof args[0] === "string" && args[0].trim() === "") return;
       args.forEach((selector) => {
-        if (Array.isArray(selector)) {
-          selectorList = selectorList.concat(selector);
-        } else {
-          selectorList.push(selector);
-        }
+        if (Array.isArray(selector)) selectorList = selectorList.concat(selector);
+        else selectorList.push(selector);
       });
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
     setGMResourceCSS(resourceMapData) {
       let cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : "";
-      if (typeof cssText === "string" && cssText) {
-        addStyle(cssText);
-      } else {
-        CommonUtil.loadStyleLink(resourceMapData.url);
-      }
+      if (typeof cssText === "string" && cssText) addStyle(cssText);
+      else CommonUtil.loadStyleLink(resourceMapData.url);
     },
     async loadStyleLink(url) {
       let $link = document.createElement("link");
@@ -3320,29 +2884,22 @@
     },
     fixUrl(url) {
       url = url.trim();
-      if (url.match(/^http(s|):\/\//i)) {
-        return url;
-      } else {
-        if (!url.startsWith("/")) {
-          url += "/";
-        }
+      if (url.match(/^http(s|):\/\//i)) return url;
+      else {
+        if (!url.startsWith("/")) url += "/";
         url = window.location.origin + url;
         return url;
       }
     },
     fixHttps(url) {
-      if (url.startsWith("https://")) {
-        return url;
-      }
-      if (!url.startsWith("http://")) {
-        return url;
-      }
+      if (url.startsWith("https://")) return url;
+      if (!url.startsWith("http://")) return url;
       let urlObj = new URL(url);
       urlObj.protocol = "https:";
       return urlObj.toString();
     },
   };
-  const M_CSDNBlogArticleBottomRecommend = {
+  var M_CSDNBlogArticleBottomRecommend = {
     init() {
       Panel.execMenuOnce("m-csdn-blog-blockBottomArticle", () => {
         return this.blockBottomArticle();
@@ -3373,15 +2930,12 @@
           if ($item.hasAttribute("data-url")) {
             url = $item.getAttribute("data-url");
             title = $item.querySelector(".recommend_title div.left")?.innerHTML;
-            if (!$item.querySelector(".text")) {
-              return;
-            }
+            if (!$item.querySelector(".text")) return;
             content = $item.querySelector(".text")?.innerHTML;
-            if ($item.querySelectorAll(".recommend-img").length) {
+            if ($item.querySelectorAll(".recommend-img").length)
               $item.querySelectorAll(".recommend-img").forEach((item2) => {
                 img += item2.innerHTML;
               });
-            }
           } else {
             url = $item.querySelector("a[data-type]").getAttribute("href");
             title = $item.querySelector(".recommend_title div.left").innerHTML;
@@ -3391,12 +2945,11 @@
           if (
             urlInst.host === "download.csdn.net" ||
             (urlInst.host === "www.iteye.com" && urlInst.pathname.match(/^\/resource/gi))
-          ) {
+          )
             title = `<div class="component-box"><a class="praise" href="javascript:;">CSDN下载</a></div>` + title;
-          } else if (urlInst.origin.match(/edu.csdn.net/gi)) {
+          else if (urlInst.origin.match(/edu.csdn.net/gi))
             title =
               `<div class="component-box"><a class="csdn-edu-title" href="javascript:;">CSDN学院</a></div>` + title;
-          }
           $item.setAttribute("class", "GM-csdn-dl");
           $item.setAttribute("data-url", url);
           $item.innerHTML = `<div class="GM-csdn-title"><div class="left">${title}</div></div><div class="GM-csdn-content">${content}</div><div class="GM-csdn-img">${img}</div>`;
@@ -3409,7 +2962,11 @@
       const $recommend = await domUtils.waitNode("#recommend");
       log.info("重构底部推荐");
       const observer = utils.mutationObserver($recommend, {
-        config: { childList: true, subtree: true, attributes: true },
+        config: {
+          childList: true,
+          subtree: true,
+          attributes: true,
+        },
         immediate: true,
         callback: () => {
           lockFunction.run();
@@ -3431,7 +2988,7 @@
     },
     openNewTab() {
       log.info(`新标签页打开`);
-      const listener = domUtils.on(
+      return domUtils.on(
         document,
         "click",
         [".container-fluid", ".GM-csdn-dl"],
@@ -3441,52 +2998,36 @@
           if (typeof url === "string") {
             log.info(`新标签页打开：${url}`);
             window.open(url, "_blank");
-          } else {
-            Qmsg.error("未获取到data-url属性");
-          }
+          } else qmsg.default.error("未获取到data-url属性");
         },
-        {
-          capture: true,
-        }
-      );
-      return listener.off;
+        { capture: true }
+      ).off;
     },
   };
-  const ApiResponseCheck = {
+  var ApiResponseCheck = {
     isSuccessResponse(data) {
-      if (data == null) {
-        return false;
-      }
-      if (typeof data === "string") {
-        data = utils.toJSON(data);
-      }
+      if (data == null) return false;
+      if (typeof data === "string") data = utils.toJSON(data);
       return data?.code === 200;
     },
   };
-  const CSDNFavoriteApi = {
+  var CSDNFavoriteApi = {
     async folderListWithCheck(url) {
       const response = await httpx.get(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/folderListWithCheck`,
         {
-          data: {
-            url,
-          },
+          data: { url },
           fetch: true,
           allowInterceptConfig: false,
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-          },
+          headers: { "User-Agent": utils.getRandomPCUA() },
         }
       );
       log.info(response);
       const data = utils.toJSON(response.data.responseText);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
         log.error("获取收藏夹信息失败，请求异常");
-        if (typeof data.msg === "string") {
-          Qmsg.error(data.msg);
-        } else {
-          Qmsg.error("获取收藏夹信息失败");
-        }
+        if (typeof data.msg === "string") qmsg.default.error(data.msg);
+        else qmsg.default.error("获取收藏夹信息失败");
         return;
       }
       return data.data.result;
@@ -3507,7 +3048,7 @@
       log.info(response);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
         log.error("添加收藏失败，请求异常", response);
-        Qmsg.error("添加收藏失败，请求异常");
+        qmsg.default.error("添加收藏失败，请求异常");
         return;
       }
       return true;
@@ -3516,24 +3057,19 @@
       const response = await httpx.get(
         `https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/checkFavoriteByUrl`,
         {
-          data: {
-            url,
-          },
+          data: { url },
           fetch: true,
           allowInterceptConfig: false,
-          headers: {
-            "User-Agent": utils.getRandomPCUA(),
-          },
+          headers: { "User-Agent": utils.getRandomPCUA() },
         }
       );
       log.info(response);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
         log.error("检查收藏夹状态失败，请求异常");
-        Qmsg.error("检查收藏夹状态失败，请求异常");
+        qmsg.default.error("检查收藏夹状态失败，请求异常");
         return;
       }
-      let data = utils.toJSON(response.data.responseText);
-      return data.data;
+      return utils.toJSON(response.data.responseText).data;
     },
     async createFolder(config) {
       const response = await httpx.post(`https://mp-action.csdn.net/interact/wrapper/pc/favorite/v1/api/createFolder`, {
@@ -3548,14 +3084,13 @@
       });
       log.info(response);
       if (!response.status || !ApiResponseCheck.isSuccessResponse(response.data.responseText)) {
-        Qmsg.error("创建收藏夹失败");
+        qmsg.default.error("创建收藏夹失败");
         return;
       }
-      const data = utils.toJSON(response.data.responseText);
-      return data.data;
+      return utils.toJSON(response.data.responseText).data;
     },
   };
-  const M_CSDNBlogArticleBottomToolBar = {
+  var M_CSDNBlogArticleBottomToolBar = {
     init() {
       Panel.execMenuOnce("m-csdn-blog-blockBottomToolbar", () => {
         return this.blockBottomToolbar();
@@ -3575,20 +3110,16 @@
     },
     bottomToolBarAlwaysShow() {
       log.info(`底部工具栏常驻`);
-      return addStyle(
-        `
+      return addStyle(`
     #operate {
         bottom: 0 !important;
     }
-    `
-      );
+    `);
     },
     async optimizationCollectButton() {
       log.info(`优化收藏按钮`);
       const $collectBtn = await domUtils.waitNode("#operate .collect-btn", 1e4);
-      if (!$collectBtn) {
-        return;
-      }
+      if (!$collectBtn) return;
       const listener = domUtils.on(
         $collectBtn,
         "click",
@@ -3599,14 +3130,10 @@
           const folderInfo = await CSDNFavoriteApi.folderListWithCheck(
             window.location.origin + window.location.pathname
           );
-          if (!folderInfo) {
-            return;
-          }
+          if (!folderInfo) return;
           const isFavoriteFolderIdList = [];
           folderInfo.forEach((item) => {
-            if (item.IsFavorite) {
-              isFavoriteFolderIdList.push(item.ID);
-            }
+            if (item.IsFavorite) isFavoriteFolderIdList.push(item.ID);
           });
           const createCollectItem = (data) => {
             let folderId = data.ID;
@@ -3628,59 +3155,49 @@
                 <span class="collect-btn">${data.IsFavorite ? "已收藏" : "收藏"}</span>
             `,
               },
-              {
-                "data-is-collect": data.IsFavorite,
-              }
+              { "data-is-collect": data.IsFavorite }
             );
             $item.querySelector(".title-m");
             let $contentLength = $item.querySelector(".csdn-collection-item_length");
             $item.querySelector(".csdn-collection-controls");
-            let $collectBtn2 = $item.querySelector(".collect-btn");
-            domUtils.on($collectBtn2, "click", async (event2) => {
+            let $collectBtn = $item.querySelector(".collect-btn");
+            domUtils.on($collectBtn, "click", async (event) => {
               let articleDetailUrl = _unsafeWindow.articleDetailUrl;
-              if (articleDetailUrl == null) {
-                articleDetailUrl = window.location.origin + window.location.pathname;
-              }
+              if (articleDetailUrl == null) articleDetailUrl = window.location.origin + window.location.pathname;
               let articleId = _unsafeWindow.articleId;
               if (articleId == null) {
                 log.error("获取文章ID失败");
-                Qmsg.error("获取文章ID失败");
+                qmsg.default.error("获取文章ID失败");
                 return;
               }
               let username = _unsafeWindow.username;
               if (username == null) {
                 log.error("获取文章作者失败");
-                Qmsg.error("获取文章作者失败");
+                qmsg.default.error("获取文章作者失败");
                 return;
               }
               let articleTitle = _unsafeWindow.articleTitle;
-              if (articleTitle == null) {
-                articleTitle = document.title.replace(/-CSDN博客$/, "");
-              }
+              if (articleTitle == null) articleTitle = document.title.replace(/-CSDN博客$/, "");
               if (articleTitle == null) {
                 log.error("获取文章标题失败");
-                Qmsg.error("获取文章标题失败");
+                qmsg.default.error("获取文章标题失败");
                 return;
               }
               let articleDesc = _unsafeWindow.articleDesc;
               if (articleDesc == null) {
                 const $meta = $("meta[name='description']");
-                if ($meta) {
-                  articleDesc = $meta.getAttribute("content");
-                }
+                if ($meta) articleDesc = $meta.getAttribute("content");
               }
               if (articleDesc == null) {
                 log.error("获取文章描述失败");
-                Qmsg.error("获取文章描述失败");
+                qmsg.default.error("获取文章描述失败");
                 return;
               }
               const folderIdList = [...isFavoriteFolderIdList];
-              let $loading = Qmsg.loading("处理中...");
+              let $loading = qmsg.default.loading("处理中...");
               try {
                 let checkResponse = await CSDNFavoriteApi.checkFavoriteByUrl(articleDetailUrl);
-                if (checkResponse == null) {
-                  return;
-                }
+                if (checkResponse == null) return;
                 log.info(folderId, checkResponse);
                 let toCollect = !checkResponse[folderId];
                 if (toCollect) {
@@ -3690,56 +3207,48 @@
                   log.info(`取消收藏`);
                   folderIdList.splice(folderIdList.indexOf(folderId), 1);
                 }
-                const response = await CSDNFavoriteApi.addFavoriteInFolds({
-                  author: username,
-                  url: articleDetailUrl,
-                  source: "blog",
-                  sourceId: articleId,
-                  title: articleTitle,
-                  description: articleDesc,
-                  fromType: "PC",
-                  username: data.Username,
-                  folderIdList,
-                });
-                if (!response) {
+                if (
+                  !(await CSDNFavoriteApi.addFavoriteInFolds({
+                    author: username,
+                    url: articleDetailUrl,
+                    source: "blog",
+                    sourceId: articleId,
+                    title: articleTitle,
+                    description: articleDesc,
+                    fromType: "PC",
+                    username: data.Username,
+                    folderIdList,
+                  }))
+                )
                   return;
-                }
                 const check_isCollect = await CSDNFavoriteApi.checkFavoriteByUrl(articleDetailUrl);
-                if (check_isCollect == null) {
-                  return;
-                }
+                if (check_isCollect == null) return;
                 log.info(folderId, check_isCollect);
                 $item.setAttribute("data-is-collect", (!!check_isCollect[folderId]).toString());
-                if (toCollect) {
+                if (toCollect)
                   if (!check_isCollect[folderId]) {
                     log.error("收藏失败", check_isCollect, folderId);
-                    Qmsg.error("收藏失败");
+                    qmsg.default.error("收藏失败");
                   } else {
                     log.success("收藏成功");
-                    Qmsg.success("收藏成功");
-                    domUtils.text($collectBtn2, "已收藏");
-                    if (!isFavoriteFolderIdList.includes(folderId)) {
-                      isFavoriteFolderIdList.push(folderId);
-                    }
+                    qmsg.default.success("收藏成功");
+                    domUtils.text($collectBtn, "已收藏");
+                    if (!isFavoriteFolderIdList.includes(folderId)) isFavoriteFolderIdList.push(folderId);
                     data.FavoriteNum++;
                   }
+                else if (!check_isCollect[folderId]) {
+                  log.success("取消收藏成功");
+                  qmsg.default.success("取消收藏成功");
+                  domUtils.text($collectBtn, "收藏");
+                  if (isFavoriteFolderIdList.includes(folderId))
+                    isFavoriteFolderIdList.splice(isFavoriteFolderIdList.indexOf(folderId), 1);
+                  data.FavoriteNum--;
                 } else {
-                  if (!check_isCollect[folderId]) {
-                    log.success("取消收藏成功");
-                    Qmsg.success("取消收藏成功");
-                    domUtils.text($collectBtn2, "收藏");
-                    if (isFavoriteFolderIdList.includes(folderId)) {
-                      isFavoriteFolderIdList.splice(isFavoriteFolderIdList.indexOf(folderId), 1);
-                    }
-                    data.FavoriteNum--;
-                  } else {
-                    log.error("取消收藏失败", check_isCollect, folderId);
-                    Qmsg.error("取消收藏失败");
-                  }
+                  log.error("取消收藏失败", check_isCollect, folderId);
+                  qmsg.default.error("取消收藏失败");
                 }
                 domUtils.text($contentLength, `${data.FavoriteNum}条内容`);
-                let findValue = Object.values(check_isCollect).find((item) => item);
-                if (findValue) {
+                if (Object.values(check_isCollect).find((item) => item)) {
                   domUtils.show($isCollect, false);
                   domUtils.hide($unCollect, false);
                 } else {
@@ -3755,29 +3264,24 @@
             });
             return $item;
           };
-          let $alert = __pops__.alert({
-            title: {
-              text: "添加收藏夹",
-              position: "center",
-            },
-            content: {
-              text: `
+          const $collectionContainer = __pops__
+            .alert({
+              title: {
+                text: "添加收藏夹",
+                position: "center",
+              },
+              content: {
+                text: `
 									<ul class="csdn-collection-items"></ul>
 								`,
-              html: true,
-            },
-            btn: {
-              ok: {
-                enable: false,
+                html: true,
               },
-            },
-            width: PanelUISize.setting.width,
-            height: PanelUISize.setting.height,
-            drag: true,
-            mask: {
-              enable: true,
-            },
-            style: `
+              btn: { ok: { enable: false } },
+              width: PanelUISize.setting.width,
+              height: PanelUISize.setting.height,
+              drag: true,
+              mask: { enable: true },
+              style: `
             .csdn-collection-items{
                 --font-size: 16px;
             }
@@ -3856,8 +3360,8 @@
                 border: 1px solid #555666;
             } */
         `,
-          });
-          const $collectionContainer = $alert.$shadowRoot.querySelector(".csdn-collection-items");
+            })
+            .$shadowRoot.querySelector(".csdn-collection-items");
           folderInfo.forEach((folderInfoItem) => {
             const $item = createCollectItem(folderInfoItem);
             $collectionContainer.appendChild($item);
@@ -3872,7 +3376,7 @@
       ];
     },
   };
-  const M_CSDNBlogArticleComment = {
+  var M_CSDNBlogArticleComment = {
     init() {
       Panel.execMenuOnce("m-csdn-blog-blockComment", () => {
         return this.blockComment();
@@ -3887,16 +3391,14 @@
     },
     notLimitCommentMaxHeight() {
       log.info("不限制评论区的最大高度");
-      return addStyle(
-        `
+      return addStyle(`
         #comment{
           max-height: none !important;
         }
-      `
-      );
+      `);
     },
   };
-  const M_CSDNBlogArticle = {
+  var M_CSDNBlogArticle = {
     init() {
       M_CSDNBlogArticleComment.init();
       M_CSDNBlogArticleBottomRecommend.init();
@@ -3926,8 +3428,7 @@
       log.info("屏蔽顶部Toolbar");
       return [
         CommonUtil$1.addBlockCSS("#csdn-toolbar"),
-        addStyle(
-          `
+        addStyle(`
 			/* 内容顶部要归位 */
 			body #main,
 			.margin_sides{
@@ -3938,8 +3439,7 @@
 			  margin-top: .32rem !important;
 			  padding-top: unset !important;
 			}
-			`
-        ),
+			`),
       ];
     },
     removeAds() {
@@ -3954,8 +3454,7 @@
     },
     allowSelectText() {
       log.info("允许选择内容");
-      return addStyle(
-        `
+      return addStyle(`
     #content_views,
     #content_views pre,
     #content_views pre code{
@@ -3966,36 +3465,31 @@
       -ms-user-select: text !important;
       user-select: text !important;
     }
-    `
-      );
+    `);
     },
     autoExpandContent() {
       log.info("自动展开");
-      return addStyle(
-        `
+      return addStyle(`
     #content_views pre.set-code-hide,
     .article_content{
       height: 100% !important;
       overflow: auto !important;
     }
-    `
-      );
+    `);
     },
     notLimitCodePreMaxHeight() {
       log.info("不限制代码块的最大高度");
-      return addStyle(
-        `
+      return addStyle(`
     pre{
         max-height: unset !important;
     }
-    `
-      );
+    `);
     },
   };
-  const ShieldCSS$2 = "/* 右下角的买一年送3个月的广告图标 */\n.blind_box {\n  display: none !important;\n}\n";
-  const M_CSDNWenKu = {
+  var shield_default$2 = "/* 右下角的买一年送3个月的广告图标 */\n.blind_box {\n  display: none !important;\n}\n";
+  var M_CSDNWenKu = {
     init() {
-      addStyle(ShieldCSS$2);
+      addStyle(shield_default$2);
       Panel.execMenuOnce("m-csdn-wenku-shieldBottomToolbar", () => {
         return this.shieldBottomToolbar();
       });
@@ -4005,12 +3499,12 @@
       return CommonUtil$1.addBlockCSS(`.page-container > div.btn`);
     },
   };
-  const CSDNBlockCSS =
+  var block_default$2 =
     "/* 右下角悬浮图标 买1年送3个月 */\n.page-container .blind_box,\n/* 底部工具栏右边的 开会员按钮（低至xx元/次） */\n.page-container .btn .ml-12,\n/* 登录弹窗 */\n.passport-login-container,\n/* 通用广告className匹配 */\n.ads {\n  display: none !important;\n}\n";
-  const M_CSDNDownload = {
+  var M_CSDNDownload = {
     init() {
       Panel.execMenuOnce("m-csdn-download-removeAds", () => {
-        return addStyle(CSDNBlockCSS);
+        return addStyle(block_default$2);
       });
       Panel.execMenuOnce("m-csdn-download-automaticallyExpandResourceIntroduction", () => {
         return this.automaticallyExpandResourceIntroduction();
@@ -4020,22 +3514,20 @@
       log.info("自动展开资源介绍");
       return [
         CommonUtil$1.addBlockCSS("label.unfold-font"),
-        addStyle(
-          `
+        addStyle(`
 			.resource-desc{
 				max-height: unset !important;
 				overflow: unset !important;
 			}
-			`
-        ),
+			`),
       ];
     },
   };
-  const ShieldCSS$1 =
+  var shield_default$1 =
     ".view_comment_box,\n.weixin-shadowbox.wap-shadowbox,\n.feed-Sign-span,\n.user-desc.user-desc-fix,\n.comment_read_more_box,\n#content_views pre.set-code-hide .hide-preCode-box,\n/* 登录弹窗 */\n.passport-login-container,\n.hljs-button[data-title='登录后复制'],\n.article-show-more,\n#treeSkill,\ndiv.btn_open_app_prompt_div,\ndiv.readall_box,\ndiv.aside-header-fixed,\ndiv.feed-Sign-weixin,\ndiv.ios-shadowbox,\n/* 底部评论工具栏的抢沙发图片 */\n.comment-sofa-flag {\n  display: none !important;\n}\n";
-  const MBlogCSS =
+  var blog_default =
     "#mainBox {\n  width: auto;\n}\n.user-desc.user-desc-fix {\n  height: auto !important;\n  overflow: auto !important;\n}\n.component-box .praise {\n  background: #ff5722;\n  border-radius: 5px;\n  padding: 0px 8px;\n  height: auto;\n}\n.component-box .praise,\n.component-box .share {\n  color: #fff;\n}\n.component-box a {\n  display: inline-block;\n  font-size: xx-small;\n}\n.component-box {\n  display: inline;\n  margin: 0;\n  position: relative;\n  white-space: nowrap;\n}\n.csdn-edu-title {\n  background: #4d6de1;\n  border-radius: 5px;\n  padding: 0px 8px;\n  height: auto;\n  color: #fff !important;\n}\n\n.GM-csdn-dl {\n  padding: 0.24rem 0.32rem;\n  width: 100%;\n  justify-content: space-between;\n  -webkit-box-pack: justify;\n  border-bottom: 1px solid #f5f6f7 !important;\n}\n.GM-csdn-title {\n  font-size: 0.3rem;\n  color: #222226;\n  letter-spacing: 0;\n  line-height: 0.44rem;\n  font-weight: 600;\n  /*max-height: .88rem;*/\n  word-break: break-all;\n  overflow: hidden;\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n}\n.GM-csdn-title a {\n  word-break: break-all;\n  color: #222226;\n  font-weight: 600;\n}\n.GM-csdn-title em,\n.GM-csdn-content em {\n  font-style: normal;\n  color: #fc5531;\n}\n.GM-csdn-content {\n  /*max-width: 5.58rem;*/\n  overflow: hidden;\n  text-overflow: ellipsis;\n  display: -webkit-box;\n  -webkit-line-clamp: 1;\n  -webkit-box-orient: vertical;\n  color: #555666;\n  font-size: 0.24rem;\n  line-height: 0.34rem;\n  max-height: 0.34rem;\n  word-break: break-all;\n  -webkit-box-flex: 1;\n  -ms-flex: 1;\n  flex: 1;\n  margin-top: 0.16rem;\n}\n.GM-csdn-img img {\n  width: 2.18rem;\n  height: 1.58rem;\n  /*margin-left: .16rem*/\n}\n";
-  const M_CSDNBlogBlock = {
+  var M_CSDNBlogBlock = {
     init() {
       Panel.onceExec("m-csdn-blog-removeAds", () => {
         return this.addCSS();
@@ -4045,15 +3537,15 @@
       });
     },
     addCSS() {
-      return [addStyle(ShieldCSS$1), addStyle(MBlogCSS)];
+      return [addStyle(shield_default$1), addStyle(blog_default)];
     },
   };
-  const M_CSDNBlog = {
+  var M_CSDNBlog = {
     init() {
       M_CSDNBlogBlock.init();
     },
   };
-  const M_CSDN = {
+  var M_CSDN = {
     init() {
       if (CSDNRouter.isLink()) {
         log.info("Router: 中转链接");
@@ -4074,19 +3566,17 @@
       } else if (CSDNRouter.isDownload()) {
         log.info("Router: 资源下载");
         M_CSDNDownload.init();
-      } else {
-        log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
-      }
+      } else log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
     },
   };
-  const WenkuCSS =
+  var wenku_default =
     "#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid {\n  max-height: unset !important;\n  height: auto !important;\n  overflow: auto !important;\n}\n\n.forbid {\n  user-select: text !important;\n}\n";
-  const ShieldCSS =
+  var shield_default =
     "/* wenku顶部横幅 */\n#app > div > div.main.pb-32 > div > div.top-bar,\n/* 底部展开全文 */\n#chatgpt-article-detail > div.layout-center > div.main > div.article-box > div.cont.first-show.forbid > div.open,\n/* 全屏红包雨 */\n#csdn-redpack {\n  display: none !important;\n}\n";
-  const CSDNWenKu = {
+  var CSDNWenKu = {
     init() {
-      addStyle(WenkuCSS);
-      addStyle(ShieldCSS);
+      addStyle(wenku_default);
+      addStyle(shield_default);
       Panel.execMenuOnce("csdn-wenku-shieldResourceRecommend", () => {
         return this.shieldResourceRecommend();
       });
@@ -4110,7 +3600,7 @@
       return CommonUtil$1.addBlockCSS(".csdn-side-toolbar");
     },
   };
-  const CSDNBlogArticleBlock = {
+  var CSDNBlogArticleBlock = {
     init() {
       Panel.execMenuOnce("csdn-blog-shieldBottomSkillTree", () => {
         return this.shieldBottomSkillTree();
@@ -4135,9 +3625,9 @@
       return CommonUtil$1.addBlockCSS('a.has-card[href*="gitcode.com"]', ".t2-card-container");
     },
   };
-  const BlogArticleCenterCSS =
+  var articleCenter_default =
     '.main_father {\n  justify-content: center;\n}\n#mainBox main {\n  width: inherit !important;\n}\n/* 当文章向下滚动时，触发左侧信息悬浮 */\naside.blog_container_aside[style*="position: fixed;"] {\n  display: none !important;\n}\n\n@media (min-width: 1320px) and (max-width: 1380px) {\n  .nodata .container {\n    width: 900px !important;\n  }\n\n  .nodata .container main {\n    width: 900px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 490px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 500px;\n  }\n}\n\n@media screen and (max-width: 1320px) {\n  .nodata .container {\n    width: 760px !important;\n  }\n\n  .nodata .container main {\n    width: 760px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 490px !important;\n  }\n\n  .nodata .container main .toolbox-list .tool-reward {\n    display: none;\n  }\n\n  .nodata .container main .more-toolbox-new .toolbox-left .profile-box .profile-name {\n    max-width: 128px;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 420px;\n  }\n}\n\n@media screen and (min-width: 1380px) {\n  .nodata .container {\n    width: 1010px !important;\n  }\n\n  .nodata .container main {\n    width: 1010px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 490px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 560px;\n  }\n}\n\n@media (min-width: 1550px) and (max-width: 1700px) {\n  .nodata .container {\n    width: 820px !important;\n  }\n\n  .nodata .container main {\n    width: 820px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 690px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 500px;\n  }\n}\n\n@media screen and (min-width: 1700px) {\n  .nodata .container {\n    width: 1010px !important;\n  }\n\n  .nodata .container main {\n    width: 1010px;\n  }\n\n  .nodata .container main #pcCommentBox pre > ol.hljs-ln {\n    width: 690px !important;\n  }\n\n  .nodata .container main .articleConDownSource {\n    width: 560px;\n  }\n}\n';
-  const CSDNBlogArticleComment = {
+  var CSDNBlogArticleComment = {
     init() {
       Panel.execMenuOnce("csdn-blog-blockComment", () => {
         return this.blockComment();
@@ -4165,7 +3655,7 @@
       });
     },
   };
-  const CSDNBlogArticleBottomRecommend = {
+  var CSDNBlogArticleBottomRecommend = {
     init() {
       Panel.execMenuOnce("csdn-blog-blockBottomRecommendArticle", () => {
         return this.blockBottomRecommendArticle();
@@ -4183,20 +3673,18 @@
     },
     identityCSDNDownload() {
       log.info("标识CSDN下载的链接");
-      return addStyle(
-        `
+      return addStyle(`
         .recommend-item-box[data-url*='https://download.csdn.net/'] .content-box{
             border: 2px solid red;
         }
-    `
-      );
+    `);
     },
     removeResourceDownloadArticle() {
       log.info(`移除资源下载的文章`);
       return CommonUtil.addBlockCSS(`.recommend-item-box[data-url*='https://download.csdn.net/']`);
     },
   };
-  const CSDNBlogArticleRightToolBarBlock = {
+  var CSDNBlogArticleRightToolBarBlock = {
     init() {
       Panel.exec(
         "csdn-blog-rightToolbarEnable",
@@ -4254,7 +3742,7 @@
       return CommonUtil.addBlockCSS('.csdn-side-toolbar a.option-box[data-type="gotop"]');
     },
   };
-  const CSDNBlogArticleRightToolBar = {
+  var CSDNBlogArticleRightToolBar = {
     init() {
       CSDNBlogArticleRightToolBarBlock.init();
       Panel.execMenuOnce(
@@ -4283,9 +3771,8 @@
         let toolbarBoxElement = document.querySelector("#toolBarBox");
         if (!toolbarBoxElement || !toolbarBoxElement.getClientRects().length) {
           let $pcCommentBox = $("#pcCommentBox");
-          if ($pcCommentBox && $pcCommentBox.getClientRects().length) {
-            toolbarBoxElement = $pcCommentBox;
-          } else {
+          if ($pcCommentBox && $pcCommentBox.getClientRects().length) toolbarBoxElement = $pcCommentBox;
+          else {
             log.error("评论区处于隐藏状态");
             return;
           }
@@ -4311,18 +3798,16 @@
     },
     async initRightToolbarOffset(top, right) {
       log.info("初始化右侧工具栏的偏移（top、right）");
-      return addStyle(
-        `
+      return addStyle(`
     .csdn-side-toolbar{
       left: unset !important;
       top: ${top}px !important;
       right: ${right}px !important;
     }
-    `
-      );
+    `);
     },
   };
-  const CSDNBlogArticleAISupportRightToolBarBlock = {
+  var CSDNBlogArticleAISupportRightToolBarBlock = {
     init() {
       Panel.execMenuOnce("csdn-blog-ai-blockRightToolbar", () => {
         return this.blockRightToolbar();
@@ -4375,7 +3860,7 @@
       return CommonUtil.addBlockCSS(".article-aside-container .sidebar-item#sidebar-more");
     },
   };
-  const CSDNBlogArticleAISupportRightToolBar = {
+  var CSDNBlogArticleAISupportRightToolBar = {
     init() {
       CSDNBlogArticleAISupportRightToolBarBlock.init();
       Panel.execMenuOnce(
@@ -4385,27 +3870,23 @@
           "csdn-blog-ai-coverRightToolOffSet-right",
         ],
         (option) => {
-          if (!option.value[0]) {
-            return;
-          }
+          if (!option.value[0]) return;
           return this.coverRightToolOffSet(option.value[1], option.value[2]);
         }
       );
     },
     async coverRightToolOffSet(top, right) {
       log.info("覆盖右侧工具栏的偏移（top、right）");
-      return addStyle(
-        `
+      return addStyle(`
     #mainBox .article-aside-container{
       left: unset !important;
       top: ${top}px !important;
       right: ${right}px !important;
     }
-    `
-      );
+    `);
     },
   };
-  const CSDNBlogArticle = {
+  var CSDNBlogArticle = {
     init() {
       CSDNBlogArticleBlock.init();
       CSDNBlogArticleComment.init();
@@ -4434,38 +3915,31 @@
       log.info("点击代码块自动展开");
       document.addEventListener("click", function (event) {
         let $click = event.target;
-        if ($click.localName !== "pre") {
-          return;
-        }
+        if ($click.localName !== "pre") return;
         $click.style.setProperty("height", "auto");
         $click.querySelector(".hide-preCode-box")?.remove();
       });
     },
     articleCenter() {
       log.info("全文居中");
-      let result = [addStyle(BlogArticleCenterCSS)];
+      let result = [addStyle(articleCenter_default)];
       result.push(CSDNBlogBlock.shieldRightDirectoryInformation());
       result.push(
-        addStyle(
-          `
+        addStyle(`
       #mainBox {
         margin-right: 0px;
       }
-      `
-        )
+      `)
       );
       result.push(CSDNBlogBlock.shieldLeftBlogContainerAside());
       result.push(
-        addStyle(
-          `
+        addStyle(`
       #mainBox {
         margin-left: 0px;
-      }`
-        )
+      }`)
       );
       result.push(
-        addStyle(
-          `
+        addStyle(`
     html body .main_father #mainBox{
       padding-right: 0px !important;
     }
@@ -4473,8 +3947,7 @@
       left: unset !important;
       right: 150px !important;
     }
-    `
-        )
+    `)
       );
       return result;
     },
@@ -4482,8 +3955,7 @@
       log.info("自动展开代码块");
       return [
         CommonUtil$1.addBlockCSS("pre.set-code-hide .hide-preCode-box"),
-        addStyle(
-          `
+        addStyle(`
 			pre.set-code-hide{
 				height: auto !important;
 			}
@@ -4492,50 +3964,44 @@
 			main div.blog-content-box pre {
 				max-height: none !important;
 			}
-        `
-        ),
+        `),
       ];
     },
     autoExpandContent() {
       log.info("自动展开全文");
-      return addStyle(
-        `
+      return addStyle(`
 		/* 自动展开全文 */
 		#article_content,
 		.user-article.user-article-hide {
 			height: auto !important;
 			overflow: auto !important;
 		}
-        `
-      );
+        `);
     },
     allowSelectContent() {
       log.info("允许选择内容");
-      return addStyle(
-        `
+      return addStyle(`
 		#content_views,
 		#content_views pre,
 		#content_views pre code {
 			user-select: text !important;
 		}
-		`
-      );
+		`);
     },
   };
-  const indexCSS = "";
-  const blockCSS$1 =
+  var block_default$1 =
     "/* 红包雨 */\n#csdn-redpack,\n/* 顶部 购会员横幅 */\n.page-container .top-bar,\n/* 底部 购会员横幅 */\n.page-container .fix-bottom-bar {\n  display: none !important;\n}\n";
-  const CSDNDownload = {
+  var CSDNDownload = {
     init() {
-      addStyle(blockCSS$1);
-      addStyle(indexCSS);
+      addStyle(block_default$1);
+      addStyle("");
     },
   };
-  const blockCSS =
+  var block_default =
     '/* 顶部工具栏右边的 会员 */\n#csdn-toolbar .toolbar-btn > a[href*="mall.csdn.net/vip"],\n/* 顶部工具栏右边的 VIP抢千元豪礼 */\n#csdn-toolbar a.toolbar-btn[href*="mall.csdn.net/vip"] {\n  display: none !important;\n}\n';
-  const CSDN = {
+  var CSDN = {
     init() {
-      addStyle(blockCSS);
+      addStyle(block_default);
       if (CSDNRouter.isLink()) {
         log.info("Router: 中转链接");
         CSDNLink.init();
@@ -4555,12 +4021,10 @@
       } else if (CSDNRouter.isDownload()) {
         log.info("Router: 下载");
         CSDNDownload.init();
-      } else {
-        log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
-      }
+      } else log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
     },
   };
-  const UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
     const result = {
       text,
       type: "select",
@@ -4568,39 +4032,33 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(isSelectedInfo) {
-        if (isSelectedInfo == null) {
-          return;
-        }
+        if (isSelectedInfo == null) return;
         const value = isSelectedInfo.value;
         log.info(`选择：${isSelectedInfo.text}`);
         if (typeof selectCallBack === "function") {
-          const result2 = selectCallBack(isSelectedInfo);
-          if (result2) {
-            return;
-          }
+          if (selectCallBack(isSelectedInfo)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
       },
       data,
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("select", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const UISlider = function (
+  var UISlider = function (
     text,
     key,
     defaultValue,
@@ -4619,19 +4077,18 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        return storageApiValue.get(key, defaultValue);
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") {
-          return getToolTipContent(value);
-        } else {
-          return `${value}`;
-        }
+        if (typeof getToolTipContent === "function") return getToolTipContent(value);
+        else return `${value}`;
       },
       callback(event, value) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
       min,
       max,
@@ -4640,29 +4097,25 @@
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const PanelComponents = {
+  var PanelComponents = {
     $data: {
       __storeApiFn: null,
       get storeApiValue() {
-        if (!this.__storeApiFn) {
-          this.__storeApiFn = new Utils.Dictionary();
-        }
+        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
         return this.__storeApiFn;
       },
     },
     getStorageApi(type) {
-      if (!this.hasStorageApi(type)) {
-        return;
-      }
+      if (!this.hasStorageApi(type)) return;
       return this.$data.storeApiValue.get(type);
     },
     hasStorageApi(type) {
@@ -4673,18 +4126,15 @@
     },
     initComponentsStorageApi(type, config, storageApiValue) {
       let propsStorageApi;
-      if (this.hasStorageApi(type)) {
-        propsStorageApi = this.getStorageApi(type);
-      } else {
-        propsStorageApi = storageApiValue;
-      }
+      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
+      else propsStorageApi = storageApiValue;
       this.setComponentsStorageApiProperty(config, propsStorageApi);
     },
     setComponentsStorageApiProperty(config, storageApiValue) {
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  const UISwitch = function (
+  var UISwitch = function (
     text,
     key,
     defaultValue = false,
@@ -4695,6 +4145,14 @@
     valueChangeCallBack,
     shortCutOption
   ) {
+    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
+      const shortCutKey = shortCutOption.key ?? key;
+      shortCutOption.handler.add({
+        key: shortCutKey,
+        name: text,
+      });
+      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
+    }
     const result = {
       text,
       type: "switch",
@@ -4703,37 +4161,122 @@
       attributes: {},
       props: {},
       getValue() {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = storageApiValue.get(key, defaultValue);
-        return value;
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
       },
       callback(event, __value) {
         const value = Boolean(__value);
         log.success(`${value ? "开启" : "关闭"} ${text}`);
         if (typeof clickCallBack === "function") {
-          const result2 = clickCallBack(event, value);
-          if (result2) {
-            return;
-          }
+          if (clickCallBack(event, value)) return;
         }
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        storageApiValue.set(key, value);
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
       },
-      afterAddToUListCallBack: (...args) => {},
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+        if (shortCutOption) {
+          const shortCut = shortCutOption.handler.shortCut;
+          const shortCutKey = shortCutOption.key ?? key;
+          const [_, container] = args;
+          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
+          if (!$leftMainText) return;
+          const renderKeyboard = () => {
+            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
+            const $wrapper = domUtils.createElement(
+              "div",
+              {
+                className: "pops-switch-shortcut-wrapper",
+                innerHTML: `
+              <i class="pops-bottom-icon" is-loading="false">
+                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
+                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
+                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
+                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
+                </svg>
+              </i>
+            `,
+              },
+              { style: "margin-right: 5px;display: inline-flex;" }
+            );
+            const $icon = $wrapper.querySelector(".pops-bottom-icon");
+            domUtils.on(
+              $icon,
+              "click",
+              function (evt) {
+                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
+                $tooltip.toolTip.offEvent();
+                $tooltip.toolTip.close();
+                $tooltip.toolTip.destory();
+                $wrapper.remove();
+              },
+              { once: true }
+            );
+            const $tooltip = __pops__.tooltip({
+              $target: $icon,
+              content: () => {
+                return tooltipShowText;
+              },
+              className: "github-tooltip",
+              isFixed: true,
+              only: true,
+            });
+            domUtils.empty($leftMainText);
+            domUtils.append($leftMainText, $wrapper, text);
+          };
+          __pops__.rightClickMenu({
+            $target: $leftMainText,
+            only: true,
+            data: [
+              {
+                text: () => {
+                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
+                  else return "添加快捷键";
+                },
+                icon: __pops__.config.iconSVG.keyboard,
+                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
+                  if (shortCut.isWaitKeyboardPress()) {
+                    qmsg.default.warning("请先执行当前的录入操作");
+                    return;
+                  }
+                  const $loading = qmsg.default.loading("请按下快捷键...", {
+                    showClose: true,
+                    onClose() {
+                      shortCut.cancelEnterShortcutKeys();
+                    },
+                  });
+                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
+                    $loading.close();
+                    if (status) {
+                      log.success("录入快捷键", option);
+                      qmsg.default.success("录入成功");
+                      renderKeyboard();
+                    } else
+                      qmsg.default.error(
+                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
+                      );
+                  });
+                },
+              },
+            ],
+          });
+          if (!shortCut.hasOption(shortCutKey)) return;
+          renderKeyboard();
+        }
+      },
     };
     Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
     Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
     PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key2, defaultValue2) {
-        return Panel.getValue(key2, defaultValue2);
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
       },
-      set(key2, value) {
-        Panel.setValue(key2, value);
+      set(key, value) {
+        Panel.setValue(key, value);
       },
     });
     return result;
   };
-  const MSettingUIBlog = {
+  var MSettingUIBlog = {
     id: "m-panel-blog",
     title: "博客",
     isDefault() {
@@ -4882,7 +4425,7 @@
       },
     ],
   };
-  const MSettingUIGeneral = {
+  var MSettingUIGeneral = {
     id: "component-common",
     title: "通用",
     views: [
@@ -4971,7 +4514,7 @@
       },
     ],
   };
-  const MSettingUIDownload = {
+  var MSettingUIDownload = {
     id: "m-panel-download",
     title: "资源",
     isDefault() {
@@ -4998,7 +4541,7 @@
       },
     ],
   };
-  const MSettingUIHuaWeiCloud = {
+  var MSettingUIHuaWeiCloud = {
     id: "m-panel-hua-wei-cloud",
     title: "华为云开发者联盟",
     isDefault() {
@@ -5017,7 +4560,7 @@
       },
     ],
   };
-  const MSettingUILink = {
+  var MSettingUILink = {
     id: "m-panel-link",
     title: "链接",
     isDefault() {
@@ -5031,7 +4574,7 @@
       },
     ],
   };
-  const MSettingUISo = {
+  var MSettingUISo = {
     id: "panel-so",
     title: "搜索",
     isDefault() {
@@ -5045,7 +4588,7 @@
       },
     ],
   };
-  const MSettingUIWenKu = {
+  var MSettingUIWenKu = {
     id: "m-panel-wenku",
     title: "文库",
     isDefault() {
@@ -5059,7 +4602,7 @@
       },
     ],
   };
-  const SettingUIBlog = {
+  var SettingUIBlog = {
     id: "panel-blog",
     title: "博客",
     isDefault() {
@@ -5305,7 +4848,7 @@
       },
     ],
   };
-  const SettingUICommon = {
+  var SettingUICommon = {
     id: "component-common",
     title: "通用",
     views: [
@@ -5394,7 +4937,7 @@
       },
     ],
   };
-  const SettingUIHuaWeiCloud = {
+  var SettingUIHuaWeiCloud = {
     id: "panel-hua-wei-cloud",
     title: "华为云开发者联盟",
     isDefault() {
@@ -5416,15 +4959,11 @@
             "csdn-hua-wei-cloud-shieldLeftFloatingButton",
             false,
             function (event, enable) {
-              if (enable) {
-                alert("开启后将屏蔽【当前阅读量】、【点赞按钮】、【评论按钮】、【分享按钮】");
-              }
+              if (enable) alert("开启后将屏蔽【当前阅读量】、【点赞按钮】、【评论按钮】、【分享按钮】");
             }
           ),
           UISwitch("【屏蔽】右侧栏", "csdn-hua-wei-cloud-blockRightColumn", false, function (event, enable) {
-            if (enable) {
-              alert("开启后将屏蔽【相关产品】-【活动日历】-【运营活动】-【热门标签】");
-            }
+            if (enable) alert("开启后将屏蔽【相关产品】-【活动日历】-【运营活动】-【热门标签】");
           }),
           UISwitch("【屏蔽】底部推荐内容", "csdn-hua-wei-cloud-blockRecommendedContentAtTheBottom", false),
           UISwitch("【屏蔽】底部更多推荐", "csdn-hua-wei-cloud-shieldTheBottomForMoreRecommendations", false),
@@ -5432,7 +4971,7 @@
       },
     ],
   };
-  const SettingUILink = {
+  var SettingUILink = {
     id: "panel-link",
     title: "链接",
     isDefault() {
@@ -5446,7 +4985,7 @@
       },
     ],
   };
-  const SettingUISo = {
+  var SettingUISo = {
     id: "panel-so",
     title: "搜索",
     isDefault() {
@@ -5460,7 +4999,7 @@
       },
     ],
   };
-  const SettingUIWenKu = {
+  var SettingUIWenKu = {
     id: "panel-wenku",
     title: "资源",
     isDefault() {
@@ -5535,59 +5074,48 @@
     MSettingUIDownload,
   ]);
   Panel.init();
-  let isMobile = utils.isPhone();
-  let CHANGE_ENV_SET_KEY = "change_env_set";
-  let chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
+  var isMobile = utils.isPhone();
+  var CHANGE_ENV_SET_KEY = "change_env_set";
+  var chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
   MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
     text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
     autoReload: false,
     isStoreValue: false,
     showText(text) {
-      if (chooseMode == null) {
-        return text;
-      }
+      if (chooseMode == null) return text;
       return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
     },
     callback: () => {
       let allowValue = [0, 1, 2];
       let chooseText = window.prompt("请输入当前脚本环境判定\n\n自动判断: 0\n移动端: 1\nPC端: 2", "0");
-      if (!chooseText) {
+      if (!chooseText) return;
+      let chooseMode = parseInt(chooseText);
+      if (isNaN(chooseMode)) {
+        qmsg.default.error("输入的不是规范的数字");
         return;
       }
-      let chooseMode2 = parseInt(chooseText);
-      if (isNaN(chooseMode2)) {
-        Qmsg.error("输入的不是规范的数字");
+      if (!allowValue.includes(chooseMode)) {
+        qmsg.default.error("输入的值必须是0或1或2");
         return;
       }
-      if (!allowValue.includes(chooseMode2)) {
-        Qmsg.error("输入的值必须是0或1或2");
-        return;
-      }
-      if (chooseMode2 == 0) {
-        _GM_deleteValue(CHANGE_ENV_SET_KEY);
-      } else {
-        _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode2);
-      }
+      if (chooseMode == 0) _GM_deleteValue(CHANGE_ENV_SET_KEY);
+      else _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode);
     },
   });
   if (chooseMode != null) {
     log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
-    if (chooseMode == 1) {
-      M_CSDN.init();
-    } else if (chooseMode == 2) {
-      CSDN.init();
-    } else {
-      Qmsg.error("意外，手动判定的值不在范围内");
+    if (chooseMode == 1) M_CSDN.init();
+    else if (chooseMode == 2) CSDN.init();
+    else {
+      qmsg.default.error("意外，手动判定的值不在范围内");
       _GM_deleteValue(CHANGE_ENV_SET_KEY);
     }
+  } else if (isMobile) {
+    log.info("自动判定为移动端");
+    M_CSDN.init();
   } else {
-    if (isMobile) {
-      log.info("自动判定为移动端");
-      M_CSDN.init();
-    } else {
-      log.info("自动判定为PC端");
-      CSDN.init();
-    }
+    log.info("自动判定为PC端");
+    CSDN.init();
   }
 })(Qmsg, DOMUtils, pops, Utils);
