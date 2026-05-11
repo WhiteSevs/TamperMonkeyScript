@@ -36,7 +36,6 @@ export class ViteUtils {
     if (target2 == null) {
       return target1 as T & U;
     }
-    const that = this;
     const result: any = { ...target1 };
 
     for (const key in target2) {
@@ -55,7 +54,7 @@ export class ViteUtils {
         } else if (typeof value === "object" && typeof targetValue === "object") {
           // {...}
           // {...}
-          result[key] = that.assign(targetValue, value, isAdd); // 递归处理对象
+          result[key] = this.assign(targetValue, value, isAdd); // 递归处理对象
         } else {
           // ""
           // ""|0|false|true
@@ -231,9 +230,11 @@ export class ViteUtils {
       }
       console.log("");
       return code_url;
-    } catch (error) {
+    } catch {
       if (reTry) {
         return await this.getGreasyForkLibLatestVersionUrl(libId, false);
+      } else {
+        return "";
       }
     }
   }
@@ -267,9 +268,11 @@ export class ViteUtils {
       // console.log(`github文件sha值：${oid}`);
       // console.log("");
       return github_jsdelivr(repoName, oid, pathName);
-    } catch (error) {
+    } catch {
       if (reTry) {
         return await this.getGitHubLibLatestVersionUrl(repoName, branchName, pathName, false);
+      } else {
+        return "";
       }
     }
   }
@@ -322,8 +325,9 @@ export class ViteUtils {
   }
   /**
    * 获取最新的版本号
+   * @param version 版本号，如果传入空字符串，则返回yyyy.MM.dd格式的版本号
    */
-  getLatestScriptVersion(version: string): string {
+  getLatestScriptVersion(version: string = ""): string {
     version = version.trim();
     const currentTime = new Date();
     const versionInfo = {
@@ -337,7 +341,7 @@ export class ViteUtils {
     let current_year = currentTime.getFullYear();
     let current_month = currentTime.getMonth() + 1;
     let current_day = currentTime.getDate();
-    let current_hour = currentTime.getHours();
+    // let current_hour = currentTime.getHours();
     const yearMonthDayMatcher = version.match(/^([\d]+)\.([\d]+)\.([\d]+)$/);
     const yearMonthDayHourMatcher = version.match(/^([\d]+)\.([\d]+)\.([\d]+)\.([\d]+)$/);
     const historyTime = new Date();
@@ -364,7 +368,7 @@ export class ViteUtils {
       historyTime.setFullYear(history_year, history_month - 1, history_day);
     }
     if (versionLength) {
-      if(history_year === current_year && history_month === current_month && history_day === current_day){
+      if (history_year === current_year && history_month === current_month && history_day === current_day) {
         // 今年今月今日
         // 使用4位版本
         versionInfo.version = `${this.formatTime(currentTime, "yyyy.MM.dd.HH", false)}`;
