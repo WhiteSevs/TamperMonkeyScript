@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.5.12
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -31322,7 +31322,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         };
       },
     });
-    var pinia = (0, pinia.createPinia)();
+    var piniaInst = (0, pinia.createPinia)();
     var TiebaPost = {
       $data: { appName: "vite-app" },
       mainPostImgList: [],
@@ -31348,7 +31348,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             if (Panel.getValue("baidu_tieba_optimize_comments_toolbar")) {
               CommonUtil.addBlockCSS(".comment-box-wrap");
               TiebaReply.waitCommentBoxWrap(() => {
-                MountVue(App_default, [pinia]);
+                MountVue(App_default, [piniaInst]);
               });
             }
           }
