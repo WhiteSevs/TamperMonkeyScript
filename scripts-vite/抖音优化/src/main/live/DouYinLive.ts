@@ -519,12 +519,6 @@ export const DouYinLive = {
       $video.parentElement,
       "click",
       (evt) => {
-        // if (evt.target instanceof Element) {
-        //   if (evt.target.closest("#ShortTouchLayout")) {
-        //     // 红包之类的
-        //     return;
-        //   }
-        // }
         // disable autoplay listener remove tag
         DOMUtils.preventEvent(evt);
         offAllListener();
@@ -625,6 +619,14 @@ export const DouYinLive = {
         const $click = evt.target;
         if ($click instanceof Element) {
           if ($click.closest(".douyin-player-controls")) {
+            return;
+          }
+          if ($click.closest("#ShortTouchLayout")) {
+            // 红包、福袋之类的
+            return;
+          }
+          if ($click.closest("#short_touch_land_lottery_land_userMain")) {
+            // 福袋弹窗
             return;
           }
           if (!$selector.contains($click)) {

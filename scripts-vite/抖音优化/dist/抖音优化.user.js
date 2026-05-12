@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.5.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5064,28 +5064,34 @@
       Panel.execMenuOnce("dy-video-live-block-yellowCar", () => {
         return this.blockYellowCar();
       });
+      Panel.execMenuOnce("dy-video-live-block-highlight", () => {
+        return this.blockHighlight();
+      });
       DouYinVideoBlock_Live_PlayerCompomemts.init();
     },
     tipClickOrKeyboardFEnterLiveRoom() {
       log.info(`【屏蔽】点击或按F进入直播间`);
-      return [
-        addBlockCSS(
-          '[data-e2e="feed-live"] .douyin-player > a',
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
-          '.search-result-card [data-e2e="basicPlayer"] > a[href]',
-          ".search-result-card .douyin-player > a[href]"
-        ),
-      ];
+      return addBlockCSS(
+        '[data-e2e="feed-live"] .douyin-player > a',
+        '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > a',
+        '.search-result-card [data-e2e="basicPlayer"] > a[href]',
+        ".search-result-card .douyin-player > a[href]"
+      );
     },
     blockYellowCar() {
       log.info("【屏蔽】小黄车");
-      return [
-        addBlockCSS(
-          '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
-          '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
-          '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
-        ),
-      ];
+      return addBlockCSS(
+        '[data-e2e="feed-live"] .douyin-player > div:has([data-e2e="yellowCart-container"])',
+        '[data-e2e="feed-live"] [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])',
+        '.search-result-card [data-e2e="basicPlayer"] > div:has([data-e2e="yellowCart-container"])'
+      );
+    },
+    blockHighlight() {
+      log.info(`【屏蔽】本场高光`);
+      return addBlockCSS(
+        '[data-e2e="feed-live"] div:has(+a[data-e2e="live-slider"]):has(img)',
+        '[data-e2e="feed-live"] .highlightPlayer'
+      );
     },
   };
   var DouYinVideoBlock_RightMenu = {
@@ -5408,7 +5414,8 @@
     blockUserLiveSmallWindow() {
       log.info(`【屏蔽】直播小窗`);
       return addBlockCSS(
-        'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])'
+        'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
+        'a[href*="live.douyin.com"] + div[style*="absolute"]:empty'
       );
     },
     blockUserLiveFlashingAvatar() {
@@ -9390,6 +9397,8 @@
           const $click = evt.target;
           if ($click instanceof Element) {
             if ($click.closest(".douyin-player-controls")) return;
+            if ($click.closest("#ShortTouchLayout")) return;
+            if ($click.closest("#short_touch_land_lottery_land_userMain")) return;
             if (!$selector.contains($click)) return;
           }
           if (options.isDouble) {
@@ -14336,6 +14345,7 @@
                     "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom"
                   ),
                   UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar"),
+                  UISwitch("【屏蔽】本场高光", "dy-video-live-block-highlight"),
                 ],
               },
               {
@@ -14765,8 +14775,9 @@
             ],
           },
           {
-            text: "聊天室消息过滤器",
             type: "deepMenu",
+            text: "聊天室消息过滤器",
+            afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
               {
                 type: "container",

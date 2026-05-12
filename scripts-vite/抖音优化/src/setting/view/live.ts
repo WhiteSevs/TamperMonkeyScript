@@ -230,8 +230,9 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
           ],
         },
         {
-          text: "聊天室消息过滤器",
           type: "deepMenu",
+          text: "聊天室消息过滤器",
+          afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
             {
               type: "container",

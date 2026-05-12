@@ -112,7 +112,9 @@ export const DouYinVideoBlock_RightToolbar = {
   blockUserLiveSmallWindow() {
     log.info(`【屏蔽】直播小窗`);
     return addBlockCSS(
-      'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])'
+      'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
+      // 仅有边框的情况
+      'a[href*="live.douyin.com"] + div[style*="absolute"]:empty'
     );
   },
   /**

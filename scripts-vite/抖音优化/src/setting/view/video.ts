@@ -847,6 +847,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "dy-video-live-block-tipClickOrKeyboardFEnterLiveRoom"
                 ),
                 UISwitch("【屏蔽】小黄车", "dy-video-live-block-yellowCar"),
+                UISwitch("【屏蔽】本场高光", "dy-video-live-block-highlight"),
               ],
             },
             {
