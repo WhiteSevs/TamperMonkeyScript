@@ -362,7 +362,13 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               text: AutoOpenOrClose.text,
               type: "container",
               views: [
-                UISwitch("【屏蔽】顶部导航栏", "shieldTopNavigator", false),
+                UISwitch(
+                  "【屏蔽】顶部导航栏",
+                  "shieldTopNavigator",
+                  false,
+                  undefined,
+                  "不建议开启，会导致推荐列表的视频逐渐错位"
+                ),
                 UISwitch("【屏蔽】顶部右侧的菜单栏", "shield-topNav-rightMenu"),
               ],
             },
