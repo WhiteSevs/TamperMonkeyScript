@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Demo_Script_Name
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.2.19
+// @version      2026.5.15
 // @author       WhiteSevs
 // @description  demo_description
 // @license      GPL-3.0-only
@@ -9,17 +9,19 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.9.13/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@1.9.2/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@3.2.2/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.6.2/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.min.js
 // @connect      *
+// @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
 // @grant        GM_getValue
 // @grant        GM_info
 // @grant        GM_listValues
 // @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
 // @grant        GM_setValue
 // @grant        GM_setValues
 // @grant        GM_unregisterMenuCommand
