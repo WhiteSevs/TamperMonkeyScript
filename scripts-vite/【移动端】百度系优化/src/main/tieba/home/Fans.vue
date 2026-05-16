@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
   import { log, utils } from "@/env";
-  import { VNodeRef, ref, watch } from "vue";
+  import { type VNodeRef, ref, watch } from "vue";
   import { TiebaNewPCApi } from "../api/TiebaNewPCApi";
   import { TiebaUrlHandler } from "../handler/TiebaUrlHandler";
   import type { UserInfo } from "./data/TiebaHomeData";

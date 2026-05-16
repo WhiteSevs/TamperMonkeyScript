@@ -111,7 +111,7 @@
   import { DOMUtils, log, utils } from "@/env";
   import { CommonUtil } from "@components/utils/CommonUtil";
   import { ChromeFilled } from "@element-plus/icons-vue";
-  import { VNodeRef, ref, watch } from "vue";
+  import { type VNodeRef, ref, watch } from "vue";
   import { TiebaNewPCApi } from "../../api/TiebaNewPCApi";
   import { TiebaUrlHandler } from "../../handler/TiebaUrlHandler";
   import type { UserInfo } from "../data/TiebaHomeData";
