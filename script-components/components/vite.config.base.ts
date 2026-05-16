@@ -292,16 +292,23 @@ const GenerateUserConfig = async (option: {
         const git = simpleGit({
           baseDir: option.__dirname,
         });
-        const filePath = `${gitProjectPath === "" ? gitProjectPath : gitProjectPath + "/"}dist/${META_FILE_NAME}`;
-        const fileContent = await git.show(["HEAD:" + filePath]);
         let historyVersion = "";
-        UserScriptUtils.parseMeta(fileContent, (data) => {
-          if (data.key.toLowerCase() === "version") {
-            historyVersion = data.value;
-          }
-        });
+        const filePath = `${gitProjectPath === "" ? gitProjectPath : gitProjectPath + "/"}dist/${META_FILE_NAME}`;
+        try {
+          const fileContent = await git.show(["HEAD:" + filePath]);
+          UserScriptUtils.parseMeta(fileContent, (data) => {
+            if (data.key.toLowerCase() === "version") {
+              historyVersion = data.value;
+            }
+          });
+        } catch {
+          console.log(pc.yellow(`path not exists '${filePath}'`));
+        }
         if (historyVersion.trim() !== "") {
+          // git中不存在这个版本号或者未获取到版本
           console.log("git history version: ", pc.blue(historyVersion));
+        } else {
+          console.log(pc.yellow("git history version is empty"));
         }
         VERSION = inheritUtils.getLatestScriptVersion(historyVersion);
         console.log("script build version: ", pc.green(VERSION));
