@@ -58,6 +58,7 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
    * - 每周精选
    * - 抖音精选
    * - 游戏评分
+   * - 购物
    */
   blobkTitleTopTag() {
     log.info(`【屏蔽】视频标题上面的标签`);
@@ -66,7 +67,9 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
       "span:has(+div #video-info-wrap):has(img)",
       // 游戏评分
       ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])",
-      ".basePlayerContainer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
+      ".basePlayerContainer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])",
+      // 购物
+      ".player-position-box-bottom .xgplayer-shop-anchor"
     );
   },
   /**

@@ -669,7 +669,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "dy-video-blockTitleTopTag",
                   false,
                   void 0,
-                  "例如：<code>每周精选</code>、<code>抖音精选</code>、<code>游戏评分</code>"
+                  "例如：<code>每周精选</code>、<code>抖音精选</code>、<code>游戏评分</code>、<code>购物</code>"
                 ),
                 UISwitch(
                   "【屏蔽】视频标题下面的标签",

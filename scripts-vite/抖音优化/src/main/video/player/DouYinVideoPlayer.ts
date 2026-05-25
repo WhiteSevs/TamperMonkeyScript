@@ -1767,7 +1767,7 @@ export const DouYinVideoPlayer = {
     // 更全面的时间正则表达式匹配
     const timePatterns = [
       /(\d{1,2}:[0-5][0-9]:[0-5][0-9])/g, // HH:MM:SS
-      /([0-5][0-9]:[0-5][0-9])/g, // MM:SS
+      /([0-5]{0,1}[0-9]:[0-5][0-9])/g, // MM:SS
     ]; // 处理单个评论元素
     const processCommentElement = ($comment: Element) => {
       // 检查是否已经处理过

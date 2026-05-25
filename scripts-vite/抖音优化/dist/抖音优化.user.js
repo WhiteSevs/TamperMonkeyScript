@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.16
+// @version      2026.5.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4870,7 +4870,8 @@
         "span:has(+#video-info-wrap):has(img)",
         "span:has(+div #video-info-wrap):has(img)",
         ".xgplayer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])",
-        ".basePlayerContainer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])"
+        ".basePlayerContainer .player-position-box-bottom:not(:has(>:only-child)) > div:nth-child(1):has(img[src*='game_center'])",
+        ".player-position-box-bottom .xgplayer-shop-anchor"
       );
     },
     blockVideoUnderTitleTag() {
@@ -8242,7 +8243,7 @@
         const minute = parseInt(timeArr[timeArr.length - 2]);
         return (timeArr.length === 3 ? parseInt(timeArr[0]) : 0) * 60 * 60 + minute * 60 + second;
       };
-      const timePatterns = [/(\d{1,2}:[0-5][0-9]:[0-5][0-9])/g, /([0-5][0-9]:[0-5][0-9])/g];
+      const timePatterns = [/(\d{1,2}:[0-5][0-9]:[0-5][0-9])/g, /([0-5]{0,1}[0-9]:[0-5][0-9])/g];
       const processCommentElement = ($comment) => {
         if ($comment.hasAttribute("data-dy-time-processed")) return;
         $comment.setAttribute("data-dy-time-processed", "true");
@@ -14167,7 +14168,7 @@
                     "dy-video-blockTitleTopTag",
                     false,
                     void 0,
-                    "例如：<code>每周精选</code>、<code>抖音精选</code>、<code>游戏评分</code>"
+                    "例如：<code>每周精选</code>、<code>抖音精选</code>、<code>游戏评分</code>、<code>购物</code>"
                   ),
                   UISwitch(
                     "【屏蔽】视频标题下面的标签",
