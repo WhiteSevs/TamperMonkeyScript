@@ -13,6 +13,9 @@ export const CSDNBlog = {
       Panel.execMenuOnce("csdn-blog-unBlockCopy", () => {
         this.unBlockCopy();
       });
+      Panel.execMenuOnce("csdn-blog-hookCSDN_loginBox", () => {
+        this.hookCSDN_loginBox();
+      });
     });
   },
   /**
@@ -113,5 +116,32 @@ export const CSDNBlog = {
         });
       }, 250);
     });
+  },
+  /**
+   * 劫持 window.csdn.loginBox.show
+   */
+  hookCSDN_loginBox() {
+    utils
+      .waitProperty(() => {
+        return typeof unsafeWindow.csdn?.loginBox?.show === "function" ? unsafeWindow : null;
+      }, "csdn")
+      .then(() => {
+        if (typeof unsafeWindow.csdn?.loginBox?.show === "function") {
+          log.success("成功劫持 window.csdn.loginBox.show");
+          unsafeWindow.csdn!.loginBox!.show = function () {
+            log.success("成功阻止调用loginBox.show");
+          };
+        }
+        if (typeof unsafeWindow.csdn?.loginBox?.showAutoTip === "function") {
+          unsafeWindow.csdn!.loginBox!.showAutoTip = function () {
+            log.success("成功阻止调用loginBox.showAutoTip");
+          };
+        }
+        if (typeof unsafeWindow.csdn?.loginBox?.showTip === "function") {
+          unsafeWindow.csdn!.loginBox!.showTip = function () {
+            log.success("成功阻止调用loginBox.showTip");
+          };
+        }
+      });
   },
 };

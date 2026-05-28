@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.5.28
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -2770,6 +2770,9 @@
         Panel.execMenuOnce("csdn-blog-unBlockCopy", () => {
           this.unBlockCopy();
         });
+        Panel.execMenuOnce("csdn-blog-hookCSDN_loginBox", () => {
+          this.hookCSDN_loginBox();
+        });
       });
     },
     removeClipboardHijacking() {
@@ -2838,6 +2841,28 @@
           });
         }, 250);
       });
+    },
+    hookCSDN_loginBox() {
+      utils
+        .waitProperty(() => {
+          return typeof _unsafeWindow.csdn?.loginBox?.show === "function" ? _unsafeWindow : null;
+        }, "csdn")
+        .then(() => {
+          if (typeof _unsafeWindow.csdn?.loginBox?.show === "function") {
+            log.success("成功劫持 window.csdn.loginBox.show");
+            _unsafeWindow.csdn.loginBox.show = function () {
+              log.success("成功阻止调用loginBox.show");
+            };
+          }
+          if (typeof _unsafeWindow.csdn?.loginBox?.showAutoTip === "function")
+            _unsafeWindow.csdn.loginBox.showAutoTip = function () {
+              log.success("成功阻止调用loginBox.showAutoTip");
+            };
+          if (typeof _unsafeWindow.csdn?.loginBox?.showTip === "function")
+            _unsafeWindow.csdn.loginBox.showTip = function () {
+              log.success("成功阻止调用loginBox.showTip");
+            };
+        });
     },
   };
   var CommonUtil = {
@@ -4623,6 +4648,7 @@
                 views: [
                   UISwitch("拦截-复制的小尾巴", "csdn-blog-removeClipboardHijacking", true),
                   UISwitch("劫持-禁止复制", "csdn-blog-unBlockCopy", true, void 0, "允许点击复制按钮进行复制"),
+                  UISwitch("劫持-loginBox", "csdn-blog-hookCSDN_loginBox", true, void 0, "阻止跳转登录"),
                 ],
               },
             ],

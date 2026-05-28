@@ -25,6 +25,7 @@ export const SettingUIBlog: PopsPanelContentConfig = {
               views: [
                 UISwitch("拦截-复制的小尾巴", "csdn-blog-removeClipboardHijacking", true),
                 UISwitch("劫持-禁止复制", "csdn-blog-unBlockCopy", true, void 0, "允许点击复制按钮进行复制"),
+                UISwitch("劫持-loginBox", "csdn-blog-hookCSDN_loginBox", true, void 0, "阻止跳转登录"),
               ],
             },
           ],
