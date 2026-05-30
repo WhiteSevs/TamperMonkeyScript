@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.26
+// @version      2026.5.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11617,15 +11617,24 @@
             const data = utils.toJSON(response.responseText);
             const aweme_list = data.aweme_list;
             if (Array.isArray(aweme_list)) {
+              const filterInfo = {
+                filter: 0,
+                count: aweme_list.length,
+              };
               for (let index = 0; index < aweme_list.length; index++) {
                 const awemeInfo = aweme_list[index] || {};
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
+                  filterInfo.filter++;
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_1 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
               response.responseText = JSON.stringify(data);
             }
           };
@@ -11637,6 +11646,10 @@
             const data = utils.toJSON(response.responseText);
             const aweme_list = data.data;
             if (Array.isArray(aweme_list)) {
+              const filterInfo = {
+                filter: 0,
+                count: aweme_list.length,
+              };
               for (let index = 0; index < aweme_list.length; index++) {
                 const awemeItem = aweme_list[index];
                 const awemeInfo = awemeItem["aweme"] || {};
@@ -11645,10 +11658,15 @@
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
+                  filterInfo.filter++;
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
               }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_2 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
               response.responseText = JSON.stringify(data);
             }
           };
@@ -11660,16 +11678,25 @@
             const data = utils.toJSON(response.responseText);
             const cards = data["cards"];
             if (Array.isArray(cards)) {
+              const filterInfo = {
+                filter: 0,
+                count: cards.length,
+              };
               for (let index = 0; index < cards.length; index++) {
                 const awemeItem = cards[index];
                 const awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
+                  filterInfo.filter++;
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                   filterBase.removeAweme(cards, index--);
                 }
               }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_3 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
               response.responseText = JSON.stringify(data);
             }
           };
@@ -11681,6 +11708,10 @@
             const data = utils.toJSON(response.responseText);
             const aweme_list = data["data"];
             if (Array.isArray(aweme_list)) {
+              const filterInfo = {
+                filter: 0,
+                count: aweme_list.length,
+              };
               for (let index = 0; index < aweme_list.length; index++) {
                 const awemeItem = aweme_list[index];
                 const awemeInfo = awemeItem["aweme_info"] || {};
@@ -11693,6 +11724,7 @@
                       const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem, "network");
                       checkFilterCallBack(filterResult);
                       if (filterResult.isFilter) {
+                        filterInfo.filter++;
                         filterBase.sendDislikeVideo(filterResult.matchedFilterRule, mixItem);
                         filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                       }
@@ -11703,11 +11735,16 @@
                   const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                   checkFilterCallBack(filterResult);
                   if (filterResult.isFilter) {
+                    filterInfo.filter++;
                     filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
                     filterBase.removeAweme(aweme_list, index--);
                   }
                 }
               }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_4 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
               response.responseText = JSON.stringify(data);
             }
           };

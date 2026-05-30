@@ -248,17 +248,27 @@ export const DouYinVideoFilter = {
           const data = utils.toJSON(response.responseText);
           const aweme_list = data.aweme_list;
           if (Array.isArray(aweme_list)) {
+            const filterInfo = {
+              filter: 0,
+              count: aweme_list.length,
+            };
             for (let index = 0; index < aweme_list.length; index++) {
               const awemeInfo: DouYinVideoAwemeInfoWithNetWork = aweme_list[index] || {};
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
+                filterInfo.filter++;
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                 filterBase.removeAweme(aweme_list, index--);
               }
             }
             if (import.meta.hot) {
               console.log(aweme_list);
+            }
+            if (filterInfo.filter) {
+              log.info(
+                `xhr_hook_callback_1 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+              );
             }
             response.responseText = JSON.stringify(data);
           }
@@ -280,6 +290,10 @@ export const DouYinVideoFilter = {
           const data = utils.toJSON(response.responseText);
           const aweme_list = data.data;
           if (Array.isArray(aweme_list)) {
+            const filterInfo = {
+              filter: 0,
+              count: aweme_list.length,
+            };
             for (let index = 0; index < aweme_list.length; index++) {
               const awemeItem = aweme_list[index];
               const awemeInfo: DouYinVideoAwemeInfoWithNetWork = awemeItem["aweme"] || {};
@@ -290,12 +304,18 @@ export const DouYinVideoFilter = {
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
+                filterInfo.filter++;
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                 filterBase.removeAweme(aweme_list, index--);
               }
             }
             if (import.meta.hot) {
               console.log(aweme_list);
+            }
+            if (filterInfo.filter) {
+              log.info(
+                `xhr_hook_callback_2 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+              );
             }
             response.responseText = JSON.stringify(data);
           }
@@ -317,18 +337,28 @@ export const DouYinVideoFilter = {
           const data = utils.toJSON(response.responseText);
           const cards = data["cards"];
           if (Array.isArray(cards)) {
+            const filterInfo = {
+              filter: 0,
+              count: cards.length,
+            };
             for (let index = 0; index < cards.length; index++) {
               const awemeItem = cards[index];
               const awemeInfo: DouYinVideoAwemeInfoWithNetWork = utils.toJSON(awemeItem?.["aweme"] || "{}");
               const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
               checkFilterCallBack(filterResult);
               if (filterResult.isFilter) {
+                filterInfo.filter++;
                 filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                 filterBase.removeAweme(cards, index--);
               }
             }
             if (import.meta.hot) {
               console.log(cards);
+            }
+            if (filterInfo.filter) {
+              log.info(
+                `xhr_hook_callback_3 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+              );
             }
             response.responseText = JSON.stringify(data);
           }
@@ -350,6 +380,10 @@ export const DouYinVideoFilter = {
           const data = utils.toJSON(response.responseText);
           const aweme_list = data["data"];
           if (Array.isArray(aweme_list)) {
+            const filterInfo = {
+              filter: 0,
+              count: aweme_list.length,
+            };
             for (let index = 0; index < aweme_list.length; index++) {
               const awemeItem = aweme_list[index];
               const awemeInfo: DouYinVideoAwemeInfoWithNetWork = awemeItem["aweme_info"] || {};
@@ -363,6 +397,7 @@ export const DouYinVideoFilter = {
                     const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem, "network");
                     checkFilterCallBack(filterResult);
                     if (filterResult.isFilter) {
+                      filterInfo.filter++;
                       filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, mixItem);
                       filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
                     }
@@ -377,6 +412,7 @@ export const DouYinVideoFilter = {
                 const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) {
+                  filterInfo.filter++;
                   filterBase.sendDislikeVideo(filterResult.matchedFilterRule!, awemeInfo);
                   filterBase.removeAweme(aweme_list, index--);
                 }
@@ -385,12 +421,19 @@ export const DouYinVideoFilter = {
             if (import.meta.hot) {
               console.log(aweme_list);
             }
+            if (filterInfo.filter) {
+              log.info(
+                `xhr_hook_callback_4 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+              );
+            }
             response.responseText = JSON.stringify(data);
           }
         };
       };
       /**
        * 类型5接口结果的hook
+       *
+       * 不会过滤
        *
        * 此回调不会对请求数据进行过滤，因为它的结果是单个aweme，而不是数组
        */
