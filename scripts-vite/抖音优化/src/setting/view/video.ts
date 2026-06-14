@@ -805,6 +805,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】合集", "dy-video-comment-blockCollection"),
                 UISwitch("【屏蔽】问AI", "dy-video-comment-blockAskAI"),
                 UISwitch("【屏蔽】相关推荐", "dy-video-comment-blockRelatedRecommend"),
+                UISwitch("【屏蔽】热点", "dy-video-comment-blockHotSpot"),
               ],
             },
             {

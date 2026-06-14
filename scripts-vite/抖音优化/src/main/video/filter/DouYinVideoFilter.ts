@@ -1,4 +1,4 @@
-import { $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
+import { $$, addStyle, documentCookieManager, DOMUtils, httpx, log, pops, utils } from "@/env";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { UIInput } from "@components/setting/components/ui-input";
@@ -189,6 +189,12 @@ export const DouYinVideoFilter = {
    * 执行过滤
    */
   execFilter() {
+    /**
+     * 是否是游客
+     *
+     * 即避免因登录账号导致信息茧房推送
+     */
+    const isVisitor = true;
     Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
       log.info(`执行视频过滤器`);
       const filterBase = new DouYinVideoFilterBase();
@@ -245,6 +251,20 @@ export const DouYinVideoFilter = {
           if (!filterRules.length) {
             return;
           }
+          // if (isVisitor && scopeName === "xhr-tab") {
+          //   const urlInst = new URL(CommonUtil.fixUrl(response.finalUrl));
+          //   const fullUrl = urlInst.toString();
+          //   const monkeyRequest = await httpx.get(fullUrl, {
+          //     fetch: false,
+          //     headers: {
+          //       referer: "https://www.douyin.com/?recommend=1",
+          //       "sec-fetch-site": "same-origin",
+          //       Cookie: "uid_tt=; uid_tt_ss=; ttwid=; sid_guard=; sid_tt=; sid_ucp_v1=; ssid_ucp_v1=;",
+          //     },
+          //   });
+          //   console.log(monkeyRequest);
+          //   response.responseText = monkeyRequest.data.responseText;
+          // }
           const data = utils.toJSON(response.responseText);
           const aweme_list = data.aweme_list;
           if (Array.isArray(aweme_list)) {

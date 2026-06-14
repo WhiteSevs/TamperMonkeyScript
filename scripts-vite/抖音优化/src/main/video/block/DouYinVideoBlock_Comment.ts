@@ -31,6 +31,9 @@ export const DouYinVideoBlock_Comment = {
     Panel.execMenuOnce("dy-video-comment-blockRelatedRecommend", () => {
       return this.blockRelatedRecommend();
     });
+    Panel.execMenuOnce("dy-video-comment-blockHotSpot", () => {
+      return this.blockHotSpot();
+    });
     Panel.execMoreMenuOnce(
       [
         [
@@ -128,6 +131,13 @@ export const DouYinVideoBlock_Comment = {
     return addBlockCSS(
       '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelrelated_card"][aria-selected="false"]'
     );
+  },
+  /**
+   * 【屏蔽】热点
+   */
+  blockHotSpot() {
+    log.info("【屏蔽】热点");
+    return addBlockCSS('#videoSideCard [role="tab"][aria-controls="semiTabPanelhot_card"][aria-selected="false"]');
   },
   /**
    * 【屏蔽】回复

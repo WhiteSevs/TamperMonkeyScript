@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.30
+// @version      2026.6.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -70,22 +70,25 @@
   _whitesev_pops = __toESM(_whitesev_pops);
   _whitesev_utils = __toESM(_whitesev_utils);
   qmsg = __toESM(qmsg);
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_download = typeof GM_download != "undefined" ? GM_download : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -4941,6 +4944,9 @@
       Panel.execMenuOnce("dy-video-comment-blockRelatedRecommend", () => {
         return this.blockRelatedRecommend();
       });
+      Panel.execMenuOnce("dy-video-comment-blockHotSpot", () => {
+        return this.blockHotSpot();
+      });
       Panel.execMoreMenuOnce(
         [
           [
@@ -5017,6 +5023,10 @@
       return addBlockCSS(
         '#videoSideCard [role="tablist"] [aria-controls="semiTabPanelrelated_card"][aria-selected="false"]'
       );
+    },
+    blockHotSpot() {
+      log.info("【屏蔽】热点");
+      return addBlockCSS('#videoSideCard [role="tab"][aria-controls="semiTabPanelhot_card"][aria-selected="false"]');
     },
     blockReply() {
       log.info("【屏蔽】回复");
@@ -14347,6 +14357,7 @@
                   UISwitch("【屏蔽】合集", "dy-video-comment-blockCollection"),
                   UISwitch("【屏蔽】问AI", "dy-video-comment-blockAskAI"),
                   UISwitch("【屏蔽】相关推荐", "dy-video-comment-blockRelatedRecommend"),
+                  UISwitch("【屏蔽】热点", "dy-video-comment-blockHotSpot"),
                 ],
               },
               {
@@ -14632,12 +14643,14 @@
                     "清晰度",
                     "live-chooseQuality",
                     "origin",
-                    Object.keys(VideoQualityMap).map((key) => {
-                      return {
-                        value: key,
-                        text: VideoQualityMap[key].label,
-                      };
-                    }),
+                    (() => {
+                      return Object.keys(VideoQualityMap).map((key) => {
+                        return {
+                          value: key,
+                          text: VideoQualityMap[key].label,
+                        };
+                      });
+                    })(),
                     void 0,
                     "自行选择清晰度"
                   ),
