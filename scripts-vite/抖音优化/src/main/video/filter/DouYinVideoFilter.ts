@@ -1,4 +1,4 @@
-import { $$, addStyle, documentCookieManager, DOMUtils, httpx, log, pops, utils } from "@/env";
+import { $$, addStyle, DOMUtils, log, pops, utils } from "@/env";
 import { DouYinNetWorkHook } from "@/hook/DouYinNetWorkHook";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { UIInput } from "@components/setting/components/ui-input";
@@ -189,12 +189,6 @@ export const DouYinVideoFilter = {
    * 执行过滤
    */
   execFilter() {
-    /**
-     * 是否是游客
-     *
-     * 即避免因登录账号导致信息茧房推送
-     */
-    const isVisitor = true;
     Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
       log.info(`执行视频过滤器`);
       const filterBase = new DouYinVideoFilterBase();
@@ -552,19 +546,19 @@ export const DouYinVideoFilter = {
       let transformAwemeInfo: DouYinVideoConversionInfo;
       let isFromNetWork = false;
       log.info("DOM上的的awemeInfo: ", awemeInfo);
-      const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
-      log.info("DOM上解析出的transformAwemeInfo: ", transformAwemeInfoWithPage);
+      const transformAwemeInfoWithDOM = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
+      log.info("DOM上解析出的transformAwemeInfo: ", transformAwemeInfoWithDOM);
       if (
-        typeof transformAwemeInfoWithPage.awemeId === "string" &&
-        DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
+        typeof transformAwemeInfoWithDOM.awemeId === "string" &&
+        DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithDOM.awemeId)
       ) {
         isFromNetWork = true;
-        const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
+        const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithDOM.awemeId);
         transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
         log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
         log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
       } else {
-        transformAwemeInfo = transformAwemeInfoWithPage;
+        transformAwemeInfo = transformAwemeInfoWithDOM;
       }
       /**
        * 命中的规则

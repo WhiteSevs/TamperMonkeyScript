@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.6.14
+// @version      2026.6.21
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5786,6 +5786,1576 @@
     });
     return result;
   };
+  var UIButton = function (
+    text,
+    description,
+    buttonText,
+    buttonIcon,
+    buttonIsRightIcon,
+    buttonIconIsLoading,
+    buttonType,
+    clickCallBack,
+    afterAddToUListCallBack,
+    disable
+  ) {
+    const result = {
+      text,
+      type: "button",
+      attributes: {},
+      props: {},
+      description,
+      buttonIcon,
+      buttonIsRightIcon,
+      buttonIconIsLoading,
+      buttonType,
+      buttonText,
+      callback(event) {
+        if (typeof clickCallBack === "function") clickCallBack(event);
+      },
+      afterAddToUListCallBack,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
+    });
+    return result;
+  };
+  var ShortCut = class {
+    KEY = "short-cut";
+    #data = {
+      otherShortCutOptions: [],
+      localOptions: [],
+      currentWaitEnterPressInstanceHandler: null,
+    };
+    #flag = { isWaitPress: false };
+    constructor(KEY) {
+      if (typeof KEY === "string") this.KEY = KEY;
+      this.initData();
+    }
+    initConfig(key, option) {
+      if (this.hasOption(key)) {
+      } else this.setOption(key, option);
+    }
+    initData(localOptions) {
+      this.#data.localOptions.length = 0;
+      this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
+    }
+    isWaitKeyboardPress() {
+      return this.#flag.isWaitPress;
+    }
+    getStorageKey() {
+      return this.KEY;
+    }
+    getLocalAllOptions() {
+      return _GM_getValue(this.KEY, []);
+    }
+    hasOption(key) {
+      return !!this.getLocalAllOptions().find((item) => item.key === key);
+    }
+    hasOptionValue(key) {
+      if (this.hasOption(key)) return !(this.getOption(key)?.value == null);
+      else return false;
+    }
+    getOption(key, defaultValue) {
+      return this.getLocalAllOptions().find((item) => item.key === key) ?? defaultValue;
+    }
+    setOption(key, value) {
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex == -1)
+        localOptions.push({
+          key,
+          value,
+        });
+      else Reflect.set(localOptions[findIndex], "value", value);
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+    }
+    emptyOption(key) {
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findIndex = localOptions.findIndex((item) => item.key === key);
+      if (findIndex !== -1) {
+        localOptions[findIndex].value = null;
+        flag = true;
+      }
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
+    }
+    deleteOption(key) {
+      let flag = false;
+      const localOptions = this.getLocalAllOptions();
+      const findValueIndex = localOptions.findIndex((item) => item.key === key);
+      if (findValueIndex !== -1) {
+        localOptions.splice(findValueIndex, 1);
+        flag = true;
+      }
+      this.initData(localOptions);
+      _GM_setValue(this.KEY, localOptions);
+      return flag;
+    }
+    translateKeyboardValueToButtonText(keyboardValue) {
+      let result = "";
+      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
+        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
+      });
+      if (keyboardValue.keyName === " ") result += utils.stringTitleToUpperCase("space");
+      else result += utils.stringTitleToUpperCase(keyboardValue.keyName);
+      return result;
+    }
+    getShowText(key, defaultShowText) {
+      if (this.hasOption(key)) {
+        const localOption = this.getOption(key);
+        if (localOption.value == null) return defaultShowText;
+        else return this.translateKeyboardValueToButtonText(localOption.value);
+      } else return defaultShowText;
+    }
+    initGlobalKeyboardListener(shortCutOption, config) {
+      if (!this.#data.localOptions.length) {
+        log.warn("快捷键配置为空");
+        return;
+      }
+      const setListenKeyboard = ($target, option) => {
+        domUtils.onKeyboard(
+          $target,
+          "keydown",
+          async (keyName, keyValue, ohterCodeList, event) => {
+            if (this.#flag.isWaitPress) return;
+            if (config?.isPrevent) domUtils.preventEvent(event);
+            if (config?.onlyStopPropagation) domUtils.preventEvent(event, true);
+            const tempOptionStr = JSON.stringify({
+              keyName,
+              keyValue,
+              ohterCodeList,
+            });
+            const findShortcuts = this.#data.localOptions.filter((item) => {
+              const __option = item.value;
+              if (JSON.stringify(__option) === tempOptionStr) return true;
+              return false;
+            });
+            if (findShortcuts.length)
+              for (const findShortcut of findShortcuts) {
+                log.info("调用快捷键", findShortcut);
+                if (typeof config?.beforeCallBack === "function") {
+                  const flag = await config.beforeCallBack();
+                  if (typeof flag === "boolean" && !flag) return;
+                }
+                const targetOptions = option.filter((item) => {
+                  return item.menuKey === findShortcut.key;
+                });
+                if (targetOptions.length)
+                  for (const option of targetOptions) await option.option.callback(findShortcut.key);
+              }
+          },
+          { capture: Boolean(config?.capture) }
+        );
+      };
+      const WindowShortCutOptions = [];
+      const ElementShortCutOptions = [];
+      if (!Array.isArray(shortCutOption)) shortCutOption = [shortCutOption];
+      shortCutOption.forEach((shortCutOptionItem) => {
+        Object.keys(shortCutOptionItem).forEach((menuKey) => {
+          const option = shortCutOptionItem[menuKey];
+          if (option.target == null || (typeof option.target === "string" && option.target === ""))
+            option.target = "window";
+          if (option.target === "window")
+            WindowShortCutOptions.push({
+              menuKey,
+              option,
+            });
+          else
+            ElementShortCutOptions.push({
+              menuKey,
+              option,
+            });
+        });
+      });
+      setListenKeyboard(window, WindowShortCutOptions);
+      domUtils.onReady(() => {
+        ElementShortCutOptions.forEach(async (ElementShortCutOption) => {
+          const option = ElementShortCutOption.option;
+          let target = null;
+          if (typeof option.target === "string") target = await domUtils.waitNode(option.target, 1e4);
+          else if (typeof option.target === "function") target = await option.target();
+          else target = option.target;
+          if (target) setListenKeyboard(target, [ElementShortCutOption]);
+        });
+      });
+    }
+    async enterShortcutKeys(key) {
+      this.#flag.isWaitPress = true;
+      return new Promise((resolve) => {
+        const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
+          const currentOption = {
+            keyName,
+            keyValue,
+            ohterCodeList,
+          };
+          let result = {};
+          try {
+            const shortcutJSONString = JSON.stringify(currentOption);
+            let allOptions = this.getLocalAllOptions();
+            if (Array.isArray(this.#data.otherShortCutOptions))
+              allOptions = allOptions.concat(this.#data.otherShortCutOptions);
+            const localConflictOptions = allOptions.filter((localValue) => {
+              if (localValue.key === key) return false;
+              const localShortCutJSONString = JSON.stringify(localValue.value);
+              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) return true;
+              return false;
+            });
+            if (localConflictOptions.length) {
+              result = {
+                status: false,
+                key,
+                option: currentOption,
+                localConflictOptions,
+              };
+              return result;
+            }
+            this.setOption(key, currentOption);
+            result = {
+              status: true,
+              key,
+              option: currentOption,
+              localConflictOptions: [],
+            };
+          } catch (error) {
+            log.error(error);
+            result = {
+              status: false,
+              key,
+              option: currentOption,
+              localConflictOptions: [],
+            };
+          } finally {
+            if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function")
+              this.#data.currentWaitEnterPressInstanceHandler();
+            this.#data.currentWaitEnterPressInstanceHandler = null;
+            resolve(result);
+          }
+        });
+        this.#data.currentWaitEnterPressInstanceHandler = null;
+        this.#data.currentWaitEnterPressInstanceHandler = () => {
+          this.#flag.isWaitPress = false;
+          keyboardListener.off();
+          this.#data.currentWaitEnterPressInstanceHandler = null;
+        };
+      });
+    }
+    cancelEnterShortcutKeys() {
+      if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function")
+        this.#data.currentWaitEnterPressInstanceHandler();
+    }
+  };
+  var UIButtonShortCut = function (
+    text,
+    description,
+    key,
+    defaultValue,
+    defaultButtonText,
+    buttonType = "default",
+    shortCut,
+    afterEnterShortCutCallBack
+  ) {
+    const __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
+    if (typeof defaultValue === "object" && defaultValue != null) shortCut.initConfig(key, defaultValue);
+    const getButtonText = () => {
+      return shortCut.getShowText(key, __defaultButtonText);
+    };
+    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
+      if (event instanceof PointerEvent && event.x === 0 && event.y === 0) return;
+      const $btn = event.target.closest(".pops-panel-button")?.querySelector("span");
+      if (shortCut.isWaitKeyboardPress()) {
+        qmsg.default.warning("请先执行当前的录入操作");
+        return;
+      }
+      if (shortCut.hasOptionValue(key)) {
+        shortCut.emptyOption(key);
+        qmsg.default.success("清空快捷键");
+      } else {
+        const $loading = qmsg.default.loading("请按下快捷键...", {
+          showClose: true,
+          onClose() {
+            shortCut.cancelEnterShortcutKeys();
+          },
+        });
+        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
+        $loading.close();
+        if (status) {
+          if (typeof afterEnterShortCutCallBack === "function") {
+            const flag = await afterEnterShortCutCallBack(option, shortCut);
+            if (typeof flag === "boolean" && !flag) {
+              shortCut.deleteOption(key);
+              return;
+            }
+          }
+          log.success("录入快捷键", option);
+          qmsg.default.success("录入成功");
+        } else
+          qmsg.default.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
+      }
+      domUtils.html($btn, getButtonText());
+    });
+    result.attributes = {};
+    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
+      return false;
+    });
+    return result;
+  };
+  var UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
+    const result = {
+      type: "own",
+      attributes: attr || {},
+      props: props || {},
+      createLIElement,
+      afterAddToUListCallBack,
+    };
+    if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0)
+      Reflect.set(result.attributes, ATTRIBUTE_INIT_MORE_VALUE, initConfig);
+    else Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
+    if (typeof searchConfig === "object" && searchConfig !== null)
+      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
+    return result;
+  };
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+    const result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) return;
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
+        if (typeof selectCallBack === "function") {
+          if (selectCallBack(isSelectedInfo)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
+      },
+      data,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
+  var UISelectMultiple = function (
+    text,
+    key,
+    defaultValue,
+    data,
+    selectCallBack,
+    description,
+    placeholder = "请至少选择一个选项",
+    selectConfirmDialogDetails,
+    valueChangeCallBack
+  ) {
+    let selectData = [];
+    if (typeof data === "function") selectData = data();
+    else selectData = data;
+    const result = {
+      text,
+      type: "select-multiple",
+      description,
+      placeholder,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      selectConfirmDialogConfig: selectConfirmDialogDetails,
+      callback(selectInfo) {
+        const storageApiValue = this.props[PROPS_STORAGE_API];
+        const value = [];
+        selectInfo.forEach((selectedInfo) => {
+          value.push(selectedInfo.value);
+        });
+        log.info(`多选-选择：`, value);
+        if (typeof selectCallBack === "function") {
+          if (selectCallBack(selectInfo)) return;
+        }
+        storageApiValue.set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(selectInfo);
+      },
+      data: selectData,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select-multiple", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
+  var UISlider = function (
+    text,
+    key,
+    defaultValue,
+    min,
+    max,
+    changeCallback,
+    getToolTipContent,
+    description,
+    step,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "slider",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      getToolTipContent(value) {
+        if (typeof getToolTipContent === "function") return getToolTipContent(value);
+        else return `${value}`;
+      },
+      callback(event, value) {
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
+      },
+      min,
+      max,
+      step,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("slider", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
+  var UISwitch = function (
+    text,
+    key,
+    defaultValue = false,
+    clickCallBack,
+    description,
+    afterAddToUListCallBack,
+    disabled,
+    valueChangeCallBack,
+    shortCutOption
+  ) {
+    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
+      const shortCutKey = shortCutOption.key ?? key;
+      shortCutOption.handler.add({
+        key: shortCutKey,
+        name: text,
+      });
+      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
+    }
+    const result = {
+      text,
+      type: "switch",
+      description,
+      disabled,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, __value) {
+        const value = Boolean(__value);
+        log.success(`${value ? "开启" : "关闭"} ${text}`);
+        if (typeof clickCallBack === "function") {
+          if (clickCallBack(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
+      },
+      afterAddToUListCallBack: (...args) => {
+        afterAddToUListCallBack?.(...args);
+        if (shortCutOption) {
+          const shortCut = shortCutOption.handler.shortCut;
+          const shortCutKey = shortCutOption.key ?? key;
+          const [_, container] = args;
+          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
+          if (!$leftMainText) return;
+          const renderKeyboard = () => {
+            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
+            const $wrapper = domUtils.createElement(
+              "div",
+              {
+                className: "pops-switch-shortcut-wrapper",
+                innerHTML: `
+              <i class="pops-bottom-icon" is-loading="false">
+                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
+                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
+                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
+                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
+                </svg>
+              </i>
+            `,
+              },
+              { style: "margin-right: 5px;display: inline-flex;" }
+            );
+            const $icon = $wrapper.querySelector(".pops-bottom-icon");
+            domUtils.on(
+              $icon,
+              "click",
+              function (evt) {
+                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
+                $tooltip.toolTip.offEvent();
+                $tooltip.toolTip.close();
+                $tooltip.toolTip.destory();
+                $wrapper.remove();
+              },
+              { once: true }
+            );
+            const $tooltip = __pops__.tooltip({
+              $target: $icon,
+              content: () => {
+                return tooltipShowText;
+              },
+              className: "github-tooltip",
+              isFixed: true,
+              only: true,
+            });
+            domUtils.empty($leftMainText);
+            domUtils.append($leftMainText, $wrapper, text);
+          };
+          __pops__.rightClickMenu({
+            $target: $leftMainText,
+            only: true,
+            data: [
+              {
+                text: () => {
+                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
+                  else return "添加快捷键";
+                },
+                icon: __pops__.config.iconSVG.keyboard,
+                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
+                  if (shortCut.isWaitKeyboardPress()) {
+                    qmsg.default.warning("请先执行当前的录入操作");
+                    return;
+                  }
+                  const $loading = qmsg.default.loading("请按下快捷键...", {
+                    showClose: true,
+                    onClose() {
+                      shortCut.cancelEnterShortcutKeys();
+                    },
+                  });
+                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
+                    $loading.close();
+                    if (status) {
+                      log.success("录入快捷键", option);
+                      qmsg.default.success("录入成功");
+                      renderKeyboard();
+                    } else
+                      qmsg.default.error(
+                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
+                      );
+                  });
+                },
+              },
+            ],
+          });
+          if (!shortCut.hasOption(shortCutKey)) return;
+          renderKeyboard();
+        }
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
+  var UITextArea = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    disabled,
+    valueChangeCallBack
+  ) {
+    const result = {
+      text,
+      type: "textarea",
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      disabled,
+      getValue() {
+        const value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
+        if (Array.isArray(value)) return value.join("\n");
+        return value;
+      },
+      callback(event, value) {
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("switch", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
+  var PanelComponents = {
+    $data: {
+      __storeApiFn: null,
+      get storeApiValue() {
+        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
+        return this.__storeApiFn;
+      },
+    },
+    getStorageApi(type) {
+      if (!this.hasStorageApi(type)) return;
+      return this.$data.storeApiValue.get(type);
+    },
+    hasStorageApi(type) {
+      return this.$data.storeApiValue.has(type);
+    },
+    setStorageApi(type, storageApiValue) {
+      this.$data.storeApiValue.set(type, storageApiValue);
+    },
+    initComponentsStorageApi(type, config, storageApiValue) {
+      let propsStorageApi;
+      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
+      else propsStorageApi = storageApiValue;
+      this.setComponentsStorageApiProperty(config, propsStorageApi);
+    },
+    setComponentsStorageApiProperty(config, storageApiValue) {
+      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
+    },
+  };
+  var UIInput = function (
+    text,
+    key,
+    defaultValue,
+    description,
+    changeCallback,
+    placeholder = "",
+    inputType = "text",
+    afterAddToUListCallBack,
+    valueChangeCallback
+  ) {
+    const result = {
+      text,
+      type: "input",
+      inputType,
+      attributes: {},
+      props: {},
+      description,
+      placeholder,
+      afterAddToUListCallBack,
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(event, value) {
+        const isValid = event.target.validity.valid;
+        if (typeof changeCallback === "function") {
+          if (changeCallback(event, value, isValid)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value, isValid);
+      },
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("input", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
+  var RuleStorage = class {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    getAllRule() {
+      return _GM_getValue(this.option.STORAGE_API_KEY, []);
+    }
+    setAllRule(rules) {
+      _GM_setValue(this.option.STORAGE_API_KEY, rules);
+    }
+    clearAllRule() {
+      this.setAllRule([]);
+    }
+    getRule(uuid) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === uuid);
+      if (findIndex !== -1) return allRules[findIndex];
+    }
+    setRule(rule) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let updateFlag = false;
+      if (findIndex !== -1) {
+        allRules[findIndex] = rule;
+        this.setAllRule(allRules);
+        updateFlag = true;
+      }
+      return updateFlag;
+    }
+    addRule(rule) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      let addFlag = false;
+      if (findIndex !== -1) {
+      } else {
+        allRules.push(rule);
+        this.setAllRule(allRules);
+        addFlag = true;
+      }
+      return addFlag;
+    }
+    updateRule(rule) {
+      const allRules = this.getAllRule();
+      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
+      if (findIndex !== -1) allRules[findIndex] = rule;
+      else allRules.push(rule);
+      this.setAllRule(allRules);
+    }
+    deleteRule(rule) {
+      const allRules = this.getAllRule();
+      const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
+      const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
+      if (findIndex !== -1) {
+        allRules.splice(findIndex, 1);
+        this.setAllRule(allRules);
+        return true;
+      } else return false;
+    }
+    importRules(importEndCallBack) {
+      const $alert = __pops__.alert({
+        title: {
+          text: "请选择导入方式",
+          position: "center",
+        },
+        content: {
+          text: `
+                    <div class="btn-control" data-mode="local">本地导入</div>
+                    <div class="btn-control" data-mode="network">网络导入</div>
+                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
+                `,
+          html: true,
+        },
+        btn: {
+          ok: { enable: false },
+          close: {
+            enable: true,
+            callback(details) {
+              details.close();
+            },
+          },
+        },
+        mask: { enable: true },
+        drag: true,
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: `
+                .btn-control{
+                    display: inline-block;
+                    margin: 10px;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    cursor: pointer;
+                }
+            `,
+      });
+      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
+      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
+      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
+      const updateRuleToStorage = async (data) => {
+        let allData = this.getAllRule();
+        const addNewData = [];
+        const repeatData = [];
+        let isRepeat = false;
+        for (let index = 0; index < data.length; index++) {
+          const dataItem = data[index];
+          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
+          if (findIndex !== -1)
+            repeatData.push({
+              index: findIndex,
+              data: dataItem,
+            });
+          else addNewData.push(dataItem);
+        }
+        if (repeatData.length) {
+          if (
+            await new Promise((resolve) => {
+              __pops__.alert({
+                title: {
+                  text: "覆盖规则",
+                  position: "center",
+                },
+                content: {
+                  text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
+                  html: true,
+                },
+                btn: {
+                  close: {
+                    callback(details) {
+                      details.close();
+                      resolve(false);
+                    },
+                  },
+                  ok: {
+                    text: "覆盖",
+                    callback(details) {
+                      details.close();
+                      resolve(true);
+                    },
+                  },
+                },
+                width: PanelUISize.info.width,
+                height: PanelUISize.info.height,
+                mask: { enable: true },
+                drag: true,
+              });
+            })
+          ) {
+            for (const repeatDataItem of repeatData) allData[repeatDataItem.index] = repeatDataItem.data;
+            isRepeat = true;
+          }
+        }
+        if (addNewData.length) allData = allData.concat(addNewData);
+        this.setAllRule(allData);
+        const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
+        qmsg.default.success(message);
+        importEndCallBack?.();
+      };
+      const importFile = (subscribeText) => {
+        return new Promise(async (resolve) => {
+          const data = utils.toJSON(subscribeText);
+          if (!Array.isArray(data)) {
+            log.error(data);
+            qmsg.default.error("导入失败，格式不符合（不是数组）", { consoleLogContent: true });
+            resolve(false);
+            return;
+          }
+          if (!data.length) {
+            qmsg.default.error("导入失败，解析出的数据为空", { consoleLogContent: true });
+            resolve(false);
+            return;
+          }
+          await updateRuleToStorage(data);
+          resolve(true);
+        });
+      };
+      domUtils.on($local, "click", (event) => {
+        domUtils.preventEvent(event);
+        $alert.close();
+        const $input = domUtils.createElement("input", {
+          type: "file",
+          accept: ".json",
+        });
+        domUtils.on($input, ["propertychange", "input"], () => {
+          if (!$input.files?.length) return;
+          const uploadFile = $input.files[0];
+          const fileReader = new FileReader();
+          fileReader.onload = () => {
+            importFile(fileReader.result);
+          };
+          fileReader.readAsText(uploadFile, "UTF-8");
+        });
+        $input.click();
+      });
+      domUtils.on($network, "click", (event) => {
+        domUtils.preventEvent(event);
+        $alert.close();
+        const $prompt = __pops__.prompt({
+          title: {
+            text: "网络导入",
+            position: "center",
+          },
+          content: {
+            text: "",
+            placeholder: "请填写URL",
+            focus: true,
+          },
+          btn: {
+            close: {
+              enable: true,
+              callback(details) {
+                details.close();
+              },
+            },
+            ok: {
+              text: "导入",
+              callback: async (details) => {
+                const url = details.text;
+                if (utils.isNull(url)) {
+                  qmsg.default.error("请填入完整的url");
+                  return;
+                }
+                const $loading = qmsg.default.loading("正在获取配置...");
+                const response = await httpx.get(url, { allowInterceptConfig: false });
+                $loading.close();
+                if (!response.status) {
+                  log.error(response);
+                  qmsg.default.error("获取配置失败", { consoleLogContent: true });
+                  return;
+                }
+                if (!(await importFile(response.data.responseText))) return;
+                details.close();
+              },
+            },
+            cancel: { enable: false },
+          },
+          mask: { enable: true },
+          drag: true,
+          width: PanelUISize.info.width,
+          height: "auto",
+        });
+        const $promptInput = $prompt.$shadowRoot.querySelector("input");
+        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
+        domUtils.on($promptInput, ["input", "propertychange"], () => {
+          if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
+          else domUtils.removeAttr($promptOk, "disabled");
+        });
+        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
+          if (keyName === "Enter" && otherCodeList.length === 0) {
+            if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
+          }
+        });
+        domUtils.emit($promptInput, "input");
+      });
+      domUtils.on($clipboard, "click", async (event) => {
+        domUtils.preventEvent(event);
+        $alert.close();
+        const clipboardInfo = await utils.getClipboardInfo();
+        if (clipboardInfo.error != null) {
+          qmsg.default.error(clipboardInfo.error.toString());
+          return;
+        }
+        if (clipboardInfo.content.trim() === "") {
+          qmsg.default.warning("获取到的剪贴板内容为空");
+          return;
+        }
+        if (!(await importFile(clipboardInfo.content))) return;
+      });
+    }
+    exportRules(fileName = "rule.json") {
+      const allRules = this.getAllRule();
+      const blob = new Blob([JSON.stringify(allRules, null, 4)]);
+      const blobUrl = globalThis.URL.createObjectURL(blob);
+      const $a = document.createElement("a");
+      $a.href = blobUrl;
+      $a.download = fileName;
+      $a.click();
+      setTimeout(() => {
+        globalThis.URL.revokeObjectURL(blobUrl);
+      }, 1500);
+    }
+  };
+  var RuleEditView = class {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    async showView() {
+      const $dialog = __pops__.confirm({
+        title: {
+          text: this.option.title,
+          position: "center",
+        },
+        content: {
+          text: `
+        <form class="rule-form-container" onsubmit="return false">
+            <ul class="rule-form-ulist"></ul>
+            <input type="submit" style="display: none;" />
+        </form>
+        `,
+          html: true,
+        },
+        btn: utils.assign(
+          {
+            ok: {
+              callback: async () => {
+                await submitSaveOption();
+              },
+            },
+          },
+          this.option.btn || {},
+          true
+        ),
+        drag: true,
+        mask: { enable: true },
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+      
+      .rule-form-container {
+          
+      }
+      .rule-form-container li{
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 5px 20px;
+        gap: 10px;
+      }
+      .rule-form-ulist-dynamic{
+        --button-margin-top: 0px;
+        --button-margin-right: 0px;
+        --button-margin-bottom: 0px;
+        --button-margin-left: 0px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px 0px 5px 20px;
+      }
+      .rule-form-ulist-dynamic__inner{
+        width: 100%;
+      }
+      .rule-form-ulist-dynamic__inner-container{
+        display: flex;
+        align-items: center;
+      }
+      .dynamic-forms{
+        width: 100%;
+      }
+      .pops-panel-item-left-main-text{
+        max-width: 150px;
+      }
+      .pops-panel-item-right-text{
+        padding-left: 30px;
+      }
+      .pops-panel-item-right-text,
+      .pops-panel-item-right-main-text{
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+      .pops-panel-item-left-desc-text{
+        line-height: normal;
+        margin-top: 6px;
+        font-size: 0.8em;
+        color: rgb(108, 108, 108);
+      }
+
+      ${this.option?.style ?? ""}
+      `,
+        width:
+          typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
+        height:
+          typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
+      });
+      const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
+      $dialog.$shadowRoot.querySelector("input[type=submit]");
+      const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
+      const view = await this.option.getView(await this.option.data());
+      domUtils.append($ulist, view);
+      const submitSaveOption = async () => {
+        if (!(await this.option.onsubmit($form, await this.option.data())).success) return;
+        $dialog.close();
+        if (typeof this.option.dialogCloseCallBack === "function") await this.option.dialogCloseCallBack(true);
+      };
+      return $dialog;
+    }
+  };
+  var RuleView = class {
+    option;
+    constructor(option) {
+      this.option = option;
+    }
+    async showView(filterCallBack) {
+      const $popsConfirm = __pops__.confirm({
+        title: {
+          text: this.option.title,
+          position: "center",
+        },
+        content: {
+          text: `
+        <div class="rule-view-search-container">
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-status">
+            </select>
+          </div>
+          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
+            <select class="select-rule-value">
+            </select>
+          </div>
+          <div class="pops-panel-input pops-user-select-none">
+            <div class="pops-panel-input_inner">
+                <input type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+        <div class="rule-view-container"></div>
+        `,
+          html: true,
+        },
+        style: `
+      ${__pops__.config.cssText.panelCSS}
+
+      .rule-view-search-container{
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+      }
+      .rule-view-search-container .pops-panel-select{
+        min-width: fit-content;
+        max-width: 60px;
+      }
+      .rule-view-search-container .pops-panel-select select{
+        width: 100%;
+        min-width: auto;
+      }
+      .rule-view-search-container .pops-panel-input{
+        width: 100%;
+      }
+
+
+      .rule-item{
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          font-size: 16px;
+          padding: 4px 8px;
+          gap: 8px;
+      }
+      .rule-name{
+          flex: 1;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+      }
+      .rule-controls{
+          display: flex;
+          align-items: center;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          gap: 8px;
+          padding: 0px;
+      }
+      .rule-controls-enable{
+          
+      }
+      .rule-controls-edit{
+          
+      }
+      .rule-controls-delete{
+          
+      }
+      .rule-controls-edit,
+      .rule-controls-delete{
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+      }
+      `,
+        btn: {
+          merge: true,
+          reverse: false,
+          position: "space-between",
+          ok: {
+            enable: this.option?.bottomControls?.add?.enable || true,
+            type: "primary",
+            text: "添加",
+            callback: async () => {
+              this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
+            },
+          },
+          close: {
+            enable: true,
+            callback() {
+              $popsConfirm.close();
+            },
+          },
+          cancel: { enable: false },
+          other: {
+            enable: this.option?.bottomControls?.clear?.enable || true,
+            type: "xiaomi-primary",
+            text: `清空所有(${(await this.option.data()).length})`,
+            callback: () => {
+              const $askDialog = __pops__.confirm({
+                title: {
+                  text: "提示",
+                  position: "center",
+                },
+                content: {
+                  text: "确定清空所有的数据？",
+                  html: false,
+                },
+                btn: {
+                  ok: {
+                    enable: true,
+                    callback: async () => {
+                      log.success("清空所有");
+                      if (typeof this.option?.bottomControls?.clear?.callback === "function")
+                        this.option.bottomControls.clear.callback();
+                      if ((await this.option.data()).length) {
+                        qmsg.default.error("清理失败");
+                        return;
+                      } else qmsg.default.success("清理成功");
+                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
+                      this.clearContent($popsConfirm.$shadowRoot);
+                      $askDialog.close();
+                    },
+                  },
+                  cancel: {
+                    text: "取消",
+                    enable: true,
+                  },
+                },
+                mask: { enable: true },
+                width: "300px",
+                height: "200px",
+              });
+            },
+          },
+        },
+        mask: { enable: true },
+        width: window.innerWidth > 500 ? "500px" : "88vw",
+        height: window.innerHeight > 500 ? "500px" : "80vh",
+      });
+      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
+        $popsConfirm.$shadowRoot
+      );
+      if (this.option.bottomControls?.filter?.enable) {
+        let externalSelectInfo = null;
+        let ruleValueSelectInfo = null;
+        if (Array.isArray(this.option.bottomControls?.filter?.option))
+          domUtils.append(
+            $externalSelect,
+            this.option.bottomControls?.filter?.option.map((option) => {
+              const $option = domUtils.createElement("option", { innerText: option.name });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
+        if (Array.isArray(this.option.bottomControls?.filter?.inputOption))
+          domUtils.append(
+            $ruleValueSelect,
+            this.option.bottomControls?.filter?.inputOption.map((option) => {
+              const $option = domUtils.createElement("option", { innerText: option.name });
+              Reflect.set($option, "data-value", option);
+              return $option;
+            })
+          );
+        domUtils.on($externalSelect, "change", async () => {
+          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
+          externalSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.on($ruleValueSelect, "change", async () => {
+          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          const selectInfo = Reflect.get($isSelectedElement, "data-value");
+          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
+          ruleValueSelectInfo = selectInfo;
+          await execFilter(false);
+        });
+        domUtils.onInput(
+          $searchInput,
+          utils.debounce(async () => {
+            await execFilter(false);
+          })
+        );
+        const updateSelectData = () => {
+          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
+          externalSelectInfo = Reflect.get($externalSelected, "data-value");
+          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
+          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
+        };
+        const execFilter = async (isUpdateSelectData) => {
+          this.clearContent($popsConfirm.$shadowRoot);
+          if (isUpdateSelectData) updateSelectData();
+          const allData = await this.option.data();
+          const filteredData = [];
+          const searchText = domUtils.val($searchInput);
+          for (let index = 0; index < allData.length; index++) {
+            const item = allData[index];
+            if (typeof filterCallBack === "function") {
+              const flag = await filterCallBack(item);
+              if (typeof flag === "boolean" && !flag) continue;
+            }
+            if (externalSelectInfo) {
+              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
+              if (typeof externalFilterResult === "boolean" && !externalFilterResult) continue;
+            }
+            if (ruleValueSelectInfo) {
+              let flag = true;
+              if (searchText === "") flag = true;
+              else flag = false;
+              if (!flag) flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
+              if (!flag) continue;
+            }
+            filteredData.push(item);
+          }
+          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
+        };
+        if (typeof filterCallBack === "object" && filterCallBack != null) {
+          let externalIndex;
+          if (typeof filterCallBack.external === "number") externalIndex = filterCallBack.external;
+          else
+            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
+              return Reflect.get(option, "data-value").value === filterCallBack.external;
+            });
+          if (externalIndex !== -1) $externalSelect.selectedIndex = externalIndex;
+          let ruleIndex;
+          if (typeof filterCallBack.rule === "number") ruleIndex = filterCallBack.rule;
+          else
+            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
+              return Reflect.get(option, "data-value").value === filterCallBack.rule;
+            });
+          if (ruleIndex !== -1) $ruleValueSelect.selectedIndex = ruleIndex;
+        }
+        await execFilter(true);
+      } else domUtils.hide($searchContainer, false);
+    }
+    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
+      let dialogCloseCallBack = async (isSubmit) => {
+        if (isSubmit) {
+          if (typeof submitCallBack === "function") submitCallBack(await this.option.getData(editData));
+        } else {
+          if (!isEdit) await this.option.deleteData(editData);
+          if (typeof updateDataCallBack === "function") updateDataCallBack(await this.option.getData(editData));
+        }
+      };
+      new RuleEditView({
+        title: isEdit ? "编辑" : "添加",
+        data: () => {
+          return editData;
+        },
+        dialogCloseCallBack,
+        getView: async (data) => {
+          return await this.option.itemControls.edit.getView(data, isEdit);
+        },
+        btn: {
+          ok: {
+            enable: true,
+            text: isEdit ? "修改" : "添加",
+          },
+          cancel: {
+            callback: async (detail) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            },
+          },
+          close: {
+            callback: async (detail) => {
+              detail.close();
+              await dialogCloseCallBack(false);
+            },
+          },
+        },
+        onsubmit: async ($form, data) => {
+          let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
+          if (result.success) {
+            if (isEdit) {
+              qmsg.default.success("修改成功");
+              if ($parentShadowRoot)
+                await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
+            } else if ($parentShadowRoot) await this.appendRuleItemElement($parentShadowRoot, result.data);
+          } else if (isEdit) log.error("修改失败");
+          return result;
+        },
+        style: this.option.itemControls.edit.style,
+        width: this.option.itemControls.edit.width,
+        height: this.option.itemControls.edit.height,
+      }).showView();
+    }
+    parseViewElement($shadowRoot) {
+      const $container = $shadowRoot.querySelector(".rule-view-container");
+      const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
+      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
+      return {
+        $container,
+        $deleteBtn,
+        $searchContainer,
+        $externalSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-status"),
+        $ruleValueSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-value"),
+        $searchInput: $searchContainer.querySelector(".pops-panel-input input"),
+      };
+    }
+    parseRuleItemElement($ruleElement) {
+      const $enable = $ruleElement.querySelector(".rule-controls-enable");
+      return {
+        $enable,
+        $enableSwitch: $enable.querySelector(".pops-panel-switch"),
+        $enableSwitchInput: $enable.querySelector(".pops-panel-switch__input"),
+        $enableSwitchCore: $enable.querySelector(".pops-panel-switch__core"),
+        $edit: $ruleElement.querySelector(".rule-controls-edit"),
+        $delete: $ruleElement.querySelector(".rule-controls-delete"),
+        data: Reflect.get($ruleElement, "data-rule"),
+      };
+    }
+    async createRuleItemElement(data, $shadowRoot) {
+      const name = await this.option.getDataItemName(data);
+      const $ruleItem = domUtils.createElement("div", {
+        className: "rule-item",
+        innerHTML: `
+			<div class="rule-name">${name}</div>
+			<div class="rule-controls">
+				<div class="rule-controls-enable">
+					<div class="pops-panel-switch">
+						<input class="pops-panel-switch__input" type="checkbox">
+						<span class="pops-panel-switch__core">
+							<div class="pops-panel-switch__action">
+							</div>
+						</span>
+					</div>
+				</div>
+				<div class="rule-controls-edit">
+					${__pops__.config.iconSVG.edit}
+				</div>
+				<div class="rule-controls-delete">
+					${__pops__.config.iconSVG.delete}
+				</div>
+			</div>
+			`,
+      });
+      Reflect.set($ruleItem, "data-rule", data);
+      const switchCheckedClassName = "pops-panel-switch-is-checked";
+      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
+        this.parseRuleItemElement($ruleItem);
+      if (this.option.itemControls.enable.enable) {
+        domUtils.on($enableSwitchCore, "click", async () => {
+          let isChecked = false;
+          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
+            $enableSwitch.classList.remove(switchCheckedClassName);
+            isChecked = false;
+          } else {
+            $enableSwitch.classList.add(switchCheckedClassName);
+            isChecked = true;
+          }
+          $enableSwitchInput.checked = isChecked;
+          await this.option.itemControls.enable.callback(data, isChecked);
+        });
+        if (await this.option.itemControls.enable.getEnable(data)) $enableSwitch.classList.add(switchCheckedClassName);
+      } else $enable.remove();
+      if (this.option.itemControls.edit.enable)
+        domUtils.on($edit, "click", (event) => {
+          domUtils.preventEvent(event);
+          this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
+            data = null;
+            data = newData;
+          });
+        });
+      else $edit.remove();
+      if (this.option.itemControls.delete.enable)
+        domUtils.on($delete, "click", (event) => {
+          domUtils.preventEvent(event);
+          const $askDialog = __pops__.confirm({
+            title: {
+              text: "提示",
+              position: "center",
+            },
+            content: {
+              text: "确定删除该条数据？",
+              html: false,
+            },
+            btn: {
+              ok: {
+                enable: true,
+                callback: async () => {
+                  log.success("删除数据");
+                  if (await this.option.itemControls.delete.deleteCallBack(data)) {
+                    qmsg.default.success("成功删除该数据");
+                    $ruleItem.remove();
+                    await this.updateDeleteAllBtnText($shadowRoot);
+                    $askDialog.close();
+                  } else qmsg.default.error("删除该数据失败");
+                },
+              },
+              cancel: {
+                text: "取消",
+                enable: true,
+              },
+            },
+            mask: { enable: true },
+            width: "300px",
+            height: "200px",
+          });
+        });
+      else $delete.remove();
+      return $ruleItem;
+    }
+    async appendRuleItemElement($shadowRoot, data) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      const $ruleItem = [];
+      const iteratorData = Array.isArray(data) ? data : [data];
+      for (let index = 0; index < iteratorData.length; index++) {
+        const item = iteratorData[index];
+        const $item = await this.createRuleItemElement(item, $shadowRoot);
+        $ruleItem.push($item);
+      }
+      domUtils.append($container, $ruleItem);
+      await this.updateDeleteAllBtnText($shadowRoot);
+      return $ruleItem;
+    }
+    async updateRuleContaienrElement($shadowRoot) {
+      this.clearContent($shadowRoot);
+      const data = await this.option.data();
+      await this.appendRuleItemElement($shadowRoot, data);
+      await this.updateDeleteAllBtnText($shadowRoot);
+    }
+    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
+      const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
+      $oldRuleItem.after($newRuleItem);
+      $oldRuleItem.remove();
+    }
+    clearContent($shadowRoot) {
+      const { $container } = this.parseViewElement($shadowRoot);
+      domUtils.html($container, "");
+    }
+    setDeleteBtnText($shadowRoot, text, isHTML = false) {
+      const { $deleteBtn } = this.parseViewElement($shadowRoot);
+      if (isHTML) domUtils.html($deleteBtn, text);
+      else domUtils.text($deleteBtn, text);
+    }
+    async updateDeleteAllBtnText($shadowRoot) {
+      let data = await this.option.data();
+      this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
+    }
+  };
   var DouYinVideoFilterBase = class {
     $data = {
       dislike_request_queue: [],
@@ -6512,6 +8082,948 @@
       }
     }
   };
+  var DouYinVideoFilter = {
+    $key: { ENABLE_KEY: "shieldVideo-exec-network-enable" },
+    $data: {
+      enable: void 0,
+      onlyShowFilteredVideo: void 0,
+      isFilterAwemeInfoListWithOnlyShowFilteredVideo: new _whitesev_utils.default.Dictionary(),
+      networkAwemeInfoMap: new _whitesev_utils.default.Dictionary(),
+      addParseButton: void 0,
+      __videoFilterRuleStorage: null,
+      get videoFilterRuleStorage() {
+        if (this.__videoFilterRuleStorage == null)
+          this.__videoFilterRuleStorage = new RuleStorage({ STORAGE_API_KEY: "dy-video-filter-rule" });
+        return this.__videoFilterRuleStorage;
+      },
+      videoFilterRules: [],
+    },
+    init() {
+      if (DouYinRouter.isLive()) {
+        Panel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
+        if (this.$data.enable != null) this.$data.enable.destory();
+        return;
+      }
+      if (this.$data.addParseButton == null)
+        this.$data.addParseButton = Panel.getDynamicValue("shieldVideo-add-parseVideoInfoButton");
+      if (this.$data.enable == null) this.$data.enable = Panel.getDynamicValue(this.$key.ENABLE_KEY);
+      if (this.$data.onlyShowFilteredVideo == null)
+        this.$data.onlyShowFilteredVideo = Panel.getDynamicValue("shieldVideo-only-show-filtered-video");
+      this.execFilter();
+      domUtils.onReady(() => {
+        Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
+          return this.addParseButton();
+        });
+      });
+    },
+    getFilterRules(scopeName, useEnableRule = true) {
+      if (!this.$data.enable) return [];
+      const videoFilterRules = this.$data.videoFilterRuleStorage.getAllRule();
+      if (!videoFilterRules.length) return [];
+      videoFilterRules.sort((a, b) => {
+        if (a.data.isFunctionHandler && !b.data.isFunctionHandler) return 1;
+        if (!a.data.isFunctionHandler && b.data.isFunctionHandler) return -1;
+        return 0;
+      });
+      if (typeof scopeName === "string") {
+        const scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
+        return videoFilterRules.filter((it) => {
+          if (typeof useEnableRule === "boolean" && useEnableRule) {
+            if (!it.enable) return false;
+          }
+          return (
+            it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1
+          );
+        });
+      } else
+        return videoFilterRules.filter((it) => {
+          if (typeof useEnableRule === "boolean" && useEnableRule) {
+            if (!it.enable) return false;
+          }
+          return true;
+        });
+    },
+    execFilter() {
+      Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
+        log.info(`执行视频过滤器`);
+        const filterBase = new DouYinVideoFilterBase();
+        const checkFilterCallBack = (awemeFilterInfoResult) => {
+          if (this.$data.onlyShowFilteredVideo.value) {
+            awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
+            if (
+              typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
+              awemeFilterInfoResult.matchedFilterRule
+            ) {
+              const filterOptionList =
+                this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.get(
+                  awemeFilterInfoResult.transformAwemeInfo.awemeId
+                ) || [];
+              filterOptionList.push(awemeFilterInfoResult.matchedFilterRule);
+              this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.set(
+                awemeFilterInfoResult.transformAwemeInfo.awemeId,
+                filterOptionList
+              );
+            }
+          }
+          if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
+            this.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
+              awemeInfo: awemeFilterInfoResult.awemeInfo,
+              transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
+              index: performance.now(),
+            });
+            const MAX_LENGTH = window.innerWidth > 768 ? 500 : 250;
+            if (this.$data.addParseButton.value && this.$data.networkAwemeInfoMap.length > MAX_LENGTH)
+              this.$data.networkAwemeInfoMap
+                .values()
+                .sort((a, b) => a.index - b.index)
+                .splice(0, 1);
+          }
+        };
+        const xhr_hook_callback_1 = (scopeName, request) => {
+          request.response = async (response) => {
+            const filterRules = this.getFilterRules(scopeName);
+            if (!filterRules.length) return;
+            const data = utils.toJSON(response.responseText);
+            const aweme_list = data.aweme_list;
+            if (Array.isArray(aweme_list)) {
+              const filterInfo = {
+                filter: 0,
+                count: aweme_list.length,
+              };
+              for (let index = 0; index < aweme_list.length; index++) {
+                const awemeInfo = aweme_list[index] || {};
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
+                checkFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterInfo.filter++;
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
+                  filterBase.removeAweme(aweme_list, index--);
+                }
+              }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_1 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        const xhr_hook_callback_2 = (scopeName, request) => {
+          request.response = async (response) => {
+            const filterRules = this.getFilterRules(scopeName);
+            if (!filterRules.length) return;
+            const data = utils.toJSON(response.responseText);
+            const aweme_list = data.data;
+            if (Array.isArray(aweme_list)) {
+              const filterInfo = {
+                filter: 0,
+                count: aweme_list.length,
+              };
+              for (let index = 0; index < aweme_list.length; index++) {
+                const awemeItem = aweme_list[index];
+                const awemeInfo = awemeItem["aweme"] || {};
+                if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null)
+                  awemeInfo["cell_room"] = awemeItem?.["cell_room"];
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
+                checkFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterInfo.filter++;
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
+                  filterBase.removeAweme(aweme_list, index--);
+                }
+              }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_2 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        const xhr_hook_callback_3 = (scopeName, request) => {
+          request.response = async (response) => {
+            const filterRules = this.getFilterRules(scopeName);
+            if (!filterRules.length) return;
+            const data = utils.toJSON(response.responseText);
+            const cards = data["cards"];
+            if (Array.isArray(cards)) {
+              const filterInfo = {
+                filter: 0,
+                count: cards.length,
+              };
+              for (let index = 0; index < cards.length; index++) {
+                const awemeItem = cards[index];
+                const awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
+                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
+                checkFilterCallBack(filterResult);
+                if (filterResult.isFilter) {
+                  filterInfo.filter++;
+                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
+                  filterBase.removeAweme(cards, index--);
+                }
+              }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_3 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        const xhr_hook_callback_4 = (scopeName, request) => {
+          request.response = async (response) => {
+            const filterRules = this.getFilterRules(scopeName);
+            if (!filterRules.length) return;
+            const data = utils.toJSON(response.responseText);
+            const aweme_list = data["data"];
+            if (Array.isArray(aweme_list)) {
+              const filterInfo = {
+                filter: 0,
+                count: aweme_list.length,
+              };
+              for (let index = 0; index < aweme_list.length; index++) {
+                const awemeItem = aweme_list[index];
+                const awemeInfo = awemeItem["aweme_info"] || {};
+                const awemeMixInfo = awemeItem?.["aweme_mix_info"];
+                if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
+                  const awemeMixInfoItems = awemeMixInfo?.["mix_items"];
+                  if (Array.isArray(awemeMixInfoItems)) {
+                    for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
+                      const mixItem = awemeMixInfoItems[mixIndex];
+                      const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem, "network");
+                      checkFilterCallBack(filterResult);
+                      if (filterResult.isFilter) {
+                        filterInfo.filter++;
+                        filterBase.sendDislikeVideo(filterResult.matchedFilterRule, mixItem);
+                        filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
+                      }
+                    }
+                    if (awemeMixInfoItems.length === 0) filterBase.removeAweme(aweme_list, index--);
+                  }
+                } else {
+                  const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
+                  checkFilterCallBack(filterResult);
+                  if (filterResult.isFilter) {
+                    filterInfo.filter++;
+                    filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
+                    filterBase.removeAweme(aweme_list, index--);
+                  }
+                }
+              }
+              if (filterInfo.filter)
+                log.info(
+                  `xhr_hook_callback_4 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
+                );
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        const xhr_hook_callback_5 = (scopeName, request) => {
+          request.response = async (response) => {
+            const filterRules = this.getFilterRules(scopeName);
+            if (!filterRules.length) return;
+            const data = utils.toJSON(response.responseText);
+            const awemeInfo = data["aweme_detail"];
+            if (typeof awemeInfo === "object" && awemeInfo != null) {
+              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
+              checkFilterCallBack(filterResult);
+              if (filterResult.isFilter) filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
+              response.responseText = JSON.stringify(data);
+            }
+          };
+        };
+        DouYinNetWorkHook.ajaxHooker.hook((request) => {
+          const url = CommonUtil.fixUrl(request.url);
+          const urlInst = new URL(url);
+          if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) xhr_hook_callback_1("xhr-tab", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/post/"))
+            xhr_hook_callback_1("xhr-userHome", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/mix/aweme/")) xhr_hook_callback_1("xhr-mix", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/related/"))
+            xhr_hook_callback_1("xhr-related", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/follow/feed")) xhr_hook_callback_2("xhr-follow", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/familiar/feed"))
+            xhr_hook_callback_2("xhr-familiar", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/module/feed")) xhr_hook_callback_3("xhr-module", request);
+          else if (urlInst.pathname.startsWith("/aweme/v2/web/module/feed")) xhr_hook_callback_1("xhr-module", request);
+          else if (
+            urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/") ||
+            urlInst.pathname.startsWith("/aweme/v1/web/search/item/")
+          )
+            xhr_hook_callback_4("xhr-search", request);
+          else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/detail/"))
+            xhr_hook_callback_5("xhr-video", request);
+        });
+      });
+    },
+    addParseButton() {
+      const filterBase = new DouYinVideoFilterBase();
+      const onClick = async ($container) => {
+        const reactFiber = utils.getReactInstance($container)?.reactFiber;
+        const awemeInfo =
+          reactFiber?.return?.memoizedProps?.awemeInfo ||
+          reactFiber?.return?.return?.memoizedProps?.awemeInfo ||
+          reactFiber?.return?.memoizedProps?.originData;
+        if (awemeInfo == null) {
+          qmsg.default.error("未获取到awemeInfo信息");
+          return;
+        }
+        if (typeof awemeInfo !== "object") {
+          qmsg.default.error("获取到的awemeInfo信息不是对象");
+          return;
+        }
+        let transformAwemeInfo;
+        let isFromNetWork = false;
+        log.info("DOM上的的awemeInfo: ", awemeInfo);
+        const transformAwemeInfoWithDOM = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
+        log.info("DOM上解析出的transformAwemeInfo: ", transformAwemeInfoWithDOM);
+        if (
+          typeof transformAwemeInfoWithDOM.awemeId === "string" &&
+          DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithDOM.awemeId)
+        ) {
+          isFromNetWork = true;
+          const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithDOM.awemeId);
+          transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
+          log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
+          log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
+        } else transformAwemeInfo = transformAwemeInfoWithDOM;
+        let targetFilterOption = [];
+        let isHasMatchedRules = false;
+        if (
+          this.$data.onlyShowFilteredVideo.value &&
+          this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.has(transformAwemeInfo.awemeId)
+        ) {
+          isHasMatchedRules = true;
+          const matchedFilterOption = this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.get(
+            transformAwemeInfo.awemeId
+          );
+          targetFilterOption = targetFilterOption.concat(matchedFilterOption);
+        } else {
+          const filterRules = this.getFilterRules();
+          const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "dom", true);
+          if (filterResult.matchedFilterRule.length) {
+            isHasMatchedRules = true;
+            targetFilterOption = targetFilterOption.concat(filterResult.matchedFilterRule);
+          } else {
+            isHasMatchedRules = false;
+            targetFilterOption = targetFilterOption.concat(filterResult.notMatchedFilterRule);
+          }
+        }
+        __pops__.confirm({
+          title: {
+            text: `视频awemeInfo（${isFromNetWork ? "NetWork" : "DOM"}）`,
+            position: "center",
+          },
+          content: {
+            text: JSON.stringify(transformAwemeInfo, null, 4).trim(),
+            html: false,
+          },
+          drag: true,
+          btn: {
+            merge: targetFilterOption.length ? true : false,
+            position: targetFilterOption.length ? "space-between" : "flex-end",
+            ok: {
+              enable: true,
+              text: "添加过滤规则",
+              callback: () => {
+                this.getRuleViewInstance().showEditView(false, this.getTemplateData());
+              },
+            },
+            cancel: {
+              enable: true,
+              text: "规则管理器",
+              callback: () => {
+                this.showView();
+              },
+            },
+            other: {
+              enable: Boolean(targetFilterOption.length),
+              text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
+              type: isHasMatchedRules ? "xiaomi-primary" : "violet",
+              callback: () => {
+                this.getRuleViewInstance().showView((data) => {
+                  const find = targetFilterOption.find((it) => {
+                    return data.uuid === it.uuid;
+                  });
+                  return Boolean(find);
+                });
+              },
+            },
+          },
+          mask: {
+            enable: true,
+            clickEvent: { toClose: true },
+          },
+          width: PanelUISize.setting.width,
+          height: PanelUISize.setting.height,
+          style: `
+				.pops-confirm-content p{
+					white-space: break-spaces;
+				}
+			`,
+        });
+      };
+      const createButton = () => {
+        return domUtils.createElement("xg-icon", {
+          className: "gm-video-filter-parse-btn",
+          innerHTML: `
+        <div class="xgplayer-icon">
+          <span role="img" class="semi-icon semi-icon-default">
+            <svg
+              viewBox="0 0 32 32"
+              width="1em"
+              height="1em"
+              style="font-size: 32px"
+              xmlns="http://www.w3.org/2000/svg"
+              focusable="false"
+              fill="none">
+              <g>
+                <path
+                  stroke="null"
+                  fill="currentColor"
+                  d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
+                  clip-rule="evenodd"
+                  fill-rule="evenodd" />
+              </g>
+            </svg>
+          </span>
+        </div>
+        <div class="xg-tips">解析信息</div>
+				`,
+        });
+      };
+      const lockFn = new utils.LockFunction(() => {
+        if (DouYinRouter.isLive()) return;
+        $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(($xgRightGrid) => {
+          const $gmFilterParseBtn = createButton();
+          domUtils.on($gmFilterParseBtn, "click", async (event) => {
+            domUtils.preventEvent(event);
+            const $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
+            if (!$basePlayerContainer) {
+              qmsg.default.error("获取.basePlayerContainer失败");
+              return;
+            }
+            await onClick($basePlayerContainer);
+          });
+          domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+        });
+        [
+          ...Array.from($$('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))')),
+          ...Array.from(
+            $$('[data-e2e="feed-live"] .douyin-player-controls-right:not(:has(.gm-video-filter-parse-btn))')
+          ),
+        ].forEach(($xgRightGrid) => {
+          if (!utils.isVisible($xgRightGrid, false)) return;
+          const $gmFilterParseBtn = createButton();
+          domUtils.on($gmFilterParseBtn, "click", async (event) => {
+            domUtils.preventEvent(event);
+            const $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
+            if (!$liveContainer) {
+              qmsg.default.error(`未找到[data-e2e="feed-live"]`);
+              return;
+            }
+            await onClick($liveContainer);
+          });
+          domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
+        });
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        addStyle(`
+      xg-icon .xg-tips{
+        display: none;
+      }
+			.basePlayerContainer .gm-video-filter-parse-btn{
+				margin-left: 4px;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
+				
+			}
+      /* 修复搜索结果单列页面 解析按钮的高度错位 */
+      .searchControl33px .xg-right-grid xg-icon.gm-video-filter-parse-btn span svg{
+				transform: translateY(-6px) !important;
+			}`),
+        () => {
+          domUtils.remove(".gm-video-filter-parse-btn");
+          observer?.disconnect();
+        },
+      ];
+    },
+    getRuleViewInstance() {
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
+      const generateStorageApi = (data) => {
+        return {
+          get(key, defaultValue) {
+            return data[key] ?? defaultValue;
+          },
+          set(key, value) {
+            data[key] = value;
+          },
+        };
+      };
+      const ruleViewOption = {
+        title: "视频过滤器",
+        data: () => {
+          return this.$data.videoFilterRuleStorage.getAllRule();
+        },
+        getAddData: () => {
+          return this.getTemplateData();
+        },
+        getDataItemName: (data) => {
+          return data.name;
+        },
+        updateData: (data) => {
+          return this.$data.videoFilterRuleStorage.setRule(data);
+        },
+        deleteData: (data) => {
+          return this.$data.videoFilterRuleStorage.deleteRule(data);
+        },
+        getData: (data) => {
+          return (
+            DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule().find((item) => item.uuid === data.uuid) ?? data
+          );
+        },
+        itemControls: {
+          enable: {
+            enable: true,
+            getEnable(data) {
+              return data.enable;
+            },
+            callback: (data, enable) => {
+              data.enable = enable;
+              ruleViewOption.updateData(data);
+            },
+          },
+          edit: {
+            enable: true,
+            getView: (data, isEdit) => {
+              const $fragment = document.createDocumentFragment();
+              if (!isEdit) data = this.getTemplateData();
+              const enable_template = UISwitch("启用", "enable", true);
+              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              const { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
+              const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
+              const { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
+              const scope_template = UISelectMultiple(
+                "作用域",
+                "scope",
+                [],
+                [
+                  {
+                    text: "所有",
+                    value: "all",
+                  },
+                  {
+                    text: "精选",
+                    value: "xhr-module",
+                  },
+                  {
+                    text: "推荐",
+                    value: "xhr-tab",
+                  },
+                  {
+                    text: "关注",
+                    value: "xhr-follow",
+                  },
+                  {
+                    text: "朋友",
+                    value: "xhr-familiar",
+                  },
+                  {
+                    text: "搜索",
+                    value: "xhr-search",
+                  },
+                  {
+                    text: "用户主页",
+                    value: "xhr-userHome",
+                  },
+                  {
+                    text: "混合信息",
+                    value: "xhr-mix",
+                  },
+                  {
+                    text: "相关推荐",
+                    value: "xhr-related",
+                  },
+                ].map((it) => {
+                  const result = {
+                    ...it,
+                    value: it.value,
+                  };
+                  if (result.value !== "all") {
+                  }
+                  return result;
+                }),
+                void 0,
+                "选择需要在xxx上生效的作用域"
+              );
+              Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
+              const { $el: $scope } = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
+              const filterBase = new DouYinVideoFilterBase();
+              const douYinVideoHandlerInfoKey = Object.keys(filterBase.getTemplateData());
+              const createDynamicItemNode = (storageData) => {
+                const ruleName_template = UISelectMultiple(
+                  "属性名",
+                  "ruleName",
+                  Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]],
+                  douYinVideoHandlerInfoKey.map((item) => {
+                    return {
+                      text: item,
+                      value: item,
+                    };
+                  }),
+                  void 0,
+                  "选择需要的属性名 "
+                );
+                Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const { $el: $ruleName } =
+                  panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
+                const isFunctionHandler_template_valueChange = (_, enableValue) => {
+                  if (enableValue) {
+                    domUtils.html($ruleValueLeftMainText, `自定义函数`);
+                    domUtils.html($ruleValueLeftDescText, `返回值必须为boolean值`);
+                  } else {
+                    domUtils.html($ruleValueLeftMainText, ruleValue_template.text);
+                    domUtils.html($ruleValueLeftDescText, ruleValue_template.description ?? "");
+                  }
+                };
+                const isFunctionHandler_template = UISwitch(
+                  "是否使用自定义函数处理",
+                  "isFunctionHandler",
+                  false,
+                  void 0,
+                  "执行自定义函数来判断是否进行过滤",
+                  void 0,
+                  false,
+                  isFunctionHandler_template_valueChange
+                );
+                Reflect.set(isFunctionHandler_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const { $el: $ownFunctionHandler } =
+                  panelHandlerComponents.createSectionContainerItem_switch(isFunctionHandler_template);
+                const ruleValue_template = UITextArea(
+                  "属性值",
+                  "ruleValue",
+                  "",
+                  "如果是字符串，可正则，注意转义",
+                  void 0
+                );
+                Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const { $el: $ruleValue } =
+                  panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
+                const $ruleValueLeftMainText = $ruleValue.querySelector(".pops-panel-item-left-main-text");
+                const $ruleValueLeftDescText = $ruleValue.querySelector(".pops-panel-item-left-desc-text");
+                const remarks_template = UITextArea("备注", "remarks", "", "", void 0);
+                Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
+                const { $el: $remarks } = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
+                if (storageData.isFunctionHandler)
+                  isFunctionHandler_template_valueChange(null, isFunctionHandler_template.getValue());
+                return [$ruleName, $ownFunctionHandler, $ruleValue, $remarks];
+              };
+              const $dynamicContainer = domUtils.createElement("div", {
+                className: "rule-form-ulist-dynamic",
+                innerHTML: `
+							<div class="rule-form-ulist-dynamic__inner"></div>
+							<div class="pops-panel-button pops-panel-button-no-icon">
+								<button class="pops-panel-button_inner" type="button" data-type="default">
+									<i class="pops-bottom-icon" is-loading="false"></i>
+									<span class="pops-panel-button-text">添加额外属性</span>
+								</button>
+							</div>
+							`,
+              });
+              const $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
+              const $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
+              const addDynamicElementItem = (
+                dynamicData = {
+                  ruleName: [],
+                  isFunctionHandler: false,
+                  ruleValue: "",
+                  remarks: "",
+                }
+              ) => {
+                const $dynamicUListContainer = domUtils.createElement("div", {
+                  className: "rule-form-ulist-dynamic__inner-container",
+                  innerHTML: `
+									<div class="dynamic-control-delete">
+										<div class="pops-panel-button pops-panel-button-no-icon">
+											<button class="pops-panel-button_inner" type="button" data-type="danger">
+												<i class="pops-bottom-icon" is-loading="false"></i>
+												<span class="pops-panel-button-text">×</span>
+											</button>
+										</div>
+									</div>
+									<ul class="dynamic-forms"></ul>
+								`,
+                });
+                const $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
+                domUtils.on($dynamicDelete, "click", (event) => {
+                  domUtils.preventEvent(event);
+                  domUtils.remove($dynamicUListContainer);
+                  if (Array.isArray(data.dynamicData)) {
+                    const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
+                    if (findIndex !== -1) data.dynamicData.splice(findIndex, 1);
+                  }
+                });
+                const $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
+                const dynamicItemNodes = createDynamicItemNode(dynamicData);
+                $dynamicUList.append(...dynamicItemNodes);
+                $dynamicInner.appendChild($dynamicUListContainer);
+              };
+              domUtils.on($addDynamicButton, "click", (event) => {
+                domUtils.preventEvent(event);
+                addDynamicElementItem();
+              });
+              if (Array.isArray(data.dynamicData))
+                for (let index = 0; index < data.dynamicData.length; index++) {
+                  const moreDataItem = data.dynamicData[index];
+                  addDynamicElementItem(moreDataItem);
+                }
+              $fragment.append($enable, $name, $scope, ...createDynamicItemNode(data.data), $dynamicContainer);
+              return $fragment;
+            },
+            onsubmit: async ($form, isEdit, editData) => {
+              const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
+              const data = this.getTemplateData();
+              if (isEdit) data.uuid = editData.uuid;
+              $ulist_li.forEach(($li) => {
+                const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                if (!viewConfig) return;
+                const attrs = Reflect.get(viewConfig, "attributes");
+                if (!attrs) return;
+                const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                const value = storageApi.get(key, defaultValue);
+                if (Reflect.has(data, key)) Reflect.set(data, key, value);
+                else if (Reflect.has(data.data, key)) Reflect.set(data.data, key, value);
+                else log.error(`${key}不在数据中`);
+              });
+              $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
+                const dynamicData = {};
+                $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
+                  const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  if (!viewConfig) return;
+                  const attrs = Reflect.get(viewConfig, "attributes");
+                  if (!attrs) return;
+                  const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  const value = storageApi.get(key, defaultValue);
+                  Reflect.set(dynamicData, key, value);
+                });
+                data.dynamicData.push(dynamicData);
+              });
+              if (data.name.trim() === "") {
+                qmsg.default.error("规则名称不能为空");
+                return {
+                  success: false,
+                  data,
+                };
+              }
+              if (data.data.scope.length === 0) {
+                qmsg.default.error("请选择作用域");
+                return {
+                  success: false,
+                  data,
+                };
+              }
+              if (data.data.ruleName.length === 0) {
+                qmsg.default.error("请选择属性名");
+                return {
+                  success: false,
+                  data,
+                };
+              }
+              if (data.data.ruleValue.trim() === "") {
+                qmsg.default.error((data.data.isFunctionHandler ? "自定义函数" : "属性值") + "不能为空");
+                return {
+                  success: false,
+                  data,
+                };
+              }
+              let successFlag = false;
+              if (isEdit) successFlag = Boolean(await ruleViewOption.updateData(data));
+              else successFlag = this.$data.videoFilterRuleStorage.addRule(data);
+              return {
+                success: successFlag,
+                data,
+              };
+            },
+            style: `
+          .pops-panel-textarea textarea{
+              height: 150px;
+          }
+					.pops-panel-item-left-desc-text{
+						line-height: normal;
+						margin-top: 6px;
+						font-size: 0.8em;
+						color: rgb(108, 108, 108);
+					}
+					.rule-form-ulist-dynamic{
+						--button-margin-top: 0px;
+						--button-margin-right: 0px;
+						--button-margin-bottom: 0px;
+						--button-margin-left: 0px;
+						display: flex;
+						flex-direction: column;
+						align-items: flex-start;
+						padding: 5px 20px;
+					}
+					.rule-form-ulist-dynamic__inner{
+						width: 100%;
+					}
+					.rule-form-ulist-dynamic__inner-container{
+						display: flex;
+						align-items: center;
+					}
+					.dynamic-forms{
+						width: 100%;
+					}
+					.pops-panel-textarea textarea{
+						height: 60px;
+						min-height: 60px;
+						width: 250px;
+						max-width: 400px;
+						min-width: 250px;
+						resize: auto;
+						transition: unset;
+					}
+          li[data-key="isFunctionHandler"]:has(.pops-panel-switch-is-checked) + li[data-key="ruleValue"] .pops-panel-textarea {
+            flex: 1;
+            justify-items: end;
+          }
+          li[data-key="isFunctionHandler"]:has(.pops-panel-switch-is-checked) + li[data-key="ruleValue"] textarea {
+            height: 200px;
+            width: calc(100% - 100px);
+            max-width: unset;
+          }
+          `,
+            width: () => {
+              return window.innerWidth > 700 ? "700px" : "88vw";
+            },
+          },
+          delete: {
+            enable: true,
+            deleteCallBack: async (data) => {
+              return await ruleViewOption.deleteData(data);
+            },
+          },
+        },
+        bottomControls: {
+          filter: {
+            enable: true,
+            option: [
+              {
+                name: "全部",
+                value: "",
+                selectedCallBack(config) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
+                },
+                filterCallBack() {
+                  return true;
+                },
+              },
+              {
+                name: "已启用",
+                value: "external-enabled",
+                selectedCallBack(config) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
+                },
+                filterCallBack(data) {
+                  return data.enable;
+                },
+              },
+              {
+                name: "未启用",
+                value: "external-notEnabled",
+                selectedCallBack(config) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
+                },
+                filterCallBack(data) {
+                  return !data.enable;
+                },
+              },
+            ],
+            inputOption: [
+              {
+                name: "规则名称",
+                value: "rule-name",
+                selectedCallBack(config) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.name.match(searchText));
+                },
+              },
+              {
+                name: "属性值",
+                value: "rule-ruleValue",
+                selectedCallBack(config) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.ruleValue.match(searchText));
+                },
+              },
+              {
+                name: "备注",
+                value: "rule-remarks",
+                selectedCallBack(config) {
+                  Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
+                },
+                filterCallBack(data, searchText) {
+                  return Boolean(data.data.remarks.match(searchText));
+                },
+              },
+            ],
+          },
+          clear: {
+            enable: true,
+            callback: () => {
+              this.$data.videoFilterRuleStorage.clearAllRule();
+            },
+          },
+        },
+      };
+      return new RuleView(ruleViewOption);
+    },
+    showView() {
+      this.getRuleViewInstance().showView({
+        external: Panel.getValue("dy-video-ui-rule-filter-option-external-index"),
+        rule: Panel.getValue("dy-video-ui-rule-filter-option-rule-index"),
+      });
+    },
+    getTemplateData() {
+      return {
+        uuid: utils.generateUUID(),
+        enable: true,
+        name: "",
+        data: {
+          scope: [],
+          ruleName: "nickname",
+          isFunctionHandler: false,
+          ruleValue: "",
+          remarks: "",
+        },
+        dynamicData: [],
+      };
+    },
+  };
   var DouYinVideoPlayerBlockMouseHoverTip = {
     init() {
       DouYinVideoPlayerBlockMouseHoverTip_RightToolBar.init();
@@ -6616,234 +9128,6 @@
       log.info(`禁用全屏按钮的悬浮提示`);
       return addBlockCSS(`.xgplayer-fullscreen .xg-tips`);
     },
-  };
-  var ShortCut = class {
-    KEY = "short-cut";
-    #data = {
-      otherShortCutOptions: [],
-      localOptions: [],
-      currentWaitEnterPressInstanceHandler: null,
-    };
-    #flag = { isWaitPress: false };
-    constructor(KEY) {
-      if (typeof KEY === "string") this.KEY = KEY;
-      this.initData();
-    }
-    initConfig(key, option) {
-      if (this.hasOption(key)) {
-      } else this.setOption(key, option);
-    }
-    initData(localOptions) {
-      this.#data.localOptions.length = 0;
-      this.#data.localOptions = localOptions ?? this.getLocalAllOptions();
-    }
-    isWaitKeyboardPress() {
-      return this.#flag.isWaitPress;
-    }
-    getStorageKey() {
-      return this.KEY;
-    }
-    getLocalAllOptions() {
-      return _GM_getValue(this.KEY, []);
-    }
-    hasOption(key) {
-      return !!this.getLocalAllOptions().find((item) => item.key === key);
-    }
-    hasOptionValue(key) {
-      if (this.hasOption(key)) return !(this.getOption(key)?.value == null);
-      else return false;
-    }
-    getOption(key, defaultValue) {
-      return this.getLocalAllOptions().find((item) => item.key === key) ?? defaultValue;
-    }
-    setOption(key, value) {
-      const localOptions = this.getLocalAllOptions();
-      const findIndex = localOptions.findIndex((item) => item.key === key);
-      if (findIndex == -1)
-        localOptions.push({
-          key,
-          value,
-        });
-      else Reflect.set(localOptions[findIndex], "value", value);
-      this.initData(localOptions);
-      _GM_setValue(this.KEY, localOptions);
-    }
-    emptyOption(key) {
-      let flag = false;
-      const localOptions = this.getLocalAllOptions();
-      const findIndex = localOptions.findIndex((item) => item.key === key);
-      if (findIndex !== -1) {
-        localOptions[findIndex].value = null;
-        flag = true;
-      }
-      this.initData(localOptions);
-      _GM_setValue(this.KEY, localOptions);
-      return flag;
-    }
-    deleteOption(key) {
-      let flag = false;
-      const localOptions = this.getLocalAllOptions();
-      const findValueIndex = localOptions.findIndex((item) => item.key === key);
-      if (findValueIndex !== -1) {
-        localOptions.splice(findValueIndex, 1);
-        flag = true;
-      }
-      this.initData(localOptions);
-      _GM_setValue(this.KEY, localOptions);
-      return flag;
-    }
-    translateKeyboardValueToButtonText(keyboardValue) {
-      let result = "";
-      keyboardValue.ohterCodeList.forEach((ohterCodeKey) => {
-        result += utils.stringTitleToUpperCase(ohterCodeKey, true) + " + ";
-      });
-      if (keyboardValue.keyName === " ") result += utils.stringTitleToUpperCase("space");
-      else result += utils.stringTitleToUpperCase(keyboardValue.keyName);
-      return result;
-    }
-    getShowText(key, defaultShowText) {
-      if (this.hasOption(key)) {
-        const localOption = this.getOption(key);
-        if (localOption.value == null) return defaultShowText;
-        else return this.translateKeyboardValueToButtonText(localOption.value);
-      } else return defaultShowText;
-    }
-    initGlobalKeyboardListener(shortCutOption, config) {
-      if (!this.#data.localOptions.length) {
-        log.warn("快捷键配置为空");
-        return;
-      }
-      const setListenKeyboard = ($target, option) => {
-        domUtils.onKeyboard(
-          $target,
-          "keydown",
-          async (keyName, keyValue, ohterCodeList, event) => {
-            if (this.#flag.isWaitPress) return;
-            if (config?.isPrevent) domUtils.preventEvent(event);
-            if (config?.onlyStopPropagation) domUtils.preventEvent(event, true);
-            const tempOptionStr = JSON.stringify({
-              keyName,
-              keyValue,
-              ohterCodeList,
-            });
-            const findShortcuts = this.#data.localOptions.filter((item) => {
-              const __option = item.value;
-              if (JSON.stringify(__option) === tempOptionStr) return true;
-              return false;
-            });
-            if (findShortcuts.length)
-              for (const findShortcut of findShortcuts) {
-                log.info("调用快捷键", findShortcut);
-                if (typeof config?.beforeCallBack === "function") {
-                  const flag = await config.beforeCallBack();
-                  if (typeof flag === "boolean" && !flag) return;
-                }
-                const targetOptions = option.filter((item) => {
-                  return item.menuKey === findShortcut.key;
-                });
-                if (targetOptions.length)
-                  for (const option of targetOptions) await option.option.callback(findShortcut.key);
-              }
-          },
-          { capture: Boolean(config?.capture) }
-        );
-      };
-      const WindowShortCutOptions = [];
-      const ElementShortCutOptions = [];
-      if (!Array.isArray(shortCutOption)) shortCutOption = [shortCutOption];
-      shortCutOption.forEach((shortCutOptionItem) => {
-        Object.keys(shortCutOptionItem).forEach((menuKey) => {
-          const option = shortCutOptionItem[menuKey];
-          if (option.target == null || (typeof option.target === "string" && option.target === ""))
-            option.target = "window";
-          if (option.target === "window")
-            WindowShortCutOptions.push({
-              menuKey,
-              option,
-            });
-          else
-            ElementShortCutOptions.push({
-              menuKey,
-              option,
-            });
-        });
-      });
-      setListenKeyboard(window, WindowShortCutOptions);
-      domUtils.onReady(() => {
-        ElementShortCutOptions.forEach(async (ElementShortCutOption) => {
-          const option = ElementShortCutOption.option;
-          let target = null;
-          if (typeof option.target === "string") target = await domUtils.waitNode(option.target, 1e4);
-          else if (typeof option.target === "function") target = await option.target();
-          else target = option.target;
-          if (target) setListenKeyboard(target, [ElementShortCutOption]);
-        });
-      });
-    }
-    async enterShortcutKeys(key) {
-      this.#flag.isWaitPress = true;
-      return new Promise((resolve) => {
-        const keyboardListener = domUtils.onKeyboard(window, "keyup", (keyName, keyValue, ohterCodeList) => {
-          const currentOption = {
-            keyName,
-            keyValue,
-            ohterCodeList,
-          };
-          let result = {};
-          try {
-            const shortcutJSONString = JSON.stringify(currentOption);
-            let allOptions = this.getLocalAllOptions();
-            if (Array.isArray(this.#data.otherShortCutOptions))
-              allOptions = allOptions.concat(this.#data.otherShortCutOptions);
-            const localConflictOptions = allOptions.filter((localValue) => {
-              if (localValue.key === key) return false;
-              const localShortCutJSONString = JSON.stringify(localValue.value);
-              if (localValue.value != null && shortcutJSONString === localShortCutJSONString) return true;
-              return false;
-            });
-            if (localConflictOptions.length) {
-              result = {
-                status: false,
-                key,
-                option: currentOption,
-                localConflictOptions,
-              };
-              return result;
-            }
-            this.setOption(key, currentOption);
-            result = {
-              status: true,
-              key,
-              option: currentOption,
-              localConflictOptions: [],
-            };
-          } catch (error) {
-            log.error(error);
-            result = {
-              status: false,
-              key,
-              option: currentOption,
-              localConflictOptions: [],
-            };
-          } finally {
-            if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function")
-              this.#data.currentWaitEnterPressInstanceHandler();
-            this.#data.currentWaitEnterPressInstanceHandler = null;
-            resolve(result);
-          }
-        });
-        this.#data.currentWaitEnterPressInstanceHandler = null;
-        this.#data.currentWaitEnterPressInstanceHandler = () => {
-          this.#flag.isWaitPress = false;
-          keyboardListener.off();
-          this.#data.currentWaitEnterPressInstanceHandler = null;
-        };
-      });
-    }
-    cancelEnterShortcutKeys() {
-      if (typeof this.#data.currentWaitEnterPressInstanceHandler === "function")
-        this.#data.currentWaitEnterPressInstanceHandler();
-    }
   };
   var DouYinVideoPlayerShortCut = {
     shortCut: new ShortCut("video-short-cut"),
@@ -7465,7 +9749,7 @@
         }
         const $dialog = __pops__.alert({
           title: {
-            text: "视频解析（DOM）",
+            text: `视频解析（${data.isFromNetWork ? "NetWork" : "DOM"}）`,
             position: "center",
           },
           content: {
@@ -7577,6 +9861,7 @@
             const video = clonePictureInfo.video;
             clonePictureInfo.video = [];
             showParseInfoDialog({
+              isFromNetWork: data.isFromNetWork,
               videoInfo: data.videoInfo,
               videoDownloadInfo: {
                 fileName: data.videoDownloadInfo?.fileName,
@@ -7600,7 +9885,6 @@
           (evt, $click) => {
             domUtils.preventEvent(evt);
             const url = $click.getAttribute("href");
-            $click.getAttribute("data-format");
             let fileName = $click.getAttribute("data-file-name");
             const isSupport_GM_download = function () {
               try {
@@ -7775,33 +10059,42 @@
             return;
           }
           log.info("DOM上的的awemeInfo：", awemeInfo);
+          let transformAwemeInfo;
+          let isFromNetWork = false;
           const transformAwemeInfoWithDOM = new DouYinVideoFilterBase().parseAwemeInfoDictData(awemeInfo, "dom", true);
           log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithDOM);
-          if (transformAwemeInfoWithDOM.nickname == null) transformAwemeInfoWithDOM.nickname = "未知作者";
-          if (transformAwemeInfoWithDOM.desc == null) transformAwemeInfoWithDOM.desc = "未知视频文案";
+          if (
+            typeof transformAwemeInfoWithDOM.awemeId === "string" &&
+            DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithDOM.awemeId)
+          ) {
+            isFromNetWork = true;
+            const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithDOM.awemeId);
+            transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
+            log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
+            log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
+          } else transformAwemeInfo = transformAwemeInfoWithDOM;
+          if (transformAwemeInfo.nickname == null) transformAwemeInfo.nickname = "未知作者";
+          if (transformAwemeInfo.desc == null) transformAwemeInfo.desc = "未知视频文案";
           let videoDownloadUrlList = [];
           let musicDownloadUrlList = [];
           let pictureDownloadUrlList = [];
           videoDownloadUrlList = videoDownloadUrlList.concat(
-            transformAwemeInfoWithDOM.videoBitRateList.map((it) => {
+            transformAwemeInfo.videoBitRateList.map((it) => {
               return it;
             })
           );
-          if (
-            typeof transformAwemeInfoWithDOM.musicUrl === "string" &&
-            utils.isNotNull(transformAwemeInfoWithDOM.musicUrl)
-          )
+          if (typeof transformAwemeInfo.musicUrl === "string" && utils.isNotNull(transformAwemeInfo.musicUrl))
             musicDownloadUrlList.push({
-              url: transformAwemeInfoWithDOM.musicUrl,
-              author: transformAwemeInfoWithDOM.musicAuthor,
-              album: transformAwemeInfoWithDOM.musicAlbum,
-              title: transformAwemeInfoWithDOM.musicTitle,
-              duration: transformAwemeInfoWithDOM.musicDuration,
-              backUrl: transformAwemeInfoWithDOM.musicBackUrlList,
+              url: transformAwemeInfo.musicUrl,
+              author: transformAwemeInfo.musicAuthor,
+              album: transformAwemeInfo.musicAlbum,
+              title: transformAwemeInfo.musicTitle,
+              duration: transformAwemeInfo.musicDuration,
+              backUrl: transformAwemeInfo.musicBackUrlList,
             });
-          if (Array.isArray(transformAwemeInfoWithDOM?.pictureList) && transformAwemeInfoWithDOM.pictureList.length)
+          if (Array.isArray(transformAwemeInfo?.pictureList) && transformAwemeInfo.pictureList.length)
             pictureDownloadUrlList = pictureDownloadUrlList.concat(
-              transformAwemeInfoWithDOM.pictureList.map((item) => {
+              transformAwemeInfo.pictureList.map((item) => {
                 return {
                   url: item.url,
                   width: item.width,
@@ -7817,28 +10110,29 @@
           const downloadTime = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss");
           const videoOrPictureTransformOption = {
             downloadTime,
-            uid: transformAwemeInfoWithDOM.uid,
-            nickname: transformAwemeInfoWithDOM.nickname,
-            desc: transformAwemeInfoWithDOM.desc,
-            awemeId: transformAwemeInfoWithDOM.awemeId,
-            originDesc: transformAwemeInfoWithDOM.originDesc,
+            uid: transformAwemeInfo.uid,
+            nickname: transformAwemeInfo.nickname,
+            desc: transformAwemeInfo.desc,
+            awemeId: transformAwemeInfo.awemeId,
+            originDesc: transformAwemeInfo.originDesc,
           };
           const videoDownloadFileName = transformDownloadFileName(videoOrPictureTransformOption);
           const pictureDownloadFileName = transformDownloadFileName(videoOrPictureTransformOption);
           const musicDownloadFileName = transformDownloadFileName(
             {
-              album: transformAwemeInfoWithDOM.musicAlbum,
-              author: transformAwemeInfoWithDOM.musicAuthor,
-              title: transformAwemeInfoWithDOM.musicTitle,
-              duration: transformAwemeInfoWithDOM.musicDuration,
+              album: transformAwemeInfo.musicAlbum,
+              author: transformAwemeInfo.musicAuthor,
+              title: transformAwemeInfo.musicTitle,
+              duration: transformAwemeInfo.musicDuration,
               downloadTime,
             },
             Panel.getValue("dy-video-parseVideoMusic-downloadFileName")
           );
           showParseInfoDialog({
+            isFromNetWork,
             videoInfo: {
-              author: transformAwemeInfoWithDOM.nickname,
-              desc: transformAwemeInfoWithDOM.desc,
+              author: transformAwemeInfo.nickname,
+              desc: transformAwemeInfo.desc,
             },
             videoDownloadInfo: {
               fileName: videoDownloadFileName,
@@ -10179,2290 +12473,6 @@
   var DouYinVideo = {
     init() {
       addStyle(block_default$5);
-    },
-  };
-  var UIButton = function (
-    text,
-    description,
-    buttonText,
-    buttonIcon,
-    buttonIsRightIcon,
-    buttonIconIsLoading,
-    buttonType,
-    clickCallBack,
-    afterAddToUListCallBack,
-    disable
-  ) {
-    const result = {
-      text,
-      type: "button",
-      attributes: {},
-      props: {},
-      description,
-      buttonIcon,
-      buttonIsRightIcon,
-      buttonIconIsLoading,
-      buttonType,
-      buttonText,
-      callback(event) {
-        if (typeof clickCallBack === "function") clickCallBack(event);
-      },
-      afterAddToUListCallBack,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      result.disable = Boolean(typeof disable === "function" ? disable() : disable);
-    });
-    return result;
-  };
-  var UIButtonShortCut = function (
-    text,
-    description,
-    key,
-    defaultValue,
-    defaultButtonText,
-    buttonType = "default",
-    shortCut,
-    afterEnterShortCutCallBack
-  ) {
-    const __defaultButtonText = typeof defaultButtonText === "function" ? defaultButtonText() : defaultButtonText;
-    if (typeof defaultValue === "object" && defaultValue != null) shortCut.initConfig(key, defaultValue);
-    const getButtonText = () => {
-      return shortCut.getShowText(key, __defaultButtonText);
-    };
-    const result = UIButton(text, description, getButtonText, "keyboard", false, false, buttonType, async (event) => {
-      if (event instanceof PointerEvent && event.x === 0 && event.y === 0) return;
-      const $btn = event.target.closest(".pops-panel-button")?.querySelector("span");
-      if (shortCut.isWaitKeyboardPress()) {
-        qmsg.default.warning("请先执行当前的录入操作");
-        return;
-      }
-      if (shortCut.hasOptionValue(key)) {
-        shortCut.emptyOption(key);
-        qmsg.default.success("清空快捷键");
-      } else {
-        const $loading = qmsg.default.loading("请按下快捷键...", {
-          showClose: true,
-          onClose() {
-            shortCut.cancelEnterShortcutKeys();
-          },
-        });
-        const { status, option, key: isUsedKey } = await shortCut.enterShortcutKeys(key);
-        $loading.close();
-        if (status) {
-          if (typeof afterEnterShortCutCallBack === "function") {
-            const flag = await afterEnterShortCutCallBack(option, shortCut);
-            if (typeof flag === "boolean" && !flag) {
-              shortCut.deleteOption(key);
-              return;
-            }
-          }
-          log.success("录入快捷键", option);
-          qmsg.default.success("录入成功");
-        } else
-          qmsg.default.error(`快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`);
-      }
-      domUtils.html($btn, getButtonText());
-    });
-    result.attributes = {};
-    Reflect.set(result.attributes, ATTRIBUTE_INIT, () => {
-      return false;
-    });
-    return result;
-  };
-  var UIOwn = function (createLIElement, initConfig, searchConfig, attr, props, afterAddToUListCallBack) {
-    const result = {
-      type: "own",
-      attributes: attr || {},
-      props: props || {},
-      createLIElement,
-      afterAddToUListCallBack,
-    };
-    if (typeof initConfig === "object" && initConfig !== null && Object.keys(initConfig).length > 0)
-      Reflect.set(result.attributes, ATTRIBUTE_INIT_MORE_VALUE, initConfig);
-    else Reflect.set(result.attributes, ATTRIBUTE_INIT, () => false);
-    if (typeof searchConfig === "object" && searchConfig !== null)
-      Reflect.set(result.attributes, ATTRIBUTE_PLUGIN_SEARCH_CONFIG, searchConfig);
-    return result;
-  };
-  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    const result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(isSelectedInfo) {
-        if (isSelectedInfo == null) return;
-        const value = isSelectedInfo.value;
-        log.info(`选择：${isSelectedInfo.text}`);
-        if (typeof selectCallBack === "function") {
-          if (selectCallBack(isSelectedInfo)) return;
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
-      },
-      data,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
-      },
-      set(key, value) {
-        Panel.setValue(key, value);
-      },
-    });
-    return result;
-  };
-  var UISelectMultiple = function (
-    text,
-    key,
-    defaultValue,
-    data,
-    selectCallBack,
-    description,
-    placeholder = "请至少选择一个选项",
-    selectConfirmDialogDetails,
-    valueChangeCallBack
-  ) {
-    let selectData = [];
-    if (typeof data === "function") selectData = data();
-    else selectData = data;
-    const result = {
-      text,
-      type: "select-multiple",
-      description,
-      placeholder,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      selectConfirmDialogConfig: selectConfirmDialogDetails,
-      callback(selectInfo) {
-        const storageApiValue = this.props[PROPS_STORAGE_API];
-        const value = [];
-        selectInfo.forEach((selectedInfo) => {
-          value.push(selectedInfo.value);
-        });
-        log.info(`多选-选择：`, value);
-        if (typeof selectCallBack === "function") {
-          if (selectCallBack(selectInfo)) return;
-        }
-        storageApiValue.set(key, value);
-        if (typeof valueChangeCallBack === "function") valueChangeCallBack(selectInfo);
-      },
-      data: selectData,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select-multiple", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
-      },
-      set(key, value) {
-        Panel.setValue(key, value);
-      },
-    });
-    return result;
-  };
-  var UISlider = function (
-    text,
-    key,
-    defaultValue,
-    min,
-    max,
-    changeCallback,
-    getToolTipContent,
-    description,
-    step,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "slider",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      getToolTipContent(value) {
-        if (typeof getToolTipContent === "function") return getToolTipContent(value);
-        else return `${value}`;
-      },
-      callback(event, value) {
-        if (typeof changeCallback === "function") {
-          if (changeCallback(event, value)) return;
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
-      },
-      min,
-      max,
-      step,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("slider", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
-      },
-      set(key, value) {
-        Panel.setValue(key, value);
-      },
-    });
-    return result;
-  };
-  var UISwitch = function (
-    text,
-    key,
-    defaultValue = false,
-    clickCallBack,
-    description,
-    afterAddToUListCallBack,
-    disabled,
-    valueChangeCallBack,
-    shortCutOption
-  ) {
-    if (shortCutOption && typeof shortCutOption.defaultValue === "object" && shortCutOption.defaultValue != null) {
-      const shortCutKey = shortCutOption.key ?? key;
-      shortCutOption.handler.add({
-        key: shortCutKey,
-        name: text,
-      });
-      shortCutOption.handler.shortCut.initConfig(shortCutKey, shortCutOption.defaultValue);
-    }
-    const result = {
-      text,
-      type: "switch",
-      description,
-      disabled,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, __value) {
-        const value = Boolean(__value);
-        log.success(`${value ? "开启" : "关闭"} ${text}`);
-        if (typeof clickCallBack === "function") {
-          if (clickCallBack(event, value)) return;
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
-      },
-      afterAddToUListCallBack: (...args) => {
-        afterAddToUListCallBack?.(...args);
-        if (shortCutOption) {
-          const shortCut = shortCutOption.handler.shortCut;
-          const shortCutKey = shortCutOption.key ?? key;
-          const [_, container] = args;
-          const $leftMainText = container.target?.querySelector(".pops-panel-item-left-main-text");
-          if (!$leftMainText) return;
-          const renderKeyboard = () => {
-            const tooltipShowText = shortCutOption.handler.shortCut.getShowText(shortCutKey, "暂未录入快捷键");
-            const $wrapper = domUtils.createElement(
-              "div",
-              {
-                className: "pops-switch-shortcut-wrapper",
-                innerHTML: `
-              <i class="pops-bottom-icon" is-loading="false">
-                <svg viewBox="0 0 1123 1024" xmlns="http://www.w3.org/2000/svg" data-type="keyboard">
-                  <path d="M1014.122186 1024H109.753483A109.753483 109.753483 0 0 1 0 914.246517V392.917471a109.753483 109.753483 0 0 1 109.753483-109.753484h904.368703a109.753483 109.753483 0 0 1 109.753484 109.753484v521.329046a109.753483 109.753483 0 0 1-109.753484 109.753483zM109.753483 370.966774a21.950697 21.950697 0 0 0-21.950696 21.950697v521.329046a21.950697 21.950697 0 0 0 21.950696 21.950696h904.368703a21.950697 21.950697 0 0 0 21.950697-21.950696V392.917471a21.950697 21.950697 0 0 0-21.950697-21.950697z"></path>
-                  <path d="M687.056806 891.198285H307.309753a43.901393 43.901393 0 0 1 0-87.802787h379.747053a43.901393 43.901393 0 0 1 0 87.802787zM175.605573 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM432.428725 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM947.172562 414.868167a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 546.572347a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM690.349411 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 546.572347a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM818.760986 803.395498a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM175.605573 678.276527a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394zM304.017149 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM432.428725 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM561.937835 678.276527a43.901393 43.901393 0 1 0 43.901393 43.901394 43.901393 43.901393 0 0 0-43.901393-43.901394zM948.270096 803.395498a43.901393 43.901393 0 1 0 43.901394 43.901394 43.901393 43.901393 0 0 0-43.901394-43.901394z"></path>
-                  <path d="M881.320472 766.079314H689.251876a43.901393 43.901393 0 0 1 0-87.802787h192.068596a21.950697 21.950697 0 0 0 21.950696-21.950696v-65.85209a43.901393 43.901393 0 0 1 87.802787 0v65.85209a109.753483 109.753483 0 0 1-109.753483 109.753483zM305.114684 502.670954H175.605573a43.901393 43.901393 0 0 1 0-87.802787h129.509111a43.901393 43.901393 0 0 1 0 87.802787zM563.03537 365.4791a43.901393 43.901393 0 0 1-43.901394-43.901394v-105.363344A109.753483 109.753483 0 0 1 628.88746 106.460879h61.461951a21.950697 21.950697 0 0 0 21.950696-21.950697V43.901393a43.901393 43.901393 0 0 1 87.802787 0v40.608789a109.753483 109.753483 0 0 1-109.753483 109.753484h-61.461951a21.950697 21.950697 0 0 0-21.950697 21.950696v105.363344a43.901393 43.901393 0 0 1-43.901393 43.901394z"></path>
-                </svg>
-              </i>
-            `,
-              },
-              { style: "margin-right: 5px;display: inline-flex;" }
-            );
-            const $icon = $wrapper.querySelector(".pops-bottom-icon");
-            domUtils.on(
-              $icon,
-              "click",
-              function (evt) {
-                shortCutOption.handler.shortCut.deleteOption(shortCutKey);
-                $tooltip.toolTip.offEvent();
-                $tooltip.toolTip.close();
-                $tooltip.toolTip.destory();
-                $wrapper.remove();
-              },
-              { once: true }
-            );
-            const $tooltip = __pops__.tooltip({
-              $target: $icon,
-              content: () => {
-                return tooltipShowText;
-              },
-              className: "github-tooltip",
-              isFixed: true,
-              only: true,
-            });
-            domUtils.empty($leftMainText);
-            domUtils.append($leftMainText, $wrapper, text);
-          };
-          __pops__.rightClickMenu({
-            $target: $leftMainText,
-            only: true,
-            data: [
-              {
-                text: () => {
-                  if (shortCutOption.handler.shortCut.hasOption(shortCutKey)) return "修改快捷键";
-                  else return "添加快捷键";
-                },
-                icon: __pops__.config.iconSVG.keyboard,
-                callback(clickEvent, contextMenuEvent, $li, $listenerRootNode) {
-                  if (shortCut.isWaitKeyboardPress()) {
-                    qmsg.default.warning("请先执行当前的录入操作");
-                    return;
-                  }
-                  const $loading = qmsg.default.loading("请按下快捷键...", {
-                    showClose: true,
-                    onClose() {
-                      shortCut.cancelEnterShortcutKeys();
-                    },
-                  });
-                  shortCut.enterShortcutKeys(shortCutKey).then(({ status, option, key: isUsedKey }) => {
-                    $loading.close();
-                    if (status) {
-                      log.success("录入快捷键", option);
-                      qmsg.default.success("录入成功");
-                      renderKeyboard();
-                    } else
-                      qmsg.default.error(
-                        `快捷键 ${shortCut.translateKeyboardValueToButtonText(option)} 已被 ${isUsedKey} 占用`
-                      );
-                  });
-                },
-              },
-            ],
-          });
-          if (!shortCut.hasOption(shortCutKey)) return;
-          renderKeyboard();
-        }
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
-      },
-      set(key, value) {
-        Panel.setValue(key, value);
-      },
-    });
-    return result;
-  };
-  var UITextArea = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    disabled,
-    valueChangeCallBack
-  ) {
-    const result = {
-      text,
-      type: "textarea",
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      disabled,
-      getValue() {
-        const value = this.props[PROPS_STORAGE_API].get(key, defaultValue);
-        if (Array.isArray(value)) return value.join("\n");
-        return value;
-      },
-      callback(event, value) {
-        if (typeof changeCallback === "function") {
-          if (changeCallback(event, value)) return;
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof valueChangeCallBack === "function") valueChangeCallBack(event, value);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("switch", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
-      },
-      set(key, value) {
-        Panel.setValue(key, value);
-      },
-    });
-    return result;
-  };
-  var PanelComponents = {
-    $data: {
-      __storeApiFn: null,
-      get storeApiValue() {
-        if (!this.__storeApiFn) this.__storeApiFn = new _whitesev_utils.default.Dictionary();
-        return this.__storeApiFn;
-      },
-    },
-    getStorageApi(type) {
-      if (!this.hasStorageApi(type)) return;
-      return this.$data.storeApiValue.get(type);
-    },
-    hasStorageApi(type) {
-      return this.$data.storeApiValue.has(type);
-    },
-    setStorageApi(type, storageApiValue) {
-      this.$data.storeApiValue.set(type, storageApiValue);
-    },
-    initComponentsStorageApi(type, config, storageApiValue) {
-      let propsStorageApi;
-      if (this.hasStorageApi(type)) propsStorageApi = this.getStorageApi(type);
-      else propsStorageApi = storageApiValue;
-      this.setComponentsStorageApiProperty(config, propsStorageApi);
-    },
-    setComponentsStorageApiProperty(config, storageApiValue) {
-      Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
-    },
-  };
-  var UIInput = function (
-    text,
-    key,
-    defaultValue,
-    description,
-    changeCallback,
-    placeholder = "",
-    inputType = "text",
-    afterAddToUListCallBack,
-    valueChangeCallback
-  ) {
-    const result = {
-      text,
-      type: "input",
-      inputType,
-      attributes: {},
-      props: {},
-      description,
-      placeholder,
-      afterAddToUListCallBack,
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
-      },
-      callback(event, value) {
-        const isValid = event.target.validity.valid;
-        if (typeof changeCallback === "function") {
-          if (changeCallback(event, value, isValid)) return;
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof valueChangeCallback === "function") valueChangeCallback(event, value, isValid);
-      },
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("input", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
-      },
-      set(key, value) {
-        Panel.setValue(key, value);
-      },
-    });
-    return result;
-  };
-  var RuleStorage = class {
-    option;
-    constructor(option) {
-      this.option = option;
-    }
-    getAllRule() {
-      return _GM_getValue(this.option.STORAGE_API_KEY, []);
-    }
-    setAllRule(rules) {
-      _GM_setValue(this.option.STORAGE_API_KEY, rules);
-    }
-    clearAllRule() {
-      this.setAllRule([]);
-    }
-    getRule(uuid) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === uuid);
-      if (findIndex !== -1) return allRules[findIndex];
-    }
-    setRule(rule) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      let updateFlag = false;
-      if (findIndex !== -1) {
-        allRules[findIndex] = rule;
-        this.setAllRule(allRules);
-        updateFlag = true;
-      }
-      return updateFlag;
-    }
-    addRule(rule) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      let addFlag = false;
-      if (findIndex !== -1) {
-      } else {
-        allRules.push(rule);
-        this.setAllRule(allRules);
-        addFlag = true;
-      }
-      return addFlag;
-    }
-    updateRule(rule) {
-      const allRules = this.getAllRule();
-      const findIndex = allRules.findIndex((item) => item.uuid === rule.uuid);
-      if (findIndex !== -1) allRules[findIndex] = rule;
-      else allRules.push(rule);
-      this.setAllRule(allRules);
-    }
-    deleteRule(rule) {
-      const allRules = this.getAllRule();
-      const ruleUUID = typeof rule === "string" ? rule : rule.uuid;
-      const findIndex = allRules.findIndex((item) => item.uuid === ruleUUID);
-      if (findIndex !== -1) {
-        allRules.splice(findIndex, 1);
-        this.setAllRule(allRules);
-        return true;
-      } else return false;
-    }
-    importRules(importEndCallBack) {
-      const $alert = __pops__.alert({
-        title: {
-          text: "请选择导入方式",
-          position: "center",
-        },
-        content: {
-          text: `
-                    <div class="btn-control" data-mode="local">本地导入</div>
-                    <div class="btn-control" data-mode="network">网络导入</div>
-                    <div class="btn-control" data-mode="clipboard">剪贴板导入</div>
-                `,
-          html: true,
-        },
-        btn: {
-          ok: { enable: false },
-          close: {
-            enable: true,
-            callback(details) {
-              details.close();
-            },
-          },
-        },
-        mask: { enable: true },
-        drag: true,
-        width: PanelUISize.info.width,
-        height: PanelUISize.info.height,
-        style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
-      });
-      const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
-      const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
-      const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
-      const updateRuleToStorage = async (data) => {
-        let allData = this.getAllRule();
-        const addNewData = [];
-        const repeatData = [];
-        let isRepeat = false;
-        for (let index = 0; index < data.length; index++) {
-          const dataItem = data[index];
-          const findIndex = allData.findIndex((it) => it.uuid === dataItem.uuid);
-          if (findIndex !== -1)
-            repeatData.push({
-              index: findIndex,
-              data: dataItem,
-            });
-          else addNewData.push(dataItem);
-        }
-        if (repeatData.length) {
-          if (
-            await new Promise((resolve) => {
-              __pops__.alert({
-                title: {
-                  text: "覆盖规则",
-                  position: "center",
-                },
-                content: {
-                  text: `存在相同的uuid的规则 ${repeatData.length}条，是否进行覆盖？`,
-                  html: true,
-                },
-                btn: {
-                  close: {
-                    callback(details) {
-                      details.close();
-                      resolve(false);
-                    },
-                  },
-                  ok: {
-                    text: "覆盖",
-                    callback(details) {
-                      details.close();
-                      resolve(true);
-                    },
-                  },
-                },
-                width: PanelUISize.info.width,
-                height: PanelUISize.info.height,
-                mask: { enable: true },
-                drag: true,
-              });
-            })
-          ) {
-            for (const repeatDataItem of repeatData) allData[repeatDataItem.index] = repeatDataItem.data;
-            isRepeat = true;
-          }
-        }
-        if (addNewData.length) allData = allData.concat(addNewData);
-        this.setAllRule(allData);
-        const message = `共 ${data.length} 条规则，新增 ${addNewData.length} 条，覆盖 ${isRepeat ? repeatData.length : 0} 条`;
-        qmsg.default.success(message);
-        importEndCallBack?.();
-      };
-      const importFile = (subscribeText) => {
-        return new Promise(async (resolve) => {
-          const data = utils.toJSON(subscribeText);
-          if (!Array.isArray(data)) {
-            log.error(data);
-            qmsg.default.error("导入失败，格式不符合（不是数组）", { consoleLogContent: true });
-            resolve(false);
-            return;
-          }
-          if (!data.length) {
-            qmsg.default.error("导入失败，解析出的数据为空", { consoleLogContent: true });
-            resolve(false);
-            return;
-          }
-          await updateRuleToStorage(data);
-          resolve(true);
-        });
-      };
-      domUtils.on($local, "click", (event) => {
-        domUtils.preventEvent(event);
-        $alert.close();
-        const $input = domUtils.createElement("input", {
-          type: "file",
-          accept: ".json",
-        });
-        domUtils.on($input, ["propertychange", "input"], () => {
-          if (!$input.files?.length) return;
-          const uploadFile = $input.files[0];
-          const fileReader = new FileReader();
-          fileReader.onload = () => {
-            importFile(fileReader.result);
-          };
-          fileReader.readAsText(uploadFile, "UTF-8");
-        });
-        $input.click();
-      });
-      domUtils.on($network, "click", (event) => {
-        domUtils.preventEvent(event);
-        $alert.close();
-        const $prompt = __pops__.prompt({
-          title: {
-            text: "网络导入",
-            position: "center",
-          },
-          content: {
-            text: "",
-            placeholder: "请填写URL",
-            focus: true,
-          },
-          btn: {
-            close: {
-              enable: true,
-              callback(details) {
-                details.close();
-              },
-            },
-            ok: {
-              text: "导入",
-              callback: async (details) => {
-                const url = details.text;
-                if (utils.isNull(url)) {
-                  qmsg.default.error("请填入完整的url");
-                  return;
-                }
-                const $loading = qmsg.default.loading("正在获取配置...");
-                const response = await httpx.get(url, { allowInterceptConfig: false });
-                $loading.close();
-                if (!response.status) {
-                  log.error(response);
-                  qmsg.default.error("获取配置失败", { consoleLogContent: true });
-                  return;
-                }
-                if (!(await importFile(response.data.responseText))) return;
-                details.close();
-              },
-            },
-            cancel: { enable: false },
-          },
-          mask: { enable: true },
-          drag: true,
-          width: PanelUISize.info.width,
-          height: "auto",
-        });
-        const $promptInput = $prompt.$shadowRoot.querySelector("input");
-        const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
-        domUtils.on($promptInput, ["input", "propertychange"], () => {
-          if (domUtils.val($promptInput) === "") domUtils.attr($promptOk, "disabled", "true");
-          else domUtils.removeAttr($promptOk, "disabled");
-        });
-        domUtils.onKeyboard($promptInput, "keydown", (keyName, keyValue, otherCodeList) => {
-          if (keyName === "Enter" && otherCodeList.length === 0) {
-            if (domUtils.val($promptInput) !== "") domUtils.emit($promptOk, "click");
-          }
-        });
-        domUtils.emit($promptInput, "input");
-      });
-      domUtils.on($clipboard, "click", async (event) => {
-        domUtils.preventEvent(event);
-        $alert.close();
-        const clipboardInfo = await utils.getClipboardInfo();
-        if (clipboardInfo.error != null) {
-          qmsg.default.error(clipboardInfo.error.toString());
-          return;
-        }
-        if (clipboardInfo.content.trim() === "") {
-          qmsg.default.warning("获取到的剪贴板内容为空");
-          return;
-        }
-        if (!(await importFile(clipboardInfo.content))) return;
-      });
-    }
-    exportRules(fileName = "rule.json") {
-      const allRules = this.getAllRule();
-      const blob = new Blob([JSON.stringify(allRules, null, 4)]);
-      const blobUrl = globalThis.URL.createObjectURL(blob);
-      const $a = document.createElement("a");
-      $a.href = blobUrl;
-      $a.download = fileName;
-      $a.click();
-      setTimeout(() => {
-        globalThis.URL.revokeObjectURL(blobUrl);
-      }, 1500);
-    }
-  };
-  var RuleEditView = class {
-    option;
-    constructor(option) {
-      this.option = option;
-    }
-    async showView() {
-      const $dialog = __pops__.confirm({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-        <form class="rule-form-container" onsubmit="return false">
-            <ul class="rule-form-ulist"></ul>
-            <input type="submit" style="display: none;" />
-        </form>
-        `,
-          html: true,
-        },
-        btn: utils.assign(
-          {
-            ok: {
-              callback: async () => {
-                await submitSaveOption();
-              },
-            },
-          },
-          this.option.btn || {},
-          true
-        ),
-        drag: true,
-        mask: { enable: true },
-        style: `
-      ${__pops__.config.cssText.panelCSS}
-      
-      .rule-form-container {
-          
-      }
-      .rule-form-container li{
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        padding: 5px 20px;
-        gap: 10px;
-      }
-      .rule-form-ulist-dynamic{
-        --button-margin-top: 0px;
-        --button-margin-right: 0px;
-        --button-margin-bottom: 0px;
-        --button-margin-left: 0px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 5px 0px 5px 20px;
-      }
-      .rule-form-ulist-dynamic__inner{
-        width: 100%;
-      }
-      .rule-form-ulist-dynamic__inner-container{
-        display: flex;
-        align-items: center;
-      }
-      .dynamic-forms{
-        width: 100%;
-      }
-      .pops-panel-item-left-main-text{
-        max-width: 150px;
-      }
-      .pops-panel-item-right-text{
-        padding-left: 30px;
-      }
-      .pops-panel-item-right-text,
-      .pops-panel-item-right-main-text{
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-      .pops-panel-item-left-desc-text{
-        line-height: normal;
-        margin-top: 6px;
-        font-size: 0.8em;
-        color: rgb(108, 108, 108);
-      }
-
-      ${this.option?.style ?? ""}
-      `,
-        width:
-          typeof this.option.width === "function" ? this.option.width() : window.innerWidth > 500 ? "500px" : "88vw",
-        height:
-          typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
-      });
-      const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
-      $dialog.$shadowRoot.querySelector("input[type=submit]");
-      const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
-      const view = await this.option.getView(await this.option.data());
-      domUtils.append($ulist, view);
-      const submitSaveOption = async () => {
-        if (!(await this.option.onsubmit($form, await this.option.data())).success) return;
-        $dialog.close();
-        if (typeof this.option.dialogCloseCallBack === "function") await this.option.dialogCloseCallBack(true);
-      };
-      return $dialog;
-    }
-  };
-  var RuleView = class {
-    option;
-    constructor(option) {
-      this.option = option;
-    }
-    async showView(filterCallBack) {
-      const $popsConfirm = __pops__.confirm({
-        title: {
-          text: this.option.title,
-          position: "center",
-        },
-        content: {
-          text: `
-        <div class="rule-view-search-container">
-          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
-            <select class="select-rule-status">
-            </select>
-          </div>
-          <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
-            <select class="select-rule-value">
-            </select>
-          </div>
-          <div class="pops-panel-input pops-user-select-none">
-            <div class="pops-panel-input_inner">
-                <input type="text" placeholder="">
-            </div>
-          </div>
-        </div>
-        <div class="rule-view-container"></div>
-        `,
-          html: true,
-        },
-        style: `
-      ${__pops__.config.cssText.panelCSS}
-
-      .rule-view-search-container{
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-      }
-      .rule-view-search-container .pops-panel-select{
-        min-width: fit-content;
-        max-width: 60px;
-      }
-      .rule-view-search-container .pops-panel-select select{
-        width: 100%;
-        min-width: auto;
-      }
-      .rule-view-search-container .pops-panel-input{
-        width: 100%;
-      }
-
-
-      .rule-item{
-          display: flex;
-          align-items: center;
-          line-height: normal;
-          font-size: 16px;
-          padding: 4px 8px;
-          gap: 8px;
-      }
-      .rule-name{
-          flex: 1;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-      }
-      .rule-controls{
-          display: flex;
-          align-items: center;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
-          gap: 8px;
-          padding: 0px;
-      }
-      .rule-controls-enable{
-          
-      }
-      .rule-controls-edit{
-          
-      }
-      .rule-controls-delete{
-          
-      }
-      .rule-controls-edit,
-      .rule-controls-delete{
-          width: 16px;
-          height: 16px;
-          cursor: pointer;
-      }
-      `,
-        btn: {
-          merge: true,
-          reverse: false,
-          position: "space-between",
-          ok: {
-            enable: this.option?.bottomControls?.add?.enable || true,
-            type: "primary",
-            text: "添加",
-            callback: async () => {
-              this.showEditView(false, await this.option.getAddData(), $popsConfirm.$shadowRoot);
-            },
-          },
-          close: {
-            enable: true,
-            callback() {
-              $popsConfirm.close();
-            },
-          },
-          cancel: { enable: false },
-          other: {
-            enable: this.option?.bottomControls?.clear?.enable || true,
-            type: "xiaomi-primary",
-            text: `清空所有(${(await this.option.data()).length})`,
-            callback: () => {
-              const $askDialog = __pops__.confirm({
-                title: {
-                  text: "提示",
-                  position: "center",
-                },
-                content: {
-                  text: "确定清空所有的数据？",
-                  html: false,
-                },
-                btn: {
-                  ok: {
-                    enable: true,
-                    callback: async () => {
-                      log.success("清空所有");
-                      if (typeof this.option?.bottomControls?.clear?.callback === "function")
-                        this.option.bottomControls.clear.callback();
-                      if ((await this.option.data()).length) {
-                        qmsg.default.error("清理失败");
-                        return;
-                      } else qmsg.default.success("清理成功");
-                      await this.updateDeleteAllBtnText($popsConfirm.$shadowRoot);
-                      this.clearContent($popsConfirm.$shadowRoot);
-                      $askDialog.close();
-                    },
-                  },
-                  cancel: {
-                    text: "取消",
-                    enable: true,
-                  },
-                },
-                mask: { enable: true },
-                width: "300px",
-                height: "200px",
-              });
-            },
-          },
-        },
-        mask: { enable: true },
-        width: window.innerWidth > 500 ? "500px" : "88vw",
-        height: window.innerHeight > 500 ? "500px" : "80vh",
-      });
-      const { $searchContainer, $externalSelect, $ruleValueSelect, $searchInput } = this.parseViewElement(
-        $popsConfirm.$shadowRoot
-      );
-      if (this.option.bottomControls?.filter?.enable) {
-        let externalSelectInfo = null;
-        let ruleValueSelectInfo = null;
-        if (Array.isArray(this.option.bottomControls?.filter?.option))
-          domUtils.append(
-            $externalSelect,
-            this.option.bottomControls?.filter?.option.map((option) => {
-              const $option = domUtils.createElement("option", { innerText: option.name });
-              Reflect.set($option, "data-value", option);
-              return $option;
-            })
-          );
-        if (Array.isArray(this.option.bottomControls?.filter?.inputOption))
-          domUtils.append(
-            $ruleValueSelect,
-            this.option.bottomControls?.filter?.inputOption.map((option) => {
-              const $option = domUtils.createElement("option", { innerText: option.name });
-              Reflect.set($option, "data-value", option);
-              return $option;
-            })
-          );
-        domUtils.on($externalSelect, "change", async () => {
-          const $isSelectedElement = $externalSelect[$externalSelect.selectedIndex];
-          const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
-          externalSelectInfo = selectInfo;
-          await execFilter(false);
-        });
-        domUtils.on($ruleValueSelect, "change", async () => {
-          const $isSelectedElement = $ruleValueSelect[$ruleValueSelect.selectedIndex];
-          const selectInfo = Reflect.get($isSelectedElement, "data-value");
-          if (typeof selectInfo?.selectedCallBack === "function") selectInfo.selectedCallBack(selectInfo);
-          ruleValueSelectInfo = selectInfo;
-          await execFilter(false);
-        });
-        domUtils.onInput(
-          $searchInput,
-          utils.debounce(async () => {
-            await execFilter(false);
-          })
-        );
-        const updateSelectData = () => {
-          const $externalSelected = $externalSelect[$externalSelect.selectedIndex];
-          externalSelectInfo = Reflect.get($externalSelected, "data-value");
-          const $ruleValueSelected = $ruleValueSelect[$ruleValueSelect.selectedIndex];
-          ruleValueSelectInfo = Reflect.get($ruleValueSelected, "data-value");
-        };
-        const execFilter = async (isUpdateSelectData) => {
-          this.clearContent($popsConfirm.$shadowRoot);
-          if (isUpdateSelectData) updateSelectData();
-          const allData = await this.option.data();
-          const filteredData = [];
-          const searchText = domUtils.val($searchInput);
-          for (let index = 0; index < allData.length; index++) {
-            const item = allData[index];
-            if (typeof filterCallBack === "function") {
-              const flag = await filterCallBack(item);
-              if (typeof flag === "boolean" && !flag) continue;
-            }
-            if (externalSelectInfo) {
-              const externalFilterResult = await externalSelectInfo?.filterCallBack?.(item);
-              if (typeof externalFilterResult === "boolean" && !externalFilterResult) continue;
-            }
-            if (ruleValueSelectInfo) {
-              let flag = true;
-              if (searchText === "") flag = true;
-              else flag = false;
-              if (!flag) flag = await ruleValueSelectInfo?.filterCallBack?.(item, searchText);
-              if (!flag) continue;
-            }
-            filteredData.push(item);
-          }
-          await this.appendRuleItemElement($popsConfirm.$shadowRoot, filteredData);
-        };
-        if (typeof filterCallBack === "object" && filterCallBack != null) {
-          let externalIndex;
-          if (typeof filterCallBack.external === "number") externalIndex = filterCallBack.external;
-          else
-            externalIndex = Array.from($externalSelect.options).findIndex((option) => {
-              return Reflect.get(option, "data-value").value === filterCallBack.external;
-            });
-          if (externalIndex !== -1) $externalSelect.selectedIndex = externalIndex;
-          let ruleIndex;
-          if (typeof filterCallBack.rule === "number") ruleIndex = filterCallBack.rule;
-          else
-            ruleIndex = Array.from($ruleValueSelect.options).findIndex((option) => {
-              return Reflect.get(option, "data-value").value === filterCallBack.rule;
-            });
-          if (ruleIndex !== -1) $ruleValueSelect.selectedIndex = ruleIndex;
-        }
-        await execFilter(true);
-      } else domUtils.hide($searchContainer, false);
-    }
-    showEditView(isEdit, editData, $parentShadowRoot, $editRuleItemElement, updateDataCallBack, submitCallBack) {
-      let dialogCloseCallBack = async (isSubmit) => {
-        if (isSubmit) {
-          if (typeof submitCallBack === "function") submitCallBack(await this.option.getData(editData));
-        } else {
-          if (!isEdit) await this.option.deleteData(editData);
-          if (typeof updateDataCallBack === "function") updateDataCallBack(await this.option.getData(editData));
-        }
-      };
-      new RuleEditView({
-        title: isEdit ? "编辑" : "添加",
-        data: () => {
-          return editData;
-        },
-        dialogCloseCallBack,
-        getView: async (data) => {
-          return await this.option.itemControls.edit.getView(data, isEdit);
-        },
-        btn: {
-          ok: {
-            enable: true,
-            text: isEdit ? "修改" : "添加",
-          },
-          cancel: {
-            callback: async (detail) => {
-              detail.close();
-              await dialogCloseCallBack(false);
-            },
-          },
-          close: {
-            callback: async (detail) => {
-              detail.close();
-              await dialogCloseCallBack(false);
-            },
-          },
-        },
-        onsubmit: async ($form, data) => {
-          let result = await this.option.itemControls.edit.onsubmit($form, isEdit, data);
-          if (result.success) {
-            if (isEdit) {
-              qmsg.default.success("修改成功");
-              if ($parentShadowRoot)
-                await this.updateRuleItemElement(result.data, $editRuleItemElement, $parentShadowRoot);
-            } else if ($parentShadowRoot) await this.appendRuleItemElement($parentShadowRoot, result.data);
-          } else if (isEdit) log.error("修改失败");
-          return result;
-        },
-        style: this.option.itemControls.edit.style,
-        width: this.option.itemControls.edit.width,
-        height: this.option.itemControls.edit.height,
-      }).showView();
-    }
-    parseViewElement($shadowRoot) {
-      const $container = $shadowRoot.querySelector(".rule-view-container");
-      const $deleteBtn = $shadowRoot.querySelector(".pops-confirm-btn button.pops-confirm-btn-other");
-      const $searchContainer = $shadowRoot.querySelector(".rule-view-search-container");
-      return {
-        $container,
-        $deleteBtn,
-        $searchContainer,
-        $externalSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-status"),
-        $ruleValueSelect: $searchContainer.querySelector(".pops-panel-select .select-rule-value"),
-        $searchInput: $searchContainer.querySelector(".pops-panel-input input"),
-      };
-    }
-    parseRuleItemElement($ruleElement) {
-      const $enable = $ruleElement.querySelector(".rule-controls-enable");
-      return {
-        $enable,
-        $enableSwitch: $enable.querySelector(".pops-panel-switch"),
-        $enableSwitchInput: $enable.querySelector(".pops-panel-switch__input"),
-        $enableSwitchCore: $enable.querySelector(".pops-panel-switch__core"),
-        $edit: $ruleElement.querySelector(".rule-controls-edit"),
-        $delete: $ruleElement.querySelector(".rule-controls-delete"),
-        data: Reflect.get($ruleElement, "data-rule"),
-      };
-    }
-    async createRuleItemElement(data, $shadowRoot) {
-      const name = await this.option.getDataItemName(data);
-      const $ruleItem = domUtils.createElement("div", {
-        className: "rule-item",
-        innerHTML: `
-			<div class="rule-name">${name}</div>
-			<div class="rule-controls">
-				<div class="rule-controls-enable">
-					<div class="pops-panel-switch">
-						<input class="pops-panel-switch__input" type="checkbox">
-						<span class="pops-panel-switch__core">
-							<div class="pops-panel-switch__action">
-							</div>
-						</span>
-					</div>
-				</div>
-				<div class="rule-controls-edit">
-					${__pops__.config.iconSVG.edit}
-				</div>
-				<div class="rule-controls-delete">
-					${__pops__.config.iconSVG.delete}
-				</div>
-			</div>
-			`,
-      });
-      Reflect.set($ruleItem, "data-rule", data);
-      const switchCheckedClassName = "pops-panel-switch-is-checked";
-      const { $enable, $enableSwitch, $enableSwitchCore, $enableSwitchInput, $delete, $edit } =
-        this.parseRuleItemElement($ruleItem);
-      if (this.option.itemControls.enable.enable) {
-        domUtils.on($enableSwitchCore, "click", async () => {
-          let isChecked = false;
-          if ($enableSwitch.classList.contains(switchCheckedClassName)) {
-            $enableSwitch.classList.remove(switchCheckedClassName);
-            isChecked = false;
-          } else {
-            $enableSwitch.classList.add(switchCheckedClassName);
-            isChecked = true;
-          }
-          $enableSwitchInput.checked = isChecked;
-          await this.option.itemControls.enable.callback(data, isChecked);
-        });
-        if (await this.option.itemControls.enable.getEnable(data)) $enableSwitch.classList.add(switchCheckedClassName);
-      } else $enable.remove();
-      if (this.option.itemControls.edit.enable)
-        domUtils.on($edit, "click", (event) => {
-          domUtils.preventEvent(event);
-          this.showEditView(true, data, $shadowRoot, $ruleItem, (newData) => {
-            data = null;
-            data = newData;
-          });
-        });
-      else $edit.remove();
-      if (this.option.itemControls.delete.enable)
-        domUtils.on($delete, "click", (event) => {
-          domUtils.preventEvent(event);
-          const $askDialog = __pops__.confirm({
-            title: {
-              text: "提示",
-              position: "center",
-            },
-            content: {
-              text: "确定删除该条数据？",
-              html: false,
-            },
-            btn: {
-              ok: {
-                enable: true,
-                callback: async () => {
-                  log.success("删除数据");
-                  if (await this.option.itemControls.delete.deleteCallBack(data)) {
-                    qmsg.default.success("成功删除该数据");
-                    $ruleItem.remove();
-                    await this.updateDeleteAllBtnText($shadowRoot);
-                    $askDialog.close();
-                  } else qmsg.default.error("删除该数据失败");
-                },
-              },
-              cancel: {
-                text: "取消",
-                enable: true,
-              },
-            },
-            mask: { enable: true },
-            width: "300px",
-            height: "200px",
-          });
-        });
-      else $delete.remove();
-      return $ruleItem;
-    }
-    async appendRuleItemElement($shadowRoot, data) {
-      const { $container } = this.parseViewElement($shadowRoot);
-      const $ruleItem = [];
-      const iteratorData = Array.isArray(data) ? data : [data];
-      for (let index = 0; index < iteratorData.length; index++) {
-        const item = iteratorData[index];
-        const $item = await this.createRuleItemElement(item, $shadowRoot);
-        $ruleItem.push($item);
-      }
-      domUtils.append($container, $ruleItem);
-      await this.updateDeleteAllBtnText($shadowRoot);
-      return $ruleItem;
-    }
-    async updateRuleContaienrElement($shadowRoot) {
-      this.clearContent($shadowRoot);
-      const data = await this.option.data();
-      await this.appendRuleItemElement($shadowRoot, data);
-      await this.updateDeleteAllBtnText($shadowRoot);
-    }
-    async updateRuleItemElement(data, $oldRuleItem, $shadowRoot) {
-      const $newRuleItem = await this.createRuleItemElement(data, $shadowRoot);
-      $oldRuleItem.after($newRuleItem);
-      $oldRuleItem.remove();
-    }
-    clearContent($shadowRoot) {
-      const { $container } = this.parseViewElement($shadowRoot);
-      domUtils.html($container, "");
-    }
-    setDeleteBtnText($shadowRoot, text, isHTML = false) {
-      const { $deleteBtn } = this.parseViewElement($shadowRoot);
-      if (isHTML) domUtils.html($deleteBtn, text);
-      else domUtils.text($deleteBtn, text);
-    }
-    async updateDeleteAllBtnText($shadowRoot) {
-      let data = await this.option.data();
-      this.setDeleteBtnText($shadowRoot, `清空所有(${data.length})`);
-    }
-  };
-  var DouYinVideoFilter = {
-    $key: { ENABLE_KEY: "shieldVideo-exec-network-enable" },
-    $data: {
-      enable: void 0,
-      onlyShowFilteredVideo: void 0,
-      isFilterAwemeInfoListWithOnlyShowFilteredVideo: new _whitesev_utils.default.Dictionary(),
-      networkAwemeInfoMap: new _whitesev_utils.default.Dictionary(),
-      addParseButton: void 0,
-      __videoFilterRuleStorage: null,
-      get videoFilterRuleStorage() {
-        if (this.__videoFilterRuleStorage == null)
-          this.__videoFilterRuleStorage = new RuleStorage({ STORAGE_API_KEY: "dy-video-filter-rule" });
-        return this.__videoFilterRuleStorage;
-      },
-      videoFilterRules: [],
-    },
-    init() {
-      if (DouYinRouter.isLive()) {
-        Panel.deleteExecMenuOnce(this.$key.ENABLE_KEY);
-        if (this.$data.enable != null) this.$data.enable.destory();
-        return;
-      }
-      if (this.$data.addParseButton == null)
-        this.$data.addParseButton = Panel.getDynamicValue("shieldVideo-add-parseVideoInfoButton");
-      if (this.$data.enable == null) this.$data.enable = Panel.getDynamicValue(this.$key.ENABLE_KEY);
-      if (this.$data.onlyShowFilteredVideo == null)
-        this.$data.onlyShowFilteredVideo = Panel.getDynamicValue("shieldVideo-only-show-filtered-video");
-      this.execFilter();
-      domUtils.onReady(() => {
-        Panel.execMenuOnce("shieldVideo-add-parseVideoInfoButton", () => {
-          return this.addParseButton();
-        });
-      });
-    },
-    getFilterRules(scopeName, useEnableRule = true) {
-      if (!this.$data.enable) return [];
-      const videoFilterRules = this.$data.videoFilterRuleStorage.getAllRule();
-      if (!videoFilterRules.length) return [];
-      videoFilterRules.sort((a, b) => {
-        if (a.data.isFunctionHandler && !b.data.isFunctionHandler) return 1;
-        if (!a.data.isFunctionHandler && b.data.isFunctionHandler) return -1;
-        return 0;
-      });
-      if (typeof scopeName === "string") {
-        const scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
-        return videoFilterRules.filter((it) => {
-          if (typeof useEnableRule === "boolean" && useEnableRule) {
-            if (!it.enable) return false;
-          }
-          return (
-            it.data.scope.includes("all") || scopeNameList.findIndex((item) => it.data.scope.includes(item)) !== -1
-          );
-        });
-      } else
-        return videoFilterRules.filter((it) => {
-          if (typeof useEnableRule === "boolean" && useEnableRule) {
-            if (!it.enable) return false;
-          }
-          return true;
-        });
-    },
-    execFilter() {
-      Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
-        log.info(`执行视频过滤器`);
-        const filterBase = new DouYinVideoFilterBase();
-        const checkFilterCallBack = (awemeFilterInfoResult) => {
-          if (this.$data.onlyShowFilteredVideo.value) {
-            awemeFilterInfoResult.isFilter = !awemeFilterInfoResult.isFilter;
-            if (
-              typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string" &&
-              awemeFilterInfoResult.matchedFilterRule
-            ) {
-              const filterOptionList =
-                this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.get(
-                  awemeFilterInfoResult.transformAwemeInfo.awemeId
-                ) || [];
-              filterOptionList.push(awemeFilterInfoResult.matchedFilterRule);
-              this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.set(
-                awemeFilterInfoResult.transformAwemeInfo.awemeId,
-                filterOptionList
-              );
-            }
-          }
-          if (typeof awemeFilterInfoResult.transformAwemeInfo.awemeId === "string") {
-            this.$data.networkAwemeInfoMap.set(awemeFilterInfoResult.transformAwemeInfo.awemeId, {
-              awemeInfo: awemeFilterInfoResult.awemeInfo,
-              transformAwemeInfo: awemeFilterInfoResult.transformAwemeInfo,
-              index: performance.now(),
-            });
-            const MAX_LENGTH = window.innerWidth > 768 ? 500 : 250;
-            if (this.$data.addParseButton.value && this.$data.networkAwemeInfoMap.length > MAX_LENGTH)
-              this.$data.networkAwemeInfoMap
-                .values()
-                .sort((a, b) => a.index - b.index)
-                .splice(0, 1);
-          }
-        };
-        const xhr_hook_callback_1 = (scopeName, request) => {
-          request.response = async (response) => {
-            const filterRules = this.getFilterRules(scopeName);
-            if (!filterRules.length) return;
-            const data = utils.toJSON(response.responseText);
-            const aweme_list = data.aweme_list;
-            if (Array.isArray(aweme_list)) {
-              const filterInfo = {
-                filter: 0,
-                count: aweme_list.length,
-              };
-              for (let index = 0; index < aweme_list.length; index++) {
-                const awemeInfo = aweme_list[index] || {};
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
-                checkFilterCallBack(filterResult);
-                if (filterResult.isFilter) {
-                  filterInfo.filter++;
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
-                  filterBase.removeAweme(aweme_list, index--);
-                }
-              }
-              if (filterInfo.filter)
-                log.info(
-                  `xhr_hook_callback_1 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
-                );
-              response.responseText = JSON.stringify(data);
-            }
-          };
-        };
-        const xhr_hook_callback_2 = (scopeName, request) => {
-          request.response = async (response) => {
-            const filterRules = this.getFilterRules(scopeName);
-            if (!filterRules.length) return;
-            const data = utils.toJSON(response.responseText);
-            const aweme_list = data.data;
-            if (Array.isArray(aweme_list)) {
-              const filterInfo = {
-                filter: 0,
-                count: aweme_list.length,
-              };
-              for (let index = 0; index < aweme_list.length; index++) {
-                const awemeItem = aweme_list[index];
-                const awemeInfo = awemeItem["aweme"] || {};
-                if (typeof awemeItem?.["cell_room"] === "object" && awemeItem?.["cell_room"] != null)
-                  awemeInfo["cell_room"] = awemeItem?.["cell_room"];
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
-                checkFilterCallBack(filterResult);
-                if (filterResult.isFilter) {
-                  filterInfo.filter++;
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
-                  filterBase.removeAweme(aweme_list, index--);
-                }
-              }
-              if (filterInfo.filter)
-                log.info(
-                  `xhr_hook_callback_2 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
-                );
-              response.responseText = JSON.stringify(data);
-            }
-          };
-        };
-        const xhr_hook_callback_3 = (scopeName, request) => {
-          request.response = async (response) => {
-            const filterRules = this.getFilterRules(scopeName);
-            if (!filterRules.length) return;
-            const data = utils.toJSON(response.responseText);
-            const cards = data["cards"];
-            if (Array.isArray(cards)) {
-              const filterInfo = {
-                filter: 0,
-                count: cards.length,
-              };
-              for (let index = 0; index < cards.length; index++) {
-                const awemeItem = cards[index];
-                const awemeInfo = utils.toJSON(awemeItem?.["aweme"] || "{}");
-                const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
-                checkFilterCallBack(filterResult);
-                if (filterResult.isFilter) {
-                  filterInfo.filter++;
-                  filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
-                  filterBase.removeAweme(cards, index--);
-                }
-              }
-              if (filterInfo.filter)
-                log.info(
-                  `xhr_hook_callback_3 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
-                );
-              response.responseText = JSON.stringify(data);
-            }
-          };
-        };
-        const xhr_hook_callback_4 = (scopeName, request) => {
-          request.response = async (response) => {
-            const filterRules = this.getFilterRules(scopeName);
-            if (!filterRules.length) return;
-            const data = utils.toJSON(response.responseText);
-            const aweme_list = data["data"];
-            if (Array.isArray(aweme_list)) {
-              const filterInfo = {
-                filter: 0,
-                count: aweme_list.length,
-              };
-              for (let index = 0; index < aweme_list.length; index++) {
-                const awemeItem = aweme_list[index];
-                const awemeInfo = awemeItem["aweme_info"] || {};
-                const awemeMixInfo = awemeItem?.["aweme_mix_info"];
-                if (awemeInfo == null && typeof awemeMixInfo && awemeMixInfo != null) {
-                  const awemeMixInfoItems = awemeMixInfo?.["mix_items"];
-                  if (Array.isArray(awemeMixInfoItems)) {
-                    for (let mixIndex = 0; mixIndex < awemeMixInfoItems.length; mixIndex++) {
-                      const mixItem = awemeMixInfoItems[mixIndex];
-                      const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, mixItem, "network");
-                      checkFilterCallBack(filterResult);
-                      if (filterResult.isFilter) {
-                        filterInfo.filter++;
-                        filterBase.sendDislikeVideo(filterResult.matchedFilterRule, mixItem);
-                        filterBase.removeAweme(awemeMixInfoItems, mixIndex--);
-                      }
-                    }
-                    if (awemeMixInfoItems.length === 0) filterBase.removeAweme(aweme_list, index--);
-                  }
-                } else {
-                  const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
-                  checkFilterCallBack(filterResult);
-                  if (filterResult.isFilter) {
-                    filterInfo.filter++;
-                    filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
-                    filterBase.removeAweme(aweme_list, index--);
-                  }
-                }
-              }
-              if (filterInfo.filter)
-                log.info(
-                  `xhr_hook_callback_4 ${scopeName}: 本次请求共计${filterInfo.count}个视频，成功过滤${filterInfo.filter}个`
-                );
-              response.responseText = JSON.stringify(data);
-            }
-          };
-        };
-        const xhr_hook_callback_5 = (scopeName, request) => {
-          request.response = async (response) => {
-            const filterRules = this.getFilterRules(scopeName);
-            if (!filterRules.length) return;
-            const data = utils.toJSON(response.responseText);
-            const awemeInfo = data["aweme_detail"];
-            if (typeof awemeInfo === "object" && awemeInfo != null) {
-              const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "network");
-              checkFilterCallBack(filterResult);
-              if (filterResult.isFilter) filterBase.sendDislikeVideo(filterResult.matchedFilterRule, awemeInfo);
-              response.responseText = JSON.stringify(data);
-            }
-          };
-        };
-        DouYinNetWorkHook.ajaxHooker.hook((request) => {
-          const url = CommonUtil.fixUrl(request.url);
-          const urlInst = new URL(url);
-          if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) xhr_hook_callback_1("xhr-tab", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/post/"))
-            xhr_hook_callback_1("xhr-userHome", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/mix/aweme/")) xhr_hook_callback_1("xhr-mix", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/related/"))
-            xhr_hook_callback_1("xhr-related", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/follow/feed")) xhr_hook_callback_2("xhr-follow", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/familiar/feed"))
-            xhr_hook_callback_2("xhr-familiar", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/module/feed")) xhr_hook_callback_3("xhr-module", request);
-          else if (urlInst.pathname.startsWith("/aweme/v2/web/module/feed")) xhr_hook_callback_1("xhr-module", request);
-          else if (
-            urlInst.pathname.startsWith("/aweme/v1/web/general/search/single/") ||
-            urlInst.pathname.startsWith("/aweme/v1/web/search/item/")
-          )
-            xhr_hook_callback_4("xhr-search", request);
-          else if (urlInst.pathname.startsWith("/aweme/v1/web/aweme/detail/"))
-            xhr_hook_callback_5("xhr-video", request);
-        });
-      });
-    },
-    addParseButton() {
-      const filterBase = new DouYinVideoFilterBase();
-      const onClick = async ($container) => {
-        const reactFiber = utils.getReactInstance($container)?.reactFiber;
-        const awemeInfo =
-          reactFiber?.return?.memoizedProps?.awemeInfo ||
-          reactFiber?.return?.return?.memoizedProps?.awemeInfo ||
-          reactFiber?.return?.memoizedProps?.originData;
-        if (awemeInfo == null) {
-          qmsg.default.error("未获取到awemeInfo信息");
-          return;
-        }
-        if (typeof awemeInfo !== "object") {
-          qmsg.default.error("获取到的awemeInfo信息不是对象");
-          return;
-        }
-        let transformAwemeInfo;
-        let isFromNetWork = false;
-        log.info("DOM上的的awemeInfo: ", awemeInfo);
-        const transformAwemeInfoWithPage = filterBase.parseAwemeInfoDictData(awemeInfo, "dom", false);
-        log.info("DOM上解析出的transformAwemeInfo: ", transformAwemeInfoWithPage);
-        if (
-          typeof transformAwemeInfoWithPage.awemeId === "string" &&
-          DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithPage.awemeId)
-        ) {
-          isFromNetWork = true;
-          const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithPage.awemeId);
-          transformAwemeInfo = awemeInfoMapData.transformAwemeInfo;
-          log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
-          log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
-        } else transformAwemeInfo = transformAwemeInfoWithPage;
-        let targetFilterOption = [];
-        let isHasMatchedRules = false;
-        if (
-          this.$data.onlyShowFilteredVideo.value &&
-          this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.has(transformAwemeInfo.awemeId)
-        ) {
-          isHasMatchedRules = true;
-          const matchedFilterOption = this.$data.isFilterAwemeInfoListWithOnlyShowFilteredVideo.get(
-            transformAwemeInfo.awemeId
-          );
-          targetFilterOption = targetFilterOption.concat(matchedFilterOption);
-        } else {
-          const filterRules = this.getFilterRules();
-          const filterResult = await filterBase.checkAwemeInfoIsFilter(filterRules, awemeInfo, "dom", true);
-          if (filterResult.matchedFilterRule.length) {
-            isHasMatchedRules = true;
-            targetFilterOption = targetFilterOption.concat(filterResult.matchedFilterRule);
-          } else {
-            isHasMatchedRules = false;
-            targetFilterOption = targetFilterOption.concat(filterResult.notMatchedFilterRule);
-          }
-        }
-        __pops__.confirm({
-          title: {
-            text: `视频awemeInfo（${isFromNetWork ? "NetWork" : "DOM"}）`,
-            position: "center",
-          },
-          content: {
-            text: JSON.stringify(transformAwemeInfo, null, 4).trim(),
-            html: false,
-          },
-          drag: true,
-          btn: {
-            merge: targetFilterOption.length ? true : false,
-            position: targetFilterOption.length ? "space-between" : "flex-end",
-            ok: {
-              enable: true,
-              text: "添加过滤规则",
-              callback: () => {
-                this.getRuleViewInstance().showEditView(false, this.getTemplateData());
-              },
-            },
-            cancel: {
-              enable: true,
-              text: "规则管理器",
-              callback: () => {
-                this.showView();
-              },
-            },
-            other: {
-              enable: Boolean(targetFilterOption.length),
-              text: `${isHasMatchedRules ? "" : "非"}命中的规则(${targetFilterOption.length})`,
-              type: isHasMatchedRules ? "xiaomi-primary" : "violet",
-              callback: () => {
-                this.getRuleViewInstance().showView((data) => {
-                  const find = targetFilterOption.find((it) => {
-                    return data.uuid === it.uuid;
-                  });
-                  return Boolean(find);
-                });
-              },
-            },
-          },
-          mask: {
-            enable: true,
-            clickEvent: { toClose: true },
-          },
-          width: PanelUISize.setting.width,
-          height: PanelUISize.setting.height,
-          style: `
-				.pops-confirm-content p{
-					white-space: break-spaces;
-				}
-			`,
-        });
-      };
-      const createButton = () => {
-        return domUtils.createElement("xg-icon", {
-          className: "gm-video-filter-parse-btn",
-          innerHTML: `
-        <div class="xgplayer-icon">
-          <span role="img" class="semi-icon semi-icon-default">
-            <svg
-              viewBox="0 0 32 32"
-              width="1em"
-              height="1em"
-              style="font-size: 32px"
-              xmlns="http://www.w3.org/2000/svg"
-              focusable="false"
-              fill="none">
-              <g>
-                <path
-                  stroke="null"
-                  fill="currentColor"
-                  d="m9.78829,8.17117l1.77477,0l0,1.73974l-1.77477,0l0,4.34935a1.77477,1.73974 0 0 1 -1.77477,1.73974a1.77477,1.73974 0 0 1 1.77477,1.73974l0,4.34935l1.77477,0l0,1.73974l-1.77477,0c-0.9495,-0.23486 -1.77477,-0.78288 -1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 0 -1.77477,-1.73974l-0.88739,0l0,-1.73974l0.88739,0a1.77477,1.73974 0 0 0 1.77477,-1.73974l0,-3.47948a1.77477,1.73974 0 0 1 1.77477,-1.73974m12.42342,0a1.77477,1.73974 0 0 1 1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 0 1.77477,1.73974l0.88739,0l0,1.73974l-0.88739,0a1.77477,1.73974 0 0 0 -1.77477,1.73974l0,3.47948a1.77477,1.73974 0 0 1 -1.77477,1.73974l-1.77477,0l0,-1.73974l1.77477,0l0,-4.34935a1.77477,1.73974 0 0 1 1.77477,-1.73974a1.77477,1.73974 0 0 1 -1.77477,-1.73974l0,-4.34935l-1.77477,0l0,-1.73974l1.77477,0m-6.21171,10.43844a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m-3.54955,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987m7.0991,0a0.88739,0.86987 0 0 1 0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,0.86987a0.88739,0.86987 0 0 1 -0.88739,-0.86987a0.88739,0.86987 0 0 1 0.88739,-0.86987z"
-                  clip-rule="evenodd"
-                  fill-rule="evenodd" />
-              </g>
-            </svg>
-          </span>
-        </div>
-        <div class="xg-tips">解析信息</div>
-				`,
-        });
-      };
-      const lockFn = new utils.LockFunction(() => {
-        if (DouYinRouter.isLive()) return;
-        $$(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(($xgRightGrid) => {
-          const $gmFilterParseBtn = createButton();
-          domUtils.on($gmFilterParseBtn, "click", async (event) => {
-            domUtils.preventEvent(event);
-            const $basePlayerContainer = $xgRightGrid.closest(".basePlayerContainer");
-            if (!$basePlayerContainer) {
-              qmsg.default.error("获取.basePlayerContainer失败");
-              return;
-            }
-            await onClick($basePlayerContainer);
-          });
-          domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
-        });
-        [
-          ...Array.from($$('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))')),
-          ...Array.from(
-            $$('[data-e2e="feed-live"] .douyin-player-controls-right:not(:has(.gm-video-filter-parse-btn))')
-          ),
-        ].forEach(($xgRightGrid) => {
-          if (!utils.isVisible($xgRightGrid, false)) return;
-          const $gmFilterParseBtn = createButton();
-          domUtils.on($gmFilterParseBtn, "click", async (event) => {
-            domUtils.preventEvent(event);
-            const $liveContainer = $xgRightGrid.closest('[data-e2e="feed-live"]');
-            if (!$liveContainer) {
-              qmsg.default.error(`未找到[data-e2e="feed-live"]`);
-              return;
-            }
-            await onClick($liveContainer);
-          });
-          domUtils.prepend($xgRightGrid, $gmFilterParseBtn);
-        });
-      });
-      const observer = utils.mutationObserver(document, {
-        config: {
-          subtree: true,
-          childList: true,
-        },
-        immediate: true,
-        callback: () => {
-          lockFn.run();
-        },
-      });
-      return [
-        addStyle(`
-      xg-icon .xg-tips{
-        display: none;
-      }
-			.basePlayerContainer .gm-video-filter-parse-btn{
-				margin-left: 4px;
-			}
-			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon{
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-			.basePlayerContainer .gm-video-filter-parse-btn .semi-icon svg{
-				
-			}
-      /* 修复搜索结果单列页面 解析按钮的高度错位 */
-      .searchControl33px .xg-right-grid xg-icon.gm-video-filter-parse-btn span svg{
-				transform: translateY(-6px) !important;
-			}`),
-        () => {
-          domUtils.remove(".gm-video-filter-parse-btn");
-          observer?.disconnect();
-        },
-      ];
-    },
-    getRuleViewInstance() {
-      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
-      const generateStorageApi = (data) => {
-        return {
-          get(key, defaultValue) {
-            return data[key] ?? defaultValue;
-          },
-          set(key, value) {
-            data[key] = value;
-          },
-        };
-      };
-      const ruleViewOption = {
-        title: "视频过滤器",
-        data: () => {
-          return this.$data.videoFilterRuleStorage.getAllRule();
-        },
-        getAddData: () => {
-          return this.getTemplateData();
-        },
-        getDataItemName: (data) => {
-          return data.name;
-        },
-        updateData: (data) => {
-          return this.$data.videoFilterRuleStorage.setRule(data);
-        },
-        deleteData: (data) => {
-          return this.$data.videoFilterRuleStorage.deleteRule(data);
-        },
-        getData: (data) => {
-          return (
-            DouYinVideoFilter.$data.videoFilterRuleStorage.getAllRule().find((item) => item.uuid === data.uuid) ?? data
-          );
-        },
-        itemControls: {
-          enable: {
-            enable: true,
-            getEnable(data) {
-              return data.enable;
-            },
-            callback: (data, enable) => {
-              data.enable = enable;
-              ruleViewOption.updateData(data);
-            },
-          },
-          edit: {
-            enable: true,
-            getView: (data, isEdit) => {
-              const $fragment = document.createDocumentFragment();
-              if (!isEdit) data = this.getTemplateData();
-              const enable_template = UISwitch("启用", "enable", true);
-              Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              const { $el: $enable } = panelHandlerComponents.createSectionContainerItem_switch(enable_template);
-              const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
-              Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              const { $el: $name } = panelHandlerComponents.createSectionContainerItem_input(name_template);
-              const scope_template = UISelectMultiple(
-                "作用域",
-                "scope",
-                [],
-                [
-                  {
-                    text: "所有",
-                    value: "all",
-                  },
-                  {
-                    text: "精选",
-                    value: "xhr-module",
-                  },
-                  {
-                    text: "推荐",
-                    value: "xhr-tab",
-                  },
-                  {
-                    text: "关注",
-                    value: "xhr-follow",
-                  },
-                  {
-                    text: "朋友",
-                    value: "xhr-familiar",
-                  },
-                  {
-                    text: "搜索",
-                    value: "xhr-search",
-                  },
-                  {
-                    text: "用户主页",
-                    value: "xhr-userHome",
-                  },
-                  {
-                    text: "混合信息",
-                    value: "xhr-mix",
-                  },
-                  {
-                    text: "相关推荐",
-                    value: "xhr-related",
-                  },
-                ].map((it) => {
-                  const result = {
-                    ...it,
-                    value: it.value,
-                  };
-                  if (result.value !== "all") {
-                  }
-                  return result;
-                }),
-                void 0,
-                "选择需要在xxx上生效的作用域"
-              );
-              Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              const { $el: $scope } = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template);
-              const filterBase = new DouYinVideoFilterBase();
-              const douYinVideoHandlerInfoKey = Object.keys(filterBase.getTemplateData());
-              const createDynamicItemNode = (storageData) => {
-                const ruleName_template = UISelectMultiple(
-                  "属性名",
-                  "ruleName",
-                  Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]],
-                  douYinVideoHandlerInfoKey.map((item) => {
-                    return {
-                      text: item,
-                      value: item,
-                    };
-                  }),
-                  void 0,
-                  "选择需要的属性名 "
-                );
-                Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const { $el: $ruleName } =
-                  panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template);
-                const isFunctionHandler_template_valueChange = (_, enableValue) => {
-                  if (enableValue) {
-                    domUtils.html($ruleValueLeftMainText, `自定义函数`);
-                    domUtils.html($ruleValueLeftDescText, `返回值必须为boolean值`);
-                  } else {
-                    domUtils.html($ruleValueLeftMainText, ruleValue_template.text);
-                    domUtils.html($ruleValueLeftDescText, ruleValue_template.description ?? "");
-                  }
-                };
-                const isFunctionHandler_template = UISwitch(
-                  "是否使用自定义函数处理",
-                  "isFunctionHandler",
-                  false,
-                  void 0,
-                  "执行自定义函数来判断是否进行过滤",
-                  void 0,
-                  false,
-                  isFunctionHandler_template_valueChange
-                );
-                Reflect.set(isFunctionHandler_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const { $el: $ownFunctionHandler } =
-                  panelHandlerComponents.createSectionContainerItem_switch(isFunctionHandler_template);
-                const ruleValue_template = UITextArea(
-                  "属性值",
-                  "ruleValue",
-                  "",
-                  "如果是字符串，可正则，注意转义",
-                  void 0
-                );
-                Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const { $el: $ruleValue } =
-                  panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template);
-                const $ruleValueLeftMainText = $ruleValue.querySelector(".pops-panel-item-left-main-text");
-                const $ruleValueLeftDescText = $ruleValue.querySelector(".pops-panel-item-left-desc-text");
-                const remarks_template = UITextArea("备注", "remarks", "", "", void 0);
-                Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                const { $el: $remarks } = panelHandlerComponents.createSectionContainerItem_textarea(remarks_template);
-                if (storageData.isFunctionHandler)
-                  isFunctionHandler_template_valueChange(null, isFunctionHandler_template.getValue());
-                return [$ruleName, $ownFunctionHandler, $ruleValue, $remarks];
-              };
-              const $dynamicContainer = domUtils.createElement("div", {
-                className: "rule-form-ulist-dynamic",
-                innerHTML: `
-							<div class="rule-form-ulist-dynamic__inner"></div>
-							<div class="pops-panel-button pops-panel-button-no-icon">
-								<button class="pops-panel-button_inner" type="button" data-type="default">
-									<i class="pops-bottom-icon" is-loading="false"></i>
-									<span class="pops-panel-button-text">添加额外属性</span>
-								</button>
-							</div>
-							`,
-              });
-              const $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
-              const $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
-              const addDynamicElementItem = (
-                dynamicData = {
-                  ruleName: [],
-                  isFunctionHandler: false,
-                  ruleValue: "",
-                  remarks: "",
-                }
-              ) => {
-                const $dynamicUListContainer = domUtils.createElement("div", {
-                  className: "rule-form-ulist-dynamic__inner-container",
-                  innerHTML: `
-									<div class="dynamic-control-delete">
-										<div class="pops-panel-button pops-panel-button-no-icon">
-											<button class="pops-panel-button_inner" type="button" data-type="danger">
-												<i class="pops-bottom-icon" is-loading="false"></i>
-												<span class="pops-panel-button-text">×</span>
-											</button>
-										</div>
-									</div>
-									<ul class="dynamic-forms"></ul>
-								`,
-                });
-                const $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
-                domUtils.on($dynamicDelete, "click", (event) => {
-                  domUtils.preventEvent(event);
-                  domUtils.remove($dynamicUListContainer);
-                  if (Array.isArray(data.dynamicData)) {
-                    const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
-                    if (findIndex !== -1) data.dynamicData.splice(findIndex, 1);
-                  }
-                });
-                const $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
-                const dynamicItemNodes = createDynamicItemNode(dynamicData);
-                $dynamicUList.append(...dynamicItemNodes);
-                $dynamicInner.appendChild($dynamicUListContainer);
-              };
-              domUtils.on($addDynamicButton, "click", (event) => {
-                domUtils.preventEvent(event);
-                addDynamicElementItem();
-              });
-              if (Array.isArray(data.dynamicData))
-                for (let index = 0; index < data.dynamicData.length; index++) {
-                  const moreDataItem = data.dynamicData[index];
-                  addDynamicElementItem(moreDataItem);
-                }
-              $fragment.append($enable, $name, $scope, ...createDynamicItemNode(data.data), $dynamicContainer);
-              return $fragment;
-            },
-            onsubmit: async ($form, isEdit, editData) => {
-              const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
-              const data = this.getTemplateData();
-              if (isEdit) data.uuid = editData.uuid;
-              $ulist_li.forEach(($li) => {
-                const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-                if (!viewConfig) return;
-                const attrs = Reflect.get(viewConfig, "attributes");
-                if (!attrs) return;
-                const storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                const key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                const value = storageApi.get(key, defaultValue);
-                if (Reflect.has(data, key)) Reflect.set(data, key, value);
-                else if (Reflect.has(data.data, key)) Reflect.set(data.data, key, value);
-                else log.error(`${key}不在数据中`);
-              });
-              $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
-                const dynamicData = {};
-                $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                  const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
-                  if (!viewConfig) return;
-                  const attrs = Reflect.get(viewConfig, "attributes");
-                  if (!attrs) return;
-                  const storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                  const key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                  const value = storageApi.get(key, defaultValue);
-                  Reflect.set(dynamicData, key, value);
-                });
-                data.dynamicData.push(dynamicData);
-              });
-              if (data.name.trim() === "") {
-                qmsg.default.error("规则名称不能为空");
-                return {
-                  success: false,
-                  data,
-                };
-              }
-              if (data.data.scope.length === 0) {
-                qmsg.default.error("请选择作用域");
-                return {
-                  success: false,
-                  data,
-                };
-              }
-              if (data.data.ruleName.length === 0) {
-                qmsg.default.error("请选择属性名");
-                return {
-                  success: false,
-                  data,
-                };
-              }
-              if (data.data.ruleValue.trim() === "") {
-                qmsg.default.error((data.data.isFunctionHandler ? "自定义函数" : "属性值") + "不能为空");
-                return {
-                  success: false,
-                  data,
-                };
-              }
-              let successFlag = false;
-              if (isEdit) successFlag = Boolean(await ruleViewOption.updateData(data));
-              else successFlag = this.$data.videoFilterRuleStorage.addRule(data);
-              return {
-                success: successFlag,
-                data,
-              };
-            },
-            style: `
-          .pops-panel-textarea textarea{
-              height: 150px;
-          }
-					.pops-panel-item-left-desc-text{
-						line-height: normal;
-						margin-top: 6px;
-						font-size: 0.8em;
-						color: rgb(108, 108, 108);
-					}
-					.rule-form-ulist-dynamic{
-						--button-margin-top: 0px;
-						--button-margin-right: 0px;
-						--button-margin-bottom: 0px;
-						--button-margin-left: 0px;
-						display: flex;
-						flex-direction: column;
-						align-items: flex-start;
-						padding: 5px 20px;
-					}
-					.rule-form-ulist-dynamic__inner{
-						width: 100%;
-					}
-					.rule-form-ulist-dynamic__inner-container{
-						display: flex;
-						align-items: center;
-					}
-					.dynamic-forms{
-						width: 100%;
-					}
-					.pops-panel-textarea textarea{
-						height: 60px;
-						min-height: 60px;
-						width: 250px;
-						max-width: 400px;
-						min-width: 250px;
-						resize: auto;
-						transition: unset;
-					}
-          li[data-key="isFunctionHandler"]:has(.pops-panel-switch-is-checked) + li[data-key="ruleValue"] .pops-panel-textarea {
-            flex: 1;
-            justify-items: end;
-          }
-          li[data-key="isFunctionHandler"]:has(.pops-panel-switch-is-checked) + li[data-key="ruleValue"] textarea {
-            height: 200px;
-            width: calc(100% - 100px);
-            max-width: unset;
-          }
-          `,
-            width: () => {
-              return window.innerWidth > 700 ? "700px" : "88vw";
-            },
-          },
-          delete: {
-            enable: true,
-            deleteCallBack: async (data) => {
-              return await ruleViewOption.deleteData(data);
-            },
-          },
-        },
-        bottomControls: {
-          filter: {
-            enable: true,
-            option: [
-              {
-                name: "全部",
-                value: "",
-                selectedCallBack(config) {
-                  Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
-                },
-                filterCallBack() {
-                  return true;
-                },
-              },
-              {
-                name: "已启用",
-                value: "external-enabled",
-                selectedCallBack(config) {
-                  Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
-                },
-                filterCallBack(data) {
-                  return data.enable;
-                },
-              },
-              {
-                name: "未启用",
-                value: "external-notEnabled",
-                selectedCallBack(config) {
-                  Panel.setValue("dy-video-ui-rule-filter-option-external-index", config.value);
-                },
-                filterCallBack(data) {
-                  return !data.enable;
-                },
-              },
-            ],
-            inputOption: [
-              {
-                name: "规则名称",
-                value: "rule-name",
-                selectedCallBack(config) {
-                  Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
-                },
-                filterCallBack(data, searchText) {
-                  return Boolean(data.name.match(searchText));
-                },
-              },
-              {
-                name: "属性值",
-                value: "rule-ruleValue",
-                selectedCallBack(config) {
-                  Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
-                },
-                filterCallBack(data, searchText) {
-                  return Boolean(data.data.ruleValue.match(searchText));
-                },
-              },
-              {
-                name: "备注",
-                value: "rule-remarks",
-                selectedCallBack(config) {
-                  Panel.setValue("dy-video-ui-rule-filter-option-rule-index", config.value);
-                },
-                filterCallBack(data, searchText) {
-                  return Boolean(data.data.remarks.match(searchText));
-                },
-              },
-            ],
-          },
-          clear: {
-            enable: true,
-            callback: () => {
-              this.$data.videoFilterRuleStorage.clearAllRule();
-            },
-          },
-        },
-      };
-      return new RuleView(ruleViewOption);
-    },
-    showView() {
-      this.getRuleViewInstance().showView({
-        external: Panel.getValue("dy-video-ui-rule-filter-option-external-index"),
-        rule: Panel.getValue("dy-video-ui-rule-filter-option-rule-index"),
-      });
-    },
-    getTemplateData() {
-      return {
-        uuid: utils.generateUUID(),
-        enable: true,
-        name: "",
-        data: {
-          scope: [],
-          ruleName: "nickname",
-          isFunctionHandler: false,
-          ruleValue: "",
-          remarks: "",
-        },
-        dynamicData: [],
-      };
     },
   };
   var DouYinUrlHandler = {

@@ -18,6 +18,7 @@ import { DouYinVideoBlock_BottomToolbar_videoInfo } from "../block/DouYinVideoBl
 import { DouYinVideoBlock_RightToolbar } from "../block/DouYinVideoBlock_RightToolbar";
 import MobileCSS from "../css/mobile.css?raw";
 import { DouYinVideoElementAutoHide } from "../DouYinVideoElementAutoHide";
+import { DouYinVideoFilter } from "../filter/DouYinVideoFilter";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
@@ -278,26 +279,26 @@ export const DouYinVideoPlayer = {
             if (isWebSiteFullScreen) {
               if (DouYinRouter.isLive()) {
                 // 直播的网页全屏按钮
-                return $<HTMLElement>(DouYinElement.liveWebsiteFullScreen());
+                return $(DouYinElement.liveWebsiteFullScreen());
               } else {
                 return (
                   // 普通视频的网页全屏按钮
-                  $<HTMLElement>(DouYinElement.videoFullScreen()) ||
+                  $(DouYinElement.videoFullScreen()) ||
                   // 搜索页面的网页全屏按钮↓
-                  $<HTMLElement>(DouYinElement.searchPageActiveVideoFullScreen())
+                  $(DouYinElement.searchPageActiveVideoFullScreen())
                 );
               }
             } else {
               if (DouYinRouter.isLive()) {
                 // 直播的进入全屏按钮
                 return (
-                  $<HTMLElement>(DouYinElement.liveFullScreen()) ||
+                  $(DouYinElement.liveFullScreen()) ||
                   // 直播的退出全屏按钮
-                  $<HTMLElement>(DouYinElement.liveQuitFullScreen())
+                  $(DouYinElement.liveQuitFullScreen())
                 );
               } else {
                 // 普通视频的全屏按钮
-                return $<HTMLElement>(DouYinElement.activeVideoFullScreen());
+                return $(DouYinElement.activeVideoFullScreen());
               }
             }
           },
@@ -406,26 +407,26 @@ export const DouYinVideoPlayer = {
   chooseQuality(mode = 0) {
     log.info("选择视频清晰度: " + mode);
     const QualitySessionKey = "MANUAL_SWITCH";
-    const clarityReal = [
-      "normal_720_0",
-      "normal_1080_0",
-      "normal_540_0",
-      "low_720_0",
-      "low_540_0",
-      "adapt_lowest_1440_1",
-      "lower_540_0",
-      "adapt_low_540_0",
-      "adapt_lowest_1080_1",
-      "adapt_lowest_720_1",
-      "adapt_540_1",
-      "adapt_lower_540_1",
-      "adapt_lowest_1440_1",
-      "adapt_lowest_720_1",
-      "adapt_540_1",
-      "adapt_lower_540_1",
-      "adapt_lowest_4_1",
-      "adapt_lowest_hdr_4_1",
-    ];
+    // const clarityReal = [
+    //   "normal_720_0",
+    //   "normal_1080_0",
+    //   "normal_540_0",
+    //   "low_720_0",
+    //   "low_540_0",
+    //   "adapt_lowest_1440_1",
+    //   "lower_540_0",
+    //   "adapt_low_540_0",
+    //   "adapt_lowest_1080_1",
+    //   "adapt_lowest_720_1",
+    //   "adapt_540_1",
+    //   "adapt_lower_540_1",
+    //   "adapt_lowest_1440_1",
+    //   "adapt_lowest_720_1",
+    //   "adapt_540_1",
+    //   "adapt_lower_540_1",
+    //   "adapt_lowest_4_1",
+    //   "adapt_lowest_hdr_4_1",
+    // ];
 
     const definition = [
       {
@@ -608,6 +609,7 @@ export const DouYinVideoPlayer = {
      * @param data
      */
     const showParseInfoDialog = (data: {
+      isFromNetWork: boolean;
       videoInfo?: {
         author: string;
         desc: string;
@@ -795,7 +797,7 @@ export const DouYinVideoPlayer = {
       }
       const $dialog = pops.alert({
         title: {
-          text: "视频解析（DOM）",
+          text: `视频解析（${data.isFromNetWork ? "NetWork" : "DOM"}）`,
           position: "center",
         },
         content: {
@@ -913,6 +915,7 @@ export const DouYinVideoPlayer = {
           const video = clonePictureInfo.video!;
           clonePictureInfo.video = [];
           showParseInfoDialog({
+            isFromNetWork: data.isFromNetWork,
             videoInfo: data.videoInfo,
             videoDownloadInfo: {
               fileName: data.videoDownloadInfo?.fileName!,
@@ -933,7 +936,7 @@ export const DouYinVideoPlayer = {
         (evt, $click) => {
           DOMUtils.preventEvent(evt);
           const url = $click.getAttribute("href")!;
-          const format = $click.getAttribute("data-format");
+          // const format = $click.getAttribute("data-format");
           let fileName = $click.getAttribute("data-file-name")!;
           /**
            * 测试是否支持GM_download
@@ -1124,7 +1127,7 @@ export const DouYinVideoPlayer = {
         Qmsg.error("无法解析直播video的下载信息");
         return;
       }
-      const parentReactFilber = utils.getReactInstance($click?.parentElement!)?.reactFiber;
+      const parentReactFilber = utils.getReactInstance($click?.parentElement as HTMLElement)?.reactFiber;
       const $basePlayerContainer = $click.closest<HTMLElement>(".basePlayerContainer");
       const basePlayerContainerReactFiber = utils.getReactInstance($basePlayerContainer!)?.reactFiber;
       if (!parentReactFilber && !basePlayerContainerReactFiber) {
@@ -1169,6 +1172,8 @@ export const DouYinVideoPlayer = {
           return;
         }
         log.info("DOM上的的awemeInfo：", awemeInfo);
+        let transformAwemeInfo: Required<DouYinVideoConversionInfo>;
+        let isFromNetWork = false;
         const filterBase = new DouYinVideoFilterBase();
         const transformAwemeInfoWithDOM = filterBase.parseAwemeInfoDictData(
           awemeInfo,
@@ -1176,11 +1181,23 @@ export const DouYinVideoPlayer = {
           true
         ) as Required<DouYinVideoConversionInfo>;
         log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithDOM);
-        if (transformAwemeInfoWithDOM.nickname == null) {
-          transformAwemeInfoWithDOM.nickname = "未知作者";
+        if (
+          typeof transformAwemeInfoWithDOM.awemeId === "string" &&
+          DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithDOM.awemeId)
+        ) {
+          isFromNetWork = true;
+          const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithDOM.awemeId);
+          transformAwemeInfo = awemeInfoMapData.transformAwemeInfo as Required<DouYinVideoConversionInfo>;
+          log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
+          log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
+        } else {
+          transformAwemeInfo = transformAwemeInfoWithDOM;
         }
-        if (transformAwemeInfoWithDOM.desc == null) {
-          transformAwemeInfoWithDOM.desc = "未知视频文案";
+        if (transformAwemeInfo.nickname == null) {
+          transformAwemeInfo.nickname = "未知作者";
+        }
+        if (transformAwemeInfo.desc == null) {
+          transformAwemeInfo.desc = "未知视频文案";
         }
         // 收集到的全部的下载地址
         let videoDownloadUrlList: ParseVideoDownloadInfo[] = [];
@@ -1188,28 +1205,25 @@ export const DouYinVideoPlayer = {
         let pictureDownloadUrlList: ParsePictureDownloadInfo[] = [];
 
         videoDownloadUrlList = videoDownloadUrlList.concat(
-          transformAwemeInfoWithDOM.videoBitRateList.map((it) => {
+          transformAwemeInfo.videoBitRateList.map((it) => {
             return it;
           })
         );
-        if (
-          typeof transformAwemeInfoWithDOM.musicUrl === "string" &&
-          utils.isNotNull(transformAwemeInfoWithDOM.musicUrl)
-        ) {
+        if (typeof transformAwemeInfo.musicUrl === "string" && utils.isNotNull(transformAwemeInfo.musicUrl)) {
           musicDownloadUrlList.push({
-            url: transformAwemeInfoWithDOM.musicUrl,
-            author: transformAwemeInfoWithDOM.musicAuthor,
-            album: transformAwemeInfoWithDOM.musicAlbum,
-            title: transformAwemeInfoWithDOM.musicTitle,
-            duration: transformAwemeInfoWithDOM.musicDuration,
-            backUrl: transformAwemeInfoWithDOM.musicBackUrlList,
+            url: transformAwemeInfo.musicUrl,
+            author: transformAwemeInfo.musicAuthor,
+            album: transformAwemeInfo.musicAlbum,
+            title: transformAwemeInfo.musicTitle,
+            duration: transformAwemeInfo.musicDuration,
+            backUrl: transformAwemeInfo.musicBackUrlList,
           });
         }
-        if (Array.isArray(transformAwemeInfoWithDOM?.pictureList) && transformAwemeInfoWithDOM.pictureList.length) {
+        if (Array.isArray(transformAwemeInfo?.pictureList) && transformAwemeInfo.pictureList.length) {
           // 图文
           // 图文内有时候存在Live实况
           pictureDownloadUrlList = pictureDownloadUrlList.concat(
-            transformAwemeInfoWithDOM.pictureList.map((item) => {
+            transformAwemeInfo.pictureList.map((item) => {
               return {
                 url: item.url,
                 width: item.width,
@@ -1227,11 +1241,11 @@ export const DouYinVideoPlayer = {
         // 视频下载的文件名
         const videoOrPictureTransformOption: Parameters<typeof transformDownloadFileName>["0"] = {
           downloadTime: downloadTime,
-          uid: transformAwemeInfoWithDOM.uid,
-          nickname: transformAwemeInfoWithDOM.nickname,
-          desc: transformAwemeInfoWithDOM.desc,
-          awemeId: transformAwemeInfoWithDOM.awemeId,
-          originDesc: transformAwemeInfoWithDOM.originDesc,
+          uid: transformAwemeInfo.uid,
+          nickname: transformAwemeInfo.nickname,
+          desc: transformAwemeInfo.desc,
+          awemeId: transformAwemeInfo.awemeId,
+          originDesc: transformAwemeInfo.originDesc,
         };
         const videoDownloadFileName = transformDownloadFileName(videoOrPictureTransformOption);
         // 图片下载的文件名
@@ -1239,18 +1253,19 @@ export const DouYinVideoPlayer = {
         // 音乐下载的文件名
         const musicDownloadFileName = transformDownloadFileName(
           {
-            album: transformAwemeInfoWithDOM.musicAlbum,
-            author: transformAwemeInfoWithDOM.musicAuthor,
-            title: transformAwemeInfoWithDOM.musicTitle,
-            duration: transformAwemeInfoWithDOM.musicDuration,
+            album: transformAwemeInfo.musicAlbum,
+            author: transformAwemeInfo.musicAuthor,
+            title: transformAwemeInfo.musicTitle,
+            duration: transformAwemeInfo.musicDuration,
             downloadTime: downloadTime,
           },
           Panel.getValue<string>("dy-video-parseVideoMusic-downloadFileName")
         );
         showParseInfoDialog({
+          isFromNetWork,
           videoInfo: {
-            author: transformAwemeInfoWithDOM.nickname,
-            desc: transformAwemeInfoWithDOM.desc,
+            author: transformAwemeInfo.nickname,
+            desc: transformAwemeInfo.desc,
           },
           videoDownloadInfo: {
             fileName: videoDownloadFileName,
