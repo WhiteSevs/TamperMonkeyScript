@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.6.21
+// @version      2026.6.23
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11508,11 +11508,12 @@
       log.info("监听【长时间无操作，已暂停播放】弹窗");
       const checkDialogToClose = ($el, from) => {
         const eleText = domUtils.text($el);
+        let closeDialogFn = null;
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
           qmsg.default.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
           const $rect = utils.getReactInstance($el);
-          if (typeof $rect.reactContainer === "object") {
-            const closeDialogFn =
+          if (typeof $rect.reactContainer === "object" && $rect.reactContainer)
+            closeDialogFn =
               utils.queryProperty($rect.reactContainer, (obj) => {
                 if (typeof obj["onClose"] === "function")
                   return {
@@ -11530,10 +11531,27 @@
                     data: obj["child"],
                   };
               }) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
-            if (typeof closeDialogFn === "function") {
-              qmsg.default.success(`检测${from}：调用函数关闭弹窗`);
-              closeDialogFn();
-            }
+          else if (typeof $rect.reactFiber === "object" && $rect.reactFiber && ["3"].includes(from.toString()))
+            closeDialogFn = utils.queryProperty($rect.reactFiber, (obj) => {
+              if (typeof obj["onClose"] === "function")
+                return {
+                  isFind: true,
+                  data: obj["onClose"],
+                };
+              else if (typeof obj?.["memoizedProps"]?.["onClose"] === "function")
+                return {
+                  isFind: true,
+                  data: obj?.["memoizedProps"]?.["onClose"],
+                };
+              else
+                return {
+                  isFind: false,
+                  data: obj["return"],
+                };
+            });
+          if (typeof closeDialogFn === "function") {
+            qmsg.default.success(`检测${from}：调用函数关闭弹窗`);
+            closeDialogFn();
           }
         }
       };
@@ -11543,8 +11561,11 @@
         $$("body > div[elementtiming='element-timing']").forEach(($elementTiming) => {
           checkDialogToClose($elementTiming, "1");
         });
-        $$('body > div:not([id="root"]):not(:empty)').forEach(($ele) => {
-          checkDialogToClose($ele, "2");
+        $$('body > div:not([id="root"]):not(:empty)').forEach(($el) => {
+          checkDialogToClose($el, "2");
+        });
+        $$("#TipsLayout > div").forEach(($el) => {
+          checkDialogToClose($el, "3");
         });
       });
       const observer = utils.mutationObserver(document.body || document.documentElement, {
