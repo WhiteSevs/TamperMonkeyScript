@@ -11508,9 +11508,9 @@
       log.info("监听【长时间无操作，已暂停播放】弹窗");
       const checkDialogToClose = ($el, from) => {
         const eleText = domUtils.text($el);
-        let closeDialogFn = null;
         if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
           qmsg.default.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
+          let closeDialogFn = null;
           const $rect = utils.getReactInstance($el);
           if (typeof $rect.reactContainer === "object" && $rect.reactContainer)
             closeDialogFn =
@@ -11531,24 +11531,26 @@
                     data: obj["child"],
                   };
               }) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
-          else if (typeof $rect.reactFiber === "object" && $rect.reactFiber && ["3"].includes(from.toString()))
-            closeDialogFn = utils.queryProperty($rect.reactFiber, (obj) => {
-              if (typeof obj["onClose"] === "function")
-                return {
-                  isFind: true,
-                  data: obj["onClose"],
-                };
-              else if (typeof obj?.["memoizedProps"]?.["onClose"] === "function")
-                return {
-                  isFind: true,
-                  data: obj?.["memoizedProps"]?.["onClose"],
-                };
-              else
-                return {
-                  isFind: false,
-                  data: obj["return"],
-                };
-            });
+          if (typeof closeDialogFn !== "function") {
+            if (typeof $rect.reactFiber === "object" && $rect.reactFiber && ["3"].includes(from.toString()))
+              closeDialogFn = utils.queryProperty($rect.reactFiber, (obj) => {
+                if (typeof obj["onClose"] === "function")
+                  return {
+                    isFind: true,
+                    data: obj["onClose"],
+                  };
+                else if (typeof obj?.["memoizedProps"]?.["onClose"] === "function")
+                  return {
+                    isFind: true,
+                    data: obj?.["memoizedProps"]?.["onClose"],
+                  };
+                else
+                  return {
+                    isFind: false,
+                    data: obj["return"],
+                  };
+              });
+          }
           if (typeof closeDialogFn === "function") {
             qmsg.default.success(`检测${from}：调用函数关闭弹窗`);
             closeDialogFn();
