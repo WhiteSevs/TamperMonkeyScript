@@ -341,11 +341,12 @@ export const DouYinLive = {
      */
     const checkDialogToClose = ($el: HTMLElement, from: string) => {
       const eleText = DOMUtils.text($el);
+      let closeDialogFn: Function | null = null;
       if (eleText.includes("长时间无操作") && eleText.includes("暂停播放")) {
         Qmsg.info(`检测${from}：出现【长时间无操作，已暂停播放】弹窗`);
         const $rect = utils.getReactInstance($el);
-        if (typeof $rect.reactContainer === "object") {
-          const closeDialogFn =
+        if (typeof $rect.reactContainer === "object" && $rect.reactContainer) {
+          closeDialogFn =
             utils.queryProperty($rect.reactContainer, (obj) => {
               // 不要用onMaskClick，该函数调用不会关闭弹窗
               if (typeof obj["onClose"] === "function") {
@@ -366,10 +367,31 @@ export const DouYinLive = {
                 };
               }
             }) || $rect?.reactContainer?.memoizedState?.element?.props?.children?.props?.onClose;
-          if (typeof closeDialogFn === "function") {
-            Qmsg.success(`检测${from}：调用函数关闭弹窗`);
-            closeDialogFn();
-          }
+        } else if (typeof $rect.reactFiber === "object" && $rect.reactFiber && ["3"].includes(from.toString())) {
+          closeDialogFn = utils.queryProperty($rect.reactFiber, (obj) => {
+            // 不要用onMaskClick，该函数调用不会关闭弹窗
+            if (typeof obj["onClose"] === "function") {
+              return {
+                isFind: true,
+                data: obj["onClose"],
+              };
+            } else if (typeof obj?.["memoizedProps"]?.["onClose"] === "function") {
+              return {
+                isFind: true,
+                data: obj?.["memoizedProps"]?.["onClose"],
+              };
+            } else {
+              // 未找到，进入下一层
+              return {
+                isFind: false,
+                data: obj["return"],
+              };
+            }
+          });
+        }
+        if (typeof closeDialogFn === "function") {
+          Qmsg.success(`检测${from}：调用函数关闭弹窗`);
+          closeDialogFn();
         }
       }
     };
@@ -381,8 +403,11 @@ export const DouYinLive = {
       $$<HTMLDivElement>("body > div[elementtiming='element-timing']").forEach(($elementTiming) => {
         checkDialogToClose($elementTiming, "1");
       });
-      $$<HTMLDivElement>('body > div:not([id="root"]):not(:empty)').forEach(($ele) => {
-        checkDialogToClose($ele, "2");
+      $$<HTMLDivElement>('body > div:not([id="root"]):not(:empty)').forEach(($el) => {
+        checkDialogToClose($el, "2");
+      });
+      $$<HTMLDivElement>("#TipsLayout > div").forEach(($el) => {
+        checkDialogToClose($el, "3");
       });
     });
 
