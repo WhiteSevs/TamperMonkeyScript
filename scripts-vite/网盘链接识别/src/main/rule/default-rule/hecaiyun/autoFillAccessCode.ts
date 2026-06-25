@@ -28,5 +28,19 @@ export const NetDiskAutoFillAccessCode_hecaiyun = function (netDiskInfo: NetDisk
 
       $<HTMLElement>("div.token-form a.btn-token")!.click();
     });
+  } else if (window.location.hostname === "yun.139.com") {
+    // 桌面端|移动端
+    log.success("自动填写链接", netDiskInfo);
+    DOMUtils.waitNode<HTMLInputElement>('input[placeholder*="请输入提取码"]').then((element) => {
+      if (!utils.isVisible(element)) {
+        log.error("输入框不可见，不输入密码");
+        return;
+      }
+      Qmsg.success("自动填充访问码");
+      element.value = netDiskInfo.accessCode;
+      DOMUtils.emit(element, "input");
+
+      $<HTMLElement>("a.btn-token")!.click();
+    });
   }
 };

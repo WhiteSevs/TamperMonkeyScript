@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.16
+// @version      2026.6.25
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -134,23 +134,26 @@
   _whitesev_data_paging = __toESM(_whitesev_data_paging);
   crypto_js = __toESM(crypto_js);
   viewerjs = __toESM(viewerjs);
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_download = typeof GM_download != "undefined" ? GM_download : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_openInTab = typeof GM_openInTab != "undefined" ? GM_openInTab : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var GM_RESOURCE_MAPPING = {
     ElementPlus: {
       keyName: "ElementPlusResourceCSS",
@@ -6238,6 +6241,18 @@
         domUtils.emit(element, "input");
         $("div.token-form a.btn-token").click();
       });
+    } else if (window.location.hostname === "yun.139.com") {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.waitNode('input[placeholder*="请输入提取码"]').then((element) => {
+        if (!utils.isVisible(element)) {
+          log.error("输入框不可见，不输入密码");
+          return;
+        }
+        qmsg.default.success("自动填充访问码");
+        element.value = netDiskInfo.accessCode;
+        domUtils.emit(element, "input");
+        $("a.btn-token").click();
+      });
     }
   };
   var ReactUtils = {
@@ -10882,7 +10897,7 @@
     registerWorkerInitErrorNeverTipToast(hostname) {
       let menuText = "💀 Worker初始化失败";
       const menuTextDynamic = () => {
-        if (NetDiskWorkerInitError.findHost(hostname)) return menuText + "（已设置不再提示）";
+        if (NetDiskWorkerInitError.findHost(hostname)) return "💀 Worker初始化失败（已设置不再提示）";
         else return menuText;
       };
       const menuOption = {
@@ -12510,7 +12525,8 @@
       return o().enc.Utf8.stringify(n).toString();
     },
     encryptHex(e) {
-      return this.encrypt(e).ciphertext.toString().toUpperCase();
+      const t = this.encrypt(e);
+      return (() => t.ciphertext.toString().toUpperCase())();
     },
     encryptBase64(e) {
       const t = this.encrypt(e);
