@@ -1,7 +1,7 @@
 import { addStyle, log } from "@/env";
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { CSDNBlog } from "./blog/CSDNBlog";
-import { CSDNHuaWeiCloud } from "./huaWeiCloud/CSDNHuaWeiCloud";
+import { CSDNCommunity } from "./community/CSDNCommunity";
 import { CSDNLink } from "./link/CSDNLink";
 import { CSDNWenKu } from "./wenku/CSDNWenKu";
 import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
@@ -14,9 +14,9 @@ export const CSDN = {
     if (CSDNRouter.isLink()) {
       log.info("Router: 中转链接");
       CSDNLink.init();
-    } else if (CSDNRouter.isHuaWeiCloudBlog()) {
-      log.info("Router: 华为云联盟");
-      CSDNHuaWeiCloud.init();
+    } else if (CSDNRouter.isCommunity()) {
+      log.info("Router: 社区");
+      CSDNCommunity.init();
     } else if (CSDNRouter.isBlog()) {
       log.info("Router: 博客");
       CSDNBlog.init();

@@ -1,16 +1,19 @@
 import { addStyle, log } from "@/env";
 import ShieldCSS from "./css/shield.css?raw";
-import { CSDNHuaWeiCloud } from "@/main/huaWeiCloud/CSDNHuaWeiCloud";
+import { CSDNCommunity } from "@/main/community/CSDNCommunity";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
-export const M_CSDNHuaWeiCloud = {
+export const M_CSDNCSDNCommunity = {
   init() {
     addStyle(ShieldCSS);
-    Panel.execMenuOnce("m-csdn-hua-wei-cloud-autoExpandContent", () => {
-      return CSDNHuaWeiCloud.autoExpandContent();
+    Panel.execMenuOnce("m-csdn-community-autoExpandContent", () => {
+      return CSDNCommunity.autoExpandContent();
     });
-    Panel.execMenuOnce("m-csdn-hua-wei-cloud-blockBottomJoinTheCommunity", () => {
+    Panel.execMenuOnce("m-csdn-community-blockRecommendedContentAtTheBottom", () => {
+      return CSDNCommunity.blockRecommendedContentAtTheBottom();
+    });
+    Panel.execMenuOnce("m-csdn-community-blockBottomJoinTheCommunity", () => {
       return this.blockBottomJoinTheCommunity();
     });
   },
