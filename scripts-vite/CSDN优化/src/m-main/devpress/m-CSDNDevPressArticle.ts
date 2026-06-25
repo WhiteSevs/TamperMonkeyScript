@@ -1,19 +1,19 @@
 import { addStyle, log } from "@/env";
 import ShieldCSS from "./css/shield.css?raw";
-import { CSDNCommunity } from "@/main/community/CSDNCommunity";
+import { CSDNDevPressArticle } from "@/main/devpress/CSDNDevPressArticle";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 
-export const M_CSDNCSDNCommunity = {
+export const M_CSDNDevPressArticle = {
   init() {
     addStyle(ShieldCSS);
-    Panel.execMenuOnce("m-csdn-community-autoExpandContent", () => {
-      return CSDNCommunity.autoExpandContent();
+    Panel.execMenuOnce("m-csdn-devpress-autoExpandContent", () => {
+      return CSDNDevPressArticle.autoExpandContent();
     });
-    Panel.execMenuOnce("m-csdn-community-blockRecommendedContentAtTheBottom", () => {
-      return CSDNCommunity.blockRecommendedContentAtTheBottom();
+    Panel.execMenuOnce("m-csdn-devpress-blockRecommendedContentAtTheBottom", () => {
+      return CSDNDevPressArticle.blockRecommendedContentAtTheBottom();
     });
-    Panel.execMenuOnce("m-csdn-community-blockBottomJoinTheCommunity", () => {
+    Panel.execMenuOnce("m-csdn-devpress-blockBottomJoinTheCommunity", () => {
       return this.blockBottomJoinTheCommunity();
     });
   },

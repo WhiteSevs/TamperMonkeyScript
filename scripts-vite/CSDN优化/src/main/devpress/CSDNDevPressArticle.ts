@@ -3,32 +3,32 @@ import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 import ShieldCSS from "./css/shield.css?raw";
 
-// 社区
-export const CSDNCommunity = {
+// 开发者社区
+export const CSDNDevPressArticle = {
   init() {
     addStyle(ShieldCSS);
-    Panel.execMenuOnce("csdn-community-centerContent", () => {
+    Panel.execMenuOnce("csdn-devpress-centerContent", () => {
       return this.centerContent();
     });
-    Panel.execMenuOnce("csdn-community-shieldCloudDeveloperTaskChallengeEvent", () => {
+    Panel.execMenuOnce("csdn-devpress-shieldCloudDeveloperTaskChallengeEvent", () => {
       return this.blockCloudDeveloperTaskChallengeEvent();
     });
-    Panel.execMenuOnce("csdn-community-autoExpandContent", () => {
+    Panel.execMenuOnce("csdn-devpress-autoExpandContent", () => {
       return this.autoExpandContent();
     });
-    Panel.execMenuOnce("csdn-community-shieldLeftFloatingButton", () => {
+    Panel.execMenuOnce("csdn-devpress-shieldLeftFloatingButton", () => {
       return this.blockLeftFloatingButton();
     });
-    Panel.execMenuOnce("csdn-community-blockRightColumn", () => {
+    Panel.execMenuOnce("csdn-devpress-blockRightColumn", () => {
       return this.blockRightColumn();
     });
-    Panel.execMenuOnce("csdn-community-blockBottomCSo", () => {
+    Panel.execMenuOnce("csdn-devpress-blockBottomCSo", () => {
       return this.blockBottomCSo();
     });
-    Panel.execMenuOnce("csdn-community-blockRecommendedContentAtTheBottom", () => {
+    Panel.execMenuOnce("csdn-devpress-blockRecommendedContentAtTheBottom", () => {
       return this.blockRecommendedContentAtTheBottom();
     });
-    Panel.execMenuOnce("csdn-community-shieldTheBottomForMoreRecommendations", () => {
+    Panel.execMenuOnce("csdn-devpress-shieldTheBottomForMoreRecommendations", () => {
       return this.blockTheBottomForMoreRecommendations();
     });
   },
