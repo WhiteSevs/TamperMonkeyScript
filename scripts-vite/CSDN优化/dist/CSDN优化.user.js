@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.6.25
+// @version      2026.6.26
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -2571,13 +2571,20 @@
     },
   };
   var CSDNRouter = {
-    isCommunity() {
-      return RouterUtil.builder()
-        .originMatch(/(tencentcloud|huaweicloud).csdn.net/)
-        .r();
+    isDevPress() {
+      return RouterUtil.hostName("devpress.csdn.net").r();
+    },
+    isDevPressArticle() {
+      return window.location.hostname.split(".").length === 3 && RouterUtil.builder().pathnameEndsWith(".html").r();
     },
     isBlog() {
       return RouterUtil.builder().originIncludes("blog.csdn.net").r();
+    },
+    isEdu() {
+      return RouterUtil.hostName("edu.csdn.net").r();
+    },
+    isBBS() {
+      return RouterUtil.hostName("bbs.csdn.net").r();
     },
     isBlogArticle() {
       return this.isBlog() && RouterUtil.builder().pathnameIncludes("/article/details/").r();
@@ -2588,14 +2595,14 @@
     isLink() {
       return RouterUtil.hostName("link.csdn.net").r();
     },
+    isDownload() {
+      return RouterUtil.hostName("download.csdn.net").r();
+    },
     isSo() {
       return RouterUtil.hostName("so.csdn.net").r();
     },
     isSoCKnow() {
       return this.isSo() && RouterUtil.builder().pathnameStartsWith("/chat").or().pathnameStartsWith("/so/ai").r();
-    },
-    isDownload() {
-      return RouterUtil.hostName("download.csdn.net").r();
     },
   };
   var CSDNLink = {
@@ -2630,31 +2637,31 @@
     "/* 右下角的 免费赢华为平板xxxx */\n.org-main-content .siderbar-box {\n  display: none !important;\n}\n";
   var shield_default$4 =
     "/* 底部免费抽xxx奖品广告 */\n.siderbar-box,\n/* 加入社区 */\n.user-desc {\n  display: none !important;\n}\n";
-  var CSDNCommunity = {
+  var CSDNDevPressArticle = {
     init() {
       addStyle(shield_default$4);
-      Panel.execMenuOnce("csdn-community-centerContent", () => {
+      Panel.execMenuOnce("csdn-devpress-centerContent", () => {
         return this.centerContent();
       });
-      Panel.execMenuOnce("csdn-community-shieldCloudDeveloperTaskChallengeEvent", () => {
+      Panel.execMenuOnce("csdn-devpress-shieldCloudDeveloperTaskChallengeEvent", () => {
         return this.blockCloudDeveloperTaskChallengeEvent();
       });
-      Panel.execMenuOnce("csdn-community-autoExpandContent", () => {
+      Panel.execMenuOnce("csdn-devpress-autoExpandContent", () => {
         return this.autoExpandContent();
       });
-      Panel.execMenuOnce("csdn-community-shieldLeftFloatingButton", () => {
+      Panel.execMenuOnce("csdn-devpress-shieldLeftFloatingButton", () => {
         return this.blockLeftFloatingButton();
       });
-      Panel.execMenuOnce("csdn-community-blockRightColumn", () => {
+      Panel.execMenuOnce("csdn-devpress-blockRightColumn", () => {
         return this.blockRightColumn();
       });
-      Panel.execMenuOnce("csdn-community-blockBottomCSo", () => {
+      Panel.execMenuOnce("csdn-devpress-blockBottomCSo", () => {
         return this.blockBottomCSo();
       });
-      Panel.execMenuOnce("csdn-community-blockRecommendedContentAtTheBottom", () => {
+      Panel.execMenuOnce("csdn-devpress-blockRecommendedContentAtTheBottom", () => {
         return this.blockRecommendedContentAtTheBottom();
       });
-      Panel.execMenuOnce("csdn-community-shieldTheBottomForMoreRecommendations", () => {
+      Panel.execMenuOnce("csdn-devpress-shieldTheBottomForMoreRecommendations", () => {
         return this.blockTheBottomForMoreRecommendations();
       });
     },
@@ -2723,16 +2730,16 @@
       return addBlockCSS(".more-article");
     },
   };
-  var M_CSDNCSDNCommunity = {
+  var M_CSDNDevPressArticle = {
     init() {
       addStyle(shield_default$5);
-      Panel.execMenuOnce("m-csdn-community-autoExpandContent", () => {
-        return CSDNCommunity.autoExpandContent();
+      Panel.execMenuOnce("m-csdn-devpress-autoExpandContent", () => {
+        return CSDNDevPressArticle.autoExpandContent();
       });
-      Panel.execMenuOnce("m-csdn-community-blockRecommendedContentAtTheBottom", () => {
-        return CSDNCommunity.blockRecommendedContentAtTheBottom();
+      Panel.execMenuOnce("m-csdn-devpress-blockRecommendedContentAtTheBottom", () => {
+        return CSDNDevPressArticle.blockRecommendedContentAtTheBottom();
       });
-      Panel.execMenuOnce("m-csdn-community-blockBottomJoinTheCommunity", () => {
+      Panel.execMenuOnce("m-csdn-devpress-blockBottomJoinTheCommunity", () => {
         return this.blockBottomJoinTheCommunity();
       });
     },
@@ -3620,9 +3627,6 @@
       if (CSDNRouter.isLink()) {
         log.info("Router: 中转链接");
         M_CSDNLink.init();
-      } else if (CSDNRouter.isCommunity()) {
-        log.info("Router: 社区");
-        M_CSDNCSDNCommunity.init();
       } else if (CSDNRouter.isBlog()) {
         log.info("Router: 博客");
         M_CSDNBlog.init();
@@ -3636,6 +3640,9 @@
       } else if (CSDNRouter.isDownload()) {
         log.info("Router: 资源下载");
         M_CSDNDownload.init();
+      } else if (CSDNRouter.isDevPressArticle()) {
+        log.info("Router: 社区-文章");
+        M_CSDNDevPressArticle.init();
       } else log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
     },
   };
@@ -4075,9 +4082,6 @@
       if (CSDNRouter.isLink()) {
         log.info("Router: 中转链接");
         CSDNLink.init();
-      } else if (CSDNRouter.isCommunity()) {
-        log.info("Router: 社区");
-        CSDNCommunity.init();
       } else if (CSDNRouter.isBlog()) {
         log.info("Router: 博客");
         CSDNBlog.init();
@@ -4091,6 +4095,9 @@
       } else if (CSDNRouter.isDownload()) {
         log.info("Router: 下载");
         CSDNDownload.init();
+      } else if (CSDNRouter.isDevPressArticle()) {
+        log.info("Router: 社区-文章");
+        CSDNDevPressArticle.init();
       } else log.error("暂未适配，请反馈开发者：" + globalThis.location.href);
     },
   };
@@ -4496,23 +4503,23 @@
     ],
   };
   var MSettingUIHuaWeiCloud = {
-    id: "m-panel-community",
-    title: "社区",
+    id: "m-panel-devpress",
+    title: "开发者社区",
     isDefault() {
-      return CSDNRouter.isCommunity();
+      return CSDNRouter.isDevPressArticle();
     },
     views: [
       {
         text: "功能",
         type: "container",
-        views: [UISwitch("自动展开全文", "m-csdn-community-autoExpandContent", true)],
+        views: [UISwitch("自动展开全文", "m-csdn-devpress-autoExpandContent", true)],
       },
       {
         text: "布局屏蔽",
         type: "container",
         views: [
-          UISwitch("【屏蔽】推荐内容", "m-csdn-community-blockRecommendedContentAtTheBottom", false),
-          UISwitch("【屏蔽】底部的加入社区", "m-csdn-community-blockBottomJoinTheCommunity", true),
+          UISwitch("【屏蔽】推荐内容", "m-csdn-devpress-blockRecommendedContentAtTheBottom", false),
+          UISwitch("【屏蔽】底部的加入社区", "m-csdn-devpress-blockBottomJoinTheCommunity", true),
         ],
       },
     ],
@@ -4923,42 +4930,42 @@
     ],
   };
   var SettingUICommunity = {
-    id: "panel-community",
-    title: "社区",
+    id: "panel-devpress",
+    title: "开发者社区",
     isDefault() {
-      return CSDNRouter.isCommunity();
+      return CSDNRouter.isDevPressArticle();
     },
     views: [
       {
         text: "功能",
         type: "container",
         views: [
-          UISwitch("自动展开全文", "csdn-community-autoExpandContent", true),
-          UISwitch("全文居中", "csdn-community-centerContent", false),
+          UISwitch("自动展开全文", "csdn-devpress-autoExpandContent", true),
+          UISwitch("全文居中", "csdn-devpress-centerContent", false),
         ],
       },
       {
         text: "布局屏蔽",
         type: "container",
         views: [
-          UISwitch("【屏蔽】云开发者任务挑战活动", "csdn-community-shieldCloudDeveloperTaskChallengeEvent", true),
-          UISwitch("【屏蔽】推荐内容", "csdn-community-blockRecommendedContentAtTheBottom", true),
+          UISwitch("【屏蔽】云开发者任务挑战活动", "csdn-devpress-shieldCloudDeveloperTaskChallengeEvent", true),
+          UISwitch("【屏蔽】推荐内容", "csdn-devpress-blockRecommendedContentAtTheBottom", true),
           UISwitch(
             "【屏蔽】左侧悬浮按钮",
-            "csdn-community-shieldLeftFloatingButton",
+            "csdn-devpress-shieldLeftFloatingButton",
             false,
             void 0,
             "开启后将屏蔽【当前阅读量】、【点赞按钮】、【评论按钮】、【分享按钮】"
           ),
           UISwitch(
             "【屏蔽】右侧栏",
-            "csdn-community-blockRightColumn",
+            "csdn-devpress-blockRightColumn",
             false,
             void 0,
             "开启后将屏蔽【相关产品】-【活动日历】-【运营活动】-【热门标签】"
           ),
-          UISwitch("【屏蔽】底部C知道", "csdn-community-blockBottomCSo", false),
-          UISwitch("【屏蔽】底部更多推荐", "csdn-community-shieldTheBottomForMoreRecommendations", false),
+          UISwitch("【屏蔽】底部C知道", "csdn-devpress-blockBottomCSo", false),
+          UISwitch("【屏蔽】底部更多推荐", "csdn-devpress-shieldTheBottomForMoreRecommendations", false),
         ],
       },
     ],
@@ -5133,7 +5140,7 @@
         return text;
       },
       callback() {
-        window.open("https://so.csdn.net/chat", "_blank");
+        window.open("https://ai.csdn.net/chat", "_blank");
       },
     },
   ]);

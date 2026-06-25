@@ -7,14 +7,14 @@ import { log, MenuRegister, utils } from "./env";
 import { M_CSDN } from "./m-main/m-CSDN";
 import { CSDN } from "./main/CSDN";
 import { MSettingUIBlog } from "./setting/m-view/m-blog";
-import { MSettingUIHuaWeiCloud } from "./setting/m-view/m-community";
+import { MSettingUIHuaWeiCloud } from "./setting/m-view/m-devpress";
 import { MSettingUIDownload } from "./setting/m-view/m-download";
 import { MSettingUIGeneral } from "./setting/m-view/m-general";
 import { MSettingUILink } from "./setting/m-view/m-link";
 import { MSettingUISo } from "./setting/m-view/m-so";
 import { MSettingUIWenKu } from "./setting/m-view/m-wenku";
 import { SettingUIBlog } from "./setting/view/blog";
-import { SettingUICommunity } from "./setting/view/community";
+import { SettingUICommunity } from "./setting/view/devpress";
 import { SettingUICommon } from "./setting/view/general";
 import { SettingUILink } from "./setting/view/link";
 import { SettingUISo } from "./setting/view/so";
@@ -55,7 +55,7 @@ PanelMenu.addMenuOption([
       return text;
     },
     callback() {
-      window.open("https://so.csdn.net/chat", "_blank");
+      window.open("https://ai.csdn.net/chat", "_blank");
     },
   },
 ]);
