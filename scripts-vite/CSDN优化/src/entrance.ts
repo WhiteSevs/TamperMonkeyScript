@@ -7,15 +7,15 @@ import { log, MenuRegister, utils } from "./env";
 import { M_CSDN } from "./m-main/m-CSDN";
 import { CSDN } from "./main/CSDN";
 import { MSettingUIBlog } from "./setting/m-view/m-blog";
-import { MSettingUIGeneral } from "./setting/m-view/m-general";
+import { MSettingUIHuaWeiCloud } from "./setting/m-view/m-community";
 import { MSettingUIDownload } from "./setting/m-view/m-download";
-import { MSettingUIHuaWeiCloud } from "./setting/m-view/m-huawei-cloud";
+import { MSettingUIGeneral } from "./setting/m-view/m-general";
 import { MSettingUILink } from "./setting/m-view/m-link";
 import { MSettingUISo } from "./setting/m-view/m-so";
 import { MSettingUIWenKu } from "./setting/m-view/m-wenku";
 import { SettingUIBlog } from "./setting/view/blog";
+import { SettingUICommunity } from "./setting/view/community";
 import { SettingUICommon } from "./setting/view/general";
-import { SettingUIHuaWeiCloud } from "./setting/view/huawei-cloud";
 import { SettingUILink } from "./setting/view/link";
 import { SettingUISo } from "./setting/view/so";
 import { SettingUIWenKu } from "./setting/view/wenku";
@@ -63,7 +63,7 @@ PanelContent.addContentConfig([
   SettingUICommon,
   SettingUIBlog,
   SettingUILink,
-  SettingUIHuaWeiCloud,
+  SettingUICommunity,
   SettingUIWenKu,
   SettingUISo,
 ]);

@@ -2,11 +2,15 @@ import { RouterUtil } from "@components/utils/RouterUtil";
 
 export const CSDNRouter = {
   /**
-   * 判断是否是华为云联盟
-   * + huaweicloud.csdn.net
+   * 社区
+   *
+   * - 腾讯云开发者社区
+   * - 华为云联盟
    */
-  isHuaWeiCloudBlog() {
-    return RouterUtil.builder().originIncludes("huaweicloud.csdn.net").r();
+  isCommunity() {
+    return RouterUtil.builder()
+      .originMatch(/(tencentcloud|huaweicloud).csdn.net/)
+      .r();
   },
   /**
    * 判断是否是博客
