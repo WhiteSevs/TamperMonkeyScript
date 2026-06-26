@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.6.23
+// @version      2026.6.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11353,7 +11353,7 @@
       });
     },
     chooseQuality(quality = "origin") {
-      const qualityName = VideoQualityMap[quality].label;
+      const chooseQualityName = VideoQualityMap[quality].label;
       window.localStorage.setItem("webcast_local_quality", quality);
       cookieManager.update({
         name: "webcast_local_quality",
@@ -11432,9 +11432,9 @@
           },
         }
       );
-      const switchSelector = qualityName.includes("自动")
-        ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${qualityName}")`
-        : `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:not(:first-child):contains("${qualityName}")`;
+      const switchSelector = chooseQualityName.includes("自动")
+        ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${chooseQualityName}")`
+        : `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${chooseQualityName}")`;
       ReactUtils.waitReactPropsToSet(switchSelector, "reactProps", {
         check(reactPropInst) {
           return typeof reactPropInst?.onClick === "function";

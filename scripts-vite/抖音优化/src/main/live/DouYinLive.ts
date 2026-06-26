@@ -160,7 +160,7 @@ export const DouYinLive = {
    * @param quality 选择的画质，默认原画
    */
   chooseQuality(quality = "origin") {
-    const qualityName = VideoQualityMap[quality].label;
+    const chooseQualityName = VideoQualityMap[quality].label;
     window.localStorage.setItem("webcast_local_quality", quality);
     cookieManager.update({
       name: "webcast_local_quality",
@@ -240,10 +240,9 @@ export const DouYinLive = {
         },
       }
     );
-    const switchSelector = qualityName.includes("自动")
-      ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${qualityName}")`
-      : // 排掉第一个画质（自动）
-        `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:not(:first-child):contains("${qualityName}")`;
+    const switchSelector = chooseQualityName.includes("自动")
+      ? `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${chooseQualityName}")`
+      : `#PlayerLayout .douyin-player-controls .QualitySwitchNewPlugin > div [data-e2e="quality-selector"] > div:contains("${chooseQualityName}")`;
     ReactUtils.waitReactPropsToSet(switchSelector, "reactProps", {
       check(reactPropInst) {
         return typeof reactPropInst?.onClick === "function";
