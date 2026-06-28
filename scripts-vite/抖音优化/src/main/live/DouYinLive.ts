@@ -9,7 +9,6 @@ import { DouYinLiveBlock } from "./DouYinLiveBlock";
 import { DouYinLiveDanmaku } from "./DouYinLiveDanmaku";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 import { DouYinLivePlayer } from "./player/DouYinLivePlayer";
-import { GM_cookie } from "ViteGM";
 
 export const VideoQualityMap: {
   [key: string]: {
