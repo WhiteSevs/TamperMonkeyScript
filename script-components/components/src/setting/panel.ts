@@ -320,9 +320,10 @@ const Panel = {
   setDefaultValue(key: string, defaultValue: any) {
     // 存储到缓存中
     if (this.$data.contentConfigInitDefaultValue.has(key)) {
-      log.warn("该key已存在，初始化默认值失败: ", {
+      log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
         key,
-        initValue: this.$data.contentConfigInitDefaultValue.get(key),
+        defaultValue,
+        coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
       });
     }
     this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
