@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.6.26
+// @version      2026.6.26.16
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -5108,7 +5108,7 @@
   PanelMenu.deleteMenuOption(0);
   PanelMenu.addMenuOption([
     {
-      key: "show_pops_panel_setting",
+      key: "pc_setting",
       text: "⚙ PC端设置",
       autoReload: false,
       isStoreValue: false,
@@ -5120,8 +5120,8 @@
       },
     },
     {
-      key: "m_show_pops_panel_setting",
-      text: "⚙ 移动端端设置",
+      key: "m_setting",
+      text: "⚙ 移动端设置",
       autoReload: false,
       isStoreValue: false,
       showText(text) {
@@ -5129,18 +5129,6 @@
       },
       callback: () => {
         Panel.showPanel(PanelContent.getConfig(1));
-      },
-    },
-    {
-      key: "gotoCSDNCKnow",
-      text: "⚙ 前往C知道",
-      isStoreValue: false,
-      autoReload: false,
-      showText(text) {
-        return text;
-      },
-      callback() {
-        window.open("https://ai.csdn.net/chat", "_blank");
       },
     },
   ]);
@@ -5165,14 +5153,25 @@
   var isMobile = utils.isPhone();
   var CHANGE_ENV_SET_KEY = "change_env_set";
   var chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
+  if (chooseMode != null)
+    if (chooseMode == 1) {
+      isMobile = true;
+      log.info(`手动指定为移动端`);
+    } else if (chooseMode == 2) {
+      isMobile = false;
+      log.info(`手动指定为PC端`);
+    } else {
+      qmsg.default.error(`意外，手动指定的值不在允许范围内，自动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
+      _GM_deleteValue(CHANGE_ENV_SET_KEY);
+    }
   MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
-    text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
+    text: `🖥️ 自动: ${isMobile ? "移动端" : "PC端"}`,
     autoReload: false,
     isStoreValue: false,
     showText(text) {
       if (chooseMode == null) return text;
-      return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
+      return `🖥️ 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
     },
     callback: () => {
       let allowValue = [0, 1, 2];
@@ -5191,19 +5190,13 @@
       else _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode);
     },
   });
-  if (chooseMode != null) {
-    log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
-    if (chooseMode == 1) M_CSDN.init();
-    else if (chooseMode == 2) CSDN.init();
-    else {
-      qmsg.default.error("意外，手动判定的值不在范围内");
-      _GM_deleteValue(CHANGE_ENV_SET_KEY);
-    }
-  } else if (isMobile) {
+  if (isMobile) {
     log.info("自动判定为移动端");
+    MenuRegister.delete("pc_setting");
     M_CSDN.init();
   } else {
     log.info("自动判定为PC端");
+    MenuRegister.delete("m_setting");
     CSDN.init();
   }
 })(Qmsg, DOMUtils, pops, Utils);
