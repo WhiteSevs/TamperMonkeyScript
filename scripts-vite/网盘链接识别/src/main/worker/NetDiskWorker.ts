@@ -344,7 +344,8 @@ export const NetDiskWorker = {
                     <div class="tip-text">解决：</div>
                     <div class="msg-container" data-type="solution">
                       <div>方案1. 点击下面的<code>快捷添加</code>-<code>自定义</code>，进入后点击<code>设置</code>-<code>功能</code>，然后把<code>匹配模式</code>切换为<code>Menu</code></div>
-                      <div>方案2. 安装<code>CSP插件</code>禁用CSP策略（不建议使用）</div>
+                      <div>方案2. 安装<code><a href="https://microsoftedge.microsoft.com/addons/detail/disablecsp/kleofklkancfimlfjhkjegnljkpjafcc" target="_blank">Disable-CSP</a>插件</code>禁用CSP策略（不建议使用）</div>
+                      <div>方案3. 使用运行此脚本的管理器添加本域名到排除域来禁止运行脚本</div>
                     </div>
                   </div>
                 </div>
