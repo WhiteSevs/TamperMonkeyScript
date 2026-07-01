@@ -1,6 +1,12 @@
 packages:
   - 'scripts-vite/**'
 
+# pnpm >= 11
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+
+# pnpm < 11
 ignoredBuiltDependencies:
   - esbuild
   - vue-demi
