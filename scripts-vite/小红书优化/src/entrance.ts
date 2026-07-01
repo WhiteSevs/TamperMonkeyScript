@@ -3,7 +3,7 @@ import { PanelContent } from "@components/setting/panel-content";
 import { PanelMenu } from "@components/setting/panel-menu";
 import Qmsg from "qmsg";
 import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
-import { addStyle, log, MenuRegister, SCRIPT_NAME, utils } from "./env";
+import { addStyle, log, MenuRegister, utils } from "./env";
 import { M_XHS } from "./m-main/M_XHS";
 import { XHS } from "./main/XHS";
 import { MSettingUI_Common } from "./setting/m-view/m-common";
@@ -12,43 +12,72 @@ import { MSettingUI_Notes } from "./setting/m-view/m-note";
 import { SettingUI_Article } from "./setting/view/article";
 import { SettingUI_Common } from "./setting/view/common";
 
-/* 修复一下Qmsg的loading图标问题 */
+// 修复一下Qmsg的loading图标问题
 addStyle(/*css*/ `
 .qmsg svg.animate-turn {
-    fill: none;
+  fill: none;
 }
 `);
+PanelMenu.deleteMenuOption(0);
+PanelMenu.addMenuOption([
+  {
+    key: "pc_setting",
+    text: "⚙ PC端设置",
+    autoReload: false,
+    isStoreValue: false,
+    showText(text: string) {
+      return text;
+    },
+    callback: () => {
+      Panel.showPanel(PanelContent.getConfig(0));
+    },
+  },
+  {
+    key: "m_setting",
+    text: "⚙ 移动端设置",
+    autoReload: false,
+    isStoreValue: false,
+    showText(text) {
+      return text;
+    },
+    callback: () => {
+      Panel.showPanel(PanelContent.getConfig(1));
+    },
+  },
+]);
 PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
 PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
-const defaultMenuOption = PanelMenu.getMenuOption();
-defaultMenuOption.text = "⚙ PC-设置";
-PanelMenu.updateMenuOption(defaultMenuOption);
-PanelMenu.addMenuOption({
-  key: "show_mobile_setting",
-  text: "⚙ 移动端-设置",
-  autoReload: false,
-  isStoreValue: false,
-  showText(text) {
-    return text;
-  },
-  callback: () => {
-    Panel.showPanel(PanelContent.getConfig(1), `${SCRIPT_NAME}-移动端设置`);
-  },
-});
 Panel.init();
+
 let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";
 let chooseMode = GM_getValue(CHANGE_ENV_SET_KEY);
+
+if (chooseMode != null) {
+  if (chooseMode == 1) {
+    // 移动端
+    isMobile = true;
+    log.info(`手动指定为移动端`);
+  } else if (chooseMode == 2) {
+    // PC端
+    isMobile = false;
+    log.info(`手动指定为PC端`);
+  } else {
+    Qmsg.error(`意外，手动指定的值不在允许范围内，自动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
+    GM_deleteValue(CHANGE_ENV_SET_KEY);
+  }
+}
+
 MenuRegister.add({
   key: CHANGE_ENV_SET_KEY,
-  text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
+  text: `🖥️ 自动: ${isMobile ? "移动端" : "PC端"}`,
   autoReload: false,
   isStoreValue: false,
   showText(text) {
     if (chooseMode == null) {
       return text;
     }
-    return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
+    return `🖥️ 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
   },
   callback: () => {
     let allowValue = [0, 1, 2];
@@ -73,22 +102,13 @@ MenuRegister.add({
     }
   },
 });
-if (chooseMode != null) {
-  log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
-  if (chooseMode == 1) {
-    M_XHS.init();
-  } else if (chooseMode == 2) {
-    XHS.init();
-  } else {
-    Qmsg.error("意外，手动判定的值不在范围内");
-    GM_deleteValue(CHANGE_ENV_SET_KEY);
-  }
+
+if (isMobile) {
+  log.info("自动判定为移动端");
+  MenuRegister.delete("pc_setting");
+  M_XHS.init();
 } else {
-  if (isMobile) {
-    log.info("自动判定为移动端");
-    M_XHS.init();
-  } else {
-    log.info("自动判定为PC端");
-    XHS.init();
-  }
+  log.info("自动判定为PC端");
+  MenuRegister.delete("m_setting");
+  XHS.init();
 }

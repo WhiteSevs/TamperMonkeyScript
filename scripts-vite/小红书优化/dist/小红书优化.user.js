@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.6.28
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -69,21 +69,24 @@
   _whitesev_pops = __toESM(_whitesev_pops);
   _whitesev_utils = __toESM(_whitesev_utils);
   viewerjs = __toESM(viewerjs);
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var GM_RESOURCE_MAPPING = {
     ElementPlus: {
       keyName: "ElementPlusResourceCSS",
@@ -1324,9 +1327,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -5391,19 +5395,30 @@
     },
     openBlankArticle() {
       log.success("新标签页打开文章");
-      const callback = (event, $click) => {
-        if (!Panel.getValue("pc-xhs-open-blank-article")) return;
-        domUtils.preventEvent(event);
-        let url = $click.querySelector("a.cover[href]")?.href;
-        if (url) {
+      const listener = domUtils.on(
+        document,
+        "click",
+        ".feeds-container .note-item",
+        (event, $click) => {
+          if (!Panel.getValue("pc-xhs-open-blank-article")) return;
+          let url = $click.querySelector("a.cover[href]")?.href;
+          if (!url) {
+            const $badge = $click.querySelector(".xhs-live-note-item-badge");
+            if ($badge && domUtils.text($badge).includes("直播中")) return;
+          }
+          domUtils.preventEvent(event);
+          if (!url) {
+            qmsg.default.error("未找到文章链接");
+            return;
+          }
           log.info("跳转文章: " + url);
           const urlInst = new URL(url);
           urlInst.pathname = urlInst.pathname.replace(/^\/user\/profile\/[a-z0-9A-Z]+\//i, "/discovery/item/");
           url = urlInst.toString();
           window.open(url, "_blank");
-        } else qmsg.default.error("未找到文章链接");
-      };
-      const listener = domUtils.on(document, "click", ".feeds-container .note-item", callback, { capture: true });
+        },
+        { capture: true }
+      );
       return [
         () => {
           listener.off();
@@ -5948,38 +5963,61 @@
   };
   addStyle(`
 .qmsg svg.animate-turn {
-    fill: none;
+  fill: none;
 }
 `);
+  PanelMenu.deleteMenuOption(0);
+  PanelMenu.addMenuOption([
+    {
+      key: "pc_setting",
+      text: "⚙ PC端设置",
+      autoReload: false,
+      isStoreValue: false,
+      showText(text) {
+        return text;
+      },
+      callback: () => {
+        Panel.showPanel(PanelContent.getConfig(0));
+      },
+    },
+    {
+      key: "m_setting",
+      text: "⚙ 移动端设置",
+      autoReload: false,
+      isStoreValue: false,
+      showText(text) {
+        return text;
+      },
+      callback: () => {
+        Panel.showPanel(PanelContent.getConfig(1));
+      },
+    },
+  ]);
   PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
   PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
-  var defaultMenuOption = PanelMenu.getMenuOption();
-  defaultMenuOption.text = "⚙ PC-设置";
-  PanelMenu.updateMenuOption(defaultMenuOption);
-  PanelMenu.addMenuOption({
-    key: "show_mobile_setting",
-    text: "⚙ 移动端-设置",
-    autoReload: false,
-    isStoreValue: false,
-    showText(text) {
-      return text;
-    },
-    callback: () => {
-      Panel.showPanel(PanelContent.getConfig(1), `${_SCRIPT_NAME_}-移动端设置`);
-    },
-  });
   Panel.init();
   var isMobile = utils.isPhone();
   var CHANGE_ENV_SET_KEY = "change_env_set";
   var chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
+  if (chooseMode != null)
+    if (chooseMode == 1) {
+      isMobile = true;
+      log.info(`手动指定为移动端`);
+    } else if (chooseMode == 2) {
+      isMobile = false;
+      log.info(`手动指定为PC端`);
+    } else {
+      qmsg.default.error(`意外，手动指定的值不在允许范围内，自动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
+      _GM_deleteValue(CHANGE_ENV_SET_KEY);
+    }
   MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
-    text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
+    text: `🖥️ 自动: ${isMobile ? "移动端" : "PC端"}`,
     autoReload: false,
     isStoreValue: false,
     showText(text) {
       if (chooseMode == null) return text;
-      return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
+      return `🖥️ 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
     },
     callback: () => {
       let allowValue = [0, 1, 2];
@@ -5998,19 +6036,13 @@
       else _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode);
     },
   });
-  if (chooseMode != null) {
-    log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
-    if (chooseMode == 1) M_XHS.init();
-    else if (chooseMode == 2) XHS.init();
-    else {
-      qmsg.default.error("意外，手动判定的值不在范围内");
-      _GM_deleteValue(CHANGE_ENV_SET_KEY);
-    }
-  } else if (isMobile) {
+  if (isMobile) {
     log.info("自动判定为移动端");
+    MenuRegister.delete("pc_setting");
     M_XHS.init();
   } else {
     log.info("自动判定为PC端");
+    MenuRegister.delete("m_setting");
     XHS.init();
   }
 })(Qmsg, DOMUtils, pops, Utils, Viewer);

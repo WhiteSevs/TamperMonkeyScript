@@ -23,7 +23,7 @@ import { SettingUIWenKu } from "./setting/view/wenku";
 PanelMenu.deleteMenuOption(0);
 PanelMenu.addMenuOption([
   {
-    key: "show_pops_panel_setting",
+    key: "pc_setting",
     text: "⚙ PC端设置",
     autoReload: false,
     isStoreValue: false,
@@ -35,8 +35,8 @@ PanelMenu.addMenuOption([
     },
   },
   {
-    key: "m_show_pops_panel_setting",
-    text: "⚙ 移动端端设置",
+    key: "m_setting",
+    text: "⚙ 移动端设置",
     autoReload: false,
     isStoreValue: false,
     showText(text: string) {
@@ -44,18 +44,6 @@ PanelMenu.addMenuOption([
     },
     callback: () => {
       Panel.showPanel(PanelContent.getConfig(1));
-    },
-  },
-  {
-    key: "gotoCSDNCKnow",
-    text: "⚙ 前往C知道",
-    isStoreValue: false,
-    autoReload: false,
-    showText(text: string) {
-      return text;
-    },
-    callback() {
-      window.open("https://ai.csdn.net/chat", "_blank");
     },
   },
 ]);
@@ -82,16 +70,31 @@ let isMobile = utils.isPhone();
 let CHANGE_ENV_SET_KEY = "change_env_set";
 let chooseMode = GM_getValue(CHANGE_ENV_SET_KEY);
 
+if (chooseMode != null) {
+  if (chooseMode == 1) {
+    // 移动端
+    isMobile = true;
+    log.info(`手动指定为移动端`);
+  } else if (chooseMode == 2) {
+    // PC端
+    isMobile = false;
+    log.info(`手动指定为PC端`);
+  } else {
+    Qmsg.error(`意外，手动指定的值不在允许范围内，自动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
+    GM_deleteValue(CHANGE_ENV_SET_KEY);
+  }
+}
+
 MenuRegister.add({
   key: CHANGE_ENV_SET_KEY,
-  text: `⚙ 自动: ${isMobile ? "移动端" : "PC端"}`,
+  text: `🖥️ 自动: ${isMobile ? "移动端" : "PC端"}`,
   autoReload: false,
   isStoreValue: false,
   showText(text: string) {
     if (chooseMode == null) {
       return text;
     }
-    return text + ` 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
+    return `🖥️ 手动: ${chooseMode == 1 ? "移动端" : chooseMode == 2 ? "PC端" : "未知"}`;
   },
   callback: () => {
     let allowValue = [0, 1, 2];
@@ -116,25 +119,13 @@ MenuRegister.add({
     }
   },
 });
-if (chooseMode != null) {
-  log.info(`手动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
-  if (chooseMode == 1) {
-    /* 移动端 */
-    M_CSDN.init();
-  } else if (chooseMode == 2) {
-    /* PC端 */
-    CSDN.init();
-  } else {
-    Qmsg.error("意外，手动判定的值不在范围内");
-    GM_deleteValue(CHANGE_ENV_SET_KEY);
-  }
+
+if (isMobile) {
+  log.info("自动判定为移动端");
+  MenuRegister.delete("pc_setting");
+  M_CSDN.init();
 } else {
-  if (isMobile) {
-    log.info("自动判定为移动端");
-    /* 移动端 */
-    M_CSDN.init();
-  } else {
-    log.info("自动判定为PC端");
-    CSDN.init();
-  }
+  log.info("自动判定为PC端");
+  MenuRegister.delete("m_setting");
+  CSDN.init();
 }
