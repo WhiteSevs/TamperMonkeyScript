@@ -302,7 +302,7 @@ const GenerateUserConfig = async (option: {
             }
           });
         } catch {
-          console.log(pc.yellow(`path not exists '${filePath}'`));
+          console.log(pc.yellow(`git path not exists '${filePath}'`));
         }
         if (historyVersion.trim() !== "") {
           // git中不存在这个版本号或者未获取到版本
