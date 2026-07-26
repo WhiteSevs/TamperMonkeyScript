@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.7.19
+// @version      2026.7.26
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
@@ -125,6 +125,7 @@
     addBlockCSSWithEnd(...args) {
       const $css = CommonUtil.addBlockCSS(...args);
       if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -2045,7 +2046,7 @@
   });
   var httpx = new utils$1.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -5665,13 +5666,13 @@
   var mobile_default$1 =
     '/* 竖屏且高度小于550px */\n@media screen and (max-width: 550px) and (orientation: portrait) {\n  /* 右侧工具栏放大 */\n  .basePlayerContainer .positionBox {\n    bottom: 80px !important;\n    padding-right: 5px !important;\n    scale: unset !important;\n    transform: scale3d(1.12, 1.12, 1.12) !important;\n  }\n  /* 右侧工具栏的svg再放大 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(1.12, 1.12, 1.12);\n  }\n  /* 重置关注按钮的scale */\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\n    scale: unset !important;\n  }\n\n  /* 调整顶部搜索框的宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: 150px;\n    padding-right: 0;\n    max-width: unset;\n    flex: 1;\n  }\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\n    [id^="douyin-header-menu"] {\n    display: none !important;\n  }\n  /* 搜索框获取焦点时自动放大宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\n    width: 100vw;\n    width: 100dvw;\n  }\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\n  #search-content-area > div,\n  #search-content-area > div div:has(+ #search-result-container),\n  #search-content-area > div #search-result-container {\n    width: 100%;\n    width: -webkit-fill-available;\n    width: -moz-available;\n  }\n  /* 搜索页面 视频右侧的工具栏缩小 */\n  #search-content-area .basePlayerContainer .positionBox {\n    bottom: 28px !important;\n    transform: scale3d(0.6, 0.6, 0.6) !important;\n  }\n  /* 搜索页面 搜索出的用户信息换行 */\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\n    flex-wrap: wrap;\n  }\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\n    overflow: auto;\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) {\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\n  #search-content-area div:has(> div > span[data-key="general"]) {\n    position: unset !important;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) > * {\n    white-space: nowrap !important;\n    width: auto !important;\n    width: fit-content !important;\n    margin-left: 0px !important;\n    margin-right: 0px !important;\n  }\n  /* 去除设置min-width超出浏览器宽度的问题 */\n  body {\n    min-width: 100% !important;\n  }\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\n  #douyin-right-container #douyin-header {\n    width: 100%;\n  }\n  /* 去除设置 */\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\n    min-width: 100%;\n  }\n\n  /* /video/xxx页面 */\n  /* 点赞、评论、分享偏移 */\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\n    padding-right: 30px !important;\n  }\n  /* 底部工具栏右侧的按钮 */\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\n    margin-right: 35px !important;\n  }\n  /* 评论区全屏 */\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\n    width: 100dvw !important;\n  }\n\n  /* 设置视频区域的高度 */\n  #slidelist {\n    width: 100%;\n    height: calc(100dvh - var(--header-height)) !important;\n  }\n  /* 修正网页全屏下的视频高度 */\n  #slidelist[class*="isCssFullScreen"] {\n    height: round(nearest, 100dvh, 1px) !important;\n  }\n  /* 去除视频区域右侧偏移 */\n  .is-mobile-pc div[data-e2e="slideList"] {\n    padding-right: 0px !important;\n  }\n  /* 推荐视频的高度适配 */\n  #slidelist .page-recommend-container {\n    margin-top: 8px !important;\n    margin-bottom: 4px !important;\n  }\n  /* 网页全屏下的推荐视频的高度适配 */\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\n    margin: 0px !important;\n  }\n  /* 底部工具栏右侧的按钮不换行显示 */\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\n    flex-wrap: nowrap;\n    white-space: nowrap;\n    overflow: auto;\n    align-items: start;\n    justify-content: start;\n    margin: 0px;\n  }\n}\n\n/* 横屏且高度小于550px */\n@media screen and (max-height: 550px) and (orientation: landscape) {\n  /* 右侧工具栏缩小 */\n  .basePlayerContainer .positionBox {\n    transform: scale(0.95) !important;\n    bottom: 42px !important;\n    padding-right: 10px !important;\n  }\n  /* 右侧工具栏的svg再缩小 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(0.95, 0.95, 0.95);\n  }\n  /* 修复全屏下不显示视频底部的控制栏 */\n  .isCssFullScreen [data-e2e="slideList"] {\n    min-height: auto !important;\n  }\n}\n';
   var DouYinVideoElementAutoHideInjectAttr = "data-is-inject-mouse-hide";
-  var DouYinVideoElementAutoHide = (delayTimeKey, selectors, isImportant = true) => {
+  var DouYinVideoElementAutoHide = (delayTimeKey, selectors, opacityIsImportant = true) => {
     const opacityShowAttrName = "data-opacity-show";
     const opacityHideAttrName = "data-opacity-hide";
     const result = [];
     const delayTime = Panel.getDynamicValue(delayTimeKey, Panel.getDefaultValue(delayTimeKey));
     const hideCSSText = (__delayTime__ = delayTime.value) => {
-      const importantCSSText = isImportant ? " !important" : "";
+      const importantCSSText = opacityIsImportant ? " !important" : "";
       if (__delayTime__ === 0)
         return `
             ${selectors.join(",")}{
@@ -9350,33 +9351,25 @@
         result.push(
           addStyle(`
         ${[
-          ...[
-            "#video-info-wrap",
-            ".basePlayerContainer .player-position-box-bottom",
-            '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
-          ],
-          ...[`xg-controls.xgplayer-controls`, `[data-e2e="feed-live"] .douyin-player-controls`],
-          ...[
-            ".positionBox",
-            '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-          ],
+          "#video-info-wrap",
+          ".basePlayerContainer .player-position-box-bottom",
+          '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
+          `xg-controls.xgplayer-controls`,
+          `[data-e2e="feed-live"] .douyin-player-controls`,
+          ".positionBox",
+          '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
         ].join(",")}{
           opacity: 0 !important;
         }
         ${[
-          ...[
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover #video-info-wrap",
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover .basePlayerContainer .player-position-box-bottom",
-            '[data-e2e="feed-live"]:hover [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
-          ],
-          ...[
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover xg-controls.xgplayer-controls",
-            '[data-e2e="feed-live"]:hover .douyin-player-controls',
-          ],
-          ...[
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover .positionBox",
-            '[data-e2e="feed-live"]:hover .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-          ],
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover #video-info-wrap",
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover .basePlayerContainer .player-position-box-bottom",
+          '[data-e2e="feed-live"]:hover [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+          '[data-e2e="feed-live"]:hover .douyin-player > div:has([aria-label*="直播"])',
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover xg-controls.xgplayer-controls",
+          '[data-e2e="feed-live"]:hover .douyin-player-controls',
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover .positionBox",
+          '[data-e2e="feed-live"]:hover .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
         ].join(",")}{
           opacity: 1 !important;
         }
@@ -9627,7 +9620,7 @@
             </div>
             <div class="dy-link-item-download-uri">
               <span>下载地址：</span>
-              <a href="${downloadInfo.url}" data-format="mp4" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+              <a href="${downloadInfo.url}" data-format="mp4" data-file-name="${downloadFileName}" download="${downloadFileName}" filename>${downloadInfo.url}</a>
             </div>
             ${
               downloadInfo.backUrl.length
@@ -9637,7 +9630,7 @@
                 ${downloadInfo.backUrl
                   .map((url, index) => {
                     return `
-                    <a href="${url}" data-format="mp4" data-file-name="${downloadFileName}">地址${index + 1}</a>
+                    <a href="${url}" data-format="mp4" data-file-name="${downloadFileName}" download="${downloadFileName}">地址${index + 1}</a>
                   `;
                   })
                   .join("，")}
@@ -9679,7 +9672,7 @@
             </div>
             <div class="dy-link-item-download-uri">
               <span>下载地址：</span>
-              <a href="${downloadInfo.url}" data-format="mp3" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+              <a href="${downloadInfo.url}" data-format="mp3" data-file-name="${downloadFileName}" download="${downloadFileName}">${downloadInfo.url}</a>
             </div>
             ${
               downloadInfo.backUrl.length
@@ -9689,7 +9682,7 @@
                 ${downloadInfo.backUrl
                   .map((url, index) => {
                     return `
-                    <a href="${url}" data-format="mp3" data-file-name="${downloadFileName}">地址${index + 1}</a>
+                    <a href="${url}" data-format="mp3" data-file-name="${downloadFileName}" download="${downloadFileName}">地址${index + 1}</a>
                   `;
                   })
                   .join("，")}
@@ -9713,7 +9706,7 @@
           <div class="dy-link-item">
             <div class="dy-card-wrapper">
               <div class="dy-img-wrapper">
-                <a href="${downloadInfo.url}" data-format="png" data-file-name="${downloadFileName}" class="dy-cover-link">
+                <a class="dy-cover-link" href="${downloadInfo.url}" data-format="png" data-file-name="${downloadFileName}" download="${downloadFileName}">
                   <img src="${downloadInfo.url}" loading="lazy" />
                 </a>
               </div>

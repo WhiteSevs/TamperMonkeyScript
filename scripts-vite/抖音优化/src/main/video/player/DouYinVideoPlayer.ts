@@ -177,46 +177,39 @@ export const DouYinVideoPlayer = {
       result.push(
         addStyle(/*css*/ `
         ${[
-          // 自动隐藏视频信息
-          ...[
-            "#video-info-wrap",
-            // 播放器底部的信息，如：点击推荐
-            ".basePlayerContainer .player-position-box-bottom",
-            // 直播
-            '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
-          ],
-          // 自动隐藏视频控件
-          ...[
-            `xg-controls.xgplayer-controls`,
-            // 直播
-            `[data-e2e="feed-live"] .douyin-player-controls`,
-          ],
-          // 自动隐藏右侧工具栏
-          ...[
-            ".positionBox",
-            // 直播
-            '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-          ],
+          // 自动隐藏
+          // 视频信息
+          "#video-info-wrap",
+          // 播放器底部的信息，如：点击推荐
+          ".basePlayerContainer .player-position-box-bottom",
+          // 直播
+          '[data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播"])',
+          // 视频控件
+          `xg-controls.xgplayer-controls`,
+          // 右侧工具栏
+          `[data-e2e="feed-live"] .douyin-player-controls`,
+          ".positionBox",
+          // 直播
+          '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
         ].join(",")}{
           opacity: 0 !important;
         }
         ${[
-          // 自动隐藏视频信息
-          ...[
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover #video-info-wrap",
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover .basePlayerContainer .player-position-box-bottom",
-            '[data-e2e="feed-live"]:hover [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
-          ],
-          // 自动隐藏视频控件
-          ...[
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover xg-controls.xgplayer-controls",
-            '[data-e2e="feed-live"]:hover .douyin-player-controls',
-          ],
-          // 自动隐藏右侧工具栏
-          ...[
-            ".playerContainer:not(:has(.xgplayer-inactive)):hover .positionBox",
-            '[data-e2e="feed-live"]:hover .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
-          ],
+          // 鼠标移入显示
+          // 视频信息
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover #video-info-wrap",
+          // 播放器底部的信息，如：点击推荐
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover .basePlayerContainer .player-position-box-bottom",
+          // 直播
+          '[data-e2e="feed-live"]:hover [data-e2e="basicPlayer"] > div:has([aria-label*="直播"])',
+          '[data-e2e="feed-live"]:hover .douyin-player > div:has([aria-label*="直播"])',
+          // 视频控件
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover xg-controls.xgplayer-controls",
+          // 右侧工具栏
+          '[data-e2e="feed-live"]:hover .douyin-player-controls',
+          ".playerContainer:not(:has(.xgplayer-inactive)):hover .positionBox",
+          // 直播
+          '[data-e2e="feed-live"]:hover .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',
         ].join(",")}{
           opacity: 1 !important;
         }
@@ -668,7 +661,7 @@ export const DouYinVideoPlayer = {
             </div>
             <div class="dy-link-item-download-uri">
               <span>下载地址：</span>
-              <a href="${downloadInfo.url}" data-format="mp4" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+              <a href="${downloadInfo.url}" data-format="mp4" data-file-name="${downloadFileName}" download="${downloadFileName}" filename>${downloadInfo.url}</a>
             </div>
             ${
               downloadInfo.backUrl.length
@@ -678,7 +671,7 @@ export const DouYinVideoPlayer = {
                 ${downloadInfo.backUrl
                   .map((url, index) => {
                     return /*html*/ `
-                    <a href="${url}" data-format="mp4" data-file-name="${downloadFileName}">地址${index + 1}</a>
+                    <a href="${url}" data-format="mp4" data-file-name="${downloadFileName}" download="${downloadFileName}">地址${index + 1}</a>
                   `;
                   })
                   .join("，")}
@@ -725,7 +718,7 @@ export const DouYinVideoPlayer = {
             </div>
             <div class="dy-link-item-download-uri">
               <span>下载地址：</span>
-              <a href="${downloadInfo.url}" data-format="mp3" data-file-name="${downloadFileName}">${downloadInfo.url}</a>
+              <a href="${downloadInfo.url}" data-format="mp3" data-file-name="${downloadFileName}" download="${downloadFileName}">${downloadInfo.url}</a>
             </div>
             ${
               downloadInfo.backUrl.length
@@ -735,7 +728,7 @@ export const DouYinVideoPlayer = {
                 ${downloadInfo.backUrl
                   .map((url, index) => {
                     return /*html*/ `
-                    <a href="${url}" data-format="mp3" data-file-name="${downloadFileName}">地址${index + 1}</a>
+                    <a href="${url}" data-format="mp3" data-file-name="${downloadFileName}" download="${downloadFileName}">地址${index + 1}</a>
                   `;
                   })
                   .join("，")}
@@ -768,7 +761,7 @@ export const DouYinVideoPlayer = {
           <div class="dy-link-item">
             <div class="dy-card-wrapper">
               <div class="dy-img-wrapper">
-                <a href="${downloadInfo.url}" data-format="png" data-file-name="${downloadFileName}" class="dy-cover-link">
+                <a class="dy-cover-link" href="${downloadInfo.url}" data-format="png" data-file-name="${downloadFileName}" download="${downloadFileName}">
                   <img src="${downloadInfo.url}" loading="lazy" />
                 </a>
               </div>
