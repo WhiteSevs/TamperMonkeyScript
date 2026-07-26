@@ -544,7 +544,7 @@ export const PanelUI_allSetting = (): PopsPanelContentConfig => {
                       },
                     ],
                     void 0,
-                    "匹配到链接时触发的UI执行"
+                    "在大/小窗中显示的链接格式"
                   ),
                   UISwitch(
                     "自动填充访问码",
