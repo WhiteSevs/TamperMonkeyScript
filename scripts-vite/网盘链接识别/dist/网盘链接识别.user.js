@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.7.26
+// @version      2026.7.27
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -6284,18 +6284,28 @@
       return data;
     },
   };
-  var NetDiskFilterScheme = {
+  var JumpWSV = {
     protocol: "jumpwsv",
     pathname: "go",
+    getSchemeUri(option) {
+      return `${JumpWSV.protocol}://${JumpWSV.pathname}?${utils$1.toSearchParamsStr(option)}`;
+    },
+    replaceData(uri, data) {
+      if (uri.trim().startsWith(JumpWSV.protocol)) {
+        data = data.replace(/&/g, "{-and-}");
+        data = data.replace(/#/g, "{-number-}");
+      }
+      return data;
+    },
+  };
+  var NetDiskFilterScheme = {
     parseDataToSchemeUri(key, intentData) {
       if (!NetDiskFilterScheme.isEnableForward(key)) return intentData;
       let schemeUri = NetDiskRuleData.schemeUri.uri(key);
       if (utils$1.isNull(schemeUri))
-        schemeUri = NetDiskFilterScheme.getSchemeUri(NetDiskFilterScheme.get1DMSchemeUriOption(intentData));
-      if (schemeUri.startsWith(NetDiskFilterScheme.protocol)) {
-        intentData = intentData.replace(/&/g, "{-and-}");
-        intentData = intentData.replace(/#/g, "{-number-}");
-      }
+        schemeUri = JumpWSV.getSchemeUri(NetDiskFilterScheme.get1DMSchemeUriOption(intentData));
+      schemeUri = schemeUri.trim();
+      intentData = JumpWSV.replaceData(schemeUri, intentData);
       schemeUri = NetDiskRuleUtils.replacePlaceholder(schemeUri, { intentData });
       return schemeUri;
     },
@@ -6307,9 +6317,6 @@
     },
     isForwardBlankLink(key) {
       return NetDiskFilterScheme.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
-    },
-    getSchemeUri(option) {
-      return `${NetDiskFilterScheme.protocol}://${NetDiskFilterScheme.pathname}?${utils$1.toSearchParamsStr(option)}`;
     },
     get1DMSchemeUriOption(intentData = "") {
       return {
@@ -9348,7 +9355,7 @@
       if (this.isMoreFile(pageInfoResponse)) {
         log.info(`多文件`);
         $loading.setText("正在解析多文件...");
-        const fileInfo = await this.parseFiles(shareCode, accessCode);
+        const fileInfo = await this.parseFiles(shareCode, accessCode, true);
         if (!fileInfo) {
           $loading.close();
           return;
@@ -9688,7 +9695,7 @@
         return false;
       }
     }
-    async parseFiles(shareCode, accessCode) {
+    async parseFiles(shareCode, accessCode, isMain = false) {
       const url = this.ruleIndex === 1 ? this.router.root_s(shareCode) : this.router.root(shareCode);
       const pageInfoResponse = await this.getPageInfo(url);
       if (!pageInfoResponse) return;
@@ -9727,12 +9734,12 @@
         k,
         pwd: accessCode,
       });
-      let error = void 0;
+      let failMsg;
       if (json_data) {
         log.info(`json_data：`, json_data);
         const { zt, info, text } = json_data;
         if (zt !== 1)
-          if (zt === 4) error = text;
+          if (zt === 4) failMsg = text;
           else if (info?.includes("密码不正确")) {
             qmsg.default.error("密码不正确!");
             const newAccessCodeInfo = await new Promise((resolve) => {
@@ -9754,16 +9761,20 @@
             });
             if (!newAccessCodeInfo) return;
             return await this.parseFiles(shareCode, newAccessCodeInfo.accssCode);
-          } else if (info?.includes("没有了")) error = "没有文件了";
-          else error = "未知错误";
+          } else if (info?.includes("没有了")) failMsg = "没有文件了";
+          else failMsg = "未知错误";
         if (Array.isArray(text)) infos = text;
       }
-      if (typeof error === "string") log.error(error);
+      if (typeof failMsg === "string") log.error(failMsg);
       const result = {
         folders,
         infos,
       };
       log.info(result);
+      if (!result.folders.length && !result.infos && isMain) {
+        qmsg.default.error("没有文件");
+        return;
+      }
       return result;
     }
     async getLinkByIframe(shareCode, accessCode, urlPathName, fileInfo) {

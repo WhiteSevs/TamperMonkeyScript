@@ -248,7 +248,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       // 多文件
       log.info(`多文件`);
       $loading.setText("正在解析多文件...");
-      const fileInfo = await this.parseFiles(shareCode, accessCode);
+      const fileInfo = await this.parseFiles(shareCode, accessCode, true);
       if (!fileInfo) {
         $loading.close();
         return;
@@ -726,7 +726,8 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
    */
   async parseFiles(
     shareCode: string,
-    accessCode: AccessCodeNonNullType
+    accessCode: AccessCodeNonNullType,
+    isMain = false
   ): Promise<
     | {
         folders: {
@@ -787,14 +788,14 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       k: k,
       pwd: accessCode!,
     });
-    let error: undefined | string = undefined;
+    let failMsg: undefined | string;
     if (json_data) {
       log.info(`json_data：`, json_data);
       const { zt, info, text } = json_data;
       if (zt !== 1) {
         // 请求失败的情况
         if (zt === 4) {
-          error = text as string;
+          failMsg = text as string;
         } else if (info?.includes("密码不正确")) {
           Qmsg.error("密码不正确!");
           const newAccessCodeInfo = await new Promise<
@@ -826,23 +827,27 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           }
           return await this.parseFiles(shareCode, newAccessCodeInfo.accssCode);
         } else if (info?.includes("没有了")) {
-          error = "没有文件了";
+          failMsg = "没有文件了";
         } else {
-          error = "未知错误";
+          failMsg = "未知错误";
         }
       }
       if (Array.isArray(text)) {
         infos = text;
       }
     }
-    if (typeof error === "string") {
-      log.error(error);
+    if (typeof failMsg === "string") {
+      log.error(failMsg);
     }
     const result = {
       folders: folders,
       infos: infos,
     };
     log.info(result);
+    if (!result.folders.length && !result.infos && isMain) {
+      Qmsg.error("没有文件");
+      return;
+    }
     return result;
   }
   /**

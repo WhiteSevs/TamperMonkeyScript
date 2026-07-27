@@ -14,14 +14,37 @@ type UriOption = {
   intentExtra: string;
 };
 
-/** 网盘-直链进行Scheme过滤 */
-export const NetDiskFilterScheme = {
+const JumpWSV = {
   protocol: "jumpwsv",
   pathname: "go",
   /**
+   * 获取转发的uri链接
+   * @param option
+   */
+  getSchemeUri(option: UriOption) {
+    return `${JumpWSV.protocol}://${JumpWSV.pathname}?${utils.toSearchParamsStr(option)}`;
+  },
+  /**
+   * 替换链接中部分参数
+   * @param uri scheme的uri链接
+   * @param data 网盘链接url
+   */
+  replaceData(uri: string, data: string) {
+    if (uri.trim().startsWith(JumpWSV.protocol)) {
+      // 如果以默认的协议开头，则替换掉&和#
+      data = data.replace(/&/g, "{-and-}");
+      data = data.replace(/#/g, "{-number-}");
+    }
+    return data;
+  },
+};
+
+/** 网盘-直链进行Scheme过滤 */
+export const NetDiskFilterScheme = {
+  /**
    * 把链接转为scheme的uri链接
    * @param key 规则名
-   * @param intentData 需要处理的数据
+   * @param intentData 需要处理的数据（网盘链接url）
    */
   parseDataToSchemeUri(key: string, intentData: string): string {
     /** 是否启用 */
@@ -32,12 +55,11 @@ export const NetDiskFilterScheme = {
     /** 转发的scheme */
     let schemeUri = NetDiskRuleData.schemeUri.uri(key);
     if (utils.isNull(schemeUri)) {
-      schemeUri = NetDiskFilterScheme.getSchemeUri(NetDiskFilterScheme.get1DMSchemeUriOption(intentData));
+      // 如果为空，则用默认的
+      schemeUri = JumpWSV.getSchemeUri(NetDiskFilterScheme.get1DMSchemeUriOption(intentData));
     }
-    if (schemeUri.startsWith(NetDiskFilterScheme.protocol)) {
-      intentData = intentData.replace(/&/g, "{-and-}");
-      intentData = intentData.replace(/#/g, "{-number-}");
-    }
+    schemeUri = schemeUri.trim();
+    intentData = JumpWSV.replaceData(schemeUri, intentData);
     schemeUri = NetDiskRuleUtils.replacePlaceholder(schemeUri, {
       intentData: intentData,
     });
@@ -64,13 +86,6 @@ export const NetDiskFilterScheme = {
    */
   isForwardBlankLink(key: string) {
     return NetDiskFilterScheme.isEnableForward(key) && NetDiskRuleData.schemeUri.isForwardBlankLink(key);
-  },
-  /**
-   * 获取转发的uri链接
-   * @param option
-   */
-  getSchemeUri(option: UriOption) {
-    return `${NetDiskFilterScheme.protocol}://${NetDiskFilterScheme.pathname}?${utils.toSearchParamsStr(option)}`;
   },
   /**
    * 获取1dm的intent的配置
