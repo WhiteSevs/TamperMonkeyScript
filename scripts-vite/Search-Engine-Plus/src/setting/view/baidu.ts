@@ -12,6 +12,7 @@ export const Component_Baidu: PopsPanelContentConfig = {
       text: "通用",
       type: "container",
       views: [
+        UISwitch("移除广告", "baidu-search-removeAds", true),
         UISwitch("移除右侧栏", "baidu-search-removeRightPanel", true),
         UISwitch("移除大家都在搜", "baidu-search-removeEveryOneSearch", true),
         UISwitch("移除相关搜索", "baidu-search-removeRelatedSearch", true),

@@ -1,6 +1,7 @@
 import { $$, DOMUtils, httpx, log, utils } from "@/env";
 import { addBlockCSSWithEnd, addStyleWithEnd } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
+import { ConcurrencyAsyncQueue } from "@components/utils/ConcurrencyAsyncQueue";
 
 export const BaiduSearchResult = {
   init() {
@@ -31,13 +32,15 @@ export const BaiduSearchResult = {
   }) {
     log.info(`搜索结果优化`, config);
 
+    const requestQueue = new ConcurrencyAsyncQueue(1, 150);
+
     /**
      * 判断是否是百度的中转重定向链接
      *
      * + http://www.baidu.com/link?url=xxxx
      * @param url
      */
-    const isDirectUrl = (url: string) => {
+    const isTransferLink = (url: string) => {
       try {
         const urlInst = new URL(url);
         if (urlInst.hostname === "www.baidu.com" && urlInst.pathname === "/link" && urlInst.searchParams.has("url")) {
@@ -48,7 +51,7 @@ export const BaiduSearchResult = {
     };
 
     const lockFn = new utils.LockFunction(() => {
-      const $results = $$("#content_left > div:not([data-hijack])");
+      const $results = $$("#content_left > div:not([data-stop-direct])");
       $results.forEach(async ($result) => {
         if (config.removeAds && DOMUtils.selector('.se_st_footer:contains("广告")', $result)) {
           // 移除广告
@@ -60,8 +63,12 @@ export const BaiduSearchResult = {
           $result.querySelector<HTMLAnchorElement>("a.sc-link[href]") ||
           $result.querySelector<HTMLAnchorElement>(".c-title a[href]") ||
           $result.querySelector<HTMLAnchorElement>("a.cosc-title-a[href]") ||
-          $result.querySelector<HTMLAnchorElement>('[class*="c-line-"] > a[href][class^="title_"]');
-        if (!$title) return;
+          $result.querySelector<HTMLAnchorElement>('[class*="c-line-"] > a[href][class^="title_"]') ||
+          $result.querySelector<HTMLAnchorElement>("h3.c-gap-bottom-small > a[href]");
+        if (!$title) {
+          $result.setAttribute("data-no-title", "1");
+          return;
+        }
         /** 真实链接，但有时候这个链接是错误的链接，需要处理一下 */
         const mu = $result.getAttribute("mu");
         const realLinkList: string[] = [];
@@ -77,56 +84,95 @@ export const BaiduSearchResult = {
             realLinkList.push(feedback.url);
           }
         }
-
-        let realLink = realLinkList.find((link) => {
+        /**
+         * 是否禁止重定向（依旧保持原样）
+         */
+        let isNeverRedirect = false;
+        /**
+         * 是否强制请求获取重定向的链接
+         */
+        let isMustRequestFinalUrl = false;
+        // 获取真实链接
+        let realLink = realLinkList.find((url) => {
           try {
-            const linkInst = new URL(link);
+            const linkInst = new URL(url);
+            // 下面的是不符合的'真实'链接
             if (linkInst.hostname === "nourl.ubs.baidu.com" || linkInst.hostname.endsWith(".lightapp.baidu.com")) {
               return;
             }
-            if (isDirectUrl(link)) {
+            // AI 智能体
+            if (linkInst.hostname === "agents.baidu.com") {
+              isMustRequestFinalUrl = true;
+              return;
+            }
+            // 如果仍然是重定向链接，那就判断为未获取到真实链接
+            if (isTransferLink(url)) {
               return;
             }
           } catch {}
-          return link;
+          return url;
         });
+        if (isNeverRedirect) {
+          // 禁止重定向
+          $result.setAttribute("data-stop-direct", "true");
+          return;
+        }
         const titleUrl = $title.getAttribute("href")!.trim();
         if (!realLink) {
           // 依旧没有获取到真实链接
           // 使用get请求获取
           const requestAttr = "data-direct-http-request-ing";
           if ($title.hasAttribute(requestAttr)) {
-            // ignore
+            // is request && ignore
             return;
-          } else if (isDirectUrl(titleUrl)) {
+          } else if (isTransferLink(titleUrl) || isMustRequestFinalUrl) {
             // 百度中转链接
             // 主动请求获取重定向的链接
-            $title.setAttribute(requestAttr, "true");
-            const response = await httpx.get(titleUrl, {
-              fetch: false,
-              allowInterceptConfig: false,
-            });
-            $title.removeAttribute(requestAttr);
-            if (!response.status) return;
-            const finalUrl = response.data.finalUrl;
-            if (isDirectUrl(finalUrl)) return;
-            realLink = finalUrl;
-            $title.setAttribute("data-request-final-url", "true");
+            const requestFinalUrlAttr = "data-request-final-url";
+            if ($title.hasAttribute(requestFinalUrlAttr)) {
+              // 已重定向完毕
+              const finalUrl = $title.getAttribute(requestFinalUrlAttr)!;
+              realLink = finalUrl;
+            } else {
+              $title.setAttribute(requestAttr, "true");
+              requestQueue.enqueue(async () => {
+                const response = await httpx.get(titleUrl.replace(/^http:\/\//, "https://"), {
+                  fetch: false,
+                  allowInterceptConfig: false,
+                });
+                $title.removeAttribute(requestAttr);
+                if (!response.status) return;
+                let finalUrl = response.data.finalUrl;
+                if (isTransferLink(finalUrl)) {
+                  // 看看能否提取到真实链接
+                  const url = response.data.responseText.match(/.location.replace\("(.+?)"\)/)?.[1];
+                  if (url && !isTransferLink(url)) {
+                    finalUrl = url;
+                  }
+                  return;
+                }
+                // 将获取到的最终url存在标题中
+                $title.setAttribute(requestFinalUrlAttr, finalUrl);
+              });
+              return;
+            }
           } else {
             return;
           }
         }
-        $result.setAttribute("data-hijack", "true");
+        $result.setAttribute("data-stop-direct", "true");
         // 下面是在获取到真实链接后才能添加的功能
         if (config.redirect) {
           // 重定向
           $title.href = realLink;
+          $title.setAttribute("data-before-url", titleUrl);
           $result.setAttribute("data-before-url", titleUrl);
         }
         if (config.addFavicon) {
           // 在前面添加图标
           const $ico = DOMUtils.createElement("img");
           $ico.className = "website-ico";
+          $ico.loading = "lazy";
           try {
             const realLinkInst = new URL(realLink);
             $ico.src = `${realLinkInst.origin}/favicon.ico`;
@@ -135,9 +181,14 @@ export const BaiduSearchResult = {
               display: "flex",
               "align-items": "center",
             });
-            DOMUtils.on($ico, "error", () => {
-              $ico.remove();
-            });
+            DOMUtils.on(
+              $ico,
+              "error",
+              () => {
+                $ico.remove();
+              },
+              { once: true }
+            );
           } catch {}
         }
         if (config.markUnsafeLink) {

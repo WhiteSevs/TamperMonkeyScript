@@ -5,6 +5,9 @@ import { BaiduSearchResult } from "./BaiduSearchResult";
 
 export const BaiduSearch = {
   init() {
+    Panel.execMenuOnce("baidu-search-removeAds", () => {
+      return this.removeAds();
+    });
     Panel.execMenuOnce("baidu-search-removeRightPanel", () => {
       return this.removeRightPanel();
     });
@@ -42,6 +45,13 @@ export const BaiduSearch = {
       }
     );
     BaiduSearchResult.init();
+  },
+  /**
+   * 移除广告
+   */
+  removeAds() {
+    log.info(`移除广告`);
+    return addBlockCSSWithEnd("#top-ad");
   },
   /**
    * 移除右侧栏

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.7.21
+// @version      2026.7.31
 // @author       WhiteSevs
 // @description  搜索引擎优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -17,7 +17,7 @@
 // @match        *://www.bing.com/search*
 // @match        *://cn.bing.com/search*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
@@ -2564,7 +2564,7 @@
   });
   var httpx = new utils$1.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -2608,6 +2608,37 @@
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils$1.DocumentCookieHandler();
   var BACKGROUND_URL = "https://bing.img.run/uhd.php";
+  var ConcurrencyAsyncQueue = class {
+    queue;
+    runningCount;
+    concurrency;
+    intervalTime;
+    constructor(concurrency = 1, intervalTime = 300) {
+      this.queue = [];
+      this.concurrency = concurrency;
+      this.intervalTime = intervalTime;
+      this.runningCount = 0;
+    }
+    enqueue(task) {
+      this.queue.push(task);
+      this.runNext();
+    }
+    async runNext() {
+      while (this.runningCount < this.concurrency && this.queue.length > 0) {
+        this.runningCount++;
+        const task = this.queue.shift();
+        try {
+          await task();
+          if (this.intervalTime > 0) await new Promise((resolve) => setTimeout(resolve, this.intervalTime));
+        } catch (error) {
+          console.error(error);
+        } finally {
+          this.runningCount--;
+          this.runNext();
+        }
+      }
+    }
+  };
   var BaiduSearchResult = {
     init() {
       Panel.execMenuOnce(
@@ -2633,7 +2664,8 @@
     },
     searchResultOptimization(config) {
       log.info(`搜索结果优化`, config);
-      const isDirectUrl = (url) => {
+      const requestQueue = new ConcurrencyAsyncQueue(1, 150);
+      const isTransferLink = (url) => {
         try {
           const urlInst = new URL(url);
           if (urlInst.hostname === "www.baidu.com" && urlInst.pathname === "/link" && urlInst.searchParams.has("url"))
@@ -2642,7 +2674,7 @@
         return false;
       };
       const lockFn = new utils$1.LockFunction(() => {
-        $$("#content_left > div:not([data-hijack])").forEach(async ($result) => {
+        $$("#content_left > div:not([data-stop-direct])").forEach(async ($result) => {
           if (config.removeAds && domUtils.selector('.se_st_footer:contains("广告")', $result)) {
             $result.remove();
             return;
@@ -2651,8 +2683,12 @@
             $result.querySelector("a.sc-link[href]") ||
             $result.querySelector(".c-title a[href]") ||
             $result.querySelector("a.cosc-title-a[href]") ||
-            $result.querySelector('[class*="c-line-"] > a[href][class^="title_"]');
-          if (!$title) return;
+            $result.querySelector('[class*="c-line-"] > a[href][class^="title_"]') ||
+            $result.querySelector("h3.c-gap-bottom-small > a[href]");
+          if (!$title) {
+            $result.setAttribute("data-no-title", "1");
+            return;
+          }
           const mu = $result.getAttribute("mu");
           const realLinkList = [];
           if (typeof mu === "string") realLinkList.push(mu);
@@ -2661,41 +2697,58 @@
             const feedback = utils$1.toJSON(feedbackStr);
             if (typeof feedback.url === "string") realLinkList.push(feedback.url);
           }
-          let realLink = realLinkList.find((link) => {
+          let isMustRequestFinalUrl = false;
+          let realLink = realLinkList.find((url) => {
             try {
-              const linkInst = new URL(link);
+              const linkInst = new URL(url);
               if (linkInst.hostname === "nourl.ubs.baidu.com" || linkInst.hostname.endsWith(".lightapp.baidu.com"))
                 return;
-              if (isDirectUrl(link)) return;
+              if (linkInst.hostname === "agents.baidu.com") {
+                isMustRequestFinalUrl = true;
+                return;
+              }
+              if (isTransferLink(url)) return;
             } catch {}
-            return link;
+            return url;
           });
           const titleUrl = $title.getAttribute("href").trim();
           if (!realLink) {
             const requestAttr = "data-direct-http-request-ing";
             if ($title.hasAttribute(requestAttr)) return;
-            else if (isDirectUrl(titleUrl)) {
-              $title.setAttribute(requestAttr, "true");
-              const response = await httpx.get(titleUrl, {
-                fetch: false,
-                allowInterceptConfig: false,
-              });
-              $title.removeAttribute(requestAttr);
-              if (!response.status) return;
-              const finalUrl = response.data.finalUrl;
-              if (isDirectUrl(finalUrl)) return;
-              realLink = finalUrl;
-              $title.setAttribute("data-request-final-url", "true");
+            else if (isTransferLink(titleUrl) || isMustRequestFinalUrl) {
+              const requestFinalUrlAttr = "data-request-final-url";
+              if ($title.hasAttribute(requestFinalUrlAttr)) realLink = $title.getAttribute(requestFinalUrlAttr);
+              else {
+                $title.setAttribute(requestAttr, "true");
+                requestQueue.enqueue(async () => {
+                  const response = await httpx.get(titleUrl.replace(/^http:\/\//, "https://"), {
+                    fetch: false,
+                    allowInterceptConfig: false,
+                  });
+                  $title.removeAttribute(requestAttr);
+                  if (!response.status) return;
+                  let finalUrl = response.data.finalUrl;
+                  if (isTransferLink(finalUrl)) {
+                    const url = response.data.responseText.match(/.location.replace\("(.+?)"\)/)?.[1];
+                    if (url && !isTransferLink(url)) finalUrl = url;
+                    return;
+                  }
+                  $title.setAttribute(requestFinalUrlAttr, finalUrl);
+                });
+                return;
+              }
             } else return;
           }
-          $result.setAttribute("data-hijack", "true");
+          $result.setAttribute("data-stop-direct", "true");
           if (config.redirect) {
             $title.href = realLink;
+            $title.setAttribute("data-before-url", titleUrl);
             $result.setAttribute("data-before-url", titleUrl);
           }
           if (config.addFavicon) {
             const $ico = domUtils.createElement("img");
             $ico.className = "website-ico";
+            $ico.loading = "lazy";
             try {
               $ico.src = `${new URL(realLink).origin}/favicon.ico`;
               domUtils.prepend($title, $ico);
@@ -2703,9 +2756,14 @@
                 display: "flex",
                 "align-items": "center",
               });
-              domUtils.on($ico, "error", () => {
-                $ico.remove();
-              });
+              domUtils.on(
+                $ico,
+                "error",
+                () => {
+                  $ico.remove();
+                },
+                { once: true }
+              );
             } catch {}
           }
           if (config.markUnsafeLink) {
@@ -2758,6 +2816,9 @@
   };
   var BaiduSearch = {
     init() {
+      Panel.execMenuOnce("baidu-search-removeAds", () => {
+        return this.removeAds();
+      });
       Panel.execMenuOnce("baidu-search-removeRightPanel", () => {
         return this.removeRightPanel();
       });
@@ -2795,6 +2856,10 @@
         }
       );
       BaiduSearchResult.init();
+    },
+    removeAds() {
+      log.info(`移除广告`);
+      return addBlockCSSWithEnd("#top-ad");
     },
     removeRightPanel() {
       log.info(`移除右侧栏`);
@@ -4089,6 +4154,7 @@
         text: "通用",
         type: "container",
         views: [
+          UISwitch("移除广告", "baidu-search-removeAds", true),
           UISwitch("移除右侧栏", "baidu-search-removeRightPanel", true),
           UISwitch("移除大家都在搜", "baidu-search-removeEveryOneSearch", true),
           UISwitch("移除相关搜索", "baidu-search-removeRelatedSearch", true),
