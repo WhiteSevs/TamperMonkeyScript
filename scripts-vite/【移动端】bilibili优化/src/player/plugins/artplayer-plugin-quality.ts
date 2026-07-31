@@ -1,5 +1,5 @@
 import Artplayer from "artplayer";
-import type { ComponentOption, Selector } from "artplayer/types/component.js";
+import type { ComponentOption, Selector } from "artplayer";
 
 const TAG = "[artplayer-plugin-quality]：";
 
