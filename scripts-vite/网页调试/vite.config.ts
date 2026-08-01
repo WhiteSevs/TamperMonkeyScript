@@ -37,8 +37,8 @@ const updateREADMEInfo = (name: "erdua" | "VConsole" | "PageSpy", replace: strin
  * @link file:///./src/main/version.json
  */
 const getResource = () => {
-  const resourceMap = {};
-  const eruda_DynamicQueryResourceVersion = [
+  const resourceMap: { [key: string]: string } = {};
+  const eruda_DynamicQueryResourceVersion: { npm: keyof ToolVersionInfo["eruda"]["plugin"]; resourceName: string }[] = [
     {
       npm: "eruda-monitor",
       resourceName: "Resource_erudaMonitor",
@@ -83,7 +83,7 @@ const getResource = () => {
 
   const vConsole_DynamicQueryResourceVersion = [
     {
-      npm: "vue-vconsole-devtools",
+      npm: "vue-vconsole-devtools" as keyof ToolVersionInfo["vconsole"]["plugin"],
       resourceName: "Resource_vConsoleVueDevtools",
     },
   ];
@@ -128,7 +128,7 @@ const getResource = () => {
   // 获取并更新pageSpy版本
   let pageSpyVersion = Utils.getNpmLibVersion("@huolala-tech/page-spy-browser");
   if (versionJSON["@huolala-tech/page-spy-browser"].version != pageSpyVersion) {
-    console.log(`更新vConsole版本 ${versionJSON["@huolala-tech/page-spy-browser"].version} ==> ${pageSpyVersion}`);
+    console.log(`更新PageSpy版本 ${versionJSON["@huolala-tech/page-spy-browser"].version} ==> ${pageSpyVersion}`);
     updateREADMEInfo("PageSpy", pageSpyVersion);
   }
   versionJSON["@huolala-tech/page-spy-browser"].version = pageSpyVersion;

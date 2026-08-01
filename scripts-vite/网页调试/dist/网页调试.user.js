@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网页调试
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.8.1
 // @author       WhiteSevs
 // @description  内置多种网页调试工具，包括：Eruda、vConsole、PageSpy、Chii，可在设置菜单中进行详细配置
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@c984536247d5a8caceb6d1b0bffb7d29cad8ca3c/lib/Eruda/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@9f63667d501ec8df5bdb4af680f37793f393754f/lib/VConsole/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@b2f37e0ef04aafbccbdbd52733f795c2076acd87/lib/PageSpy/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@3bdb320556b65faf0a1c6ed5a41e6fcd5e159610/lib/PageSpy/index.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.0/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @resource     Resource_erudaBenchmark       https://fastly.jsdelivr.net/npm/eruda-benchmark@2.0.1
 // @resource     Resource_erudaCode            https://fastly.jsdelivr.net/npm/eruda-code@2.2.0
@@ -104,38 +104,41 @@
   _whitesev_domutils = __toESM(_whitesev_domutils);
   _whitesev_pops = __toESM(_whitesev_pops);
   _whitesev_utils = __toESM(_whitesev_utils);
-  var _GM = typeof GM != "undefined" ? GM : void 0;
-  var _GM_addElement = typeof GM_addElement != "undefined" ? GM_addElement : void 0;
-  var _GM_addStyle = typeof GM_addStyle != "undefined" ? GM_addStyle : void 0;
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_cookie = typeof GM_cookie != "undefined" ? GM_cookie : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_deleteValues = typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0;
-  var _GM_download = typeof GM_download != "undefined" ? GM_download : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getResourceURL = typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0;
-  var _GM_getTab = typeof GM_getTab != "undefined" ? GM_getTab : void 0;
-  var _GM_getTabs = typeof GM_getTabs != "undefined" ? GM_getTabs : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_getValues = typeof GM_getValues != "undefined" ? GM_getValues : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_log = typeof GM_log != "undefined" ? GM_log : void 0;
-  var _GM_notification = typeof GM_notification != "undefined" ? GM_notification : void 0;
-  var _GM_openInTab = typeof GM_openInTab != "undefined" ? GM_openInTab : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_saveTab = typeof GM_saveTab != "undefined" ? GM_saveTab : void 0;
-  var _GM_setClipboard = typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_webRequest = typeof GM_webRequest != "undefined" ? GM_webRequest : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _GM_audio = typeof GM_audio != "undefined" ? GM_audio : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
+  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
+  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
+  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
+  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
+  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
+  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
@@ -190,6 +193,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -503,7 +511,7 @@
   });
   var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -539,6 +547,7 @@
   };
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
@@ -1362,9 +1371,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -2133,7 +2143,7 @@
   var console = unsafeWin.console;
   var copy = _GM_setClipboard || utils.copy.bind(utils);
   var DebugToolVersionConfig = JSON.parse(
-    '{\n  "eruda": {\n    "version": "3.4.3",\n    "plugin": {\n      "eruda-monitor": "1.1.2",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.10"\n  }\n}'
+    '{\n  "eruda": {\n    "version": "3.4.3",\n    "plugin": {\n      "eruda-monitor": "1.1.2",\n      "eruda-features": "2.1.0",\n      "eruda-timing": "2.0.1",\n      "eruda-code": "2.2.0",\n      "eruda-benchmark": "2.0.1",\n      "eruda-orientation": "2.1.1",\n      "eruda-vue": "1.1.1",\n      "eruda-touches": "2.1.0",\n      "eruda-outline-plugin": "0.0.5",\n      "eruda-pixel": "1.0.13"\n    }\n  },\n  "vconsole": {\n    "version": "3.15.1",\n    "plugin": {\n      "vue-vconsole-devtools": "1.0.9"\n    }\n  },\n  "@huolala-tech/page-spy-browser": {\n    "version": "2.2.11"\n  }\n}'
   );
   var DebugToolConfig = {
     eruda: {
@@ -4919,18 +4929,18 @@
       },
     ],
   };
-  var _ChromeXt =
+  var _ChromeXt = (() =>
     typeof ChromeXt != "undefined"
       ? ChromeXt
       : typeof GM === "object" && GM != null && typeof GM.ChromeXt !== "undefined"
         ? GM.ChromeXt
-        : void 0;
-  var _CAT_userConfig = typeof CAT_userConfig != "undefined" ? CAT_userConfig : void 0;
-  var _CAT_fileStorage = typeof CAT_fileStorage != "undefined" ? CAT_fileStorage : void 0;
-  var _CAT_scriptLoaded = typeof CAT_scriptLoaded != "undefined" ? CAT_scriptLoaded : void 0;
-  var _CAT_setProxy = typeof CAT_setProxy != "undefined" ? CAT_setProxy : void 0;
-  var _CAT_clearProxy = typeof CAT_clearProxy != "undefined" ? CAT_clearProxy : void 0;
-  var _CAT_click = typeof CAT_click != "undefined" ? CAT_click : void 0;
+        : void 0)();
+  var _CAT_userConfig = (() => (typeof CAT_userConfig != "undefined" ? CAT_userConfig : void 0))();
+  var _CAT_fileStorage = (() => (typeof CAT_fileStorage != "undefined" ? CAT_fileStorage : void 0))();
+  var _CAT_scriptLoaded = (() => (typeof CAT_scriptLoaded != "undefined" ? CAT_scriptLoaded : void 0))();
+  var _CAT_setProxy = (() => (typeof CAT_setProxy != "undefined" ? CAT_setProxy : void 0))();
+  var _CAT_clearProxy = (() => (typeof CAT_clearProxy != "undefined" ? CAT_clearProxy : void 0))();
+  var _CAT_click = (() => (typeof CAT_click != "undefined" ? CAT_click : void 0))();
   var DebugBridge = {
     init() {
       this.register();
