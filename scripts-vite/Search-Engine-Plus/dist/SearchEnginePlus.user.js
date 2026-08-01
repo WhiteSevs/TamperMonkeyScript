@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.7.31
+// @version      2026.8.1
 // @author       WhiteSevs
 // @description  搜索引擎优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -2607,7 +2607,7 @@
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils$1.DocumentCookieHandler();
-  var BACKGROUND_URL = "https://bing.img.run/uhd.php";
+  var BACKGROUND_URL = "https://api.paugram.com/bing";
   var ConcurrencyAsyncQueue = class {
     queue;
     runningCount;
