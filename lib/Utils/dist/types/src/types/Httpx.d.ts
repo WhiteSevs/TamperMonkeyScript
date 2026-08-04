@@ -1264,11 +1264,22 @@ export declare interface HttpxResponseData<T extends HttpxRequestOption> {
  */
 export declare interface HttpxResponse<T extends HttpxRequestOption> {
   /**
+   * 触发该回调函数的函数名
+   */
+  type: HttpxResponseCallBackType;
+  /**
+   * 是否请求成功
+   *
+   * @deprecated
+   * 状态码在`200-300`之间为`true`，否则为`false`
+   */
+  status: boolean;
+  /**
    * 是否请求成功
    *
    * 状态码在`200-300`之间为`true`，否则为`false`
    */
-  status: boolean;
+  isSuccess: boolean;
   /**
    * 响应状态码
    *
@@ -1277,21 +1288,17 @@ export declare interface HttpxResponse<T extends HttpxRequestOption> {
    */
   statusCode: HttpxStatus | number;
   /**
-   * 请求的数据，当status为false时，data中可能也存在数据
+   * 响应的数据，当`isSuccess`为false时，`data`中可能依旧存在数据
    */
   data: HttpxResponseData<T>;
   /**
-   * 请求的配置
+   * 当前请求的配置
    */
   requestOption: T;
   /**
-   * 请求的成功/失败消息
+   * 请求的`成功`/`失败`的信息文本
    */
   msg: string;
-  /**
-   * 当前触发响应的类型
-   */
-  type: HttpxResponseCallBackType;
 }
 
 /**
@@ -1323,10 +1330,7 @@ export declare interface HttpxPromise<T> extends Promise<T> {
   abort: () => void;
 }
 
-/**
- * httpx的初始化配置
- */
-export declare interface HttpxInitOption extends HttpxRequestOption {
+export declare interface HttpxInitDefaultOption {
   /**
    * 实例化，可传入`GM_xmlhttpRequest`，未传入则使用`window.fetch`
    */
@@ -1339,8 +1343,19 @@ export declare interface HttpxInitOption extends HttpxRequestOption {
    * （可选）是否在控制台输出请求配置
    *
    * 一般用于DEBUG|DEV
+   * @default false
    */
   isConsoleRequestOption?: boolean;
+  /**
+   * 是否自动让请求的`http://`变成`https://`
+   * @default false
+   */
+  isAutoHttps?: boolean;
 }
+
+/**
+ * httpx的初始化配置
+ */
+export declare type HttpxInitOption = HttpxRequestOption & HttpxInitDefaultOption;
 
 export type HttpxRequestOptionWithDoubleParams = Omit<HttpxRequestOption, "url">;

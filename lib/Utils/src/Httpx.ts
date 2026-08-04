@@ -3,6 +3,7 @@ import { TryCatch } from "./TryCatch";
 import type {
   HttpxAllowInterceptConfig,
   HttpxHookErrorData,
+  HttpxInitDefaultOption,
   HttpxInitOption,
   HttpxMethod,
   HttpxPromise,
@@ -272,6 +273,9 @@ export class Httpx {
         url = url.trim();
         if (url.startsWith("http://") || url.startsWith("https://")) {
           // 标准的http请求
+          if (this.context.#defaultInitOption.isAutoHttps) {
+            url = url.replace(/^http:\/\//, "https://");
+          }
         } else {
           if (typeof this.context.#defaultInitOption.baseURL === "string") {
             // 设置了基础域
@@ -654,6 +658,7 @@ export class Httpx {
         requestOption,
         msg: "请求被取消",
         status: false,
+        isSuccess: false,
         statusCode: -1,
         type: "onabort",
       });
@@ -700,12 +705,13 @@ export class Httpx {
         requestOption: requestOption,
         msg: "请求超时",
         status: false,
+        isSuccess: false,
         statusCode: 0,
         type: "ontimeout",
       });
     },
     /**
-     * onerror请求异常-触发
+     * onerror 请求失败-触发
      * @param requestOption 配置
      * @param resolve 回调
      * @param _reject 抛出错误
@@ -742,8 +748,9 @@ export class Httpx {
       resolve({
         data: response,
         requestOption: requestOption,
-        msg: "请求异常",
+        msg: "请求失败",
         status: false,
+        isSuccess: false,
         statusCode: response["status"],
         type: "onerror",
       });
@@ -836,6 +843,7 @@ export class Httpx {
           requestOption: requestOption,
           msg: "请求成功",
           status: true,
+          isSuccess: false,
           statusCode: originResponse.status,
           type: "onload",
         });
@@ -1098,17 +1106,10 @@ export class Httpx {
   /**
    * 实例化的默认配置
    */
-  #defaultInitOption = {
-    /**
-     * `baseURL` 将自动加在 `url` 前面，除非 `url` 是一个绝对 URL。
-     */
+  #defaultInitOption: HttpxInitDefaultOption = {
     baseURL: void 0 as undefined | string,
-    /**
-     * （可选）是否在控制台输出请求配置
-     *
-     * 一般用于DEBUG|DEV
-     */
     isConsoleRequestOption: false,
+    isAutoHttps: false,
   };
   /**
    * 实例化

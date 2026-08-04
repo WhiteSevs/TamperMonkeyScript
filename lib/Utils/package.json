@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/utils",
-  "version": "2.13.0",
+  "version": "2.13.1",
   "description": "一个常用的工具库",
   "keywords": [
     "ScriptCat",
@@ -44,24 +44,22 @@
     "build:fast": "pnpm run format && pnpm run lint && rolldown -c"
   },
   "dependencies": {
-    "worker-timers": "^8.0.31"
+    "worker-timers": "^8.0.34"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^29.0.2",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@types/node": "^25.6.2",
-    "browserslist": "^4.28.2",
-    "caniuse-lite": "^1.0.30001792",
-    "globals": "^17.6.0",
-    "oxfmt": "^0.48.0",
-    "oxlint": "1.63.0",
-    "rolldown": "^1.2.0",
-    "rollup": "^4.60.3",
+    "@types/node": "^26.1.2",
+    "browserslist": "^4.28.7",
+    "caniuse-lite": "^1.0.30001806",
+    "oxfmt": "^0.61.0",
+    "oxlint": "1.76.0",
+    "rolldown": "^1.2.1",
+    "rollup": "^4.62.4",
     "rollup-plugin-clear": "^2.0.7",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.2"
+    "typescript": "^6.0.3"
   }
 }
