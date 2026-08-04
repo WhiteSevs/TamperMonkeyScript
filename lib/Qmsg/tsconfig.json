@@ -39,8 +39,6 @@
     "noUnusedLocals": true,
     //未读取函数参数时引发错误
     "noUnusedParameters": true,
-    // 删除未使用的导入
-    "importsNotUsedAsValues": "remove",
     "rootDir": "./"
   },
   // 包含src下的所有文件
