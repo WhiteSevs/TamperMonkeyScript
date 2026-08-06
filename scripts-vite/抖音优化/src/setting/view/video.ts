@@ -778,6 +778,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "该图标暂停视频时显示在视频中间"
                 ),
                 UISwitch("【屏蔽】ESC或Y可退出网页全屏", "dy-video-watchAndRemoveFullScreenTip", false),
+                UISwitch("【屏蔽】消息", "dy-video-blockMessage", false, void 0, "一般出现在视频的右上角"),
               ],
             },
           ],

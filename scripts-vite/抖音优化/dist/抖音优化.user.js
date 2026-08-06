@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.7.26
+// @version      2026.8.6
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
@@ -5551,6 +5551,9 @@
       Panel.execMenuOnce("dy-video-watchAndRemoveFullScreenTip", () => {
         return this.watchAndRemoveFullScreenTip();
       });
+      Panel.execMenuOnce("dy-video-blockMessage", () => {
+        return this.blockMessage();
+      });
       DouYinVideoBlock_BottomToolbar_videoInfo.init();
       DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
       DouYinVideoBlock_RightToolbar.init();
@@ -5661,6 +5664,10 @@
       return () => {
         observer.disconnect();
       };
+    },
+    blockMessage() {
+      log.info(`【屏蔽】消息`);
+      return addBlockCSS('.xgplayer > div[style*="transform"]:has(>img[src^="data:image"])');
     },
   };
   var mobile_default$1 =
@@ -14353,6 +14360,7 @@
                     "该图标暂停视频时显示在视频中间"
                   ),
                   UISwitch("【屏蔽】ESC或Y可退出网页全屏", "dy-video-watchAndRemoveFullScreenTip", false),
+                  UISwitch("【屏蔽】消息", "dy-video-blockMessage", false, void 0, "一般出现在视频的右上角"),
                 ],
               },
             ],

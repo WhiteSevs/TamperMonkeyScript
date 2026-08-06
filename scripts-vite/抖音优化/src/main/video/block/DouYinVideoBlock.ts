@@ -45,6 +45,9 @@ export const DouYinVideoBlock = {
     Panel.execMenuOnce("dy-video-watchAndRemoveFullScreenTip", () => {
       return this.watchAndRemoveFullScreenTip();
     });
+    Panel.execMenuOnce("dy-video-blockMessage", () => {
+      return this.blockMessage();
+    });
     DouYinVideoBlock_BottomToolbar_videoInfo.init();
     DouYinVideoBlock_BottomToolbar_PlayerComponents.init();
     DouYinVideoBlock_RightToolbar.init();
@@ -204,5 +207,12 @@ export const DouYinVideoBlock = {
     return () => {
       observer.disconnect();
     };
+  },
+  /**
+   * 【屏蔽】消息
+   */
+  blockMessage() {
+    log.info(`【屏蔽】消息`);
+    return addBlockCSS('.xgplayer > div[style*="transform"]:has(>img[src^="data:image"])');
   },
 };
