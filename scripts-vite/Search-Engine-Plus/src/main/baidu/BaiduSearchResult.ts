@@ -117,7 +117,7 @@ export const BaiduSearchResult = {
           $result.setAttribute("data-stop-direct", "true");
           return;
         }
-        const titleUrl = $title.getAttribute("href")!.trim();
+        const titleUrl = $title.href?.trim();
         if (!realLink) {
           // 依旧没有获取到真实链接
           // 使用get请求获取
@@ -126,7 +126,7 @@ export const BaiduSearchResult = {
             // is request && ignore
             return;
           } else if (isTransferLink(titleUrl) || isMustRequestFinalUrl) {
-            // 百度中转链接
+            // 对百度中转链接进行转换
             // 主动请求获取重定向的链接
             const requestFinalUrlAttr = "data-request-final-url";
             if ($title.hasAttribute(requestFinalUrlAttr)) {
@@ -162,7 +162,7 @@ export const BaiduSearchResult = {
         }
         $result.setAttribute("data-stop-direct", "true");
         // 下面是在获取到真实链接后才能添加的功能
-        if (config.redirect) {
+        if (config.redirect && isTransferLink(titleUrl)) {
           // 重定向
           $title.href = realLink;
           $title.setAttribute("data-before-url", titleUrl);
@@ -193,7 +193,7 @@ export const BaiduSearchResult = {
         }
         if (config.markUnsafeLink) {
           // 显示不安全的链接
-          if (realLink.startsWith("http://")) {
+          if ($title.href.startsWith("http://")) {
             DOMUtils.prepend(
               $title,
               /*html*/ `
