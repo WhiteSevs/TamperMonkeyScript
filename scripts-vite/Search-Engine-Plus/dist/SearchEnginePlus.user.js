@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.1
+// @version      2026.8.6
 // @author       WhiteSevs
-// @description  搜索引擎优化，包含以下搜索引擎：百度搜索、谷歌、Bing
+// @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
 // @icon         data:image/png;base64,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
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
@@ -17,11 +17,13 @@
 // @match        *://www.bing.com/search*
 // @match        *://cn.bing.com/search*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @connect      www.baidu.com
+// @connect      cn.bing.com
+// @connect      www.bing.com
 // @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -2607,7 +2609,77 @@
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
   new utils$1.DocumentCookieHandler();
+  var BingWallpaper = {
+    api: "https://cn.bing.com/HPImageArchive.aspx",
+    imgOrigin: "https://cn.bing.com",
+    get params() {
+      return {
+        format: "js",
+        idx: 0,
+        n: 8,
+        mkt: "zh-CN",
+      };
+    },
+    async getTodayImgUrlInfos() {
+      const response = await httpx.get(this.api, {
+        data: { ...this.params },
+        fetch: false,
+        allowInterceptConfig: false,
+        headers: {
+          Referer: "https://www.bing.com/",
+          Origin: "https://www.bing.com",
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.status) return;
+      const data = utils$1.toJSON(response.data.responseText);
+      if (!Array.isArray(data.images) || data.images.length === 0) {
+        log.error(`获取背景图片失败`, response, data);
+        return;
+      }
+      const urls = data.images
+        .map((item) => {
+          let url = void 0;
+          if (typeof item.urlbase === "string") url = this.imgOrigin + item.urlbase + "_UHD.jpg";
+          else if (typeof item.url === "string") {
+            url = this.imgOrigin + item.url;
+            url = url.replace("_1920x1080.jpg", "_UHD.jpg");
+          }
+          if (url)
+            return {
+              uhd: url,
+              "1080p": url.replace("_UHD.jpg", "_1920x1080.jpg"),
+              "720p": url.replace("_UHD.jpg", "_1280x720.jpg"),
+            };
+        })
+        .filter((it) => it != null);
+      if (!urls.length) return;
+      return urls;
+    },
+    async getTodayRandomImgUrlInfo() {
+      const urls = await this.getTodayImgUrlInfos();
+      if (!Array.isArray(urls) || urls.length === 0) return;
+      return urls[Math.floor(Math.random() * urls.length)];
+    },
+  };
   var BACKGROUND_URL = "https://api.paugram.com/bing";
+  var localWallpaperInfo = _GM_getValue("wallpaper-today-url");
+  if (
+    localWallpaperInfo &&
+    utils$1.formatTime(localWallpaperInfo.time, "yyyy-MM-dd") === utils$1.formatTime(Date.now(), "yyyy-MM-dd")
+  ) {
+    BACKGROUND_URL = localWallpaperInfo.url;
+    log.info("今日壁纸url已获取，使用该url作为壁纸：" + BACKGROUND_URL);
+  } else
+    BingWallpaper.getTodayImgUrlInfos().then((todayWallpaper) => {
+      if (todayWallpaper && todayWallpaper.length) {
+        BACKGROUND_URL = todayWallpaper[0].uhd;
+        _GM_setValue("wallpaper-today-url", {
+          url: todayWallpaper[0].uhd,
+          time: Date.now(),
+        });
+      }
+    });
   var ConcurrencyAsyncQueue = class {
     queue;
     runningCount;
@@ -2711,7 +2783,7 @@
             } catch {}
             return url;
           });
-          const titleUrl = $title.getAttribute("href").trim();
+          const titleUrl = $title.href?.trim();
           if (!realLink) {
             const requestAttr = "data-direct-http-request-ing";
             if ($title.hasAttribute(requestAttr)) return;
@@ -2740,7 +2812,7 @@
             } else return;
           }
           $result.setAttribute("data-stop-direct", "true");
-          if (config.redirect) {
+          if (config.redirect && isTransferLink(titleUrl)) {
             $title.href = realLink;
             $title.setAttribute("data-before-url", titleUrl);
             $result.setAttribute("data-before-url", titleUrl);
@@ -2767,7 +2839,7 @@
             } catch {}
           }
           if (config.markUnsafeLink) {
-            if (realLink.startsWith("http://")) {
+            if ($title.href.startsWith("http://")) {
               domUtils.prepend(
                 $title,
                 `
@@ -3778,6 +3850,40 @@
     });
     return result;
   };
+  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
+    const result = {
+      text,
+      type: "select",
+      description,
+      attributes: {},
+      props: {},
+      getValue() {
+        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+      },
+      callback(isSelectedInfo) {
+        if (isSelectedInfo == null) return;
+        const value = isSelectedInfo.value;
+        log.info(`选择：${isSelectedInfo.text}`);
+        if (typeof selectCallBack === "function") {
+          if (selectCallBack(isSelectedInfo)) return;
+        }
+        this.props[PROPS_STORAGE_API].set(key, value);
+        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
+      },
+      data,
+    };
+    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
+    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
+    PanelComponents.initComponentsStorageApi("select", result, {
+      get(key, defaultValue) {
+        return Panel.getValue(key, defaultValue);
+      },
+      set(key, value) {
+        Panel.setValue(key, value);
+      },
+    });
+    return result;
+  };
   var UISlider = function (
     text,
     key,
@@ -3996,39 +4102,155 @@
       Reflect.set(config.props, PROPS_STORAGE_API, storageApiValue);
     },
   };
-  var UISelect = function (text, key, defaultValue, data, selectCallBack, description, valueChangeCallBack) {
-    const result = {
-      text,
-      type: "select",
-      description,
-      attributes: {},
-      props: {},
-      getValue() {
-        return this.props[PROPS_STORAGE_API].get(key, defaultValue);
+  var Component_Baidu = {
+    id: "baidu",
+    title: "百度搜索",
+    isDefault: SearchEngineRouter.isBaiduSearch(),
+    views: [
+      {
+        text: "通用",
+        type: "container",
+        views: [
+          UISwitch("移除广告", "baidu-search-removeAds", true),
+          UISwitch("移除右侧栏", "baidu-search-removeRightPanel", true),
+          UISwitch("移除大家都在搜", "baidu-search-removeEveryOneSearch", true),
+          UISwitch("移除相关搜索", "baidu-search-removeRelatedSearch", true),
+          UISwitch("移除选中文本弹窗", "baidu-search-removeSelectTextDialog", true),
+        ],
       },
-      callback(isSelectedInfo) {
-        if (isSelectedInfo == null) return;
-        const value = isSelectedInfo.value;
-        log.info(`选择：${isSelectedInfo.text}`);
-        if (typeof selectCallBack === "function") {
-          if (selectCallBack(isSelectedInfo)) return;
-        }
-        this.props[PROPS_STORAGE_API].set(key, value);
-        if (typeof valueChangeCallBack === "function") valueChangeCallBack(isSelectedInfo);
+      {
+        text: "显示模式优化",
+        type: "container",
+        views: [
+          UISwitch("开启", "baidu-search-showOptimization-enable", true),
+          UISelect("模式", "baidu-search-showOptimization-mode", "single-center", [
+            {
+              text: "无",
+              value: "",
+            },
+            {
+              text: "单列居中",
+              value: "single-center",
+            },
+            {
+              text: "双列居中",
+              value: "double-column-center",
+            },
+            {
+              text: "三列居中",
+              value: "three-column-center",
+            },
+            {
+              text: "四列居中",
+              value: "four-column-center",
+            },
+          ]),
+        ],
       },
-      data,
-    };
-    Reflect.set(result.attributes, ATTRIBUTE_KEY, key);
-    Reflect.set(result.attributes, ATTRIBUTE_DEFAULT_VALUE, defaultValue);
-    PanelComponents.initComponentsStorageApi("select", result, {
-      get(key, defaultValue) {
-        return Panel.getValue(key, defaultValue);
+      {
+        type: "container",
+        text: "自定义背景图",
+        views: [
+          UISwitch("启用", "baidu-search-ownBackgroundImage-enable", true),
+          UIInput("图片地址", "baidu-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
+          UISlider(
+            "图片透明度",
+            "baidu-search-ownBackgroundImage-opacity",
+            0.8,
+            0,
+            1,
+            void 0,
+            void 0,
+            "值越低越透明",
+            0.1
+          ),
+        ],
       },
-      set(key, value) {
-        Panel.setValue(key, value);
+      {
+        type: "container",
+        text: "搜索结果优化",
+        views: [
+          UISwitch("启用", "baidu-search-optimizationResult-enable", true, void 0, "开启后下面的功能才会生效"),
+          UISwitch("移除广告", "baidu-search-optimizationResult-removeAds", true),
+          UISwitch("链接重定向", "baidu-search-optimizationResult-redirect", true),
+          UISwitch("添加favicon", "baidu-search-optimizationResult-addFavicon", true),
+          UISwitch("标识非安全的链接", "baidu-search-optimizationResult-markUnsafeLink", true),
+        ],
       },
-    });
-    return result;
+    ],
+  };
+  var Component_Bing = {
+    id: "bing",
+    title: "Bing搜索",
+    isDefault: SearchEngineRouter.isBingSearch(),
+    views: [
+      {
+        text: "通用",
+        type: "container",
+        views: [
+          UISwitch("移除广告", "bing-search-removeAds", true),
+          UISwitch("移除输入预测", "bing-search-removeInputPrediction", false),
+          UISwitch("移除输入历史记录", "bing-search-removeInputHistory", false),
+          UISwitch(
+            "移除输入历史记录 - 与最近的搜索相关",
+            "bing-search-removeInputHistory-relatedToRecentSearches",
+            false
+          ),
+          UISwitch("移除右侧更多搜索结果", "bing-search-removeRightMoreSearchResult", true),
+          UISwitch("移除Copilot Search", "bing-search-removeCopilotSearch", false),
+          UISwitch("移除底部悬浮的工具栏", "bing-search-removeBottomFloatingToolbar", true),
+          UISwitch("移除其它用户还搜索过", "bing-search-removeOtherUserSearch", true),
+        ],
+      },
+      {
+        text: "显示模式优化",
+        type: "container",
+        views: [
+          UISwitch("开启", "bing-search-showOptimization-enable", true),
+          UISelect("模式", "bing-search-showOptimization-mode", "single-center", [
+            {
+              text: "无",
+              value: "",
+            },
+            {
+              text: "单列居中",
+              value: "single-center",
+            },
+            {
+              text: "双列居中",
+              value: "double-column-center",
+            },
+            {
+              text: "三列居中",
+              value: "three-column-center",
+            },
+            {
+              text: "四列居中",
+              value: "four-column-center",
+            },
+          ]),
+        ],
+      },
+      {
+        type: "container",
+        text: "自定义背景图",
+        views: [
+          UISwitch("启用", "bing-search-ownBackgroundImage-enable", true),
+          UIInput("图片地址", "bing-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
+          UISlider(
+            "图片透明度",
+            "bing-search-ownBackgroundImage-opacity",
+            0.8,
+            0,
+            1,
+            void 0,
+            void 0,
+            "值越低越透明",
+            0.1
+          ),
+        ],
+      },
+    ],
   };
   var Component_Common = {
     id: "view-general",
@@ -4145,83 +4367,6 @@
       },
     ],
   };
-  var Component_Baidu = {
-    id: "baidu",
-    title: "百度搜索",
-    isDefault: SearchEngineRouter.isBaiduSearch(),
-    views: [
-      {
-        text: "通用",
-        type: "container",
-        views: [
-          UISwitch("移除广告", "baidu-search-removeAds", true),
-          UISwitch("移除右侧栏", "baidu-search-removeRightPanel", true),
-          UISwitch("移除大家都在搜", "baidu-search-removeEveryOneSearch", true),
-          UISwitch("移除相关搜索", "baidu-search-removeRelatedSearch", true),
-          UISwitch("移除选中文本弹窗", "baidu-search-removeSelectTextDialog", true),
-        ],
-      },
-      {
-        text: "显示模式优化",
-        type: "container",
-        views: [
-          UISwitch("开启", "baidu-search-showOptimization-enable", true),
-          UISelect("模式", "baidu-search-showOptimization-mode", "single-center", [
-            {
-              text: "无",
-              value: "",
-            },
-            {
-              text: "单列居中",
-              value: "single-center",
-            },
-            {
-              text: "双列居中",
-              value: "double-column-center",
-            },
-            {
-              text: "三列居中",
-              value: "three-column-center",
-            },
-            {
-              text: "四列居中",
-              value: "four-column-center",
-            },
-          ]),
-        ],
-      },
-      {
-        type: "container",
-        text: "自定义背景图",
-        views: [
-          UISwitch("启用", "baidu-search-ownBackgroundImage-enable", true),
-          UIInput("图片地址", "baidu-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
-          UISlider(
-            "图片透明度",
-            "baidu-search-ownBackgroundImage-opacity",
-            0.8,
-            0,
-            1,
-            void 0,
-            void 0,
-            "值越低越透明",
-            0.1
-          ),
-        ],
-      },
-      {
-        type: "container",
-        text: "搜索结果优化",
-        views: [
-          UISwitch("启用", "baidu-search-optimizationResult-enable", true, void 0, "开启后下面的功能才会生效"),
-          UISwitch("移除广告", "baidu-search-optimizationResult-removeAds", true),
-          UISwitch("链接重定向", "baidu-search-optimizationResult-redirect", true),
-          UISwitch("添加favicon", "baidu-search-optimizationResult-addFavicon", true),
-          UISwitch("标识非安全的链接", "baidu-search-optimizationResult-markUnsafeLink", true),
-        ],
-      },
-    ],
-  };
   var Component_Google = {
     id: "google",
     title: "Google搜索",
@@ -4292,79 +4437,6 @@
         views: [
           UISwitch("启用", "google-search-optimizationResult-enable", true),
           UISwitch("新标签页打开", "google-search-optimizationResult-openBlank", true),
-        ],
-      },
-    ],
-  };
-  var Component_Bing = {
-    id: "bing",
-    title: "Bing搜索",
-    isDefault: SearchEngineRouter.isBingSearch(),
-    views: [
-      {
-        text: "通用",
-        type: "container",
-        views: [
-          UISwitch("移除广告", "bing-search-removeAds", true),
-          UISwitch("移除输入预测", "bing-search-removeInputPrediction", false),
-          UISwitch("移除输入历史记录", "bing-search-removeInputHistory", false),
-          UISwitch(
-            "移除输入历史记录 - 与最近的搜索相关",
-            "bing-search-removeInputHistory-relatedToRecentSearches",
-            false
-          ),
-          UISwitch("移除右侧更多搜索结果", "bing-search-removeRightMoreSearchResult", true),
-          UISwitch("移除Copilot Search", "bing-search-removeCopilotSearch", false),
-          UISwitch("移除底部悬浮的工具栏", "bing-search-removeBottomFloatingToolbar", true),
-          UISwitch("移除其它用户还搜索过", "bing-search-removeOtherUserSearch", true),
-        ],
-      },
-      {
-        text: "显示模式优化",
-        type: "container",
-        views: [
-          UISwitch("开启", "bing-search-showOptimization-enable", true),
-          UISelect("模式", "bing-search-showOptimization-mode", "single-center", [
-            {
-              text: "无",
-              value: "",
-            },
-            {
-              text: "单列居中",
-              value: "single-center",
-            },
-            {
-              text: "双列居中",
-              value: "double-column-center",
-            },
-            {
-              text: "三列居中",
-              value: "three-column-center",
-            },
-            {
-              text: "四列居中",
-              value: "four-column-center",
-            },
-          ]),
-        ],
-      },
-      {
-        type: "container",
-        text: "自定义背景图",
-        views: [
-          UISwitch("启用", "bing-search-ownBackgroundImage-enable", true),
-          UIInput("图片地址", "bing-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
-          UISlider(
-            "图片透明度",
-            "bing-search-ownBackgroundImage-opacity",
-            0.8,
-            0,
-            1,
-            void 0,
-            void 0,
-            "值越低越透明",
-            0.1
-          ),
         ],
       },
     ],
