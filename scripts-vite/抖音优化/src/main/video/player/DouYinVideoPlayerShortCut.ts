@@ -1,4 +1,4 @@
-import { $$, log, utils } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import { Panel } from "@components/setting/panel";
@@ -6,6 +6,7 @@ import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 import { DouYinVideoPlayer, type VideoPlayerRate } from "./DouYinVideoPlayer";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const DouYinVideoPlayerShortCut = {
   shortCut: new ShortCut("video-short-cut"),
@@ -95,7 +96,7 @@ export const DouYinVideoPlayerShortCut = {
           log.info(`触发快捷键 ==> 切换静音状态`);
           const $videos = $$<HTMLVideoElement>("video[src]");
           $videos.forEach(($video) => {
-            if (utils.isNull($video.src)) return;
+            if (DouYinUtils.isVideoEmptySrc($video)) return;
             const muted = !$video.muted;
             log.success(`切换video标签的静音状态为 ${muted}`);
             $video.muted = muted;
@@ -112,14 +113,14 @@ export const DouYinVideoPlayerShortCut = {
             log.error("未找到在可视区域内的视频/图文");
             return;
           }
-          const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
-          DouYinVideoPlayer.supportVideoDownloader($el);
+          const $video = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
+          DouYinVideoPlayer.supportVideoDownloader($video);
         },
       },
       "dy-video-shortcut-playbackRate": {
         callback() {
           log.info("触发快捷键 ==> 倍速播放");
-          const enable = !Boolean(Panel.getValue("dy-video-playbackrate"));
+          const enable = !Panel.getValue("dy-video-playbackrate");
           if (enable) {
             const rate = Panel.getValue<string>("dy-video-playbackrate-select-value");
             Qmsg.success("开启倍速：" + rate);
@@ -127,6 +128,31 @@ export const DouYinVideoPlayerShortCut = {
             Qmsg.info("关闭倍速");
           }
           Panel.setValue("dy-video-playbackrate", enable);
+        },
+      },
+      "dy-video-shortcut-nextChapter": {
+        callback() {
+          log.info("触发快捷键 ==> 下一章");
+          const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
+          const $video = videosInViewVideoList[0]?.$el;
+          if (!$video) {
+            Qmsg.error("未找到在可视区域内的视频");
+            return;
+          }
+          const $container = $video.closest<HTMLElement>(".xgplayer");
+          if (!$container) {
+            Qmsg.error("未找到视频容器");
+            return;
+          }
+          const $nextChapter = DOMUtils?.selector<HTMLElement>(
+            '[data-e2e="chapter-container"] span:contains("下一章")',
+            $container
+          );
+          if (!$nextChapter) {
+            Qmsg.error("未找到【下一章】");
+            return;
+          }
+          $nextChapter.click();
         },
       },
     };

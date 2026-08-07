@@ -1,3 +1,5 @@
+import { utils } from "@/env";
+
 export const DouYinUtils = {
   /**
    * 判断是否是竖屏
@@ -51,5 +53,22 @@ export const DouYinUtils = {
       const seconds = duration % 60;
       return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
     }
+  },
+  /**
+   * 判断video标签是否存在有效的播放资源
+   */
+  isVideoEmptySrc($video?: HTMLVideoElement): boolean {
+    // 忽略没有媒体资源的video标签
+    // src、currentSrc、srcObject都为空且内部没有<source>标签才排除掉
+    if (
+      $video != null &&
+      utils.isNull($video.src) &&
+      utils.isNull($video.currentSrc) &&
+      $video.srcObject == null &&
+      !$video.querySelector("source[src]")
+    ) {
+      return true;
+    }
+    return false;
   },
 };

@@ -535,6 +535,15 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   DouYinVideoPlayerShortCut.shortCut
                 ),
+                UIButtonShortCut(
+                  "下一章",
+                  "如果视频存在【下一章】按钮，则可通过快捷键快捷触发",
+                  "dy-video-shortcut-nextChapter",
+                  void 0,
+                  "点击录入快捷键",
+                  void 0,
+                  DouYinVideoPlayerShortCut.shortCut
+                ),
               ],
             },
           ],

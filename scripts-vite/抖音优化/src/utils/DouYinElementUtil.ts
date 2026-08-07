@@ -1,4 +1,5 @@
 import { $, $$, DOMUtils, log, utils } from "@/env";
+import { DouYinUtils } from "./DouYinUtils";
 
 export const DouYinElementUtil = {
   /**
@@ -133,8 +134,7 @@ export const DouYinElementUtil = {
     const $videos = Array.from($$<HTMLVideoElement>("video"))
       .map(($video) => {
         // 忽略没有媒体资源的video标签
-        // src、currentSrc、srcObject都为空才排除掉
-        if (utils.isNull($video.src) && utils.isNull($video.currentSrc) && $video.srcObject == null) return;
+        if (DouYinUtils.isVideoEmptySrc($video)) return;
         return $video;
       })
       .filter((it) => it != null);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.6
+// @version      2026.8.7
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2686,6 +2686,38 @@
       return this.isIndex(href) && RouterUtil.builder(href).pathnameStartsWith("/hot").r();
     },
   };
+  var DouYinUtils = {
+    isVerticalScreen() {
+      return !globalThis.screen.orientation.type.includes("landscape");
+    },
+    parseDuration(duration) {
+      if (typeof duration !== "number") duration = parseInt(duration);
+      if (isNaN(duration)) return duration.toString();
+      const zeroPadding = function (num) {
+        if (num < 10) return `0${num}`;
+        else return num;
+      };
+      if (duration < 60) return `0:${zeroPadding(duration)}`;
+      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
+      else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor(duration / 60) % 60;
+        const seconds = duration % 60;
+        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
+      }
+    },
+    isVideoEmptySrc($video) {
+      if (
+        $video != null &&
+        utils$1.isNull($video.src) &&
+        utils$1.isNull($video.currentSrc) &&
+        $video.srcObject == null &&
+        !$video.querySelector("source[src]")
+      )
+        return true;
+      return false;
+    },
+  };
   var DouYinElementUtil = {
     watchFeedVideoListChange(callback) {
       let $os = null;
@@ -2759,7 +2791,7 @@
     getInViewVideo() {
       const $videos = Array.from($$("video"))
         .map(($video) => {
-          if (utils$1.isNull($video.src) && utils$1.isNull($video.currentSrc) && $video.srcObject == null) return;
+          if (DouYinUtils.isVideoEmptySrc($video)) return;
           return $video;
         })
         .filter((it) => it != null);
@@ -4606,27 +4638,6 @@
     },
     liveQuitFullScreen() {
       return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M7.5 10a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V10zm3 4.5v-2h1.499V11h2v2.5a1 1 0 0 1-1 1H10.5zM20 11h-2v2.498a1 1 0 0 0 1 1h2.5v-2H20V11zm0 8.5h1.5v-2H19a1 1 0 0 0-1 1V21h2v-1.5zM12 21v-1.498h-1.5v-2H13a1 1 0 0 1 1 1V21h-2z"])';
-    },
-  };
-  var DouYinUtils = {
-    isVerticalScreen() {
-      return !globalThis.screen.orientation.type.includes("landscape");
-    },
-    parseDuration(duration) {
-      if (typeof duration !== "number") duration = parseInt(duration);
-      if (isNaN(duration)) return duration.toString();
-      const zeroPadding = function (num) {
-        if (num < 10) return `0${num}`;
-        else return num;
-      };
-      if (duration < 60) return `0:${zeroPadding(duration)}`;
-      else if (duration >= 60 && duration < 3600) return `${Math.floor(duration / 60)}:${zeroPadding(duration % 60)}`;
-      else {
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor(duration / 60) % 60;
-        const seconds = duration % 60;
-        return `${hours}:${zeroPadding(minutes)}:${zeroPadding(seconds)}`;
-      }
     },
   };
   var GestureBack = class {
@@ -9196,7 +9207,7 @@
           callback() {
             log.info(`触发快捷键 ==> 切换静音状态`);
             $$("video[src]").forEach(($video) => {
-              if (utils$1.isNull($video.src)) return;
+              if (DouYinUtils.isVideoEmptySrc($video)) return;
               const muted = !$video.muted;
               log.success(`切换video标签的静音状态为 ${muted}`);
               $video.muted = muted;
@@ -9213,19 +9224,43 @@
               log.error("未找到在可视区域内的视频/图文");
               return;
             }
-            const $el = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
-            DouYinVideoPlayer.supportVideoDownloader($el);
+            const $video = videosInViewVideoList?.[0]?.$el || playerShareInViewList?.[0]?.$el;
+            DouYinVideoPlayer.supportVideoDownloader($video);
           },
         },
         "dy-video-shortcut-playbackRate": {
           callback() {
             log.info("触发快捷键 ==> 倍速播放");
-            const enable = !Boolean(Panel.getValue("dy-video-playbackrate"));
+            const enable = !Panel.getValue("dy-video-playbackrate");
             if (enable) {
               const rate = Panel.getValue("dy-video-playbackrate-select-value");
               qmsg.default.success("开启倍速：" + rate);
             } else qmsg.default.info("关闭倍速");
             Panel.setValue("dy-video-playbackrate", enable);
+          },
+        },
+        "dy-video-shortcut-nextChapter": {
+          callback() {
+            log.info("触发快捷键 ==> 下一章");
+            const $video = DouYinElementUtil.getInViewVideo()[0]?.$el;
+            if (!$video) {
+              qmsg.default.error("未找到在可视区域内的视频");
+              return;
+            }
+            const $container = $video.closest(".xgplayer");
+            if (!$container) {
+              qmsg.default.error("未找到视频容器");
+              return;
+            }
+            const $nextChapter = domUtils?.selector(
+              '[data-e2e="chapter-container"] span:contains("下一章")',
+              $container
+            );
+            if (!$nextChapter) {
+              qmsg.default.error("未找到【下一章】");
+              return;
+            }
+            $nextChapter.click();
           },
         },
       };
@@ -14106,6 +14141,15 @@
                     "倍速播放",
                     "开启/关闭倍速播放功能",
                     "dy-video-shortcut-playbackRate",
+                    void 0,
+                    "点击录入快捷键",
+                    void 0,
+                    DouYinVideoPlayerShortCut.shortCut
+                  ),
+                  UIButtonShortCut(
+                    "下一章",
+                    "如果视频存在【下一章】按钮，则可通过快捷键快捷触发",
+                    "dy-video-shortcut-nextChapter",
                     void 0,
                     "点击录入快捷键",
                     void 0,
