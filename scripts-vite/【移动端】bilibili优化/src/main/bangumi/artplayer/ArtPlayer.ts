@@ -212,16 +212,18 @@ export const BilibiliBangumiArtPlayer = {
     const artOption: Option = {
       ...ArtPlayerCommonOption(),
       container: option.container,
-      /** 自定义设置列表 */
-      settings: [],
-      plugins: [
-        artplayerPluginToast(),
-        artplayPluginQuality({
-          from: BilibiliBangumiArtPlayer.$data.from,
-          qualityList: option.quality,
-        }),
-      ],
     };
+    // 添加插件
+    if (!Array.isArray(artOption.plugins)) {
+      artOption.plugins = [];
+    }
+    artOption.plugins.push(
+      artplayerPluginToast(),
+      artplayPluginQuality({
+        from: BilibiliBangumiArtPlayer.$data.from,
+        qualityList: option.quality,
+      })
+    );
     if (option.isFlv) {
       // flv格式
       // 清空画质信息

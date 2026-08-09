@@ -194,6 +194,7 @@ const githubCDNServerList = {
     "upos-sz-mirrorcosdisp.bilivideo.com",
     "upos-sz-mirrorctos.bilivideo.com",
     "upos-sz-mirrorhwdisp.bilivideo.com",
+    "upos-sz-mirrorhwo1.bilivideo.com",
     "upos-sz-originbstar.bilivideo.com",
     "upos-sz-origincosgzhw.bilivideo.com",
     "upos-sz-origincosv.bilivideo.com",
@@ -262,6 +263,8 @@ const serverAreaList = {
     "upos-tf-all-hw.bilivideo.com",
     //  tf_tx（腾讯云）
     "upos-tf-all-tx.bilivideo.com",
+    // 免流域名
+    "proxy-tf-all-ws.bilivideo.com",
   ],
 };
 const serverList: {

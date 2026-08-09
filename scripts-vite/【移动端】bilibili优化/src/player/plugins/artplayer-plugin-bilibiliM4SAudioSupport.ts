@@ -645,7 +645,7 @@ const M4SAudio = {
       }
 
       // 设置播放地址
-      log.info("加载m4s的音频：", currentSelectAudioInfo);
+      log.info("当前加载的音频：", currentSelectAudioInfo);
       M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
       this.bind();
       this.bindAudio();

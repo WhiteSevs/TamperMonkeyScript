@@ -42,10 +42,17 @@ type VideoQualityInfo = {
   bandwidth: number;
 };
 
+const isEnableFindBetterCDN_video = () => {
+  return Panel.getValue("bili-bangumi-video-url-preferToUseUpos")!;
+};
+const isEnableFindBetterCDN_audio = () => {
+  return Panel.getValue("bili-bangumi-audio-url-preferToUseUpos")!;
+};
+
 /**
  * 从请求的信息中过滤出需要的视频信息
  */
-function handleDashVideoQualityInfo(dashInfo: {
+const handleDashVideoQualityInfo = function (dashInfo: {
   accept_quality: BilibiliTypeBangumiVideoPlayeInfo["accept_quality"];
   support_formats: BilibiliTypeBangumiVideoPlayeInfo["support_formats"];
   video: BilibiliTypeBangumiVideoPlayeInfo["dash"]["video"];
@@ -59,12 +66,12 @@ function handleDashVideoQualityInfo(dashInfo: {
     //  找到画质代码对应的文字名称
     let findSupportFormat = dashInfo.support_formats.find((formatsItem) => formatsItem.quality === dashVideoInfo.id);
     // 视频url
-    let videoUrl = BilibiliCDNProxy.findBetterCDN(
+    let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video(), [
       dashVideoInfo.base_url,
       dashVideoInfo.baseUrl,
       dashVideoInfo.backup_url,
-      dashVideoInfo.backupUrl
-    );
+      dashVideoInfo.backupUrl,
+    ]);
     // 处理视频host替换
     videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
     // 视频画质名称
@@ -85,7 +92,7 @@ function handleDashVideoQualityInfo(dashInfo: {
   });
 
   return acceptVideoQualityInfoList;
-}
+};
 
 /**
  * 生成番剧标题
@@ -159,7 +166,10 @@ const handleQueryVideoQualityData = (
         (formatsItem) => formatsItem.quality === durlInfo.quality
       );
       // 视频url
-      let videoUrl = BilibiliCDNProxy.findBetterCDN(currentDurl.url, currentDurl.backup_url);
+      let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video(), [
+        currentDurl.url,
+        currentDurl.backup_url,
+      ]);
       // 处理视频host替换
       // videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
       // 视频画质名称
@@ -250,7 +260,10 @@ export const GenerateArtPlayerOption = async (EP_INFO: EP_INFO, EP_LIST: EP_LIST
       // flv视频，使用flv.js
       // 这里的应该是剧场版的视频，多p
       bangumiInfo.durl.forEach((durlInfo) => {
-        let videoUrl = BilibiliCDNProxy.findBetterCDN(durlInfo.url, durlInfo.backup_url);
+        let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video(), [
+          durlInfo.url,
+          durlInfo.backup_url,
+        ]);
         // 处理视频host替换
         videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
         flvTotalDuration += durlInfo.length;
@@ -267,7 +280,12 @@ export const GenerateArtPlayerOption = async (EP_INFO: EP_INFO, EP_LIST: EP_LIST
       // dash类型，分video和audio
       // 遍历audio
       (bangumiInfo?.dash?.audio || []).forEach((item) => {
-        let audioUrl = BilibiliCDNProxy.findBetterCDN(item.baseUrl, item.base_url, item.baseUrl, item.backup_url);
+        let audioUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_audio(), [
+          item.baseUrl,
+          item.base_url,
+          item.baseUrl,
+          item.backup_url,
+        ]);
         // 处理音频host替换
         audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
         audioInfo.push({

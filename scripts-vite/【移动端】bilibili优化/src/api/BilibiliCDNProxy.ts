@@ -154,32 +154,34 @@ export const BilibiliCDNProxy = {
    * 筛选最好的节点
    *
    * 传入参数顺序base_url=>baseUrl=>backup_url=>backupUrl，即好的在后面
+   * @param enable 是否启用
+   * @param urlList url列表
    */
-  findBetterCDN(...args: (string | string[])[]) {
+  findBetterCDN(enable: boolean, urlList: (string | string[])[]) {
     /** 节点信息 */
-    let urlList: string[] = [];
-    args.forEach((arg) => {
-      if (Array.isArray(arg)) {
-        urlList = urlList.concat(arg.filter((item) => typeof item === "string"));
+    let totalUrlList: string[] = [];
+    urlList.forEach((url) => {
+      if (Array.isArray(url)) {
+        totalUrlList = totalUrlList.concat(url.filter((item) => typeof item === "string"));
       } else {
-        if (typeof arg === "string") {
-          urlList.push(arg);
+        if (typeof url === "string") {
+          totalUrlList.push(url);
         }
       }
     });
 
-    const betterCDN = urlList.find((url) => {
+    const betterUrl = totalUrlList.find((url) => {
       const urlInst = new URL(url);
       if (urlInst.host.startsWith("upos")) {
         return url;
       }
     });
 
-    if (betterCDN) {
-      return betterCDN;
+    if (enable && betterUrl) {
+      return betterUrl;
     } else {
       // 没有？那直接用第一个
-      return urlList[0];
+      return totalUrlList[0];
     }
   },
   /**
@@ -187,7 +189,7 @@ export const BilibiliCDNProxy = {
    * @param url 视频url
    * @param isAudio 是否是音频
    */
-  replaceVideoCDN(url: string, isAudio: boolean = false) {
+  replaceVideoOrAudioCDN(url: string, isAudio: boolean = false) {
     const userChooseCDN = isAudio
       ? Panel.getValue<string>("bili-video-uposServerSelect-audio")
       : Panel.getValue<string>("bili-video-uposServerSelect");
@@ -195,7 +197,7 @@ export const BilibiliCDNProxy = {
       ? Panel.getValue<string>("bili-video-uposServerSelect-audio-own")
       : Panel.getValue<string>("bili-video-uposServerSelect-own");
     ownCDN = (ownCDN ?? "").trim();
-    return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
+    return this.replaceVideoCDNHost(url, userChooseCDN, isAudio, ownCDN);
   },
   /**
    * 番剧视频CDN替换
@@ -210,7 +212,7 @@ export const BilibiliCDNProxy = {
       ? Panel.getValue<string>("bili-bangumi-uposServerSelect-audio-own")
       : Panel.getValue<string>("bili-bangumi-uposServerSelect-own");
     ownCDN = (ownCDN ?? "").trim();
-    return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
+    return this.replaceVideoCDNHost(url, userChooseCDN, isAudio, ownCDN);
   },
   /**
    * 直播视频CDN替换
@@ -225,7 +227,7 @@ export const BilibiliCDNProxy = {
       ? Panel.getValue<string>("bili-live-uposServerSelect-audio-own")
       : Panel.getValue<string>("bili-live-uposServerSelect-own");
     ownCDN = (ownCDN ?? "").trim();
-    return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
+    return this.replaceVideoCDNHost(url, userChooseCDN, false, ownCDN);
   },
   /**
    * 视频CDN替换host
@@ -233,43 +235,44 @@ export const BilibiliCDNProxy = {
    * 有以下类型
    * .mcdn.bilivideo 辣鸡路线
    * @param url 视频url
-   * @param userChooseCDNHost 需要替换的host
-   * @param ownCDNHost 自定义的host
+   * @param chooseHost 需要替换的host
+   * @param ownHost 自定义的host 如果传入，则使用该参数来替换
+   * @param isAudio 是否是音频
    *
    */
-  replaceVideoCDNHost(url: string, userChooseCDNHost: string, ownCDNHost?: string) {
+  replaceVideoCDNHost(url: string, chooseHost: string, isAudio: boolean, ownHost?: string) {
     try {
       const urlInst = new URL(url);
-      const originHost = urlInst.host;
-      if (utils.isNotNull(ownCDNHost)) {
-        // 使用自定义的服务器host
-        if (originHost !== ownCDNHost) {
-          // 该url和自定义的host一致 不替换
+      const host = urlInst.host;
+      // 使用自定义的服务器host
+      if (utils.isNotNull(ownHost)) {
+        if (host === ownHost) {
+          // 已相同 不替换
           return url;
         }
-        urlInst.host = ownCDNHost;
-        log.info(`原Host为：${originHost}，替换CDN为自定义：${ownCDNHost}`);
+        urlInst.host = ownHost;
+        log.info(`${isAudio ? "音频" : "视频"}原Host为：${host}，替换为自定义：${ownHost}`);
         return urlInst.toString();
       }
-      // 选择的upos信息
+      // 使用选择的upos信息
       const chooseUposCDNInfo = BilibiliCDNServerList.find((item) => {
-        return item.host === userChooseCDNHost;
+        return item.host === chooseHost;
       });
       if (utils.isNull(chooseUposCDNInfo) || utils.isNull(chooseUposCDNInfo.host)) {
         // 空host，即不存在选择的host 不替换
         return url;
       }
       // 选择的upos host
-      const chooseUposCDNHost = chooseUposCDNInfo.host;
-      if (chooseUposCDNHost === urlInst.host) {
-        // host未变 不替换
+      let chooseUposCDNHost = chooseUposCDNInfo.host;
+      if (host === chooseUposCDNHost) {
+        // host相同 不替换
         return url;
       }
       urlInst.host = chooseUposCDNHost;
-      log.info(`原Host为：${originHost}，替换CDN为：${JSON.stringify(chooseUposCDNInfo)}`);
+      log.info(`${isAudio ? "音频" : "视频"}原Host为：${host}，替换为选择的：${JSON.stringify(chooseUposCDNInfo)}`);
       return urlInst.toString();
     } catch (error) {
-      log.error("视频upos替换失败", error);
+      log.error(`${isAudio ? "音频" : "视频"}cdn host替换失败`, error);
       return url;
     }
   },

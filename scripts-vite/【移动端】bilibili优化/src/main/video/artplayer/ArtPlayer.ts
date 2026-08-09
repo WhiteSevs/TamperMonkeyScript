@@ -159,18 +159,21 @@ export const BilibiliVideoArtPlayer = {
     const artOption: Option = {
       ...ArtPlayerCommonOption(),
       container: option.container,
-      /** 视频封面 */
+      /** 覆盖 - 视频封面 */
       poster: option.poster!,
-      /** 自定义设置列表 */
-      settings: [],
-      plugins: [
-        artplayerPluginToast(),
-        artplayPluginQuality({
-          from: "video",
-          qualityList: option.quality,
-        }),
-      ],
     };
+    // 添加插件
+    if (!Array.isArray(artOption.plugins)) {
+      artOption.plugins = [];
+    }
+    artOption.plugins.push(
+      artplayerPluginToast(),
+      artplayPluginQuality({
+        from: "video",
+        qualityList: option.quality,
+      })
+    );
+
     artOption.type = "mp4";
 
     if (Panel.getValue("artplayer-plugin-video-danmaku-enable")) {

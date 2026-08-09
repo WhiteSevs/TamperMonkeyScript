@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.8.9
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -13,16 +13,16 @@
 // @match        *://www.bilibili.com/h5/comment/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
 // @require      https://fastly.jsdelivr.net/npm/artplayer@5.4.0/dist/artplayer.js
 // @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.3.0/dist/artplayer-plugin-danmuku.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.min.css
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -187,21 +187,24 @@
     theme: "#FB7299",
   };
   var BilibiliPCData = { className: { read: { mobile: "#app .read-app-main" } } };
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var GM_RESOURCE_MAPPING = {
     ElementPlus: {
       keyName: "ElementPlusResourceCSS",
@@ -248,6 +251,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -396,7 +404,7 @@
       let loop = async (isTimeout) => {
         const result = await fn(isTimeout);
         if ((typeof result === "boolean" && result) || isTimeout) {
-          utils.workerClearTimeout(timeId);
+          utils$1.workerClearTimeout(timeId);
           return;
         }
         intervalTimeCount += intervalTime;
@@ -404,7 +412,7 @@
           loop(true);
           return;
         }
-        timeId = utils.workerSetTimeout(() => {
+        timeId = utils$1.workerSetTimeout(() => {
           loop(false);
         }, intervalTime);
       };
@@ -468,7 +476,7 @@
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
       let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
       if (days > 0)
-        if (days > 7) result = utils.formatTime(oldTime.getTime());
+        if (days > 7) result = utils$1.formatTime(oldTime.getTime());
         else result = days + "天前";
       else {
         let leave1 = timeDifference % (24 * 3600 * 1e3);
@@ -545,7 +553,7 @@
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
+        if (this.__contentConfig == null) this.__contentConfig = new utils$1.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
@@ -584,7 +592,7 @@
             download: fileName,
           })
           .click();
-        utils.workerSetTimeout(() => {
+        utils$1.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
       };
@@ -654,7 +662,7 @@
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
-              const data = utils.toJSON(configText);
+              const data = utils$1.toJSON(configText);
               if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
               else await updateConfigToStorage(data);
               resolve(true);
@@ -702,7 +710,7 @@
                   text: translateCallback("导入"),
                   callback: async (details) => {
                     const url = details.text;
-                    if (utils.isNull(url)) {
+                    if (utils$1.isNull(url)) {
                       qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
@@ -750,7 +758,7 @@
           });
         };
         const exportConfig = (
-          fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
+          fileName = `${SCRIPT_NAME}_panel-setting-${utils$1.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
           const $alert = __pops__.alert({
@@ -805,7 +813,7 @@
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            if (await utils.copy(fileData)) {
+            if (await utils$1.copy(fileData)) {
               qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
             } else qmsg.default.error(translateCallback("复制失败"));
@@ -890,7 +898,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
+        if (typeof supportURL === "string" && utils$1.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -1217,20 +1225,21 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
+        if (this.__contentConfigInitDefaultValue == null)
+          this.__contentConfigInitDefaultValue = new utils$1.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils$1.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils$1.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
+        if (this.__onceExecData == null) this.__onceExecData = new utils$1.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -1303,9 +1312,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1772,7 +1782,7 @@
           domUtils.empty($searchResultWrapper);
         };
         const createSearchResultItem = (pathInfo) => {
-          const searchPath = utils.queryProperty(pathInfo, (target) => {
+          const searchPath = utils$1.queryProperty(pathInfo, (target) => {
             if (target?.next)
               return {
                 isFind: false,
@@ -1843,7 +1853,7 @@
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
                     $fold.querySelector(".pops-panel-forms-fold-container").click();
-                    await utils.sleep(500);
+                    await utils$1.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
@@ -1866,9 +1876,9 @@
               const configItem = configList[index];
               const childViewConfig = configItem.views;
               if (childViewConfig && Array.isArray(childViewConfig)) {
-                const deepMenuPath = utils.deepClone(path);
+                const deepMenuPath = utils$1.deepClone(path);
                 if (configItem.type === "deepMenu") {
-                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                  const deepNext = utils$1.queryProperty(deepMenuPath, (target) => {
                     if (target?.next)
                       return {
                         isFind: false,
@@ -1903,8 +1913,8 @@
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
-                  const matchedPath = utils.deepClone(path);
-                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                  const matchedPath = utils$1.deepClone(path);
+                  const deepNext = utils$1.queryProperty(matchedPath, (target) => {
                     if (target?.next)
                       return {
                         isFind: false,
@@ -1926,7 +1936,7 @@
                     },
                   };
                   const pathList = [];
-                  utils.queryProperty(matchedPath, (target) => {
+                  utils$1.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
                     if (typeof name === "string" && name.trim() !== "") pathList.push(name);
                     if (target?.next)
@@ -1972,7 +1982,7 @@
         domUtils.on(
           $searchInput,
           "input",
-          utils.debounce((evt2) => {
+          utils$1.debounce((evt2) => {
             domUtils.preventEvent(evt2);
             const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
@@ -2092,10 +2102,10 @@
       defaultValue: false,
     },
   };
-  var utils = _whitesev_utils.default.noConflict();
+  var utils$1 = _whitesev_utils.default.noConflict();
   var domUtils = _whitesev_domutils.default.noConflict();
   var __pops__ = _whitesev_pops.default;
-  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var log = new utils$1.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   var SCRIPT_NAME = _GM_info?.script?.name || void 0;
   var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
@@ -2107,7 +2117,7 @@
   var getPageMaxZIndex = () => {
     const deviation = 100;
     const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
-    const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+    const pointZIndex = utils$1.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
     return Math.max(deviation, popsZIndex, pointZIndex);
   };
   qmsg.default.config({
@@ -2158,15 +2168,15 @@
     },
     drag: true,
   });
-  var MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils$1.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  var httpx = new utils.Httpx({
+  var httpx = new utils$1.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -2202,13 +2212,14 @@
   };
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
-  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  var cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: "GM_cookie" });
   if (!cookieManager.isSupportGM_cookie)
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
-  new utils.DocumentCookieHandler();
+  new utils$1.DocumentCookieHandler();
   var _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
   var QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
   var BilibiliApiConfig = { web_host: "api.bilibili.com" };
@@ -2257,7 +2268,7 @@
       };
       const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
       const response = await httpx.post(Api, {
-        data: utils.toSearchParamsStr({
+        data: utils$1.toSearchParamsStr({
           ...postData,
           sign,
         }),
@@ -2267,7 +2278,7 @@
       });
       log.info(response);
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (data.code !== 0) {
         qmsg.default.error(data.message);
         return;
@@ -2284,7 +2295,7 @@
       };
       const sign = appSign(postData, AppKeyInfo.ios.appkey, AppKeyInfo.ios.appsec);
       const response = await httpx.post(Api, {
-        data: utils.toSearchParamsStr({
+        data: utils$1.toSearchParamsStr({
           ...postData,
           sign,
         }),
@@ -2298,7 +2309,7 @@
           message: "网络错误",
           action: void 0,
         };
-      const json = utils.toJSON(response.data.responseText);
+      const json = utils$1.toJSON(response.data.responseText);
       log.info(json);
       const msgMap = {
         0: "成功",
@@ -2445,7 +2456,7 @@
           qmsg.default.error(pollInfo.message);
           break;
         }
-        await utils.sleep(1500);
+        await utils$1.sleep(1500);
       }
       $alert.close();
       return {
@@ -2659,6 +2670,7 @@
       "upos-sz-mirrorcosdisp.bilivideo.com",
       "upos-sz-mirrorctos.bilivideo.com",
       "upos-sz-mirrorhwdisp.bilivideo.com",
+      "upos-sz-mirrorhwo1.bilivideo.com",
       "upos-sz-originbstar.bilivideo.com",
       "upos-sz-origincosgzhw.bilivideo.com",
       "upos-sz-origincosv.bilivideo.com",
@@ -2710,7 +2722,7 @@
       "upos-sz-mirrorhwbstar1.bilivideo.com",
       "upos-bstar1-mirrorakam.akamaized.net",
     ],
-    其它: ["upos-tf-all-hw.bilivideo.com", "upos-tf-all-tx.bilivideo.com"],
+    其它: ["upos-tf-all-hw.bilivideo.com", "upos-tf-all-tx.bilivideo.com", "proxy-tf-all-ws.bilivideo.com"],
   };
   var serverList = [
     {
@@ -2738,21 +2750,21 @@
       ];
       if (!Panel.getValue("bili-bangumi-unlockAreaLimit")) return serverHost;
       const hk_host = Panel.getValue("bili-bangumi-proxyApiServer-hk");
-      if (utils.isNotNull(hk_host))
+      if (utils$1.isNotNull(hk_host))
         serverHost.push({
           name: "香港",
           area: "hk",
           host: hk_host,
         });
       const tw_host = Panel.getValue("bili-bangumi-proxyApiServer-tw");
-      if (utils.isNotNull(tw_host))
+      if (utils$1.isNotNull(tw_host))
         serverHost.push({
           name: "台湾",
           area: "tw",
           host: tw_host,
         });
       const tha_host = Panel.getValue("bili-bangumi-proxyApiServer-tha-or-sea");
-      if (utils.isNotNull(tha_host))
+      if (utils$1.isNotNull(tha_host))
         serverHost.push({
           name: "泰国/东南亚",
           area: "th",
@@ -2764,7 +2776,7 @@
       const bangumiProxyHost = this.getBangumiProxyHost();
       const serverHost = [];
       const hk_host = Panel.getValue("bili-search-proxyApiServer-hk");
-      if (utils.isNotNull(hk_host))
+      if (utils$1.isNotNull(hk_host))
         serverHost.push({
           name: "香港",
           area: "hk",
@@ -2775,7 +2787,7 @@
         if (bangumi_hk_host) serverHost.push(bangumi_hk_host);
       }
       const tw_host = Panel.getValue("bili-search-proxyApiServer-tw");
-      if (utils.isNotNull(tw_host))
+      if (utils$1.isNotNull(tw_host))
         serverHost.push({
           name: "台湾",
           area: "tw",
@@ -2786,7 +2798,7 @@
         if (bangumi_tw_host) serverHost.push(bangumi_tw_host);
       }
       const tha_host = Panel.getValue("bili-search-proxyApiServer-tha-or-sea");
-      if (utils.isNotNull(tha_host))
+      if (utils$1.isNotNull(tha_host))
         serverHost.push({
           name: "泰国/东南亚",
           area: "th",
@@ -2809,19 +2821,19 @@
     },
   };
   var BilibiliCDNProxy = {
-    findBetterCDN(...args) {
-      let urlList = [];
-      args.forEach((arg) => {
-        if (Array.isArray(arg)) urlList = urlList.concat(arg.filter((item) => typeof item === "string"));
-        else if (typeof arg === "string") urlList.push(arg);
+    findBetterCDN(enable, urlList) {
+      let totalUrlList = [];
+      urlList.forEach((url) => {
+        if (Array.isArray(url)) totalUrlList = totalUrlList.concat(url.filter((item) => typeof item === "string"));
+        else if (typeof url === "string") totalUrlList.push(url);
       });
-      const betterCDN = urlList.find((url) => {
+      const betterUrl = totalUrlList.find((url) => {
         if (new URL(url).host.startsWith("upos")) return url;
       });
-      if (betterCDN) return betterCDN;
-      else return urlList[0];
+      if (enable && betterUrl) return betterUrl;
+      else return totalUrlList[0];
     },
-    replaceVideoCDN(url, isAudio = false) {
+    replaceVideoOrAudioCDN(url, isAudio = false) {
       const userChooseCDN = isAudio
         ? Panel.getValue("bili-video-uposServerSelect-audio")
         : Panel.getValue("bili-video-uposServerSelect");
@@ -2829,7 +2841,7 @@
         ? Panel.getValue("bili-video-uposServerSelect-audio-own")
         : Panel.getValue("bili-video-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
-      return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
+      return this.replaceVideoCDNHost(url, userChooseCDN, isAudio, ownCDN);
     },
     replaceBangumiVideoCDN(url, isAudio = false) {
       const userChooseCDN = isAudio
@@ -2839,35 +2851,35 @@
         ? Panel.getValue("bili-bangumi-uposServerSelect-audio-own")
         : Panel.getValue("bili-bangumi-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
-      return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
+      return this.replaceVideoCDNHost(url, userChooseCDN, isAudio, ownCDN);
     },
     replaceLiveVideoCDN(url) {
       const userChooseCDN = Panel.getValue("bili-live-uposServerSelect");
       let ownCDN = Panel.getValue("bili-live-uposServerSelect-own");
       ownCDN = (ownCDN ?? "").trim();
-      return this.replaceVideoCDNHost(url, userChooseCDN, ownCDN);
+      return this.replaceVideoCDNHost(url, userChooseCDN, false, ownCDN);
     },
-    replaceVideoCDNHost(url, userChooseCDNHost, ownCDNHost) {
+    replaceVideoCDNHost(url, chooseHost, isAudio, ownHost) {
       try {
         const urlInst = new URL(url);
-        const originHost = urlInst.host;
-        if (utils.isNotNull(ownCDNHost)) {
-          if (originHost !== ownCDNHost) return url;
-          urlInst.host = ownCDNHost;
-          log.info(`原Host为：${originHost}，替换CDN为自定义：${ownCDNHost}`);
+        const host = urlInst.host;
+        if (utils$1.isNotNull(ownHost)) {
+          if (host === ownHost) return url;
+          urlInst.host = ownHost;
+          log.info(`${isAudio ? "音频" : "视频"}原Host为：${host}，替换为自定义：${ownHost}`);
           return urlInst.toString();
         }
         const chooseUposCDNInfo = BilibiliCDNServerList.find((item) => {
-          return item.host === userChooseCDNHost;
+          return item.host === chooseHost;
         });
-        if (utils.isNull(chooseUposCDNInfo) || utils.isNull(chooseUposCDNInfo.host)) return url;
-        const chooseUposCDNHost = chooseUposCDNInfo.host;
-        if (chooseUposCDNHost === urlInst.host) return url;
+        if (utils$1.isNull(chooseUposCDNInfo) || utils$1.isNull(chooseUposCDNInfo.host)) return url;
+        let chooseUposCDNHost = chooseUposCDNInfo.host;
+        if (host === chooseUposCDNHost) return url;
         urlInst.host = chooseUposCDNHost;
-        log.info(`原Host为：${originHost}，替换CDN为：${JSON.stringify(chooseUposCDNInfo)}`);
+        log.info(`${isAudio ? "音频" : "视频"}原Host为：${host}，替换为选择的：${JSON.stringify(chooseUposCDNInfo)}`);
         return urlInst.toString();
       } catch (error) {
-        log.error("视频upos替换失败", error);
+        log.error(`${isAudio ? "音频" : "视频"}cdn host替换失败`, error);
         return url;
       }
     },
@@ -3018,7 +3030,7 @@
       if ($mplayer.hasAttribute("data-mutation")) return;
       log.success(`添加观察器，动态更新toast的位置`);
       $mplayer.setAttribute("data-mutation", "gm");
-      utils.mutationObserver($mplayer, {
+      utils$1.mutationObserver($mplayer, {
         config: {
           subtree: true,
           childList: true,
@@ -3094,7 +3106,7 @@
     get ajaxHooker() {
       if (XhrHook._ajaxHooker_ == null) {
         log.info("启用ajaxHooker拦截网络");
-        XhrHook._ajaxHooker_ = utils.ajaxHooker();
+        XhrHook._ajaxHooker_ = utils$1.ajaxHooker();
       }
       return XhrHook._ajaxHooker_;
     },
@@ -3129,7 +3141,7 @@
           }
           request.url = playUrl.toString();
           request.response = (res) => {
-            let data = utils.toJSON(res.responseText);
+            let data = utils$1.toJSON(res.responseText);
             let unlockQuality = data?.["data"]?.["quality"];
             let support_formats = data?.["data"]?.["support_formats"];
             log.info("当前解锁的quality值：" + unlockQuality);
@@ -3166,7 +3178,7 @@
           playUrlInst.searchParams.set("drm_tech_type", "2");
           request.url = playUrlInst.toString();
           request.response = (res) => {
-            let result = utils.toJSON(res.responseText)["result"];
+            let result = utils$1.toJSON(res.responseText)["result"];
             log.info("当前解锁的quality值：" + result["quality"]);
             if (result["quality"] && result["support_formats"]) {
               let findValue = result["support_formats"].find((item) => {
@@ -3190,7 +3202,7 @@
           playUrlInst.searchParams.set("qn", "30000");
           request.url = playUrlInst.toString();
           request.response = (res) => {
-            const data = typeof res.responseText === "string" ? utils.toJSON(res.responseText) : res.json;
+            const data = typeof res.responseText === "string" ? utils$1.toJSON(res.responseText) : res.json;
             const stream = data?.data?.playurl_info?.playurl?.stream;
             if (Array.isArray(stream))
               stream.forEach((streamItem) => {
@@ -3232,7 +3244,7 @@
         log.error(["获取导航栏用户信息失败，请求异常", response]);
         return;
       }
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (checkCode && !BilibiliApiResponseCheck.isWebApiSuccess(data)) {
         log.error(data);
         qmsg.default.error("获取导航栏用户信息失败");
@@ -3249,7 +3261,7 @@
         fetch: true,
       });
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return;
       return data["data"];
     },
@@ -3263,7 +3275,7 @@
         fetch: true,
       });
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return data["message"];
       return data["data"];
     },
@@ -3695,7 +3707,7 @@
           anonymous: !isLogin,
         }
       );
-      const fetchResultJSON = utils.toJSON(fetchResult.data.responseText);
+      const fetchResultJSON = utils$1.toJSON(fetchResult.data.responseText);
       this.$data.nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
       return fetchResultJSON;
     },
@@ -3921,7 +3933,7 @@
       };
       const isLogin = await BilibiliGlobalData.$data.isLogin;
       const subReplyResponse = await httpx.get(
-        `https://${BilibiliApiConfig.web_host}/x/v2/reply/reply?${utils.toSearchParamsStr(params)}`,
+        `https://${BilibiliApiConfig.web_host}/x/v2/reply/reply?${utils$1.toSearchParamsStr(params)}`,
         {
           allowInterceptConfig: false,
           fetch: !isLogin,
@@ -3934,7 +3946,7 @@
         qmsg.default.error("请求异常，获取评论的回复失败");
         return;
       }
-      const subReplyJSON = utils.toJSON(subReplyResponse.data.responseText);
+      const subReplyJSON = utils$1.toJSON(subReplyResponse.data.responseText);
       if (subReplyJSON === -352) {
         qmsg.default.error("请登录后再进行操作");
         console.error("you should login first", subReplyResponse);
@@ -4095,7 +4107,7 @@
             $el: $targetEl,
           };
         };
-        utils
+        utils$1
           .waitVueByInterval(
             () => {
               return getTarget();
@@ -4115,7 +4127,7 @@
       });
     },
     watchVuePropChange($el, key, callback, watchConfig, failWait) {
-      let config = utils.assign(
+      let config = utils$1.assign(
         {
           immediate: true,
           deep: false,
@@ -4201,7 +4213,7 @@
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();
-            await utils.sleep(250);
+            await utils$1.sleep(250);
           } else return;
       }
       banBack();
@@ -4294,7 +4306,7 @@
           if (option.vueInst.$router.history.current.hash === option.hash) {
             log.info("后退！");
             option.vueInst.$router.back();
-            await utils.sleep(250);
+            await utils$1.sleep(250);
           } else return;
       }
       banBack();
@@ -4397,14 +4409,14 @@
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       if (typeof extraParams === "object" && extraParams !== null) Object.assign(searchParamsData, extraParams);
       const response = await httpx.get(
-        `https://${BilibiliApiConfig.web_host}/x/player/playurl?` + utils.toSearchParamsStr(searchParamsData),
+        `https://${BilibiliApiConfig.web_host}/x/player/playurl?` + utils$1.toSearchParamsStr(searchParamsData),
         {
           responseType: "json",
           fetch: true,
         }
       );
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (data["code"] !== 0) return;
       return data["data"];
     },
@@ -4412,14 +4424,14 @@
       const searchParamsData = { cid: config.cid };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       const response = await httpx.get(
-        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils.toSearchParamsStr(searchParamsData)}`,
+        `https://${BilibiliApiConfig.web_host}/x/player/online/total?${utils$1.toSearchParamsStr(searchParamsData)}`,
         {
           responseType: "json",
           fetch: true,
         }
       );
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) log.error(`获取在线观看人数失败: `, data);
       return data["data"];
     },
@@ -4431,11 +4443,11 @@
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
       const response = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/web-interface/archive/like?` +
-          utils.toSearchParamsStr(searchParamsData),
+          utils$1.toSearchParamsStr(searchParamsData),
         { fetch: true }
       );
       if (!response.status) return false;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       const code = data["code"];
       if (code === 0) return true;
       if (code === -101) qmsg.default.error("账号未登录");
@@ -4466,7 +4478,7 @@
     constructor(localDataKey) {
       this.$data.KEY = localDataKey;
       const defaultDanmakuOption = this.getDefaultDanmakuOption();
-      this.$data.localArtDanmakuOption = utils.assign(defaultDanmakuOption, _GM_getValue(this.$data.KEY, {}));
+      this.$data.localArtDanmakuOption = utils$1.assign(defaultDanmakuOption, _GM_getValue(this.$data.KEY, {}));
     }
     getDefaultDanmakuOption() {
       return {
@@ -4495,7 +4507,7 @@
       });
     }
   };
-  var TAG$4 = "[artplayer-plugin-m4sAudioSupport]：";
+  var TAG = "[artplayer-plugin-m4sAudioSupport]：";
   var ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
   var M4SAudioUtils = {
     $flag: { isIntervaling: false },
@@ -4514,7 +4526,7 @@
           try {
             fn();
           } catch (error) {
-            console.error(TAG$4, error);
+            console.error(TAG, error);
           }
         intervalCount++;
       };
@@ -4630,7 +4642,7 @@
     audioEvents: {
       loadedmetadata: (event) => {
         M4SAudio.$data.art.emit("m4sAudio:loadedmetadata", event);
-        console.log(TAG$4 + "Audio预加载完成");
+        console.log("[artplayer-plugin-m4sAudioSupport]：Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
         M4SAudio.$data.latestSyncTime = 0;
@@ -4644,15 +4656,16 @@
       },
       canplaythrough: (event) => {
         M4SAudio.$data.art.emit("m4sAudio:canplaythrough", event);
-        console.log(TAG$4 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
+        console.log("[artplayer-plugin-m4sAudioSupport]：浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
       },
       error: (event) => {
         M4SAudio.$data.art.emit("m4sAudio:error", event);
-        console.error(`[artplayer-plugin-m4sAudioSupport]：Audio加载失败`, event);
-        if (utils.isNull(M4SAudio.$data.reconnectInfo.url)) M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
+        console.error("[artplayer-plugin-m4sAudioSupport]：Audio加载失败", event);
+        if (utils$1.isNull(M4SAudio.$data.reconnectInfo.url))
+          M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
         if (M4SAudio.$data.reconnectInfo.count < M4SAudio.$data.reconnectConfig.maxCount) {
           console.log(
             `[artplayer-plugin-m4sAudioSupport]：Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
@@ -4665,7 +4678,7 @@
             M4SAudio.$data.audio.load();
           }, M4SAudio.$data.reconnectConfig.delayTime);
         } else {
-          console.error(`[artplayer-plugin-m4sAudioSupport]：Audio已超出重连次数`);
+          console.error("[artplayer-plugin-m4sAudioSupport]：Audio已超出重连次数");
           M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
         }
       },
@@ -4675,7 +4688,7 @@
         if (typeof url !== "string") return;
         M4SAudio.$data.audio.src = url;
         M4SAudio.unbindAudio();
-        if (utils.isNotNull(url)) M4SAudio.bindAudio();
+        if (utils$1.isNotNull(url)) M4SAudio.bindAudio();
         M4SAudio.$data.art.emit("m4sAudio:restart", url);
         M4SAudio.handler.syncTime();
         M4SAudio.handler.syncPlayState();
@@ -4752,7 +4765,7 @@
             currentSelectAudioInfo.index = findAudioIndex;
             currentSelectAudioInfo.url = findAudio.url;
             currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
-          } else console.warn(TAG$4 + "没有找到上次选的音频代码，使用当前默认第一个音频");
+          } else console.warn("[artplayer-plugin-m4sAudioSupport]：没有找到上次选的音频代码，使用当前默认第一个音频");
         }
         let selectorList = option.audioList.map((item, index) => {
           return {
@@ -4782,7 +4795,7 @@
           selector: selectorList,
           onSelect: function (selector) {
             let itemInfo = selector;
-            console.log(TAG$4 + "切换音频", itemInfo);
+            console.log("[artplayer-plugin-m4sAudioSupport]：切换音频", itemInfo);
             that.handler.playUrl(itemInfo.url);
             that.$data.art.storage.set(storageKey, { soundQualityCode: itemInfo.soundQualityCode });
             return selector.html;
@@ -4791,7 +4804,7 @@
         if (M4SAudio.$data.art.setting.find(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
           M4SAudio.$data.art.setting.update(settingOption);
         else M4SAudio.$data.art.setting.add(settingOption);
-        log.info("加载m4s的音频：", currentSelectAudioInfo);
+        log.info("当前加载的音频：", currentSelectAudioInfo);
         M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
         this.bind();
         this.bindAudio();
@@ -5078,7 +5091,6 @@
       } else return tranStr(str, false);
     },
   };
-  var TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   var SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
@@ -5208,10 +5220,10 @@
               const findInfoIndex = settingOption.selector.findIndex((item) => item.subTitle_lan === storageInfo.lan);
               if (findInfoIndex !== -1) {
                 const findInfo = settingOption.selector[findInfoIndex];
-                console.log(TAG$3 + "选择字幕：" + findInfo.html);
+                console.log("[artplayer-plugin-bilibiliCCSubTitle]：选择字幕：" + findInfo.html);
                 currentSelectSubTitle.index = findInfoIndex;
                 currentSelectSubTitle.html = findInfo.html;
-              } else console.warn(TAG$3 + "没有找到上次选的字幕，使用当前默认无");
+              } else console.warn("[artplayer-plugin-bilibiliCCSubTitle]：没有找到上次选的字幕，使用当前默认无");
             }
             for (let index = 0; index < settingOption.selector.length; index++)
               settingOption.selector[index].default = index === currentSelectSubTitle.index;
@@ -5219,7 +5231,7 @@
             SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
           }
           if (this.isAddSetting()) {
-            console.log(TAG$3 + "更新字幕菜单", selectorList ?? []);
+            console.log("[artplayer-plugin-bilibiliCCSubTitle]：更新字幕菜单", selectorList ?? []);
             that.art.setting.update(settingOption);
           } else that.art.setting.add(settingOption);
         },
@@ -5245,7 +5257,7 @@
       else if (option.bvid) Reflect.set(searchParamsData, "bvid", option.bvid);
       else throw new TypeError("avid or bvid must give one");
       const videoInfoResponse = await httpx.get(
-        `https://api.bilibili.com/x/player/v2?${utils.toSearchParamsStr(searchParamsData)}`,
+        `https://api.bilibili.com/x/player/v2?${utils$1.toSearchParamsStr(searchParamsData)}`,
         {
           fetch: true,
           allowInterceptConfig: false,
@@ -5257,39 +5269,39 @@
         }
       );
       if (!videoInfoResponse.status) {
-        console.error(TAG$3 + "网络异常，获取视频的字幕信息失败", videoInfoResponse);
+        console.error("[artplayer-plugin-bilibiliCCSubTitle]：网络异常，获取视频的字幕信息失败", videoInfoResponse);
         return;
       }
-      console.log(TAG$3 + "视频的字幕信息", videoInfoResponse);
-      const videoInfoResultJSON = utils.toJSON(videoInfoResponse.data.responseText);
+      console.log("[artplayer-plugin-bilibiliCCSubTitle]：视频的字幕信息", videoInfoResponse);
+      const videoInfoResultJSON = utils$1.toJSON(videoInfoResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
-        console.error(TAG$3 + "获取视频的字幕信息失败", videoInfoResultJSON);
+        console.error("[artplayer-plugin-bilibiliCCSubTitle]：获取视频的字幕信息失败", videoInfoResultJSON);
         return;
       }
       let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$3 + "字幕列表为空", videoInfoResultJSON);
+        console.warn("[artplayer-plugin-bilibiliCCSubTitle]：字幕列表为空", videoInfoResultJSON);
         return;
       }
-      subTitleUrlInfoList = subTitleUrlInfoList.filter((it) => utils.isNotNull(it.subtitle_url));
+      subTitleUrlInfoList = subTitleUrlInfoList.filter((it) => utils$1.isNotNull(it.subtitle_url));
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$3 + "有字幕列表，但是链接都为空", videoInfoResultJSON);
+        console.warn("[artplayer-plugin-bilibiliCCSubTitle]：有字幕列表，但是链接都为空", videoInfoResultJSON);
         return;
       }
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
         const subTitleUrlInfo = subTitleUrlInfoList[index];
-        console.log(TAG$3 + "获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
+        console.log("[artplayer-plugin-bilibiliCCSubTitle]：获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
         const subTitleInfoResponse = await httpx.get(subTitleUrlInfo.subtitle_url, {
           responseType: "json",
           allowInterceptConfig: false,
           headers: {
             Referer: "https://www.bilibili.com",
-            "User-Agent": utils.getRandomPCUA(),
+            "User-Agent": utils$1.getRandomPCUA(),
           },
         });
         if (subTitleInfoResponse.status) {
-          console.log(TAG$3 + "获取字幕信息成功");
-          const subTitleInfo = utils.toJSON(subTitleInfoResponse.data.responseText)["body"];
+          console.log("[artplayer-plugin-bilibiliCCSubTitle]：获取字幕信息成功");
+          const subTitleInfo = utils$1.toJSON(subTitleInfoResponse.data.responseText)["body"];
           const currentIndex = SubTitleData.allSubTitleInfo.length;
           const data = {
             name: subTitleUrlInfo.lan_doc,
@@ -5304,7 +5316,7 @@
             subTitle_lan: data.lan,
             subTitle_data: data.data,
           });
-        } else console.error(TAG$3 + "获取字幕链接信息失败", subTitleInfoResponse);
+        } else console.error("[artplayer-plugin-bilibiliCCSubTitle]：获取字幕链接信息失败", subTitleInfoResponse);
       }
       if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
         let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
@@ -5335,7 +5347,7 @@
           });
         }
       }
-      console.log(TAG$3 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+      console.log("[artplayer-plugin-bilibiliCCSubTitle]：加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
       if (
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null ||
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0
@@ -5364,7 +5376,6 @@
     };
   }
   var ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
-  var TAG$2 = "[artplayer-plugin-epChoose]：";
   var GenerateArtPlayerEpTitle = (title, title_id) => {
     if (title_id == null || title_id == "") return title;
     if (isNaN(Number(title_id))) return title_id.toString();
@@ -5399,14 +5410,14 @@
         if (findIndex !== -1 && findIndex + 1 < this.selector.length - 1) {
           findIndex += 1;
           this.onSelect(this.selector[findIndex]);
-        } else console.warn(TAG$2 + "当前播放列表已无下一集");
+        } else console.warn("[artplayer-plugin-epChoose]：当前播放列表已无下一集");
       },
     };
   };
   var EpChooseEvent = {
     $event: {
       "video:ended": () => {
-        console.log(TAG$2 + "自动连播启用，播放下一集");
+        console.log("[artplayer-plugin-epChoose]：自动连播启用，播放下一集");
         EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY)?.playNext();
       },
     },
@@ -5487,7 +5498,7 @@
     fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
   };
   var ArtPlayerCommonOption = () => {
-    return {
+    const option = {
       container: "",
       url: "",
       volume: 1,
@@ -5518,9 +5529,48 @@
       lang: navigator.language.toLowerCase(),
       moreVideoAttr: { crossOrigin: "anonymous" },
       icons: ArtPlayerBiliBiliIcon,
+      settings: [],
     };
+    const defaultVolume = option.volume ?? 1;
+    const localVolume = Panel.getValue("artplayer-settings-volume", defaultVolume);
+    option.volume = localVolume;
+    const volumnRange = Number((localVolume * 100).toFixed());
+    const volumnIcon = `
+    <i class="art-icon art-icon-volume" style="display: flex;">
+      <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 22 22">
+          <path d="M10.188 4.65L6 8H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1l4.188 3.35a.5.5 0 0 0 .812-.39V5.04a.498.498 0 0 0-.812-.39zM14.446 3.778a1 1 0 0 0-.862 1.804 6.002 6.002 0 0 1-.007 10.838 1 1 0 0 0 .86 1.806A8.001 8.001 0 0 0 19 11a8.001 8.001 0 0 0-4.554-7.222z"></path>
+          <path d="M15 11a3.998 3.998 0 0 0-2-3.465v6.93A3.998 3.998 0 0 0 15 11z"></path>
+      </svg>
+    </i>
+  `;
+    const muteIcon = `
+    <i class="art-icon art-icon-volume" style="display: flex;">
+      <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 22 22">
+          <path d="M15 11a3.998 3.998 0 0 0-2-3.465v2.636l1.865 1.865A4.02 4.02 0 0 0 15 11z"></path>
+          <path d="M13.583 5.583A5.998 5.998 0 0 1 17 11a6 6 0 0 1-.585 2.587l1.477 1.477a8.001 8.001 0 0 0-3.446-11.286 1 1 0 0 0-.863 1.805zM18.778 18.778l-2.121-2.121-1.414-1.414-1.415-1.415L13 13l-2-2-3.889-3.889-3.889-3.889a.999.999 0 1 0-1.414 1.414L5.172 8H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1l4.188 3.35a.5.5 0 0 0 .812-.39v-3.131l2.587 2.587-.01.005a1 1 0 0 0 .86 1.806c.215-.102.424-.214.627-.333l2.3 2.3a1.001 1.001 0 0 0 1.414-1.416zM11 5.04a.5.5 0 0 0-.813-.39L8.682 5.854 11 8.172V5.04z"></path>
+      </svg>
+    </i>
+  `;
+    option.settings.push({
+      html: "音量",
+      tooltip: volumnRange.toString(),
+      icon: `
+        <i class="art-icon art-icon-volume" style="display: flex;">
+          ${localVolume ? volumnIcon : muteIcon}
+        </i>`,
+      range: [volumnRange, 0, 100, 1],
+      onChange: function (item) {
+        const value = item.range[0];
+        this.volume = value / 100;
+        Panel.setValue("artplayer-settings-volume", this.volume);
+        if (item.$icon)
+          if (this.volume === 0) domUtils.html(item.$icon, muteIcon);
+          else domUtils.html(item.$icon, volumnIcon);
+        return value;
+      },
+    });
+    return option;
   };
-  var TAG$1 = "[artplayer-plugin-quality]：";
   var ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
   var VideoCodingCodeMap = {
     AVC: 7,
@@ -5588,7 +5638,9 @@
           it.default = index === 0;
           return it;
         });
-        console.warn(TAG$1 + "没有找到用户选择对应的画质编码，将使用排序第一个的画质：" + selectorList[0].html);
+        console.warn(
+          "[artplayer-plugin-quality]：没有找到用户选择对应的画质编码，将使用排序第一个的画质：" + selectorList[0].html
+        );
       }
       let tooltip = selectorList.find((it) => it.default);
       return {
@@ -5616,7 +5668,8 @@
       let codingCode = this.art.storage.get(this.storageVideoCodingKey) || VideoCodingCodeMap.AV1;
       if (!Object.values(VideoCodingCodeMap).includes(codingCode)) {
         console.error(
-          TAG$1 + "意外情况，选择的编码格式不是允许的编码，将强制使用默认(av1)，防止过滤掉的视频链接为空：" + codingCode
+          "[artplayer-plugin-quality]：意外情况，选择的编码格式不是允许的编码，将强制使用默认(av1)，防止过滤掉的视频链接为空：" +
+            codingCode
         );
         codingCode = VideoCodingCodeMap.AV1;
       }
@@ -5683,7 +5736,7 @@
         selector: selectorList,
         onSelect: function (selector) {
           let itemInfo = selector;
-          console.log(TAG$1 + "切换画质", itemInfo);
+          console.log("[artplayer-plugin-quality]：切换画质", itemInfo);
           that.art.switchQuality(itemInfo.url);
           that.art.storage.set(that.getStorageKey(that.$data.qualityOption.from), { quality: itemInfo.quality });
           that.setCurrentQualityOption({
@@ -5725,7 +5778,10 @@
       if (qualityList.length === 0) {
         qualityList = Object.values(qualityListMap)[0];
         this.$data.currentQualityCodecId = qualityList[0].codecid;
-        console.warn(TAG$1 + "该画质：" + userChooseVideoCodingCode + "不存在，将使用第一个画质", qualityList);
+        console.warn(
+          "[artplayer-plugin-quality]：该画质：" + userChooseVideoCodingCode + "不存在，将使用第一个画质",
+          qualityList
+        );
       }
       this.$data.qualityOptionList = [];
       this.$data.qualityOptionList = qualityList;
@@ -5747,7 +5803,7 @@
           currentSelectQualityInfo.url = findQuality.url;
           currentSelectQualityInfo.html = findQuality.html;
           this.setCurrentQualityOption(findQuality);
-        } else console.warn(TAG$1 + "没有找到上次选的画质，使用当前默认第一个画质");
+        } else console.warn("[artplayer-plugin-quality]：没有找到上次选的画质，使用当前默认第一个画质");
       }
       this.$data.currentSelectQualityInfo = null;
       this.$data.currentSelectQualityInfo = currentSelectQualityInfo;
@@ -5755,7 +5811,11 @@
     }
     updateQualityControls() {
       let controlOption = this.getControlsOption();
-      console.log(TAG$1 + "更新画质切换面板信息", this.$data.qualityOptionList, this.$data.currentQualityOption);
+      console.log(
+        "[artplayer-plugin-quality]：更新画质切换面板信息",
+        this.$data.qualityOptionList,
+        this.$data.currentQualityOption
+      );
       this.art.controls.update(controlOption);
     }
     removeControls() {
@@ -5944,7 +6004,7 @@
       if ($mplayer.hasAttribute("data-mutation")) return;
       log.success(`添加观察器，动态更新toast的位置`);
       $mplayer.setAttribute("data-mutation", "gm");
-      utils.mutationObserver($mplayer, {
+      utils$1.mutationObserver($mplayer, {
         config: {
           subtree: true,
           childList: true,
@@ -6317,7 +6377,7 @@
       emitter: false,
       maxLength: 50,
       lockTime: 3,
-      theme: utils.isThemeDark() ? "dark" : "light",
+      theme: utils$1.isThemeDark() ? "dark" : "light",
     };
   };
   var generateVideoSelectSetting = (option) => {
@@ -6389,15 +6449,15 @@
         ...ArtPlayerCommonOption(),
         container: option.container,
         poster: option.poster,
-        settings: [],
-        plugins: [
-          artplayerPluginToast(),
-          artplayPluginQuality({
-            from: "video",
-            qualityList: option.quality,
-          }),
-        ],
       };
+      if (!Array.isArray(artOption.plugins)) artOption.plugins = [];
+      artOption.plugins.push(
+        artplayerPluginToast(),
+        artplayPluginQuality({
+          from: "video",
+          qualityList: option.quality,
+        })
+      );
       artOption.type = "mp4";
       if (Panel.getValue("artplayer-plugin-video-danmaku-enable"))
         artOption.plugins.push(
@@ -6540,19 +6600,25 @@
   };
   var artplayer_default$1 =
     ".artplayer-container {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  overflow: hidden;\n}\n";
-  function handleDashVideoQualityInfo$1(dashInfo) {
+  var isEnableFindBetterCDN_video$1 = () => {
+    return Panel.getValue("bili-video-video-url-preferToUseUpos");
+  };
+  var isEnableFindBetterCDN_audio$1 = () => {
+    return Panel.getValue("bili-video-audio-url-preferToUseUpos");
+  };
+  var handleDashVideoQualityInfo$1 = function (dashInfo) {
     let result = [];
     dashInfo.video.forEach((dashVideoInfo) => {
       if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) return;
       let findSupportFormat = dashInfo.support_formats.find((formatsItem) => formatsItem.quality === dashVideoInfo.id);
-      let videoUrl = BilibiliCDNProxy.findBetterCDN(
+      let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video$1(), [
         dashVideoInfo.base_url,
         dashVideoInfo.baseUrl,
         dashVideoInfo.backup_url,
-        dashVideoInfo.backupUrl
-      );
-      videoUrl = BilibiliCDNProxy.replaceVideoCDN(videoUrl);
-      let qualityName = findSupportFormat?.new_description;
+        dashVideoInfo.backupUrl,
+      ]);
+      videoUrl = BilibiliCDNProxy.replaceVideoOrAudioCDN(videoUrl, false);
+      const qualityName = findSupportFormat?.new_description;
       result.push({
         name: qualityName,
         url: videoUrl,
@@ -6567,7 +6633,7 @@
       });
     });
     return result;
-  }
+  };
   var GenerateArtPlayerOption$1 = async (option) => {
     const audioInfo = [];
     let qualityInfo = [];
@@ -6588,7 +6654,10 @@
       let findSupportFormat = videoPlayInfo.support_formats.find(
         (formatsItem) => formatsItem.quality === videoPlayInfo.quality
       );
-      let videoUrl = BilibiliCDNProxy.findBetterCDN(currentDurl.url, currentDurl.url || currentDurl.backup_url?.[0]);
+      let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video$1(), [
+        currentDurl.url,
+        currentDurl.url || currentDurl.backup_url?.[0],
+      ]);
       let qualityName = findSupportFormat?.new_description;
       qualityInfo.push({
         name: qualityName,
@@ -6613,11 +6682,16 @@
         qn: 127,
         setPlatformHTML5: false,
       });
-      log.info(["视频播放地址信息：", videoPlayInfo]);
+      log.info("视频播放地址信息：", videoPlayInfo);
       if (!videoPlayInfo) return;
       videoPlayInfo.dash.audio.forEach((item) => {
-        let audioUrl = BilibiliCDNProxy.findBetterCDN(item.baseUrl, item.base_url, item.baseUrl, item.backup_url);
-        audioUrl = BilibiliCDNProxy.replaceVideoCDN(audioUrl, true);
+        let audioUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_audio$1(), [
+          item.baseUrl,
+          item.base_url,
+          item.baseUrl,
+          item.backup_url,
+        ]);
+        audioUrl = BilibiliCDNProxy.replaceVideoOrAudioCDN(audioUrl, true);
         audioInfo.push({
           url: audioUrl,
           id: item.id,
@@ -6631,7 +6705,7 @@
       audioInfo.sort((leftItem, rightItem) => {
         return rightItem.id - leftItem.id;
       });
-      log.info(`ArtPlayer: 获取的音频信息`, audioInfo);
+      log.info(`ArtPlayer: 最终的音频信息`, audioInfo);
       qualityInfo = [
         ...handleDashVideoQualityInfo$1({
           accept_quality: videoPlayInfo.accept_quality,
@@ -6639,9 +6713,9 @@
           video: videoPlayInfo.dash.video,
         }),
       ];
-      log.info(`ArtPlayer: 获取的视频画质信息`, qualityInfo);
+      log.info(`ArtPlayer: 最终的视频画质信息`, qualityInfo);
     }
-    const currentVideoQuality = qualityInfo.map((item, index) => {
+    const currentVideoQuality = qualityInfo.map((item) => {
       return {
         quality: item.quality,
         html: item.name,
@@ -7123,7 +7197,7 @@
             $rightBottom.appendChild($cloneCount);
           }
         }
-        let lockFunc = new utils.LockFunction(() => {
+        let lockFunc = new utils$1.LockFunction(() => {
           let $vCardList = $$(BilibiliData.className.video + " .bottom-tab .list-view .card-box .v-card-toapp");
           let $vCardList_isLogon = $$(BilibiliData.className.video + " .bottom-tab .list-view .card-box>a.v-card");
           $vCardList.forEach((_$vCard_) => {
@@ -7135,7 +7209,7 @@
         }, 25);
         let $videoRoot = $(BilibiliData.className.video);
         if ($videoRoot)
-          utils.mutationObserver($videoRoot, {
+          utils$1.mutationObserver($videoRoot, {
             config: {
               subtree: true,
               attributes: true,
@@ -7220,8 +7294,8 @@
             return;
           }
           let bvid = vueObj.bvid;
-          if (utils.isNull(bvid))
-            if (vueObj.$children && vueObj.$children[0] && utils.isNotNull(vueObj.$children[0].bvid))
+          if (utils$1.isNull(bvid))
+            if (vueObj.$children && vueObj.$children[0] && utils$1.isNotNull(vueObj.$children[0].bvid))
               bvid = vueObj.$children[0].bvid;
             else {
               qmsg.default.error("获取相关视频的bvid失败");
@@ -7244,7 +7318,7 @@
           return;
         }
         let bvid = vueObj.bvid;
-        if (utils.isNull(bvid)) {
+        if (utils$1.isNull(bvid)) {
           qmsg.default.error("获取相关视频的bvid失败");
           return;
         }
@@ -7275,14 +7349,14 @@
     },
     repairLinkJump() {
       log.info(`修复链接跳转`);
-      let lockFn = new utils.LockFunction(() => {
+      let lockFn = new utils$1.LockFunction(() => {
         ["a.member-link:not([href])[data-url]", "a.jump-link:not([href])[data-url]"].forEach((selector) => {
           $$(selector).forEach(($el) => {
             $el.href = $el.getAttribute("data-url");
           });
         });
       });
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -7295,7 +7369,7 @@
     gestureReturnToCloseCommentArea() {
       log.info("手势返回关闭评论区，全局监听document点击.sub-reply-preview");
       domUtils.waitNode("#app").then(($app) => {
-        utils
+        utils$1
           .waitVueByInterval(
             $app,
             () => {
@@ -7684,7 +7758,7 @@
 									</svg>
 									<span class="video-info-text" data-value="${danmakuCount}">${BilibiliUtils.parseCount(danmakuCount)}</span>
 								</div>
-								<span class="video-info-text">${utils.formatTime(info.ctime * 1e3, "yyyy年MM月dd日 HH:mm:ss")}</span>
+								<span class="video-info-text">${utils$1.formatTime(info.ctime * 1e3, "yyyy年MM月dd日 HH:mm:ss")}</span>
 							</div>
 							<div class="video-bvid">${bvid}</div>
 							<div class="video-desc-text">${desc}</div>
@@ -7779,7 +7853,7 @@
   };
   var BilibiliLogUtils = {
     filteringSensitiveSearchParamData(data) {
-      const sensitiveData = utils.assign({}, data, true);
+      const sensitiveData = utils$1.assign({}, data, true);
       Reflect.deleteProperty(sensitiveData, "access_key");
       Reflect.deleteProperty(sensitiveData, "access_token");
       return sensitiveData;
@@ -7800,7 +7874,7 @@
         fnval: 3088,
         fourk: 1,
       };
-      searchParamsData = utils.assign(searchParamsData, option);
+      searchParamsData = utils$1.assign(searchParamsData, option);
       const serverHostList = BilibiliApiProxy.getBangumiProxyHost();
       log.info(`番剧播放地址请求数据`);
       const failReponseJSON = [];
@@ -7812,7 +7886,7 @@
         const serverHost = serverHostInfo.host;
         const proxyServerSearchParamsData = {};
         if (serverHost !== BilibiliApiConfig.web_host) {
-          utils.assign(
+          utils$1.assign(
             proxyServerSearchParamsData,
             BilibiliApiProxy.getBangumiProxySearchParam({ area: serverHostInfo.area }),
             true
@@ -7822,7 +7896,7 @@
             `代理服务器请求参数：${JSON.stringify(BilibiliLogUtils.filteringSensitiveSearchParamData(proxyServerSearchParamsData))}`
           );
         }
-        const url = `https://${serverHost}${urlPath}?${utils.toSearchParamsStr(searchParamsData)}&${utils.toSearchParamsStr(proxyServerSearchParamsData)}`;
+        const url = `https://${serverHost}${urlPath}?${utils$1.toSearchParamsStr(searchParamsData)}&${utils$1.toSearchParamsStr(proxyServerSearchParamsData)}`;
         const response = await httpx.get(url, {
           responseType: "json",
           fetch: false,
@@ -7833,7 +7907,7 @@
           log.error(`代理服务器：${serverHost} 请求失败`);
           continue;
         }
-        const data = utils.toJSON(response.data.responseText);
+        const data = utils$1.toJSON(response.data.responseText);
         if (!BilibiliApiResponseCheck.isWebApiSuccess(data) || BilibiliApiResponseCheck.isAreaLimit(data)) {
           log.error(`请求失败，当前代理服务器：${serverHost} ${JSON.stringify(data)}`);
           failReponseJSON.push(data);
@@ -7852,9 +7926,9 @@
         ep_id: "",
         bsource: "",
       };
-      searchParamsData = utils.assign(searchParamsData, option);
+      searchParamsData = utils$1.assign(searchParamsData, option);
       log.info(`（原版api）番剧播放地址请求数据`);
-      let url = `https://${BilibiliApiConfig.web_host}/pgc/player/web/playurl/html5?${utils.toSearchParamsStr(searchParamsData)}`;
+      let url = `https://${BilibiliApiConfig.web_host}/pgc/player/web/playurl/html5?${utils$1.toSearchParamsStr(searchParamsData)}`;
       let getResponse = await httpx.get(url, {
         responseType: "json",
         fetch: true,
@@ -7864,7 +7938,7 @@
         },
       });
       if (!getResponse.status) return;
-      let responseData = utils.toJSON(getResponse.data.responseText);
+      let responseData = utils$1.toJSON(getResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(responseData)) {
         BilibiliLogUtils.failToast(responseData);
         return;
@@ -7897,7 +7971,7 @@
               inst: null,
               $el: $target,
             };
-          const reactInst = utils.getReactInstance($target);
+          const reactInst = utils$1.getReactInstance($target);
           if (reactInst == null)
             return {
               status: false,
@@ -7918,7 +7992,7 @@
             $el: $target,
           };
         };
-        utils
+        utils$1
           .waitPropertyByInterval(
             () => {
               return getTarget();
@@ -7937,7 +8011,6 @@
       });
     },
   };
-  var TAG = "[artplayer-plugin-airborneHelper]：";
   var AirborneHelperEvent = {
     $data: {
       tipJumpToastTimeoutId: void 0,
@@ -7993,15 +8066,12 @@
               toastCloseCallBack();
             },
           });
-          setTimeout(
-            () => {
-              if (AirborneHelperEvent.$data.tipJumpToastInfo) {
-                AirborneHelperEvent.$data.tipJumpToastInfo.close();
-                AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
-              }
-            },
-            (beforeToastTime + 3) * 1e3
-          );
+          setTimeout(() => {
+            if (AirborneHelperEvent.$data.tipJumpToastInfo) {
+              AirborneHelperEvent.$data.tipJumpToastInfo.close();
+              AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
+            }
+          }, 8 * 1e3);
         }
       },
     },
@@ -8038,7 +8108,7 @@
     },
     update(option) {
       this.$data.option = option;
-      console.log(TAG + "更新配置", option);
+      console.log("[artplayer-plugin-airborneHelper]：更新配置", option);
       AirborneHelperEvent.unbind();
       if (option.clip_info_list.length) AirborneHelperEvent.bind();
     },
@@ -8055,7 +8125,6 @@
     };
   };
   var ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY = AirborneHelper.$key.plugin_KEY;
-  var TAG_FLV = "[flvjs]：";
   var generateBangumiVideoSelectSetting = (option) => {
     return option.epList.map((item) => {
       return {
@@ -8087,7 +8156,7 @@
     },
     flvPlayer() {
       if (this.$data.currentOption == null) {
-        console.error(TAG_FLV + "获取当前配置为空");
+        console.error("[flvjs]：获取当前配置为空");
         return;
       }
       let flvInfoList = this.$data.currentOption.flvInfo;
@@ -8096,7 +8165,7 @@
         this.$data.flv?.destroy();
       }
       let currentOption = this.$data.currentOption;
-      console.log(TAG_FLV + "加载视频", flvInfoList);
+      console.log("[flvjs]：加载视频", flvInfoList);
       if (flvInfoList.length > 1)
         this.$data.flv = flv_js.default.createPlayer(
           {
@@ -8132,15 +8201,15 @@
       const artOption = {
         ...ArtPlayerCommonOption(),
         container: option.container,
-        settings: [],
-        plugins: [
-          artplayerPluginToast(),
-          artplayPluginQuality({
-            from: BilibiliBangumiArtPlayer.$data.from,
-            qualityList: option.quality,
-          }),
-        ],
       };
+      if (!Array.isArray(artOption.plugins)) artOption.plugins = [];
+      artOption.plugins.push(
+        artplayerPluginToast(),
+        artplayPluginQuality({
+          from: BilibiliBangumiArtPlayer.$data.from,
+          qualityList: option.quality,
+        })
+      );
       if (option.isFlv) {
         if (Array.isArray(artOption.quality)) artOption.quality.length = 0;
         else artOption.quality = [];
@@ -8302,17 +8371,23 @@
       }
     },
   };
-  function handleDashVideoQualityInfo(dashInfo) {
+  var isEnableFindBetterCDN_video = () => {
+    return Panel.getValue("bili-bangumi-video-url-preferToUseUpos");
+  };
+  var isEnableFindBetterCDN_audio = () => {
+    return Panel.getValue("bili-bangumi-audio-url-preferToUseUpos");
+  };
+  var handleDashVideoQualityInfo = function (dashInfo) {
     let acceptVideoQualityInfoList = [];
     dashInfo.video.forEach((dashVideoInfo) => {
       if (!dashInfo.accept_quality.includes(dashVideoInfo.id)) return;
       let findSupportFormat = dashInfo.support_formats.find((formatsItem) => formatsItem.quality === dashVideoInfo.id);
-      let videoUrl = BilibiliCDNProxy.findBetterCDN(
+      let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video(), [
         dashVideoInfo.base_url,
         dashVideoInfo.baseUrl,
         dashVideoInfo.backup_url,
-        dashVideoInfo.backupUrl
-      );
+        dashVideoInfo.backupUrl,
+      ]);
       videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
       let qualityName = findSupportFormat?.new_description;
       acceptVideoQualityInfoList.push({
@@ -8330,7 +8405,7 @@
       });
     });
     return acceptVideoQualityInfoList;
-  }
+  };
   var GenerateVideoTitle = (ep_id, title) => {
     return `第${ep_id}话 ${title}`;
   };
@@ -8375,7 +8450,10 @@
         let findSupportFormat = bangumiInfo.support_formats.find(
           (formatsItem) => formatsItem.quality === durlInfo.quality
         );
-        let videoUrl = BilibiliCDNProxy.findBetterCDN(currentDurl.url, currentDurl.backup_url);
+        let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video(), [
+          currentDurl.url,
+          currentDurl.backup_url,
+        ]);
         let qualityName = findSupportFormat?.new_description;
         qualityInfoList.push({
           name: qualityName,
@@ -8417,7 +8495,10 @@
       if (bangumiInfo.type.toLowerCase() === "flv") {
         isFlv = true;
         bangumiInfo.durl.forEach((durlInfo) => {
-          let videoUrl = BilibiliCDNProxy.findBetterCDN(durlInfo.url, durlInfo.backup_url);
+          let videoUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_video(), [
+            durlInfo.url,
+            durlInfo.backup_url,
+          ]);
           videoUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(videoUrl);
           flvTotalDuration += durlInfo.length;
           flvTotalSize += durlInfo.size;
@@ -8431,7 +8512,12 @@
         });
       } else if (bangumiInfo.type.toLowerCase() === "dash" || bangumiInfo.type.toLowerCase() === "mp4") {
         (bangumiInfo?.dash?.audio || []).forEach((item) => {
-          let audioUrl = BilibiliCDNProxy.findBetterCDN(item.baseUrl, item.base_url, item.baseUrl, item.backup_url);
+          let audioUrl = BilibiliCDNProxy.findBetterCDN(isEnableFindBetterCDN_audio(), [
+            item.baseUrl,
+            item.base_url,
+            item.baseUrl,
+            item.backup_url,
+          ]);
           audioUrl = BilibiliCDNProxy.replaceBangumiVideoCDN(audioUrl);
           audioInfo.push({
             url: audioUrl,
@@ -8527,7 +8613,7 @@
               let $epList = $(BilibiliData.className.bangumi_new + ` [class^="EpisodeList_episodeListWrap"]`);
               if ($epList) {
                 let epList =
-                  utils.getReactInstance($epList)?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
+                  utils$1.getReactInstance($epList)?.reactFiber?.return?.memoizedState?.memoizedState?.[0]?.episodes;
                 if (Array.isArray(epList)) ep_list = epList;
               }
             }
@@ -8776,13 +8862,13 @@
         allowInterceptConfig: false,
       });
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return;
       return data.data;
     },
     async getBangumiSearchResult(config) {
       const accessToken = BilibiliQrCodeLogin.getAccessToken();
-      if (utils.isNull(accessToken))
+      if (utils$1.isNull(accessToken))
         return {
           isSuccess: false,
           data: {
@@ -8802,10 +8888,10 @@
       const url = `https://${config.host}/x/web-interface/search/type?${await wbi(searchParamsData)}`;
       const response = await httpx.get(url, {
         fetch: false,
-        headers: { "User-Agent": utils.getRandomAndroidUA() },
+        headers: { "User-Agent": utils$1.getRandomAndroidUA() },
       });
       if (!response.status) return;
-      const data = utils.toJSON(response.data.responseText);
+      const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
         log.error(`请求失败，当前代理服务器信息：${JSON.stringify(config.host)}`);
         log.error(`请求失败，当前请求的响应信息：${JSON.stringify(data)}`);
@@ -8997,7 +9083,7 @@
       let totalDisplayInfo = [];
       if (Array.isArray(option?.display_info)) totalDisplayInfo = totalDisplayInfo.concat(option.display_info);
       if (Array.isArray(option?.badges)) totalDisplayInfo = totalDisplayInfo.concat(option.badges);
-      totalDisplayInfo = utils.uniqueArray(totalDisplayInfo, (item) => item.text);
+      totalDisplayInfo = utils$1.uniqueArray(totalDisplayInfo, (item) => item.text);
       totalDisplayInfo.forEach((displayInfo) => {
         let $displayInfoItem = domUtils.createElement("span", {
           className: "gm-card-badge-info-item",
@@ -9013,7 +9099,7 @@
         domUtils.append(
           $displayInfo,
           `
-				<span>${utils.formatTime(option.pubtime * 1e3, "yyyy")}</span>
+				<span>${utils$1.formatTime(option.pubtime * 1e3, "yyyy")}</span>
 				`
         );
       let areas = option.areas || Reflect.get(option, "area");
@@ -9043,7 +9129,7 @@
         );
       let $eps = $item.querySelector(".gm-card-eps");
       [...(option.eps || []), ...(Reflect.get(option, "episodes_new") || [])]
-        .filter((item) => utils.isNotNull(item))
+        .filter((item) => utils$1.isNotNull(item))
         .forEach((epsItem) => {
           let title = epsItem.title || epsItem.long_title;
           let url = epsItem.url || Reflect.get(epsItem, "uri");
@@ -9101,12 +9187,12 @@
             padding: 0 10px;
         }
         `);
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
         },
-        callback: utils.debounce(() => {
+        callback: utils$1.debounce(() => {
           document.querySelectorAll(".m-search-bangumi-item").forEach(($bangumiItem) => {
             let vueIns = VueUtils.getVue($bangumiItem);
             if (!vueIns) return;
@@ -9130,7 +9216,7 @@
       });
     },
     noCallApp() {
-      let lockFn = new utils.LockFunction(() => {
+      let lockFn = new utils$1.LockFunction(() => {
         $$(".video-list .card-box > div:not([data-gm-inject-no-call-app])").forEach(($card) => {
           let vueIns = VueUtils.getVue($card);
           if (!vueIns) return;
@@ -9145,7 +9231,7 @@
           }
         });
       });
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -9156,7 +9242,7 @@
       });
     },
     openAppDialog() {
-      let lockFn = new utils.LockFunction(() => {
+      let lockFn = new utils$1.LockFunction(() => {
         $$(".video-list .card-box > div:not([data-gm-inject-openAppDialog])").forEach(($card) => {
           let vueIns = VueUtils.getVue($card);
           if (!vueIns) return;
@@ -9171,7 +9257,7 @@
           }
         });
       });
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -9448,7 +9534,7 @@
           }
           let data = vueObj?.$props?.data;
           let jump_url = data?.jump_url;
-          if (utils.isNull(jump_url)) {
+          if (utils$1.isNull(jump_url)) {
             qmsg.default.error("获取话题的jump_url失败");
             return;
           }
@@ -9551,7 +9637,7 @@
           }
           let data = vueObj?.$props?.data;
           let jump_url = data?.jump_url;
-          if (utils.isNull(jump_url)) {
+          if (utils$1.isNull(jump_url)) {
             qmsg.default.error("获取jump_url失败");
             return;
           }
@@ -9571,7 +9657,7 @@
           domUtils.preventEvent(event);
           let $click = event.target;
           let oid = $click.getAttribute("data-oid") || VueUtils.getVue($click)?.$props?.rid;
-          if (utils.isNull(oid)) {
+          if (utils$1.isNull(oid)) {
             qmsg.default.error("获取data-oid或rid失败");
             return;
           }
@@ -9611,7 +9697,7 @@
             return;
           }
           let jump_url = vueObj?.data?.jump_url;
-          if (utils.isNull(jump_url)) {
+          if (utils$1.isNull(jump_url)) {
             qmsg.default.error("获取jump_url失败");
             return;
           }
@@ -9686,7 +9772,7 @@
           log.success("openApp：阻止唤醒App", args);
         };
       }
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -9709,7 +9795,7 @@
     overRideBiliOpenApp() {
       if (this.$isHook.overRideBiliOpenApp) return;
       this.$isHook.overRideBiliOpenApp = true;
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -9735,7 +9821,7 @@
     overRideWxTaghandleClick() {
       if (this.$isHook.overRideWxTaghandleClick) return;
       this.$isHook.overRideWxTaghandleClick = true;
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -9946,7 +10032,7 @@
             this.$flag.isLoadingNextPage = false;
             if (this.$data.loadNums <= 1 && flag) {
               domUtils.hide(this.$ele.$listViewShim, false);
-              await utils.sleep(500);
+              await utils$1.sleep(500);
               domUtils.show(this.$ele.$listViewShim, false);
             } else domUtils.show(this.$ele.$listViewShim, false);
           }
@@ -9989,11 +10075,11 @@
         appkey: AppKeyInfo.ios.appkey,
         access_key: BilibiliQrCodeLogin.getAccessTokenInfo()?.access_token || "",
       };
-      let getResp = await httpx.get("https://app.bilibili.com/x/v2/feed/index?" + utils.toSearchParamsStr(getData), {
+      let getResp = await httpx.get("https://app.bilibili.com/x/v2/feed/index?" + utils$1.toSearchParamsStr(getData), {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
       if (!getResp.status) return;
-      let data = utils.toJSON(getResp.data.responseText);
+      let data = utils$1.toJSON(getResp.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
         qmsg.default.error(data["message"]);
         return;
@@ -10161,7 +10247,7 @@
 		}
         `);
       domUtils.waitNode(BilibiliData.className.head + " .video-list .card-box").then(() => {
-        let lockFunc = new utils.LockFunction(() => {
+        let lockFunc = new utils$1.LockFunction(() => {
           $$(BilibiliData.className.head + " .video-list .card-box .v-card").forEach(($vcard) => {
             let vueObj = VueUtils.getVue($vcard);
             let upName = vueObj?.info?.author?.name || vueObj?.info?.owner?.name;
@@ -10197,7 +10283,7 @@
             }
           });
         }, 25);
-        utils.mutationObserver(document.body, {
+        utils$1.mutationObserver(document.body, {
           config: {
             subtree: true,
             childList: true,
@@ -10418,13 +10504,13 @@
       });
     },
     repairRealJump() {
-      let lockFn = new utils.LockFunction(() => {
+      let lockFn = new utils$1.LockFunction(() => {
         $$(BilibiliData.className.space + " .wx-tag.open-app-wrapper").forEach(($el) => {
           let vueIns = VueUtils.getVue($el);
           if (typeof vueIns?.disabled === "boolean") vueIns.disabled = false;
         });
       });
-      utils.mutationObserver(document, {
+      utils$1.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -10490,7 +10576,7 @@
       ]);
     },
     setLogin() {
-      const GM_Cookie = new utils.DocumentCookieHandler();
+      const GM_Cookie = new utils$1.DocumentCookieHandler();
       const cookie_DedeUserID = GM_Cookie.get("DedeUserID");
       if (cookie_DedeUserID != null) log.info("Cookie DedeUserID已存在：", cookie_DedeUserID.value);
       else
@@ -11037,7 +11123,7 @@
         `,
           html: true,
         },
-        btn: utils.assign(
+        btn: utils$1.assign(
           {
             ok: {
               callback: async () => {
@@ -11320,7 +11406,7 @@
         });
         domUtils.onInput(
           $searchInput,
-          utils.debounce(async () => {
+          utils$1.debounce(async () => {
             await execFilter(false);
           })
         );
@@ -11869,7 +11955,7 @@
     },
     getTemplateData() {
       return {
-        uuid: utils.generateUUID(),
+        uuid: utils$1.generateUUID(),
         enable: true,
         name: "",
         data: {
@@ -11974,7 +12060,7 @@
           let uploadFile = $input.files[0];
           let fileReader = new FileReader();
           fileReader.onload = () => {
-            let data = utils.toJSON(fileReader.result);
+            let data = utils$1.toJSON(fileReader.result);
             if (!Array.isArray(data)) {
               log.error("不是正确的规则文件", data);
               qmsg.default.error("不是正确的规则文件");
@@ -12004,13 +12090,13 @@
             ok: {
               callback: async (eventDetails, event) => {
                 let url = eventDetails.text;
-                if (utils.isNull(url)) {
+                if (utils$1.isNull(url)) {
                   qmsg.default.error("请填入完整的url");
                   return;
                 }
                 let response = await httpx.get(url);
                 if (!response.status) return;
-                let data = utils.toJSON(response.data.responseText);
+                let data = utils$1.toJSON(response.data.responseText);
                 if (!Array.isArray(data)) {
                   log.error("不是正确的规则文件", response, data);
                   qmsg.default.error("不是正确的规则文件");
@@ -12118,7 +12204,7 @@
 			}
         `);
       domUtils.onReady(() => {
-        let lockFn = new utils.LockFunction(async () => {
+        let lockFn = new utils$1.LockFunction(async () => {
           $$(".reply-item:not([data-is-inject-search-label])").forEach(($replyItem) => {
             $replyItem.setAttribute("data-is-inject-search-label", "");
             let $floorTime =
@@ -12159,7 +12245,7 @@
             domUtils.after($base, $container);
           });
         });
-        utils.mutationObserver(document, {
+        utils$1.mutationObserver(document, {
           config: {
             subtree: true,
             childList: true,
@@ -12189,7 +12275,7 @@
         allFollowingData = allFollowingData.concat(followingData.list);
         if (followingData.list.length === followingData.total && followingPN === 1) break;
         followingPN++;
-        utils.sleep(250);
+        utils$1.sleep(250);
       }
       let spaceOffset = "";
       let spacePNCount = 1;
@@ -12214,7 +12300,7 @@
           log.info(`最多请求5页空间动态的数据`);
           break;
         }
-        utils.sleep(250);
+        utils$1.sleep(250);
       }
       let result = {
         following: [],
@@ -12379,7 +12465,7 @@
                   let $reasonTime = domUtils.createElement("div", {
                     className: "reason-text",
                     innerHTML: `
-										<span>时间：</span>${utils.formatTime(it.reasonTime)}
+										<span>时间：</span>${utils$1.formatTime(it.reasonTime)}
 										`,
                   });
                   domUtils.append($el, $reasonTime);
@@ -12490,7 +12576,7 @@
             }
           });
       });
-      utils.sortListByProperty(
+      utils$1.sortListByProperty(
         matchedAllRule,
         (value) => {
           return value.matchedInfoList.length;
@@ -13263,6 +13349,13 @@
                 text: "加速CDN设置（dash）",
                 type: "container",
                 views: [
+                  UISwitch(
+                    "视频-优先使用upos节点",
+                    "bili-video-video-url-preferToUseUpos",
+                    false,
+                    void 0,
+                    "如果视频无法正常加载，请关闭该功能"
+                  ),
                   UISelect(
                     "视频-UPOS服务器设置",
                     "bili-video-uposServerSelect",
@@ -13283,6 +13376,13 @@
                     "自定义的服务器优先级大于上面选择的服务器",
                     void 0,
                     "请输入upos服务器的域名"
+                  ),
+                  UISwitch(
+                    "视频-优先使用upos节点",
+                    "bili-video-audio-url-preferToUseUpos",
+                    false,
+                    void 0,
+                    "如果视频无法正常加载，请关闭该功能"
                   ),
                   UISelect(
                     "音频-UPOS服务器设置",
@@ -13581,6 +13681,13 @@
                 text: "加速CDN设置（dash）",
                 type: "container",
                 views: [
+                  UISwitch(
+                    "视频-优先使用upos节点",
+                    "bili-bangumi-video-url-preferToUseUpos",
+                    false,
+                    void 0,
+                    "如果视频无法正常加载，请关闭该功能"
+                  ),
                   UISelect(
                     "视频-UPOS服务器设置",
                     "bili-bangumi-uposServerSelect",
@@ -13601,6 +13708,13 @@
                     "自定义的服务器优先级大于上面选择的服务器",
                     void 0,
                     "请输入upos服务器的域名"
+                  ),
+                  UISwitch(
+                    "音频-优先使用upos节点",
+                    "bili-bangumi-audio-url-preferToUseUpos",
+                    false,
+                    void 0,
+                    "如果音频无法正常加载，请关闭该功能"
                   ),
                   UISelect(
                     "音频-UPOS服务器设置",
@@ -13975,7 +14089,7 @@
     },
     views: [],
   };
-  var RunningFlag = utils.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss") + "BilibiliPerfScriptRunning";
+  var RunningFlag = utils$1.formatTime(void 0, "yyyy-MM-dd_HH:mm:ss") + "BilibiliPerfScriptRunning";
   if (Reflect.has(_unsafeWindow, RunningFlag)) log.error(`${_SCRIPT_NAME_}运行异常，请勿重复运行脚本：${RunningFlag}`);
   else {
     Reflect.set(_unsafeWindow, RunningFlag, true);

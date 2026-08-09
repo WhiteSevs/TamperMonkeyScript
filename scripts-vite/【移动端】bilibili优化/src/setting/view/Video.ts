@@ -1,11 +1,10 @@
+import { BilibiliCDNServerList } from "@/api/BilibiliCDNServerList";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
+import { UIInput } from "@components/setting/components/ui-input";
+import { UISelect } from "@components/setting/components/ui-select";
+import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
-import { UISelect } from "@components/setting/components/ui-select";
-import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
-import { UISlider } from "@components/setting/components/ui-slider";
-import { UIInput } from "@components/setting/components/ui-input";
-import { BilibiliCDNServerList } from "@/api/BilibiliCDNServerList";
 
 const SettingUIVideo: PopsPanelContentConfig = {
   id: "panel-video",
@@ -182,6 +181,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
               text: "加速CDN设置（dash）",
               type: "container",
               views: [
+                UISwitch(
+                  "视频-优先使用upos节点",
+                  "bili-video-video-url-preferToUseUpos",
+                  false,
+                  void 0,
+                  "如果视频无法正常加载，请关闭该功能"
+                ),
                 UISelect(
                   "视频-UPOS服务器设置",
                   "bili-video-uposServerSelect",
@@ -202,6 +208,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
                   "自定义的服务器优先级大于上面选择的服务器",
                   void 0,
                   "请输入upos服务器的域名"
+                ),
+                UISwitch(
+                  "视频-优先使用upos节点",
+                  "bili-video-audio-url-preferToUseUpos",
+                  false,
+                  void 0,
+                  "如果视频无法正常加载，请关闭该功能"
                 ),
                 UISelect(
                   "音频-UPOS服务器设置",
