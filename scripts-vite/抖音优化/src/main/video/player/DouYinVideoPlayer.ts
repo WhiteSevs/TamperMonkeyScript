@@ -1870,7 +1870,7 @@ export const DouYinVideoPlayer = {
           }
           $video = $videoContainer.querySelector<HTMLVideoElement>('[data-e2e="player-container"] video');
         } else {
-          const $videoContainer = $click.closest(".sliderVideo");
+          const $videoContainer = $click.closest(".sliderVideo") || $click.closest('[data-e2e="feed-active-video"]');
           if (!$videoContainer) {
             Qmsg.error("未找到视频容器");
             return;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.7
+// @version      2026.8.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -10645,7 +10645,7 @@
             }
             $video = $videoContainer.querySelector('[data-e2e="player-container"] video');
           } else {
-            const $videoContainer = $click.closest(".sliderVideo");
+            const $videoContainer = $click.closest(".sliderVideo") || $click.closest('[data-e2e="feed-active-video"]');
             if (!$videoContainer) {
               qmsg.default.error("未找到视频容器");
               return;
