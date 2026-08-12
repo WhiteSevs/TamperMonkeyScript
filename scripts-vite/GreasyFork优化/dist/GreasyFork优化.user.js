@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.5.11
+// @version            2026.8.12
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -13,14 +13,14 @@
 // @match              *://sleazyfork.org/*
 // @match              *://cn-greasyfork.org/*
 // @require            https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@26.0.10/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@26.3.6/i18next.min.js
 // @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.1/dist/otpauth.umd.min.js
-// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
+// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
 // @grant              GM_addStyle
@@ -102,21 +102,24 @@
   };
   var UIScriptListCSS_default =
     '.w-script-list-item {\n  padding: 10px;\n  border-bottom: 1px solid #e5e5e5;\n  font-size: 16px;\n  text-align: left;\n  background: var(--aside-bg-color);\n  border-radius: 8px;\n  --pops-panel-forms-margin-left-right: 10px;\n}\n.w-script-version,\n.w-script-fan-score,\n.w-script-create-time,\n.w-script-update-time,\n.w-script-locale,\n.w-script-sync-type {\n  font-size: 14px;\n  color: #7c7c7c;\n}\n.w-script-fan-score {\n  margin-left: unset !important;\n  text-align: unset !important;\n  max-width: unset !important;\n}\n.w-script-deleted {\n  text-decoration: line-through;\n  font-style: italic;\n  color: red;\n}\n.w-script-deleted .w-script-name::before {\n  content: "【删除】";\n}\n\nli[data-key="user"] .pops-panel-input,\nli[data-key="pwd"] .pops-panel-input {\n  max-width: 200px;\n}\n';
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
@@ -171,6 +174,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -484,7 +492,7 @@
   });
   var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -514,6 +522,7 @@
     _unsafeWindow.clearInterval.bind(_unsafeWindow));
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
@@ -1337,9 +1346,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -3364,7 +3374,12 @@
       if (window.outerWidth > 550) {
         result.push(CommonUtil.addBlockCSS(".with-submenu"));
         domUtils.onReady(() => {
-          const $siteNavNav = $("#site-nav").querySelector("nav");
+          const $siteNav = $("#site-nav");
+          if (!$siteNav) {
+            log.error("未找到顶部导航栏", $siteNav);
+            return;
+          }
+          const $siteNavNav = $siteNav.querySelector("nav");
           $$(".with-submenu nav li").forEach(($ele) => {
             $siteNavNav.appendChild($ele);
           });
@@ -3567,10 +3582,9 @@
       return new utils.indexedDB("reply_record", "textarea_text", 2);
     },
     async rememberReplyContent() {
-      const TAG = "记住回复内容 -- ";
       let $formList = $$("form");
       if (!$formList.length) {
-        log.warn(TAG + "不存在表单");
+        log.warn("记住回复内容 -- 不存在表单");
         return;
       }
       try {
@@ -4941,7 +4955,8 @@
           });
           return;
         }
-        if (!checkFavoriteFormInfo(new FormData($changeScriptSet), scriptId)) {
+        const changeScriptForm = new FormData($changeScriptSet);
+        if (!checkFavoriteFormInfo(changeScriptForm, scriptId)) {
           log.error("添加失败，提交的添加请求中不包含该脚本id");
           qmsg.default.error(i18next.default.t("添加失败，表单数据中不包含该脚本"));
           return;
@@ -4999,7 +5014,8 @@
           qmsg.default.error(i18next.default.t("删除失败，{{selector}}元素不存在", { selector: ".change-script-set" }));
           return;
         }
-        if (checkFavoriteFormInfo(new FormData($changeScriptSet), scriptId)) {
+        const changeScriptForm = new FormData($changeScriptSet);
+        if (checkFavoriteFormInfo(changeScriptForm, scriptId)) {
           log.error("删除失败，提交的删除请求中包含该脚本id");
           qmsg.default.error(i18next.default.t("删除失败，表单数据中仍包含该脚本"));
           return;
@@ -6630,9 +6646,10 @@
           const userId = GreasyforkUrlUtils.getUserId(userHomeUrl);
           if (userId == null) return;
           if (userRegisterTimeMap.has(userId)) {
+            const data = userRegisterTimeMap.get(userId);
             updateUserRegisterTime({
               userId,
-              ...userRegisterTimeMap.get(userId),
+              ...data,
             });
             return;
           }

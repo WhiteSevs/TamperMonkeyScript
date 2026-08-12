@@ -372,7 +372,7 @@ export const GreasyforkApi = {
       }
       const setsUrl = $el.href;
       if (setsUrl.includes("?fav=1")) {
-        /* 自带的收藏夹 */
+        // 自带的收藏夹
         return;
       }
       const setsName = $li.querySelector<HTMLAnchorElement>("a")!.innerText;

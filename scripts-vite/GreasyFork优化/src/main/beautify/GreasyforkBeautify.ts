@@ -351,7 +351,11 @@ export const GreasyforkBeautify = {
     if (window.outerWidth > 550) {
       result.push(CommonUtil.addBlockCSS(".with-submenu"));
       DOMUtils.onReady(() => {
-        const $siteNav = $<HTMLElement>("#site-nav")!;
+        const $siteNav = $<HTMLElement>("#site-nav");
+        if (!$siteNav) {
+          log.error("未找到顶部导航栏", $siteNav);
+          return;
+        }
         const $siteNavNav = $siteNav.querySelector<HTMLElement>("nav")!;
         // 把更多的内容添加到顶部导航栏中
         $$<HTMLLIElement>(".with-submenu nav li").forEach(($ele) => {
