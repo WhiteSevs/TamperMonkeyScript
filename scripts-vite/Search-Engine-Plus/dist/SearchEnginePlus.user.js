@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.6
+// @version      2026.8.12
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -3536,6 +3536,21 @@
       Panel.execMenuOnce("bing-search-removeOtherUserSearch", () => {
         return this.removeOtherUserSearch();
       });
+      Panel.execMenuOnce("bing-search-removeTopLeftAreaSwtich", () => {
+        return this.removeTopLeftAreaSwtich();
+      });
+      Panel.execMenuOnce("bing-search-removeTopRightAccountSetting", () => {
+        return this.removeTopRightAccountSetting();
+      });
+      Panel.execMenuOnce("bing-search-removeAboutAnyResultsTip", () => {
+        return this.removeAboutAnyResultsTip();
+      });
+      Panel.execMenuOnce("bing-search-removeBottomPartOfSearchResultTip", () => {
+        return this.removeBottomPartOfSearchResultTip();
+      });
+      Panel.execMenuOnce("bing-search-removeBottomRightCopyright", () => {
+        return this.removeBottomRightCopyright();
+      });
       Panel.execMenuOnce(["bing-search-showOptimization-enable", "bing-search-showOptimization-mode"], (config) => {
         const [enable, mode] = config.value;
         if (!enable) return;
@@ -3567,7 +3582,8 @@
         "#b_topw:has(.b_ad)",
         "#b_results .b_ad",
         "#b_results .b_algo:has(.jrwmcyhr)",
-        ".b_vfly_c"
+        ".b_vfly_c",
+        "#b_results .b_mop:has(.b_mrwu_c)"
       );
     },
     removeInputPrediction() {
@@ -3616,11 +3632,32 @@
       return addBlockCSSWithEnd("#b_bop_cs_sb_place");
     },
     removeOtherUserSearch() {
-      log.info(`移除其它用户还搜索过`);
+      log.info(`移除其它用户还搜索过/其他用户还问了以下问题`);
       return addBlockCSSWithEnd(
         '#b_results .b_ans:has(a[aria-label*="还搜索"])',
-        '#b_results .b_algo:has(a[aria-label*="还搜索"])'
+        '#b_results .b_algo:has(a[aria-label*="还搜索"])',
+        "#b_results .b_ans:has(#df_listaa)"
       );
+    },
+    removeTopLeftAreaSwtich() {
+      log.info(`移除左上角 国内版/国际版`);
+      return addBlockCSSWithEnd("#est_switch");
+    },
+    removeTopRightAccountSetting() {
+      log.info(`移除右上角 帐户奖励和偏好设置`);
+      return addBlockCSSWithEnd("#id_h");
+    },
+    removeAboutAnyResultsTip() {
+      log.info(`移除约xxx个结果`);
+      return addBlockCSSWithEnd("#b_tween");
+    },
+    removeBottomPartOfSearchResultTip() {
+      log.info(`移除底部 部分搜索结果未予显示`);
+      return addBlockCSSWithEnd('#b_results li.b_msg:has(a[href*="microsoft.com/fwlink"])');
+    },
+    removeBottomRightCopyright() {
+      log.info(`移除底部右下角 备案信息`);
+      return addBlockCSSWithEnd("#b_footer");
     },
     searchResultShowOptimization(mode) {
       const result = [
@@ -4189,17 +4226,24 @@
         type: "container",
         views: [
           UISwitch("移除广告", "bing-search-removeAds", true),
-          UISwitch("移除输入预测", "bing-search-removeInputPrediction", false),
-          UISwitch("移除输入历史记录", "bing-search-removeInputHistory", false),
-          UISwitch(
-            "移除输入历史记录 - 与最近的搜索相关",
-            "bing-search-removeInputHistory-relatedToRecentSearches",
-            false
-          ),
+          UISwitch("移除输入预测", "bing-search-removeInputPrediction"),
+          UISwitch("移除输入历史记录", "bing-search-removeInputHistory"),
+          UISwitch("移除输入历史记录 - 与最近的搜索相关", "bing-search-removeInputHistory-relatedToRecentSearches"),
           UISwitch("移除右侧更多搜索结果", "bing-search-removeRightMoreSearchResult", true),
-          UISwitch("移除Copilot Search", "bing-search-removeCopilotSearch", false),
+          UISwitch("移除Copilot Search", "bing-search-removeCopilotSearch"),
           UISwitch("移除底部悬浮的工具栏", "bing-search-removeBottomFloatingToolbar", true),
-          UISwitch("移除其它用户还搜索过", "bing-search-removeOtherUserSearch", true),
+          UISwitch("移除其它用户还搜索过/其他用户还问了以下问题", "bing-search-removeOtherUserSearch", true),
+          UISwitch("移除左上角 国内版/国际版", "bing-search-removeTopLeftAreaSwtich"),
+          UISwitch("移除右上角 帐户奖励和偏好设置", "bing-search-removeTopRightAccountSetting"),
+          UISwitch(
+            "移除约xxx个结果",
+            "bing-search-removeAboutAnyResultsTip",
+            false,
+            void 0,
+            "搜索结果最上面的提示文字和图标"
+          ),
+          UISwitch("移除底部 部分搜索结果未予显示", "bing-search-removeBottomPartOfSearchResultTip"),
+          UISwitch("移除底部右下角 备案信息", "bing-search-removeBottomRightCopyright"),
         ],
       },
       {

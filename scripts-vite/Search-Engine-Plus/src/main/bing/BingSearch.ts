@@ -28,6 +28,21 @@ export const BingSearch = {
     Panel.execMenuOnce("bing-search-removeOtherUserSearch", () => {
       return this.removeOtherUserSearch();
     });
+    Panel.execMenuOnce("bing-search-removeTopLeftAreaSwtich", () => {
+      return this.removeTopLeftAreaSwtich();
+    });
+    Panel.execMenuOnce("bing-search-removeTopRightAccountSetting", () => {
+      return this.removeTopRightAccountSetting();
+    });
+    Panel.execMenuOnce("bing-search-removeAboutAnyResultsTip", () => {
+      return this.removeAboutAnyResultsTip();
+    });
+    Panel.execMenuOnce("bing-search-removeBottomPartOfSearchResultTip", () => {
+      return this.removeBottomPartOfSearchResultTip();
+    });
+    Panel.execMenuOnce("bing-search-removeBottomRightCopyright", () => {
+      return this.removeBottomRightCopyright();
+    });
     Panel.execMenuOnce(["bing-search-showOptimization-enable", "bing-search-showOptimization-mode"], (config) => {
       const [enable, mode] = config.value;
       if (!enable) return;
@@ -66,7 +81,9 @@ export const BingSearch = {
       // 网页结果广告
       "#b_results .b_algo:has(.jrwmcyhr)",
       // 扫描二维码下载微软必应app，立即开始搜索并赚取积分奖励！
-      ".b_vfly_c"
+      ".b_vfly_c",
+      // 搜索结果 - Microsoft推广  分享微软积分商城，即可在每次好友使用必应搜索时赚取 1 个积分!
+      "#b_results .b_mop:has(.b_mrwu_c)"
     );
   },
   /**
@@ -133,14 +150,50 @@ export const BingSearch = {
     return addBlockCSSWithEnd("#b_bop_cs_sb_place");
   },
   /**
-   * 移除其它用户还搜索过
+   * 移除其它用户还搜索过/其他用户还问了以下问题
    */
   removeOtherUserSearch() {
-    log.info(`移除其它用户还搜索过`);
+    log.info(`移除其它用户还搜索过/其他用户还问了以下问题`);
     return addBlockCSSWithEnd(
       '#b_results .b_ans:has(a[aria-label*="还搜索"])',
-      '#b_results .b_algo:has(a[aria-label*="还搜索"])'
+      '#b_results .b_algo:has(a[aria-label*="还搜索"])',
+      "#b_results .b_ans:has(#df_listaa)"
     );
+  },
+  /**
+   * 移除左上角 国内版/国际版
+   */
+  removeTopLeftAreaSwtich() {
+    log.info(`移除左上角 国内版/国际版`);
+    return addBlockCSSWithEnd("#est_switch");
+  },
+  /**
+   * 移除右上角 帐户奖励和偏好设置
+   */
+  removeTopRightAccountSetting() {
+    log.info(`移除右上角 帐户奖励和偏好设置`);
+    return addBlockCSSWithEnd("#id_h");
+  },
+  /**
+   * 移除约xxx个结果
+   */
+  removeAboutAnyResultsTip() {
+    log.info(`移除约xxx个结果`);
+    return addBlockCSSWithEnd("#b_tween");
+  },
+  /**
+   * 移除底部 部分搜索结果未予显示
+   */
+  removeBottomPartOfSearchResultTip() {
+    log.info(`移除底部 部分搜索结果未予显示`);
+    return addBlockCSSWithEnd('#b_results li.b_msg:has(a[href*="microsoft.com/fwlink"])');
+  },
+  /**
+   * 移除底部右下角 备案信息
+   */
+  removeBottomRightCopyright() {
+    log.info(`移除底部右下角 备案信息`);
+    return addBlockCSSWithEnd("#b_footer");
   },
   /**
    * 搜索结果显示优化
