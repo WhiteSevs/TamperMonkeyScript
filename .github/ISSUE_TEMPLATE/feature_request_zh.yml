@@ -49,6 +49,7 @@ body:
         - 网页调试
         - 模拟竖屏
         - CookieManager
+        - SearchEnginePlus
         - 其它(请在下方描述内填写脚本名称)
     validations:
       required: true
