@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.14
+// @version      2026.8.14.23
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -198,7 +198,7 @@
           #content_left a.sc-link:has(img.website-ico){
             display: inline-flex !important;
           }
-        `),()=>{i.disconnect()},e.removeAds?W(`#content_left > div:has(.ec-tuiguang)`,`#content_left > div:has(.c-recomm-wrap)`):null]}},ge={init(){N.execMenuOnce(`baidu-search-removeAds`,()=>this.removeAds()),N.execMenuOnce(`baidu-search-removeRightPanel`,()=>this.removeRightPanel()),N.execMenuOnce(`baidu-search-removeEveryOneSearch`,()=>this.removeEveryOneSearch()),N.execMenuOnce(`baidu-search-removeRelatedSearch`,()=>this.removeRelatedSearch()),N.execMenuOnce(`baidu-search-removeSelectTextDialog`,()=>this.removeSelectTextDialog()),N.execMenuOnce([`baidu-search-showOptimization-enable`,`baidu-search-showOptimization-mode`],e=>{let[t,n]=e.value;if(t&&!F.isNull(n))return this.searchResultShowOptimization(n)}),N.execMenuOnce([`baidu-search-ownBackgroundImage-enable`,`baidu-search-ownBackgroundImage-url`,`baidu-search-ownBackgroundImage-opacity`],e=>{let[t,n,r]=e.value;if(t&&!F.isNull(n)&&r)return this.ownBackgroundImage({enable:t,url:n,opacity:r})}),he.init()},removeAds(){return R.info(`移除广告`),W(`#top-ad`)},removeRightPanel(){return R.info(`移除右侧栏`),W(`#content_right`)},removeEveryOneSearch(){return R.info(`移除大家都在搜`),W(`.result-op[tpl="recommend_list"]`)},removeRelatedSearch(){return R.info(`移除相关搜索`),W(`.result-molecule:has(#rs_new)`)},removeSelectTextDialog(){return R.info(`移除选中文本弹窗`),W(`#wrapper_wrapper > .selected-search-box`)},searchResultShowOptimization(e){R.info(`搜索结果显示优化: `+e);let t=(e,t)=>`
+        `),()=>{i.disconnect()},e.removeAds?W(`#content_left > div:has(.ec-tuiguang)`,`#content_left > div:has(.c-recomm-wrap)`):null]}},ge={init(){N.execMenuOnce(`baidu-search-removeAds`,()=>this.removeAds()),N.execMenuOnce(`baidu-search-removeRightPanel`,()=>this.removeRightPanel()),N.execMenuOnce(`baidu-search-removeEveryOneSearch`,()=>this.removeEveryOneSearch()),N.execMenuOnce(`baidu-search-removeRelatedSearch`,()=>this.removeRelatedSearch()),N.execMenuOnce(`baidu-search-removeSelectTextDialog`,()=>this.removeSelectTextDialog()),N.execMenuOnce([`baidu-search-showOptimization-enable`,`baidu-search-showOptimization-mode`],e=>{let[t,n]=e.value;if(t&&!F.isNull(n))return this.searchResultShowOptimization(n)}),N.execMenuOnce([`baidu-search-ownBackgroundImage-enable`,`baidu-search-ownBackgroundImage-url`,`baidu-search-ownBackgroundImage-opacity`],e=>{let[t,n,r]=e.value;if(t&&!F.isNull(n)&&r)return this.ownBackgroundImage({enable:t,url:n,opacity:r})}),he.init()},removeAds(){return R.info(`移除广告`),W(`#top-ad`,`#content_left .result-op[tpl="uer_feedback"]`)},removeRightPanel(){return R.info(`移除右侧栏`),W(`#content_right`)},removeEveryOneSearch(){return R.info(`移除大家都在搜`),W(`.result-op[tpl="recommend_list"]`)},removeRelatedSearch(){return R.info(`移除相关搜索`),W(`.result-molecule:has(#rs_new)`)},removeSelectTextDialog(){return R.info(`移除选中文本弹窗`),W(`#wrapper_wrapper > .selected-search-box`)},searchResultShowOptimization(e){R.info(`搜索结果显示优化: `+e);let t=(e,t)=>`
         #container #content_left{
         & > .c-container,
         & > .new-pmd,
@@ -217,6 +217,10 @@
           /* 隐藏展开按钮 */
           & .cosc-card-content [class^="wenda-general-fold-switch_"]{
             display: none !important;
+          }
+          /* 百度百科内容不换行 */
+          & .c-row[class*="card-normal_"]{
+            display: block;
           }
       `)),H(`
         #wrapper #head{

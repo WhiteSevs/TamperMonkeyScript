@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.14
+// @version      2026.8.14.23
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -2932,7 +2932,7 @@
     },
     removeAds() {
       log.info(`移除广告`);
-      return addBlockCSSWithEnd("#top-ad");
+      return addBlockCSSWithEnd("#top-ad", '#content_left .result-op[tpl="uer_feedback"]');
     },
     removeRightPanel() {
       log.info(`移除右侧栏`);
@@ -2978,6 +2978,10 @@
           /* 隐藏展开按钮 */
           & .cosc-card-content [class^="wenda-general-fold-switch_"]{
             display: none !important;
+          }
+          /* 百度百科内容不换行 */
+          & .c-row[class*="card-normal_"]{
+            display: block;
           }
       `
           )

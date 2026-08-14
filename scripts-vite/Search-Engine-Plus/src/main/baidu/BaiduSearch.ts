@@ -51,7 +51,11 @@ export const BaiduSearch = {
    */
   removeAds() {
     log.info(`移除广告`);
-    return addBlockCSSWithEnd("#top-ad");
+    return addBlockCSSWithEnd(
+      "#top-ad",
+      // 用户反馈
+      '#content_left .result-op[tpl="uer_feedback"]'
+    );
   },
   /**
    * 移除右侧栏
@@ -114,6 +118,10 @@ export const BaiduSearch = {
           /* 隐藏展开按钮 */
           & .cosc-card-content [class^="wenda-general-fold-switch_"]{
             display: none !important;
+          }
+          /* 百度百科内容不换行 */
+          & .c-row[class*="card-normal_"]{
+            display: block;
           }
       `
         )
