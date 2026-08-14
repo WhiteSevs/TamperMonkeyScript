@@ -140,8 +140,13 @@ export const BaiduSearch = {
           & span,
           & p.sc-paragraph{
               text-decoration: none !important;
+              float: inline-end;
           }
-
+          /* 如果插入了图标，要保持图标和标题垂直居中 */
+          &:has(>img.website-ico),
+          &:has(>svg){
+            line-height: 1;
+          }
           &:hover:after {
               left: 0;
               width: 100%;
