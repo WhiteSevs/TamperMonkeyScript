@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.14.23
+// @version      2026.8.19
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -2822,7 +2822,10 @@
             $ico.className = "website-ico";
             $ico.loading = "lazy";
             try {
-              $ico.src = `${new URL(realLink).origin}/favicon.ico`;
+              const realLinkInst = new URL(realLink);
+              realLinkInst.protocol = "https:";
+              $ico.src = `${realLinkInst.origin}/favicon.ico`;
+              if (!realLinkInst.hostname.endsWith(".baidu.com")) $ico.crossOrigin = "anonymous";
               domUtils.prepend($title, $ico);
               domUtils.css($title, {
                 display: "flex",
@@ -2839,7 +2842,7 @@
             } catch {}
           }
           if (config.markUnsafeLink) {
-            if ($title.href.startsWith("http://")) {
+            if ($title.href.startsWith("http://") && !$title.href.includes("baidu.com/")) {
               domUtils.prepend(
                 $title,
                 `
@@ -2981,7 +2984,7 @@
           }
           /* 百度百科内容不换行 */
           & .c-row[class*="card-normal_"]{
-            display: block;
+            display: inline-flex;
           }
       `
           )
@@ -3005,12 +3008,16 @@
           & span,
           & p.sc-paragraph{
               text-decoration: none !important;
-              float: inline-end;
           }
           /* 如果插入了图标，要保持图标和标题垂直居中 */
           &:has(>img.website-ico),
           &:has(>svg){
             line-height: 1;
+            float: inline-end;
+            
+            & span{
+              display: inline-flex;
+            }
           }
           &:hover:after {
               left: 0;

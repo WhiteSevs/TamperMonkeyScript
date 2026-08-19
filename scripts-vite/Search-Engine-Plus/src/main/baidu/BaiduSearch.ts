@@ -121,7 +121,7 @@ export const BaiduSearch = {
           }
           /* 百度百科内容不换行 */
           & .c-row[class*="card-normal_"]{
-            display: block;
+            display: inline-flex;
           }
       `
         )
@@ -148,12 +148,16 @@ export const BaiduSearch = {
           & span,
           & p.sc-paragraph{
               text-decoration: none !important;
-              float: inline-end;
           }
           /* 如果插入了图标，要保持图标和标题垂直居中 */
           &:has(>img.website-ico),
           &:has(>svg){
             line-height: 1;
+            float: inline-end;
+            
+            & span{
+              display: inline-flex;
+            }
           }
           &:hover:after {
               left: 0;
