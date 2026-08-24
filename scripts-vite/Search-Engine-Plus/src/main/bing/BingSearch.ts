@@ -262,6 +262,10 @@ export const BingSearch = {
               width: auto;
               margin: 32px 0px 0px 0px !important;
           }
+          /* 未登录的情况下 b_results会在 b_widemop_layout内，而b_widemop_layout会被设置为grid*/
+          & .b_widemop_layout:has(#b_results){
+            display: block !important;
+          }
       }
     `;
 
