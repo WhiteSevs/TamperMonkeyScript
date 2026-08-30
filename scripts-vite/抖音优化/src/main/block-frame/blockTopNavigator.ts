@@ -365,7 +365,9 @@ export const BlockTopNavigator = {
         /* 右上角 私信 下载客户端，实时接收好友消息 */
         '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
         /* 右上角 壁纸 下载客户端，使用壁纸 */
-        '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+        '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)',
+        // 新版私信上面的 下载客户端，实时接收好友消息
+        ".imChatClientGuideDownloadBar"
       )
     );
     if (DouYinRouter.isSearch()) {

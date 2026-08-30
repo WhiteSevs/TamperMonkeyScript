@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.12
+// @version      2026.8.30
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4399,7 +4399,8 @@
           'ul li div[data-e2e="something-button"] + div div:has(>a[download*="douyin-downloader"])',
           '#douyin-header pace-island[id^="island_"] ul > div:has(>a[class][download])',
           '#douyin-header pace-island[id^="island_"] ul[class] li div[data-e2e="im-entry"]  div>div div div:has(a[download][href])',
-          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)'
+          '#douyin-header header div[id^="douyin-header-menu"] pace-island[id^="island_"] .dy-tip-container div:has(+ #wallpaper-modal)',
+          ".imChatClientGuideDownloadBar"
         )
       );
       if (DouYinRouter.isSearch())
@@ -9358,6 +9359,9 @@
         Panel.execMenuOnce("dy-video-commentTimeJump", () => {
           return this.commentTimeJump();
         });
+        Panel.execMenuOnce("dy-video-showLikeCommentCollectShareCount", () => {
+          return this.showCompleteLikeCommentCollectShareCount();
+        });
       });
     },
     fullScreen(mode) {
@@ -9646,15 +9650,31 @@
         `;
         if (data.videoDownloadInfo) {
           data.videoDownloadInfo.urlInfoList.forEach((downloadInfo) => {
-            const videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
+            const { width: videoWidth, height: videoHeight } = downloadInfo;
+            const videoQualityInfo = `${videoWidth}x${videoHeight} @${downloadInfo.fps}`;
+            let videoQualityTransform = videoWidth.toString();
+            const qualityMax = Math.max(videoWidth, videoHeight);
+            const qualityMin = Math.min(videoWidth, videoHeight);
+            if (qualityMax > 1920 && qualityMin > 1080)
+              if (qualityMax > 7e3 && qualityMax < 9e3) videoQualityTransform = "8K";
+              else if (qualityMax > 3500) videoQualityTransform = "4K";
+              else if (qualityMax > 2e3) videoQualityTransform = "2K";
+              else videoQualityTransform = `${qualityMin}P`;
+            else videoQualityTransform = `${qualityMin}P`;
             let downloadFileName = data.videoDownloadInfo.fileName;
-            downloadFileName = transformDownloadFileName({ quality: videoQualityInfo }, downloadFileName);
+            downloadFileName = transformDownloadFileName(
+              {
+                quality: videoQualityInfo,
+                "quality-t": videoQualityTransform,
+              },
+              downloadFileName
+            );
             downloadFileName = downloadFileName + "." + downloadInfo.format;
             showParseVideoInfoHTML += `
           <div class="dy-link-item">
             <div class="dy-link-item-name">
               <span>清晰度信息：</span>
-              <span>${videoQualityInfo}</span>
+              <span>${videoQualityInfo} - ${videoQualityTransform}</span>
             </div>
             <div class="dy-link-item-size">
               <span>视频大小：</span>
@@ -9742,7 +9762,13 @@
           data.pictureDownloadInfo?.urlInfoList.forEach((downloadInfo, index) => {
             const pictureSizeInfo = `${downloadInfo.width}x${downloadInfo.height}`;
             let downloadFileName = data.pictureDownloadInfo.fileName;
-            downloadFileName = transformDownloadFileName({ quality: pictureSizeInfo }, downloadFileName);
+            downloadFileName = transformDownloadFileName(
+              {
+                quality: pictureSizeInfo,
+                "quality-t": pictureSizeInfo,
+              },
+              downloadFileName
+            );
             downloadFileName = downloadFileName + ".png";
             showParsePictureInfoHTML += `
           <div class="dy-link-item">
@@ -9982,7 +10008,7 @@
         fileNameTemplate = Panel.getValue("dy-video-parseVideo-downloadFileName")
       ) => {
         for (const key in data) {
-          if (!Object.hasOwn(data, key)) continue;
+          if (!Reflect.has(data, key)) continue;
           const value = data[key];
           if (value == null) continue;
           const valueStr = value?.toString();
@@ -10700,6 +10726,108 @@
         },
       ];
     },
+    showCompleteLikeCommentCollectShareCount() {
+      log.info(`显示点赞、评论、收藏、分享的具体数量`);
+      const lockFn = new utils$1.LockFunction(() => {
+        [...$$(".basePlayerContainer:not([data-show-full-count])")].forEach(($basePlayerContainer) => {
+          $basePlayerContainer.setAttribute("data-show-full-count", "true");
+          if (!$basePlayerContainer) return;
+          const basePlayerContainerReactFiber = utils$1.getReactInstance($basePlayerContainer)?.reactFiber;
+          if (!basePlayerContainerReactFiber) {
+            log.error("获取rectFiber属性失败", {
+              $basePlayerContainer,
+              basePlayerContainerReactFiber,
+            });
+            return;
+          }
+          const awemeInfo = utils$1.queryProperty(basePlayerContainerReactFiber, (target) => {
+            if (typeof target.memoizedProps === "object" && target.memoizedProps != null)
+              if (typeof target.memoizedProps.awemeInfo === "object" && target.memoizedProps.awemeInfo != null)
+                return {
+                  isFind: true,
+                  data: target.memoizedProps.awemeInfo,
+                };
+              else if (typeof target.return === "object" && target.return != null)
+                return {
+                  isFind: false,
+                  data: target.return,
+                };
+              else
+                return {
+                  isFind: false,
+                  data: null,
+                };
+            else
+              return {
+                isFind: false,
+                data: null,
+              };
+          });
+          if (!awemeInfo) {
+            log.error("获取awemeInfo属性失败", {
+              $basePlayerContainer,
+              basePlayerContainerReactFiber,
+            });
+            return;
+          }
+          let transformAwemeInfo;
+          const transformAwemeInfoWithDOM = new DouYinVideoFilterBase().parseAwemeInfoDictData(awemeInfo, "dom", true);
+          if (
+            typeof transformAwemeInfoWithDOM.awemeId === "string" &&
+            DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithDOM.awemeId)
+          )
+            transformAwemeInfo = DouYinVideoFilter.$data.networkAwemeInfoMap.get(
+              transformAwemeInfoWithDOM.awemeId
+            ).transformAwemeInfo;
+          else transformAwemeInfo = transformAwemeInfoWithDOM;
+          if (transformAwemeInfo.nickname == null) transformAwemeInfo.nickname = "未知作者";
+          if (transformAwemeInfo.desc == null) transformAwemeInfo.desc = "未知视频文案";
+          let $digg, $comment, $collect, $share;
+          if (DouYinRouter.isVideo()) {
+            $digg = $(
+              '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(1) > span:not(:has(>*))'
+            );
+            $comment = $(
+              '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(2) > span:not(:has(>*))'
+            );
+            $collect = $(
+              '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(3) > span:not(:has(>*))'
+            );
+            $share = $(
+              '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(4) > span:not(:has(>*))'
+            );
+          } else {
+            $digg = $basePlayerContainer.querySelector('[data-e2e="video-player-digg"] > div:last-child:not(:has(>*))');
+            $comment = $basePlayerContainer.querySelector(
+              '[data-e2e="feed-comment-icon"] > div:last-child:not(:has(>*))'
+            );
+            $collect = $basePlayerContainer.querySelector(
+              '[data-e2e="video-player-collect"] > div:last-child:not(:has(>*))'
+            );
+            $share = $basePlayerContainer.querySelector(
+              '[data-e2e="video-player-share"] > div:last-child:not(:has(>*))'
+            );
+          }
+          if ($digg) domUtils.text($digg, transformAwemeInfo.diggCount);
+          if ($comment) domUtils.text($comment, transformAwemeInfo.commentCount);
+          if ($collect) domUtils.text($collect, transformAwemeInfo.collectCount);
+          if ($share) domUtils.text($share, transformAwemeInfo.shareCount);
+        });
+      });
+      const observer = utils$1.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return () => {
+        observer.disconnect();
+      };
+    },
   };
   var DouYinLiveBlock_ChatRoom = {
     init() {
@@ -11382,6 +11510,9 @@
         Panel.execMenu("dy-live-quickGift", () => {
           return this.disableQuickGift();
         });
+        Panel.execMenuOnce("dy-live-showLiveRoomAudienceCount", () => {
+          return this.showRoomUserCount();
+        });
       });
     },
     autoEnterElementFullScreen() {
@@ -11803,6 +11934,59 @@
       return [
         () => {
           listener.off();
+        },
+      ];
+    },
+    async showRoomUserCount() {
+      log.info(`显示直播间具体人数`);
+      const $audience = await domUtils.waitNode('[data-e2e="live-room-audience"]', 1e4);
+      if (!$audience) {
+        log.error("未找到观众人数元素");
+        return;
+      }
+      if (!$audience.closest('[data-e2e="living-container"]')) {
+        log.error("未找到直播间容器");
+        return;
+      }
+      const react = utils$1.getReactInstance($audience)?.reactFiber;
+      if (!react) {
+        log.error("未找到react实例");
+        return;
+      }
+      const lockFn = new utils$1.LockFunction(async () => {
+        const display_value = utils$1.queryProperty(react, (target) => {
+          const __display_value__ =
+            target?.memoizedProps?.value?.store?.roomStore?.roomInfo?.room?.room_view_stats?.display_value;
+          if (typeof __display_value__ === "number")
+            return {
+              isFind: true,
+              data: __display_value__,
+            };
+          else
+            return {
+              isFind: false,
+              data: target?.return,
+            };
+        });
+        if (typeof display_value === "number") {
+          domUtils.text($audience, display_value);
+          log.info(`更新人数：${display_value}`);
+          await utils$1.sleep(500);
+        }
+      });
+      const observer = utils$1.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return [
+        () => {
+          observer.disconnect();
         },
       ];
     },
@@ -13756,8 +13940,8 @@
                       value: "fullscreen",
                     },
                   ]),
-                  UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false),
-                  UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false),
+                  UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom"),
+                  UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform"),
                   UISelect(
                     "object-fit",
                     "dy-video-object-fit",
@@ -13791,9 +13975,10 @@
                     void 0,
                     "对video的object-fit属性进行覆盖"
                   ),
-                  UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false),
-                  UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll", false),
-                  UISwitch("评论区时间可跳转", "dy-video-commentTimeJump", false, void 0),
+                  UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText"),
+                  UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll"),
+                  UISwitch("评论区时间可跳转", "dy-video-commentTimeJump"),
+                  UISwitch("显示点赞、评论、收藏、分享的具体数量", "dy-video-showLikeCommentCollectShareCount"),
                 ],
               },
               {
@@ -13858,6 +14043,10 @@
                       <div>
                         <code>{quality}</code>
                         <p>：视频清晰度，例如：3840x2160 @60</p>
+                      </div>
+                      <div>
+                        <code>{quality-t}</code>
+                        <p>：视频清晰度，例如：4K、2K</p>
                       </div>
                       <div>
                         <code>{downloadTime}</code>
@@ -14729,6 +14918,7 @@
                       value: "switch-video-play-state",
                     },
                   ]),
+                  UISwitch("显示直播间在线观众具体人数", "dy-live-showLiveRoomAudienceCount", false),
                 ],
               },
               {

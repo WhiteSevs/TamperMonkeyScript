@@ -90,6 +90,7 @@ export const PanelLiveConfig: PopsPanelContentConfig = {
                     value: "switch-video-play-state",
                   },
                 ]),
+                UISwitch("显示直播间在线观众具体人数", "dy-live-showLiveRoomAudienceCount", false),
               ],
             },
             {

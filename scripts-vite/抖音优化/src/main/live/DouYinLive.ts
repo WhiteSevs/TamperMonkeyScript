@@ -133,6 +133,9 @@ export const DouYinLive = {
       Panel.execMenu("dy-live-quickGift", () => {
         return this.disableQuickGift();
       });
+      Panel.execMenuOnce("dy-live-showLiveRoomAudienceCount", () => {
+        return this.showRoomUserCount();
+      });
     });
   },
   /**
@@ -690,6 +693,73 @@ export const DouYinLive = {
     return [
       () => {
         listener.off();
+      },
+    ];
+  },
+  /**
+   * 显示直播间具体人数
+   */
+  async showRoomUserCount() {
+    log.info(`显示直播间具体人数`);
+    const $audience = await DOMUtils.waitNode('[data-e2e="live-room-audience"]', 1e4);
+    if (!$audience) {
+      log.error("未找到观众人数元素");
+      return;
+    }
+    const $liveingContainer = $audience.closest('[data-e2e="living-container"]');
+    if (!$liveingContainer) {
+      log.error("未找到直播间容器");
+      return;
+    }
+    const react = utils.getReactInstance($audience)?.reactFiber;
+    if (!react) {
+      log.error("未找到react实例");
+      return;
+    }
+    const lockFn = new utils.LockFunction(async () => {
+      const display_value = utils.queryProperty(react, (target) => {
+        // {
+        //     "display_long": "10万+在线观众",
+        //     "display_middle": "10万+",
+        //     "display_short": "10万+",
+        //     "display_value": 138770,
+        //     "display_version": 1663849727,
+        //     "incremental": false,
+        //     "is_hidden": false
+        // }
+        const __display_value__ =
+          target?.memoizedProps?.value?.store?.roomStore?.roomInfo?.room?.room_view_stats?.display_value;
+        if (typeof __display_value__ === "number") {
+          return {
+            isFind: true,
+            data: __display_value__,
+          };
+        } else {
+          return {
+            isFind: false,
+            data: target?.return,
+          };
+        }
+      });
+      if (typeof display_value === "number") {
+        DOMUtils.text($audience, display_value);
+        log.info(`更新人数：${display_value}`);
+        await utils.sleep(500);
+      }
+    });
+    const observer = utils.mutationObserver(document.body, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+    return [
+      () => {
+        observer.disconnect();
       },
     ];
   },

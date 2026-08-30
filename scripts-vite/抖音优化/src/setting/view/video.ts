@@ -142,8 +142,8 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                     value: "fullscreen",
                   },
                 ]),
-                UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom", false),
-                UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform", false),
+                UISwitch("移除video的bottom偏移", "dy-video-removeStyle-bottom"),
+                UISwitch("禁用右侧工具栏的transform", "dy-video-disableRightToolbarTransform"),
                 UISelect(
                   "object-fit",
                   "dy-video-object-fit",
@@ -177,9 +177,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "对video的object-fit属性进行覆盖"
                 ),
-                UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText", false),
-                UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll", false),
-                UISwitch("评论区时间可跳转", "dy-video-commentTimeJump", false, undefined),
+                UISwitch("解除视频文案复制限制", "dy-video-allowSelectTitleText"),
+                UISwitch("收藏夹显示滚动条", "dy-video-playerCollectShowScroll"),
+                UISwitch("评论区时间可跳转", "dy-video-commentTimeJump"),
+                UISwitch("显示点赞、评论、收藏、分享的具体数量", "dy-video-showLikeCommentCollectShareCount"),
               ],
             },
             {
@@ -244,6 +245,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       <div>
                         <code>{quality}</code>
                         <p>：视频清晰度，例如：3840x2160 @60</p>
+                      </div>
+                      <div>
+                        <code>{quality-t}</code>
+                        <p>：视频清晰度，例如：4K、2K</p>
                       </div>
                       <div>
                         <code>{downloadTime}</code>

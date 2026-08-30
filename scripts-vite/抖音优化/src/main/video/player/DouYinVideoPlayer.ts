@@ -129,6 +129,9 @@ export const DouYinVideoPlayer = {
       Panel.execMenuOnce("dy-video-commentTimeJump", () => {
         return this.commentTimeJump();
       });
+      Panel.execMenuOnce("dy-video-showLikeCommentCollectShareCount", () => {
+        return this.showCompleteLikeCommentCollectShareCount();
+      });
     });
   },
   /**
@@ -638,12 +641,55 @@ export const DouYinVideoPlayer = {
       // 显示视频信息
       if (data.videoDownloadInfo) {
         data.videoDownloadInfo.urlInfoList.forEach((downloadInfo) => {
-          const videoQualityInfo = `${downloadInfo.width}x${downloadInfo.height} @${downloadInfo.fps}`;
+          const { width: videoWidth, height: videoHeight } = downloadInfo;
+          // 画质+帧率
+          // 画质+帧率
+          const videoQualityInfo = `${videoWidth}x${videoHeight} @${downloadInfo.fps}`;
+          // 画质(转换后的名称)
+          let videoQualityTransform: string = videoWidth.toString();
+          // 3840x2160
+          // 2560x1440
+          // 1920x1300
+          // 1960x1200
+          // ---------
+          // 1920x1080
+          // 1764x1080
+          // 1620x1080
+          // 1926x1076
+          // 1280x720
+          // 1176x720
+          // 1024x576
+          // 940x576
+          // 864x576
+          // 960x540
+          // 810x540
+          const qualityMax = Math.max(videoWidth, videoHeight);
+          const qualityMin = Math.min(videoWidth, videoHeight);
+          if (qualityMax > 1920 && qualityMin > 1080) {
+            // 1080p以上
+            // 2k 4K 8k
+            // 1960x1200 这算2k
+            if (qualityMax > 7000 && qualityMax < 9000) {
+              videoQualityTransform = "8K";
+            } else if (qualityMax > 3500) {
+              videoQualityTransform = "4K";
+            } else if (qualityMax > 2000) {
+              videoQualityTransform = "2K";
+            } else {
+              // 假2k
+              videoQualityTransform = `${qualityMin}P`;
+            }
+          } else {
+            // 1080P 720P 540P 360P
+            // 576P
+            videoQualityTransform = `${qualityMin}P`;
+          }
           let downloadFileName = data.videoDownloadInfo!.fileName;
           // 占位符替换
           downloadFileName = transformDownloadFileName(
             {
               quality: videoQualityInfo,
+              "quality-t": videoQualityTransform,
             },
             downloadFileName
           );
@@ -653,7 +699,7 @@ export const DouYinVideoPlayer = {
           <div class="dy-link-item">
             <div class="dy-link-item-name">
               <span>清晰度信息：</span>
-              <span>${videoQualityInfo}</span>
+              <span>${videoQualityInfo} - ${videoQualityTransform}</span>
             </div>
             <div class="dy-link-item-size">
               <span>视频大小：</span>
@@ -752,6 +798,7 @@ export const DouYinVideoPlayer = {
           downloadFileName = transformDownloadFileName(
             {
               quality: pictureSizeInfo,
+              "quality-t": pictureSizeInfo,
             },
             downloadFileName
           );
@@ -1030,6 +1077,7 @@ export const DouYinVideoPlayer = {
             originDesc?: string;
             downloadTime?: string;
             quality?: string;
+            "quality-t": string | number;
           }
         // 背景音乐
         | {
@@ -1042,12 +1090,13 @@ export const DouYinVideoPlayer = {
       fileNameTemplate: string = Panel.getValue<string>("dy-video-parseVideo-downloadFileName")
     ): string => {
       for (const key in data) {
-        if (!Object.hasOwn(data, key)) continue;
+        if (!Reflect.has(data, key)) continue;
         const value = data[key as keyof typeof data] as unknown;
         if (value == null) continue;
         const valueStr = value?.toString();
         fileNameTemplate = fileNameTemplate.replace(`{${key}}`, valueStr);
       }
+      // 转换不符合windows文件名的字符
       fileNameTemplate = fileNameTemplate.replaceAll(
         /[:?"*<>|~/\\\u{1}-\u{1f}\u{7f}\u{80}-\u{9f}\p{Cf}\p{Cn}]|^[.\u{0}\p{Zl}\p{Zp}\p{Zs}]|[.\u{0}\p{Zl}\p{Zp}\p{Zs}]$|^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?=\.|$)/giu,
         "_"
@@ -1928,5 +1977,149 @@ export const DouYinVideoPlayer = {
         });
       },
     ];
+  },
+  /**
+   * 显示点赞、评论、收藏、分享的具体数量
+   */
+  showCompleteLikeCommentCollectShareCount() {
+    log.info(`显示点赞、评论、收藏、分享的具体数量`);
+    const lockFn = new utils.LockFunction(() => {
+      [...$$(".basePlayerContainer:not([data-show-full-count])")].forEach(($basePlayerContainer) => {
+        $basePlayerContainer.setAttribute("data-show-full-count", "true");
+        if (!$basePlayerContainer) return;
+        const basePlayerContainerReactFiber = utils.getReactInstance($basePlayerContainer!)?.reactFiber;
+        if (!basePlayerContainerReactFiber) {
+          log.error("获取rectFiber属性失败", { $basePlayerContainer, basePlayerContainerReactFiber });
+          return;
+        }
+        const awemeInfo = utils.queryProperty<ReactFiberNode, DouYinVideoAwemeInfoWithDOM>(
+          basePlayerContainerReactFiber,
+          (target) => {
+            if (typeof target.memoizedProps === "object" && target.memoizedProps != null) {
+              if (typeof target.memoizedProps.awemeInfo === "object" && target.memoizedProps.awemeInfo != null) {
+                return {
+                  isFind: true,
+                  data: target.memoizedProps.awemeInfo,
+                };
+              } else {
+                if (typeof target.return === "object" && target.return != null) {
+                  return {
+                    isFind: false,
+                    data: target.return,
+                  };
+                } else {
+                  return {
+                    isFind: false,
+                    data: null,
+                  };
+                }
+              }
+            } else {
+              return {
+                isFind: false,
+                data: null,
+              };
+            }
+          }
+        );
+        if (!awemeInfo) {
+          log.error("获取awemeInfo属性失败", { $basePlayerContainer, basePlayerContainerReactFiber });
+          return;
+        }
+        if (import.meta.env.DEV) {
+          log.info("DOM上的的awemeInfo：", awemeInfo);
+        }
+        let transformAwemeInfo: Required<DouYinVideoConversionInfo>;
+        const filterBase = new DouYinVideoFilterBase();
+        const transformAwemeInfoWithDOM = filterBase.parseAwemeInfoDictData(
+          awemeInfo,
+          "dom",
+          true
+        ) as Required<DouYinVideoConversionInfo>;
+        if (import.meta.env.DEV) {
+          log.info("DOM上解析出的transformAwemeInfo：", transformAwemeInfoWithDOM);
+        }
+        if (
+          typeof transformAwemeInfoWithDOM.awemeId === "string" &&
+          DouYinVideoFilter.$data.networkAwemeInfoMap.has(transformAwemeInfoWithDOM.awemeId)
+        ) {
+          const awemeInfoMapData = DouYinVideoFilter.$data.networkAwemeInfoMap.get(transformAwemeInfoWithDOM.awemeId);
+          transformAwemeInfo = awemeInfoMapData.transformAwemeInfo as Required<DouYinVideoConversionInfo>;
+          if (import.meta.env.DEV) {
+            log.info(`网络请求的awemeInfo: `, awemeInfoMapData.awemeInfo);
+            log.info(`网络请求解析出的transformAwemeInfo: `, awemeInfoMapData.transformAwemeInfo);
+          }
+        } else {
+          transformAwemeInfo = transformAwemeInfoWithDOM;
+        }
+        if (transformAwemeInfo.nickname == null) {
+          transformAwemeInfo.nickname = "未知作者";
+        }
+        if (transformAwemeInfo.desc == null) {
+          transformAwemeInfo.desc = "未知视频文案";
+        }
+
+        // 在单个视频页面，点赞、评论、收藏、分享按钮不在右侧，在视频下面
+        let $digg: HTMLElement | undefined | null,
+          $comment: HTMLElement | undefined | null,
+          $collect: HTMLElement | undefined | null,
+          $share: HTMLElement | undefined | null;
+        if (DouYinRouter.isVideo()) {
+          // 所以这里单独处理
+          $digg = $(
+            '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(1) > span:not(:has(>*))'
+          );
+          $comment = $(
+            '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(2) > span:not(:has(>*))'
+          );
+          $collect = $(
+            '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(3) > span:not(:has(>*))'
+          );
+          $share = $(
+            '[data-e2e="detail-video-info"] div:has(>[data-e2e="video-share-icon-container"]) > div:nth-child(4) > span:not(:has(>*))'
+          );
+        } else {
+          $digg = $basePlayerContainer.querySelector<HTMLElement>(
+            '[data-e2e="video-player-digg"] > div:last-child:not(:has(>*))'
+          );
+          $comment = $basePlayerContainer.querySelector<HTMLElement>(
+            '[data-e2e="feed-comment-icon"] > div:last-child:not(:has(>*))'
+          );
+          $collect = $basePlayerContainer.querySelector<HTMLElement>(
+            '[data-e2e="video-player-collect"] > div:last-child:not(:has(>*))'
+          );
+          $share = $basePlayerContainer.querySelector<HTMLElement>(
+            '[data-e2e="video-player-share"] > div:last-child:not(:has(>*))'
+          );
+        }
+
+        if ($digg) {
+          DOMUtils.text($digg, transformAwemeInfo.diggCount);
+        }
+        if ($comment) {
+          DOMUtils.text($comment, transformAwemeInfo.commentCount);
+        }
+        if ($collect) {
+          DOMUtils.text($collect, transformAwemeInfo.collectCount);
+        }
+        if ($share) {
+          DOMUtils.text($share, transformAwemeInfo.shareCount);
+        }
+      });
+    });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+
+    return () => {
+      observer.disconnect();
+    };
   },
 };
