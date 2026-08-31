@@ -203,7 +203,7 @@ export const BingSearch = {
       // 顶部head样式
       addBlockCSSWithEnd(/*css*/ `
         header#b_header[style*="top"][role="banner"]{
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none !important;
             backdrop-filter: blur(10px);
         }
@@ -280,7 +280,7 @@ export const BingSearch = {
             margin-left: 0;
             margin-bottom: 30px;
             border-radius: 8px;
-            background-color: #fff;
+            background: #fff;
             box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.1);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;

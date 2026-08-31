@@ -92,7 +92,7 @@ export const GoogleSearch = {
       // 顶部head样式
       addStyle(/*css*/ `
         div[style*="top"] #searchform {
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none;
             backdrop-filter: blur(10px)
         }
@@ -203,7 +203,7 @@ export const GoogleSearch = {
             margin-top: 0px;
             margin-bottom: 20px;
             border-radius: 5px;
-            background-color: #fff;
+            background: #fff;
             box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.1);
             transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1) 0s;

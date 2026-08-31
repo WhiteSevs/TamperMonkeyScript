@@ -129,7 +129,7 @@ export const BaiduSearch = {
       // 顶部head样式
       addStyleWithEnd(/*css*/ `
         #wrapper #head{
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none;
             backdrop-filter: blur(10px);
         }
@@ -249,7 +249,7 @@ export const BaiduSearch = {
           padding: 15px 20px;
           margin: 0 0 30px 0;
           border-radius: 8px;
-          background-color: #fff;
+          background: #fff;
           box-sizing: border-box;
           border: 1px solid rgba(0, 0, 0, 0.1);
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -270,7 +270,7 @@ export const BaiduSearch = {
         & [class*="title-box_"],
         & [class*="c-line-"]:has(> a[href][class^="title_"]),
         & [class*="title-container_"]:has(>.cosc-title a.cosc-title-a){
-            background-color: #f8f8f8;
+            background: #f8f8f8;
             width: 100%;
             max-width: unset;
             margin: 0px -20px;

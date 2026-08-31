@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.24
+// @version      2026.8.31
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -2991,7 +2991,7 @@
         ),
         addStyleWithEnd(`
         #wrapper #head{
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none;
             backdrop-filter: blur(10px);
         }
@@ -3108,7 +3108,7 @@
           padding: 15px 20px;
           margin: 0 0 30px 0;
           border-radius: 8px;
-          background-color: #fff;
+          background: #fff;
           box-sizing: border-box;
           border: 1px solid rgba(0, 0, 0, 0.1);
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -3129,7 +3129,7 @@
         & [class*="title-box_"],
         & [class*="c-line-"]:has(> a[href][class^="title_"]),
         & [class*="title-container_"]:has(>.cosc-title a.cosc-title-a){
-            background-color: #f8f8f8;
+            background: #f8f8f8;
             width: 100%;
             max-width: unset;
             margin: 0px -20px;
@@ -3398,7 +3398,7 @@
         addBlockCSS(".kp-wholepage-osrp"),
         addStyle(`
         div[style*="top"] #searchform {
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none;
             backdrop-filter: blur(10px)
         }
@@ -3439,7 +3439,7 @@
             margin-top: 0px;
             margin-bottom: 20px;
             border-radius: 5px;
-            background-color: #fff;
+            background: #fff;
             box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.1);
             transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1) 0s;
@@ -3680,7 +3680,7 @@
       const result = [
         addBlockCSSWithEnd(`
         header#b_header[style*="top"][role="banner"]{
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none !important;
             backdrop-filter: blur(10px);
         }
@@ -3755,7 +3755,7 @@
             margin-left: 0;
             margin-bottom: 30px;
             border-radius: 8px;
-            background-color: #fff;
+            background: #fff;
             box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.1);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;

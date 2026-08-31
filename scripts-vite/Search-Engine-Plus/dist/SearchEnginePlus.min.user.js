@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.24
+// @version      2026.8.31
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -224,7 +224,7 @@
           }
       `)),H(`
         #wrapper #head{
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none;
             backdrop-filter: blur(10px);
         }
@@ -336,7 +336,7 @@
           padding: 15px 20px;
           margin: 0 0 30px 0;
           border-radius: 8px;
-          background-color: #fff;
+          background: #fff;
           box-sizing: border-box;
           border: 1px solid rgba(0, 0, 0, 0.1);
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -357,7 +357,7 @@
         & [class*="title-box_"],
         & [class*="c-line-"]:has(> a[href][class^="title_"]),
         & [class*="title-container_"]:has(>.cosc-title a.cosc-title-a){
-            background-color: #f8f8f8;
+            background: #f8f8f8;
             width: 100%;
             max-width: unset;
             margin: 0px -20px;
@@ -476,7 +476,7 @@
       }
     `))},_e={init(){N.execMenuOnce([`google-search-optimizationResult-enable`,`google-search-optimizationResult-openBlank`],e=>{let[t,n]=e.value;if(t&&n)return this.searchResultOptimization({openBlank:n})})},searchResultOptimization(e){R.info(`搜索结果优化`,e);let t=new F.LockFunction(()=>{let t=[...G(`#rso:not(:has(>script)) > div:not(:empty) > div[data-rpos]:not(:empty):not([data-hijack])`),...G(`#rso:has(>script)>div:not(:empty)>div:not(:empty):has(>div):not(:has(.related-question-pair)):not([data-hijack])`)];for(let n of t)e.openBlank&&n.querySelectorAll(`a[href]:not([target='blank_'])`).forEach(e=>{e.setAttribute(`target`,`_blank`)})}),n=F.mutationObserver(document,{config:{subtree:!0,childList:!0},immediate:!0,callback:()=>{t.run()}});return[()=>{n.disconnect()}]}},ve={init(){N.execMenuOnce(`google-search-removeAds`,()=>this.removeAds()),N.execMenuOnce(`google-search-removeAIOverview`,()=>this.removeAIOverview()),N.execMenuOnce(`google-search-removeRightPanel`,()=>this.removeRightPanel()),N.execMenuOnce(`google-search-removeRelatedSearch`,()=>this.removeRelatedSearch()),N.execMenuOnce(`google-search-removeQuestions`,()=>this.removeQuestions()),N.execMenuOnce([`google-search-showOptimization-enable`,`google-search-showOptimization-mode`],e=>{let[t,n]=e.value;if(t&&!F.isNull(n))return this.searchResultShowOptimization(n)}),N.execMenuOnce([`google-search-ownBackgroundImage-enable`,`google-search-ownBackgroundImage-url`,`google-search-ownBackgroundImage-opacity`],e=>{let[t,n,r]=e.value;if(t&&!F.isNull(n)&&r)return this.ownBackgroundImage({enable:t,url:n,opacity:r})}),_e.init()},removeAds(){return R.info(`移除广告`),U(`#bottomads`)},removeAIOverview(){return R.info(`移除AI概览`),U(`#rcnt > div:not([role='main']):not(:empty):has([data-mcpr])`)},removeRightPanel(){return R.info(`移除右侧栏`),U(`#rhs`)},removeRelatedSearch(){return R.info(`移除用户还搜索了`),U(`#botstuff`)},removeQuestions(){return R.info(`移除相关问题`),U(`#rso > div:not(:empty) > div:has(.related-question-pair)`)},searchResultShowOptimization(e){R.info(`搜索结果显示优化: `+e);let t=[U(`.kp-wholepage-osrp`),V(`
         div[style*="top"] #searchform {
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none;
             backdrop-filter: blur(10px)
         }
@@ -575,7 +575,7 @@
             margin-top: 0px;
             margin-bottom: 20px;
             border-radius: 5px;
-            background-color: #fff;
+            background: #fff;
             box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.1);
             transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1) 0s;
@@ -660,7 +660,7 @@
     }
     `)},removeInputHistory(){return R.info(`移除输入历史记录`),W(`#b_header #sa_ul #sa_hs_block`)},removeInputHistoryAndRelatedToRecentSearches(){return R.info(`移除输入历史记录 - 与最近的搜索相关`),W(`#b_header #sa_ul #sa_sse_block`)},removeRightMoreSearchResult(){return R.info(`移除右侧更多搜索结果`),W(`#b_content aside`)},removeCopilotSearch(){return R.info(`移除Copilot Search`),W(`#b_content .b_ans:has(.cht_container)`,`#b_content .b_ans:has(.answer_container[aria-label*="Copilot 搜索"])`)},removeBottomFloatingToolbar(){return R.info(`移除底部悬浮的工具栏`),W(`#b_bop_cs_sb_place`)},removeOtherUserSearch(){return R.info(`移除其它用户还搜索过/其他用户还问了以下问题`),W(`#b_results .b_ans:has(a[aria-label*="还搜索"])`,`#b_results .b_algo:has(a[aria-label*="还搜索"])`,`#b_results .b_ans:has(#df_listaa)`)},removeTopLeftAreaSwtich(){return R.info(`移除左上角 国内版/国际版`),W(`#est_switch`)},removeTopRightAccountSetting(){return R.info(`移除右上角 帐户奖励和偏好设置`),W(`#id_h`)},removeAboutAnyResultsTip(){return R.info(`移除约xxx个结果`),W(`#b_tween`)},removeBottomPartOfSearchResultTip(){return R.info(`移除底部 部分搜索结果未予显示`),W(`#b_results li.b_msg:has(a[href*="microsoft.com/fwlink"])`)},removeBottomRightCopyright(){return R.info(`移除底部右下角 备案信息`),W(`#b_footer`)},searchResultShowOptimization(e){let t=[W(`
         header#b_header[style*="top"][role="banner"]{
-            background-color: rgba(248, 248, 248, 0.4) !important;
+            background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none !important;
             backdrop-filter: blur(10px);
         }
@@ -691,7 +691,7 @@
             margin-left: 0;
             margin-bottom: 30px;
             border-radius: 8px;
-            background-color: #fff;
+            background: #fff;
             box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.1);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
