@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.30
+// @version      2026.8.31
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -4757,7 +4757,9 @@
         addStyle(`
         /* 视频信息往下移 */
 			  #sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
-        div:has(> #video-info-wrap){
+        div:has(> #video-info-wrap),
+        /* 右侧的 点赞、评论、收藏、分享下移 */
+        .positionBox{
             bottom: 0px !important;
         }
       `),

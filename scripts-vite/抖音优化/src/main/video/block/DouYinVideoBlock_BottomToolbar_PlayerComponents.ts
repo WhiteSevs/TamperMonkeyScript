@@ -69,7 +69,9 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
       addStyle(/*css*/ `
         /* 视频信息往下移 */
 			  #sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
-        div:has(> #video-info-wrap){
+        div:has(> #video-info-wrap),
+        /* 右侧的 点赞、评论、收藏、分享下移 */
+        .positionBox{
             bottom: 0px !important;
         }
       `),
