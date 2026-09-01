@@ -71,7 +71,11 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
 			  #sliderVideo[data-e2e="feed-active-video"] div:has( > div > #video-info-wrap),
         div:has(> #video-info-wrap),
         /* 右侧的 点赞、评论、收藏、分享下移 */
-        .positionBox{
+        .positionBox,
+        /* 直播间的信息往下移 */
+        [data-e2e="feed-live"] .douyin-player > div:has([aria-label*="直播中"]),
+        /* 直播间的最右侧的更多按钮往下移 */
+        [data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"]){
             bottom: 0px !important;
         }
       `),
