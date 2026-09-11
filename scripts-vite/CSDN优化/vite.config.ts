@@ -1,13 +1,12 @@
 import { defineConfig } from "vite";
-import { cdn } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
 import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
+import { ViteUtils } from "./../../vite.utils";
 
-const Utils = new ViteUtils(__dirname);
+const Utils = new ViteUtils(import.meta.dirname);
 const pkg = Utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: __dirname,
+  __dirname: import.meta.dirname,
   gitProjectPath: "scripts-vite/CSDN优化",
   monkeyOption: {
     userscript: {
