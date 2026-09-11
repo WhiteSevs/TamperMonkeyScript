@@ -47,7 +47,7 @@
     "@types/node": "^26.3.0",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-vue": "^6.0.8",
-    "oxfmt": "^0.65.0",
+    "oxfmt": "^0.67.0",
     "oxlint": "^1.80.0",
     "picocolors": "^1.1.1",
     "rollup": "^4.63.1",
