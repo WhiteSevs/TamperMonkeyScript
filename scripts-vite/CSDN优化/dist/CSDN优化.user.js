@@ -1,17 +1,17 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.6.26.16
+// @version      2026.9.11
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
 // @icon         data:image/png;base64,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
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*.csdn.net/*
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @connect      blog.csdn.net
 // @connect      mp-action.csdn.net
@@ -54,7 +54,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -139,6 +139,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil$1.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -357,20 +362,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -452,7 +457,7 @@
   });
   var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -482,12 +487,14 @@
     _unsafeWindow.clearInterval.bind(_unsafeWindow));
   var addStyle = domUtils.addStyle.bind(domUtils);
   var addBlockCSS = CommonUtil$1.addBlockCSS.bind(CommonUtil$1);
+  CommonUtil$1.addBlockCSSWithEnd.bind(CommonUtil$1);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils.DocumentCookieHandler();
   var KEY = "GM_Panel";
   var ATTRIBUTE_INIT = "data-init";
@@ -636,15 +643,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -991,7 +999,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -1002,7 +1010,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -1305,9 +1313,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -2045,12 +2054,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2363,89 +2372,89 @@
       const urlInst = new URL(this.__href);
       return [
         () => {
-          if (this.__origin.value)
-            if (this.__origin.type === "same")
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
               if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "startsWith")
+            } else if (this.__origin.type === "startsWith") {
               if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "endsWith")
+            } else if (this.__origin.type === "endsWith") {
               if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "includes")
+            } else if (this.__origin.type === "includes") {
               if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "match")
+            } else if (this.__origin.type === "match") {
               if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
               else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
               else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-            else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-          else return true;
+            } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+          } else return true;
         },
         () => {
-          if (this.__protocol.value)
-            if (this.__protocol.type === "same")
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "startsWith")
+            } else if (this.__protocol.type === "startsWith") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "endsWith")
+            } else if (this.__protocol.type === "endsWith") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "includes")
+            } else if (this.__protocol.type === "includes") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "match")
+            } else if (this.__protocol.type === "match") {
               if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
               else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
               else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-            else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-          else return true;
+            } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
           if (this.__host.value) {
             const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same")
+            if (this.__host.type === "same") {
               if (typeof this.__host.value === "string") return this.__host.value === host;
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "startsWith")
+            } else if (this.__host.type === "startsWith") {
               if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "endsWith")
+            } else if (this.__host.type === "endsWith") {
               if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "includes")
+            } else if (this.__host.type === "includes") {
               if (typeof this.__host.value === "string") return host.includes(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "match")
+            } else if (this.__host.type === "match") {
               if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
               else if (typeof this.__host.value === "string") return host.match(this.__host.value);
               else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-            else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+            } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
           } else return true;
         },
         () => {
-          if (this.__pathname.value)
-            if (this.__pathname.type === "same")
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "startsWith")
+            } else if (this.__pathname.type === "startsWith") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "endsWith")
+            } else if (this.__pathname.type === "endsWith") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "includes")
+            } else if (this.__pathname.type === "includes") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "match")
+            } else if (this.__pathname.type === "match") {
               if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
               else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
               else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-            else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-          else return true;
+            } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
           let flag = true;
@@ -2455,24 +2464,24 @@
           });
           for (let index = 0; index < searchParamsList.length; index++) {
             const item = searchParamsList[index];
-            if (item.type)
-              if (item.type === "same")
+            if (item.type) {
+              if (item.type === "same") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search === item.value.toString();
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "startsWith")
+              } else if (item.type === "startsWith") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.startsWith(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "endsWith")
+              } else if (item.type === "endsWith") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.endsWith(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "includes")
+              } else if (item.type === "includes") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.includes(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "match")
+              } else if (item.type === "match") {
                 if (item.value instanceof RegExp) return item.value.test(urlInst.search);
                 else if (
                   typeof item.value === "string" ||
@@ -2481,8 +2490,8 @@
                 )
                   return urlInst.search.match(item.value.toString());
                 else throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
-              else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
-            else if (typeof item.name === "string") {
+              } else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            } else if (typeof item.name === "string") {
               let value = item.value;
               if (
                 value == null ||
@@ -2524,7 +2533,7 @@
                   value = value.toString();
                   flag = value === targetValue;
                   if (!flag) break;
-                } else if (value instanceof RegExp)
+                } else if (value instanceof RegExp) {
                   if (targetValue) {
                     if (!value.test(targetValue)) {
                       flag = false;
@@ -2534,7 +2543,7 @@
                     flag = false;
                     break;
                   }
-                else
+                } else
                   throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
               } else {
                 flag = false;
@@ -2751,7 +2760,7 @@
   var CSDNBlog_default =
     "/*.blog_container_aside,\n#nav {\n	margin-left: -45px;\n}\n.recommend-right.align-items-stretch.clearfix,\n.dl_right_fixed {\n	margin-left: 45px;\n}*/\n";
   var shield_default$3 =
-    '.ecommend-item-box.recommend-recommend-box,\n.login-mark,\n.opt-box.text-center,\n.leftPop,\n#csdn-shop-window,\n.toolbar-advert,\n.hide-article-box,\n.user-desc.user-desc-fix,\n.recommend-card-box,\n.more-article,\n.article-show-more,\n#csdn-toolbar-profile-nologin,\n.guide-rr-first,\n#recommend-item-box-tow,\n/* 发文章得原力分图片提示 */\ndiv.csdn-toolbar-creative-mp,\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\n#toolBarBox div.write-guide-buttom-box,\n/* 觉得还不错? 一键收藏 */\nul.toolbox-list div.tool-active-list,\n/* 右边按钮组的最上面的创作话题 */\ndiv.csdn-side-toolbar .activity-swiper-box,\n.sidetool-writeguide-box .tip-box,\n/* 右下角的登录提示 */\n.passport-login-tip-container,\n/* 全屏双十一红包 */\n.csdn-reapck-select,\n/* 侧栏的618会员开通 */\n.csdn-side-toolbar  .sidecolumn-vip,\n/* 右边推荐的推广广告 */\n#recommendAdBox,\n/* 顶部导航栏的vip推广 */\n#csdn-plugin-vip,\n/* 顶部导航栏的会员中心的右边的推广图片，如：春招 */\n#csdn-toolbar .toolbar-btn a[href*="mall.csdn.net/vip"]>img[src],\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\n#sidecolumn-deepseek,\n/* 侧栏的【下载APP、公众号、视频号】 */\n.csdn-side-toolbar .option-box[data-type="app"],\n/* 右偏下的悬浮的 本文章已经生成可运行项目 */\nbody > .ins-code-runner-btn {\n  display: none !important;\n}\n';
+    '.ecommend-item-box.recommend-recommend-box,\n.login-mark,\n.opt-box.text-center,\n.leftPop,\n#csdn-shop-window,\n.toolbar-advert,\n.hide-article-box,\n.user-desc.user-desc-fix,\n.recommend-card-box,\n.more-article,\n.article-show-more,\n#csdn-toolbar-profile-nologin,\n.guide-rr-first,\n#recommend-item-box-tow,\n/* 发文章得原力分图片提示 */\ndiv.csdn-toolbar-creative-mp,\n/* 阅读终点，创作起航，您可以撰写心得或摘录文章要点写篇博文。 */\n#toolBarBox div.write-guide-buttom-box,\n/* 觉得还不错? 一键收藏 */\nul.toolbox-list div.tool-active-list,\n/* 右边按钮组的最上面的创作话题 */\ndiv.csdn-side-toolbar .activity-swiper-box,\n.sidetool-writeguide-box .tip-box,\n/* 右下角的登录提示 */\n.passport-login-tip-container,\n/* 全屏双十一红包 */\n.csdn-reapck-select,\n/* 侧栏的618会员开通 */\n.csdn-side-toolbar  .sidecolumn-vip,\n/* 右边推荐的推广广告 */\n#recommendAdBox,\n/* 顶部导航栏的vip推广 */\n#csdn-plugin-vip,\n/* 顶部导航栏的会员中心的右边的推广图片，如：春招 */\n#csdn-toolbar .toolbar-btn a[href*="mall.csdn.net/vip"]>img[src],\n/* 侧栏的【点击体验 DeepSeekR1满血版】 */\n#sidecolumn-deepseek,\n/* 侧栏的【下载APP、公众号、视频号】 */\n.csdn-side-toolbar .option-box[data-type="app"],\n/* 右偏下的悬浮的 本文章已经生成可运行项目 */\nbody > .ins-code-runner-btn ,\n/* 顶部工具栏最右边的 登录最高领取xx算力币 */\n#csdn-toolbar .csdn-new-user-gift-bubble-anchor,\n/* 会员积分下载推广 */\n#mainBox .simple-ad-slot {\n  display: none !important;\n}\n';
   var CSDNBlogBlock = {
     init() {
       Panel.onceExec("csdn-blog-blockCSS", () => {
@@ -3302,7 +3311,7 @@
                 if (check_isCollect == null) return;
                 log.info(folderId, check_isCollect);
                 $item.setAttribute("data-is-collect", (!!check_isCollect[folderId]).toString());
-                if (toCollect)
+                if (toCollect) {
                   if (!check_isCollect[folderId]) {
                     log.error("收藏失败", check_isCollect, folderId);
                     qmsg.default.error("收藏失败");
@@ -3313,7 +3322,7 @@
                     if (!isFavoriteFolderIdList.includes(folderId)) isFavoriteFolderIdList.push(folderId);
                     data.FavoriteNum++;
                   }
-                else if (!check_isCollect[folderId]) {
+                } else if (!check_isCollect[folderId]) {
                   log.success("取消收藏成功");
                   qmsg.default.success("取消收藏成功");
                   domUtils.text($collectBtn, "收藏");
@@ -5153,7 +5162,7 @@
   var isMobile = utils.isPhone();
   var CHANGE_ENV_SET_KEY = "change_env_set";
   var chooseMode = _GM_getValue(CHANGE_ENV_SET_KEY);
-  if (chooseMode != null)
+  if (chooseMode != null) {
     if (chooseMode == 1) {
       isMobile = true;
       log.info(`手动指定为移动端`);
@@ -5164,6 +5173,7 @@
       qmsg.default.error(`意外，手动指定的值不在允许范围内，自动判定为${chooseMode === 1 ? "移动端" : "PC端"}`);
       _GM_deleteValue(CHANGE_ENV_SET_KEY);
     }
+  }
   MenuRegister.add({
     key: CHANGE_ENV_SET_KEY,
     text: `🖥️ 自动: ${isMobile ? "移动端" : "PC端"}`,

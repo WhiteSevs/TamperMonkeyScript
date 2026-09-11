@@ -38,6 +38,10 @@ div.csdn-side-toolbar .activity-swiper-box,
 /* 侧栏的【下载APP、公众号、视频号】 */
 .csdn-side-toolbar .option-box[data-type="app"],
 /* 右偏下的悬浮的 本文章已经生成可运行项目 */
-body > .ins-code-runner-btn {
+body > .ins-code-runner-btn ,
+/* 顶部工具栏最右边的 登录最高领取xx算力币 */
+#csdn-toolbar .csdn-new-user-gift-bubble-anchor,
+/* 会员积分下载推广 */
+#mainBox .simple-ad-slot {
   display: none !important;
 }

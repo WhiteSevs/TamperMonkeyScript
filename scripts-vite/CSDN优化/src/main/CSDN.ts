@@ -1,12 +1,12 @@
+import blockCSS from "@/css/block.css?raw";
 import { addStyle, log } from "@/env";
 import { CSDNRouter } from "@/router/CSDNRouter";
 import { CSDNBlog } from "./blog/CSDNBlog";
-import { CSDNDevPressArticle as CSDNDevPressArticle } from "./devpress/CSDNDevPressArticle";
+import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
+import { CSDNDevPressArticle } from "./devpress/CSDNDevPressArticle";
+import { CSDNDownload } from "./download/CSDNDownload";
 import { CSDNLink } from "./link/CSDNLink";
 import { CSDNWenKu } from "./wenku/CSDNWenKu";
-import { CSDNBlogArticle } from "./blog/CSDNBlogArticle";
-import { CSDNDownload } from "./download/CSDNDownload";
-import blockCSS from "@/css/block.css?raw";
 
 export const CSDN = {
   init() {
