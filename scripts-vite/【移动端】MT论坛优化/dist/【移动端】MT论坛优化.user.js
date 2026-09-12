@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,14 +11,14 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
-// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js
-// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/highlight.min.js
+// @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.12.0/styles/github-dark.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect      *
 // @connect      helloimg.com
 // @connect      z4a.net
@@ -64,7 +64,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -79,22 +79,25 @@
   _whitesev_utils = __toESM(_whitesev_utils);
   highlight_js = __toESM(highlight_js);
   viewerjs = __toESM(viewerjs);
-  var _GM = typeof GM != "undefined" ? GM : void 0;
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var GM_RESOURCE_MAPPING = {
     ElementPlus: {
       keyName: "ElementPlusResourceCSS",
@@ -163,6 +166,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -381,20 +389,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -476,7 +484,7 @@
   });
   var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -506,12 +514,14 @@
     _unsafeWindow.clearInterval.bind(_unsafeWindow));
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils.DocumentCookieHandler();
   var KEY = "GM_Panel";
   var ATTRIBUTE_INIT = "data-init";
@@ -660,15 +670,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -1015,7 +1026,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -1026,7 +1037,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -1329,9 +1340,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -2069,12 +2081,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2444,10 +2456,7 @@
             let before_yesterday_hour_data = before_yesterday_time_data[1];
             let before_yesterday_min_data = before_yesterday_time_data[2];
             _time_after_count_ =
-              _time_ -
-              86400 * 2 -
-              parseInt(before_yesterday_hour_data) * 3600 -
-              parseInt(before_yesterday_min_data) * 60;
+              _time_ - 172800 - parseInt(before_yesterday_hour_data) * 3600 - parseInt(before_yesterday_min_data) * 60;
           } else if (day_data) {
             day_data = day_data[day_data.length - 1];
             day_data = day_data.replace(/半/g, 0.5);
@@ -2758,10 +2767,8 @@
       }
     };
     const linkifyText = function (element) {
-      return processLinksInBatches(
-        document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null),
-        0
-      );
+      const textNodesSnapshot = document.evaluate(xpath, element, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
+      return processLinksInBatches(textNodesSnapshot, 0);
     };
     const observePageChanges = function (rootElement) {
       for (
@@ -3351,89 +3358,89 @@
       const urlInst = new URL(this.__href);
       return [
         () => {
-          if (this.__origin.value)
-            if (this.__origin.type === "same")
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
               if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "startsWith")
+            } else if (this.__origin.type === "startsWith") {
               if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "endsWith")
+            } else if (this.__origin.type === "endsWith") {
               if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "includes")
+            } else if (this.__origin.type === "includes") {
               if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "match")
+            } else if (this.__origin.type === "match") {
               if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
               else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
               else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-            else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-          else return true;
+            } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+          } else return true;
         },
         () => {
-          if (this.__protocol.value)
-            if (this.__protocol.type === "same")
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "startsWith")
+            } else if (this.__protocol.type === "startsWith") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "endsWith")
+            } else if (this.__protocol.type === "endsWith") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "includes")
+            } else if (this.__protocol.type === "includes") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "match")
+            } else if (this.__protocol.type === "match") {
               if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
               else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
               else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-            else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-          else return true;
+            } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
           if (this.__host.value) {
             const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same")
+            if (this.__host.type === "same") {
               if (typeof this.__host.value === "string") return this.__host.value === host;
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "startsWith")
+            } else if (this.__host.type === "startsWith") {
               if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "endsWith")
+            } else if (this.__host.type === "endsWith") {
               if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "includes")
+            } else if (this.__host.type === "includes") {
               if (typeof this.__host.value === "string") return host.includes(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "match")
+            } else if (this.__host.type === "match") {
               if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
               else if (typeof this.__host.value === "string") return host.match(this.__host.value);
               else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-            else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+            } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
           } else return true;
         },
         () => {
-          if (this.__pathname.value)
-            if (this.__pathname.type === "same")
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "startsWith")
+            } else if (this.__pathname.type === "startsWith") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "endsWith")
+            } else if (this.__pathname.type === "endsWith") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "includes")
+            } else if (this.__pathname.type === "includes") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "match")
+            } else if (this.__pathname.type === "match") {
               if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
               else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
               else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-            else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-          else return true;
+            } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
           let flag = true;
@@ -3443,24 +3450,24 @@
           });
           for (let index = 0; index < searchParamsList.length; index++) {
             const item = searchParamsList[index];
-            if (item.type)
-              if (item.type === "same")
+            if (item.type) {
+              if (item.type === "same") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search === item.value.toString();
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "startsWith")
+              } else if (item.type === "startsWith") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.startsWith(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "endsWith")
+              } else if (item.type === "endsWith") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.endsWith(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "includes")
+              } else if (item.type === "includes") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.includes(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "match")
+              } else if (item.type === "match") {
                 if (item.value instanceof RegExp) return item.value.test(urlInst.search);
                 else if (
                   typeof item.value === "string" ||
@@ -3469,8 +3476,8 @@
                 )
                   return urlInst.search.match(item.value.toString());
                 else throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
-              else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
-            else if (typeof item.name === "string") {
+              } else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            } else if (typeof item.name === "string") {
               let value = item.value;
               if (
                 value == null ||
@@ -3512,7 +3519,7 @@
                   value = value.toString();
                   flag = value === targetValue;
                   if (!flag) break;
-                } else if (value instanceof RegExp)
+                } else if (value instanceof RegExp) {
                   if (targetValue) {
                     if (!value.test(targetValue)) {
                       flag = false;
@@ -3522,7 +3529,7 @@
                     flag = false;
                     break;
                   }
-                else
+                } else
                   throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
               } else {
                 flag = false;
@@ -5079,10 +5086,10 @@
         let localDataIndex = result.data.findIndex((item) => {
           return item.forumId === data.forumId && item.repquote === data.repquote;
         });
-        if (localDataIndex !== -1)
+        if (localDataIndex !== -1) {
           if (inputText == null || inputText === "") result.data.splice(localDataIndex, 1);
           else result.data[localDataIndex] = utils.assign(result.data[localDataIndex], { text: data.text });
-        else result.data.push(data);
+        } else result.data.push(data);
         await that.$data.db.save("data", result.data);
       });
     },
@@ -5161,10 +5168,11 @@
             domUtils.html(".comiis_recommend_addkey i", "&#xe63b;");
             domUtils.removeClass(".comiis_recommend_color", "f_a");
             domUtils.addClass(".comiis_recommend_color", "f_b");
-            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0)
+            if (document.querySelectorAll(".comiis_recommend_list_s").length > 0) {
               if (document.querySelectorAll(".comiis_recommend_list_s li").length < 7)
                 domUtils.hide(".txshow_more", false);
               else domUtils.show(".txshow_more", false);
+            }
             qmsg.default.success("已取消点赞");
           } else if (resultText.includes("您不能评价自己的帖子")) qmsg.default.error("不能点赞自己的帖子");
           else if (resultText.includes("今日评价机会已用完")) qmsg.default.warning("您今日的点赞机会已用完");
@@ -5243,9 +5251,10 @@
             domUtils.html(".comiis_recommend_addkey i", "&#xe654;");
             domUtils.removeClass(".comiis_recommend_color", "f_b");
             domUtils.addClass(".comiis_recommend_color", "f_a");
-            if ($$(".comiis_recommend_list_s").length > 0)
+            if ($$(".comiis_recommend_list_s").length > 0) {
               if ($$(".comiis_recommend_list_s li").length < 7) domUtils.hide(".txshow_more", false);
               else domUtils.show(".txshow_more", false);
+            }
             qmsg.default.success(
               "点赞成功" + (recommendcList["daycount"] ? `, 您今天还能点赞 ${recommendcList["daycount"] - 1} 次` : "")
             );
@@ -6080,7 +6089,8 @@
         imgList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
-        let viewer = new viewerjs.default(domUtils.createElement("ul", { innerHTML: viewerULNodeHTML }), {
+        let viewerULNode = domUtils.createElement("ul", { innerHTML: viewerULNodeHTML });
+        let viewer = new viewerjs.default(viewerULNode, {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,
@@ -6870,10 +6880,10 @@
                 </tbody>`,
           timestamp: item["expirationTimeStamp"],
         };
-        if (new Date().getTime() > item["expirationTimeStamp"])
+        if (new Date().getTime() > item["expirationTimeStamp"]) {
           if (leftRedBtn != "") isFreeNotVisitedContentList.push(contentInfo);
           else isFreeContentList.push(contentInfo);
-        else isPaidContentList.push(contentInfo);
+        } else isPaidContentList.push(contentInfo);
       });
       log.info("可白嫖但未访问：", isFreeNotVisitedContentList);
       log.info("可白嫖：", isFreeContentList);
@@ -7037,7 +7047,7 @@
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function")
         this.config.beforeHistoryBackCallBack(isUrlChange);
-      let maxDate = Date.now() + 1e3 * 5;
+      let maxDate = Date.now() + 5e3;
       while (true) {
         if (Date.now() > maxDate) {
           log.error("未知情况，history.back()失败，无法退出手势模式");
@@ -7232,10 +7242,13 @@
         imagesList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
-        let viewer = new viewerjs.default(domUtils.toElement(`<ul>${viewerULNodeHTML}</ul>`, false, false), {
+        var viewerULNode = domUtils.toElement(`<ul>${viewerULNodeHTML}</ul>`, false, false);
+        let viewer = new viewerjs.default(viewerULNode, {
           inline: false,
           url: "data-src",
-          zIndex: getPageMaxZIndex(),
+          zIndex: (() => {
+            return getPageMaxZIndex();
+          })(),
           hidden: () => {
             viewer.destroy();
           },
@@ -9952,9 +9965,10 @@
           heightInfo = heightInfo ? heightInfo : "";
           let match_content = item.match(/\[img\]([\s\S]*?)\[\/img\]|\[img=[\s\S]*?\]([\s\S]*?)\[\/img\]/);
           let content = "";
-          if (match_content)
+          if (match_content) {
             if (match_content[match_content.length - 1] == null) content = match_content[match_content.length - 2];
             else content = match_content[match_content.length - 1];
+          }
           text = text.replace(
             item,
             `<img loading="lazy" src="${content}" border="0" alt="" width="${widthInfo}" height="${heightInfo}" crossoriginNew="anonymous">`
@@ -10572,10 +10586,10 @@
               let localDataIndex = result.data.findIndex((item) => {
                 return item.forumId === that.$data.tid && item.repquote === MTUtils.getRepquote(window.location.href);
               });
-              if (localDataIndex !== -1)
+              if (localDataIndex !== -1) {
                 if (data.content == null || data.content === "") result.data.splice(localDataIndex, 1);
                 else result.data[localDataIndex] = utils.assign(result.data[localDataIndex], { text: data.content });
-              else
+              } else
                 result.data.push({
                   forumId: that.$data.tid,
                   url: window.location.href,
@@ -11312,7 +11326,7 @@
         let expireTime = cookieItem.expirationDate;
         let nowTime = Date.now() / 1e3;
         if (expireTime < nowTime) return;
-        let _30days = 3600 * 24 * 30;
+        let _30days = 2592e3;
         if (expireTime - nowTime > _30days) return;
         if (!needExtendCookieNameList.find((it) => cookieItem.name.endsWith(it))) return;
         _GM.cookie

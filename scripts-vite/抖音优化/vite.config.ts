@@ -1,14 +1,12 @@
 import { defineConfig } from "vite";
-import { cdn } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils";
-import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
+import { GenerateUserConfig } from "./../../script-components/components/vite.config.base.mjs";
+import { ViteUtils } from "./../../vite.utils.mjs";
 
-const Utils = new ViteUtils(__dirname);
-const pkg = Utils.getPackageJSON();
+const utils = new ViteUtils(import.meta.dirname);
+const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: __dirname,
-  gitProjectPath: "scripts-vite/抖音优化",
+  projectDirName: utils.dirName,
   monkeyOption: {
     userscript: {
       name: "抖音优化",

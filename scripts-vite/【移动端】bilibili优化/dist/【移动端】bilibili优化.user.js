@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.8.9
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -17,12 +17,12 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
 // @require      https://fastly.jsdelivr.net/npm/artplayer@5.4.0/dist/artplayer.js
 // @require      https://fastly.jsdelivr.net/npm/artplayer-plugin-danmuku@5.3.0/dist/artplayer-plugin-danmuku.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect      *
 // @connect      m.bilibili.com
 // @connect      www.bilibili.com
@@ -81,7 +81,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -474,20 +474,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils$1.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -642,15 +642,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -997,7 +998,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -1008,7 +1009,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -2053,12 +2054,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2216,9 +2217,10 @@
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils$1.DocumentCookieHandler();
   var _SCRIPT_NAME_ = SCRIPT_NAME || "【移动端】bilibili优化";
   var QRCodeJS = _monkeyWindow.QRCode || _unsafeWindow.QRCode;
@@ -2465,7 +2467,7 @@
       };
     },
     generateExpireAt(monthNumber = 6) {
-      return new Date().getTime() + 1e3 * 60 * 60 * 24 * 30 * monthNumber;
+      return new Date().getTime() + 2592e6 * monthNumber;
     },
     setAccessTokenInfo(data) {
       _GM_setValue("bili-accessTokenInfo", data);
@@ -4282,8 +4284,8 @@
         let roundNum = (count / 1e4).toFixed(2).slice(0, -1);
         if (roundNum.endsWith(".0")) roundNum = roundNum.slice(0, -2);
         countText = `${roundNum}万`;
-      } else if (count > 1e4 * 1e4) {
-        let roundNum = (count / (1e4 * 1e4)).toFixed(2).slice(0, -1);
+      } else if (count > 1e8) {
+        let roundNum = (count / 1e8).toFixed(2).slice(0, -1);
         if (roundNum.endsWith(".0")) roundNum = roundNum.slice(0, -2);
         countText = `${roundNum}亿`;
       }
@@ -4369,7 +4371,7 @@
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function")
         this.config.beforeHistoryBackCallBack(isUrlChange);
-      let maxDate = Date.now() + 1e3 * 5;
+      let maxDate = Date.now() + 5e3;
       while (true) {
         if (Date.now() > maxDate) {
           log.error("未知情况，history.back()失败，无法退出手势模式");
@@ -4507,7 +4509,7 @@
       });
     }
   };
-  var TAG = "[artplayer-plugin-m4sAudioSupport]：";
+  var TAG$3 = "[artplayer-plugin-m4sAudioSupport]：";
   var ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
   var M4SAudioUtils = {
     $flag: { isIntervaling: false },
@@ -4526,7 +4528,7 @@
           try {
             fn();
           } catch (error) {
-            console.error(TAG, error);
+            console.error(TAG$3, error);
           }
         intervalCount++;
       };
@@ -4642,7 +4644,7 @@
     audioEvents: {
       loadedmetadata: (event) => {
         M4SAudio.$data.art.emit("m4sAudio:loadedmetadata", event);
-        console.log("[artplayer-plugin-m4sAudioSupport]：Audio预加载完成");
+        console.log(TAG$3 + "Audio预加载完成");
         M4SAudio.$data.reconnectInfo.count = 0;
         M4SAudio.$data.reconnectInfo.url = "";
         M4SAudio.$data.latestSyncTime = 0;
@@ -4656,7 +4658,7 @@
       },
       canplaythrough: (event) => {
         M4SAudio.$data.art.emit("m4sAudio:canplaythrough", event);
-        console.log("[artplayer-plugin-m4sAudioSupport]：浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
+        console.log(TAG$3 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
         M4SAudioUtils.intervalHandler(() => {
           M4SAudio.handler.syncTime();
         });
@@ -4765,7 +4767,7 @@
             currentSelectAudioInfo.index = findAudioIndex;
             currentSelectAudioInfo.url = findAudio.url;
             currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
-          } else console.warn("[artplayer-plugin-m4sAudioSupport]：没有找到上次选的音频代码，使用当前默认第一个音频");
+          } else console.warn(TAG$3 + "没有找到上次选的音频代码，使用当前默认第一个音频");
         }
         let selectorList = option.audioList.map((item, index) => {
           return {
@@ -4795,7 +4797,7 @@
           selector: selectorList,
           onSelect: function (selector) {
             let itemInfo = selector;
-            console.log("[artplayer-plugin-m4sAudioSupport]：切换音频", itemInfo);
+            console.log(TAG$3 + "切换音频", itemInfo);
             that.handler.playUrl(itemInfo.url);
             that.$data.art.storage.set(storageKey, { soundQualityCode: itemInfo.soundQualityCode });
             return selector.html;
@@ -5091,6 +5093,7 @@
       } else return tranStr(str, false);
     },
   };
+  var TAG$2 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   var SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
@@ -5220,10 +5223,10 @@
               const findInfoIndex = settingOption.selector.findIndex((item) => item.subTitle_lan === storageInfo.lan);
               if (findInfoIndex !== -1) {
                 const findInfo = settingOption.selector[findInfoIndex];
-                console.log("[artplayer-plugin-bilibiliCCSubTitle]：选择字幕：" + findInfo.html);
+                console.log(TAG$2 + "选择字幕：" + findInfo.html);
                 currentSelectSubTitle.index = findInfoIndex;
                 currentSelectSubTitle.html = findInfo.html;
-              } else console.warn("[artplayer-plugin-bilibiliCCSubTitle]：没有找到上次选的字幕，使用当前默认无");
+              } else console.warn(TAG$2 + "没有找到上次选的字幕，使用当前默认无");
             }
             for (let index = 0; index < settingOption.selector.length; index++)
               settingOption.selector[index].default = index === currentSelectSubTitle.index;
@@ -5231,7 +5234,7 @@
             SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
           }
           if (this.isAddSetting()) {
-            console.log("[artplayer-plugin-bilibiliCCSubTitle]：更新字幕菜单", selectorList ?? []);
+            console.log(TAG$2 + "更新字幕菜单", selectorList ?? []);
             that.art.setting.update(settingOption);
           } else that.art.setting.add(settingOption);
         },
@@ -5269,28 +5272,28 @@
         }
       );
       if (!videoInfoResponse.status) {
-        console.error("[artplayer-plugin-bilibiliCCSubTitle]：网络异常，获取视频的字幕信息失败", videoInfoResponse);
+        console.error(TAG$2 + "网络异常，获取视频的字幕信息失败", videoInfoResponse);
         return;
       }
-      console.log("[artplayer-plugin-bilibiliCCSubTitle]：视频的字幕信息", videoInfoResponse);
+      console.log(TAG$2 + "视频的字幕信息", videoInfoResponse);
       const videoInfoResultJSON = utils$1.toJSON(videoInfoResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
-        console.error("[artplayer-plugin-bilibiliCCSubTitle]：获取视频的字幕信息失败", videoInfoResultJSON);
+        console.error(TAG$2 + "获取视频的字幕信息失败", videoInfoResultJSON);
         return;
       }
       let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
       if (!subTitleUrlInfoList.length) {
-        console.warn("[artplayer-plugin-bilibiliCCSubTitle]：字幕列表为空", videoInfoResultJSON);
+        console.warn(TAG$2 + "字幕列表为空", videoInfoResultJSON);
         return;
       }
       subTitleUrlInfoList = subTitleUrlInfoList.filter((it) => utils$1.isNotNull(it.subtitle_url));
       if (!subTitleUrlInfoList.length) {
-        console.warn("[artplayer-plugin-bilibiliCCSubTitle]：有字幕列表，但是链接都为空", videoInfoResultJSON);
+        console.warn(TAG$2 + "有字幕列表，但是链接都为空", videoInfoResultJSON);
         return;
       }
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
         const subTitleUrlInfo = subTitleUrlInfoList[index];
-        console.log("[artplayer-plugin-bilibiliCCSubTitle]：获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
+        console.log(TAG$2 + "获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
         const subTitleInfoResponse = await httpx.get(subTitleUrlInfo.subtitle_url, {
           responseType: "json",
           allowInterceptConfig: false,
@@ -5300,7 +5303,7 @@
           },
         });
         if (subTitleInfoResponse.status) {
-          console.log("[artplayer-plugin-bilibiliCCSubTitle]：获取字幕信息成功");
+          console.log(TAG$2 + "获取字幕信息成功");
           const subTitleInfo = utils$1.toJSON(subTitleInfoResponse.data.responseText)["body"];
           const currentIndex = SubTitleData.allSubTitleInfo.length;
           const data = {
@@ -5316,7 +5319,7 @@
             subTitle_lan: data.lan,
             subTitle_data: data.data,
           });
-        } else console.error("[artplayer-plugin-bilibiliCCSubTitle]：获取字幕链接信息失败", subTitleInfoResponse);
+        } else console.error(TAG$2 + "获取字幕链接信息失败", subTitleInfoResponse);
       }
       if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
         let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
@@ -5347,7 +5350,7 @@
           });
         }
       }
-      console.log("[artplayer-plugin-bilibiliCCSubTitle]：加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+      console.log(TAG$2 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
       if (
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null ||
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0
@@ -5376,6 +5379,7 @@
     };
   }
   var ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
+  var TAG$1 = "[artplayer-plugin-epChoose]：";
   var GenerateArtPlayerEpTitle = (title, title_id) => {
     if (title_id == null || title_id == "") return title;
     if (isNaN(Number(title_id))) return title_id.toString();
@@ -5410,14 +5414,14 @@
         if (findIndex !== -1 && findIndex + 1 < this.selector.length - 1) {
           findIndex += 1;
           this.onSelect(this.selector[findIndex]);
-        } else console.warn("[artplayer-plugin-epChoose]：当前播放列表已无下一集");
+        } else console.warn(TAG$1 + "当前播放列表已无下一集");
       },
     };
   };
   var EpChooseEvent = {
     $event: {
       "video:ended": () => {
-        console.log("[artplayer-plugin-epChoose]：自动连播启用，播放下一集");
+        console.log(TAG$1 + "自动连播启用，播放下一集");
         EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY)?.playNext();
       },
     },
@@ -5563,14 +5567,16 @@
         const value = item.range[0];
         this.volume = value / 100;
         Panel.setValue("artplayer-settings-volume", this.volume);
-        if (item.$icon)
+        if (item.$icon) {
           if (this.volume === 0) domUtils.html(item.$icon, muteIcon);
           else domUtils.html(item.$icon, volumnIcon);
+        }
         return value;
       },
     });
     return option;
   };
+  var TAG = "[artplayer-plugin-quality]：";
   var ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
   var VideoCodingCodeMap = {
     AVC: 7,
@@ -5598,7 +5604,7 @@
             index--;
           }
         }
-        if (!setting.selector.find((it) => it.default) && setting.selector.length)
+        if (!setting.selector.find((it) => it.default) && setting.selector.length) {
           if (typeof codeIdConfig?.defaultCodeId === "number") {
             let findDefaultIndex = setting.selector.findIndex((it) => it.value === codeIdConfig.defaultCodeId);
             if (findDefaultIndex !== -1) {
@@ -5612,6 +5618,7 @@
             setting.selector[0].default = true;
             setting.tooltip = setting.selector[0].html;
           }
+        }
       }
       if (this.art.setting.find(this.$key.SETTING_KEY)) this.art.setting.update(setting);
       else this.art.setting.add(setting);
@@ -5638,9 +5645,7 @@
           it.default = index === 0;
           return it;
         });
-        console.warn(
-          "[artplayer-plugin-quality]：没有找到用户选择对应的画质编码，将使用排序第一个的画质：" + selectorList[0].html
-        );
+        console.warn(TAG + "没有找到用户选择对应的画质编码，将使用排序第一个的画质：" + selectorList[0].html);
       }
       let tooltip = selectorList.find((it) => it.default);
       return {
@@ -5668,8 +5673,7 @@
       let codingCode = this.art.storage.get(this.storageVideoCodingKey) || VideoCodingCodeMap.AV1;
       if (!Object.values(VideoCodingCodeMap).includes(codingCode)) {
         console.error(
-          "[artplayer-plugin-quality]：意外情况，选择的编码格式不是允许的编码，将强制使用默认(av1)，防止过滤掉的视频链接为空：" +
-            codingCode
+          TAG + "意外情况，选择的编码格式不是允许的编码，将强制使用默认(av1)，防止过滤掉的视频链接为空：" + codingCode
         );
         codingCode = VideoCodingCodeMap.AV1;
       }
@@ -5736,7 +5740,7 @@
         selector: selectorList,
         onSelect: function (selector) {
           let itemInfo = selector;
-          console.log("[artplayer-plugin-quality]：切换画质", itemInfo);
+          console.log(TAG + "切换画质", itemInfo);
           that.art.switchQuality(itemInfo.url);
           that.art.storage.set(that.getStorageKey(that.$data.qualityOption.from), { quality: itemInfo.quality });
           that.setCurrentQualityOption({
@@ -5778,10 +5782,7 @@
       if (qualityList.length === 0) {
         qualityList = Object.values(qualityListMap)[0];
         this.$data.currentQualityCodecId = qualityList[0].codecid;
-        console.warn(
-          "[artplayer-plugin-quality]：该画质：" + userChooseVideoCodingCode + "不存在，将使用第一个画质",
-          qualityList
-        );
+        console.warn(TAG + "该画质：" + userChooseVideoCodingCode + "不存在，将使用第一个画质", qualityList);
       }
       this.$data.qualityOptionList = [];
       this.$data.qualityOptionList = qualityList;
@@ -5803,7 +5804,7 @@
           currentSelectQualityInfo.url = findQuality.url;
           currentSelectQualityInfo.html = findQuality.html;
           this.setCurrentQualityOption(findQuality);
-        } else console.warn("[artplayer-plugin-quality]：没有找到上次选的画质，使用当前默认第一个画质");
+        } else console.warn(TAG + "没有找到上次选的画质，使用当前默认第一个画质");
       }
       this.$data.currentSelectQualityInfo = null;
       this.$data.currentSelectQualityInfo = currentSelectQualityInfo;
@@ -5811,11 +5812,7 @@
     }
     updateQualityControls() {
       let controlOption = this.getControlsOption();
-      console.log(
-        "[artplayer-plugin-quality]：更新画质切换面板信息",
-        this.$data.qualityOptionList,
-        this.$data.currentQualityOption
-      );
+      console.log(TAG + "更新画质切换面板信息", this.$data.qualityOptionList, this.$data.currentQualityOption);
       this.art.controls.update(controlOption);
     }
     removeControls() {
@@ -7294,13 +7291,14 @@
             return;
           }
           let bvid = vueObj.bvid;
-          if (utils$1.isNull(bvid))
+          if (utils$1.isNull(bvid)) {
             if (vueObj.$children && vueObj.$children[0] && utils$1.isNotNull(vueObj.$children[0].bvid))
               bvid = vueObj.$children[0].bvid;
             else {
               qmsg.default.error("获取相关视频的bvid失败");
               return;
             }
+          }
           log.info("相关视频的bvid: " + bvid);
           BilibiliUtils.goToUrl(BilibiliUrl.getVideoUrl(bvid));
           domUtils.preventEvent(event);
@@ -7373,8 +7371,9 @@
           .waitVueByInterval(
             $app,
             () => {
-              if (VueUtils.getVue($app) == null) return false;
-              return true;
+              let vueObj = VueUtils.getVue($app);
+              if (vueObj == null) return false;
+              return typeof vueObj?.$router?.options?.scrollBehavior != null;
             },
             250,
             1e4
@@ -7490,18 +7489,18 @@
             if (checkNodeIsNull($bottomTabVAffix)) return;
           }
           let videoInfoNewTop = $mVideoInfoNew.getBoundingClientRect().top;
-          if (videoInfoNewTop >= 0)
+          if (videoInfoNewTop >= 0) {
             if (videoInfoNewTop <= videoPlayerMaxHeight) $mVideoPlayer.style.paddingTop = videoInfoNewTop + "px";
             else $mVideoPlayer.style.paddingTop = "";
-          else $mVideoPlayer.style.paddingTop = "0px";
+          } else $mVideoPlayer.style.paddingTop = "0px";
           let navbarHeight = domUtils.height($mNavBar);
-          if ($bottomTab.getBoundingClientRect().top < navbarHeight)
+          if ($bottomTab.getBoundingClientRect().top < navbarHeight) {
             if ($bottomTabVAffix.hasAttribute("data-is-fixed")) {
             } else {
               $bottomTabVAffix.style.cssText = `position: fixed;left: 0px;top: ${navbarHeight}px;z-index: 10000;width: 100%;`;
               $bottomTabVAffix.setAttribute("data-is-fixed", "true");
             }
-          else {
+          } else {
             $bottomTabVAffix.style.cssText = "";
             $bottomTabVAffix.removeAttribute("data-is-fixed");
           }
@@ -8071,7 +8070,7 @@
               AirborneHelperEvent.$data.tipJumpToastInfo.close();
               AirborneHelperEvent.$data.tipJumpToastInfo = void 0;
             }
-          }, 8 * 1e3);
+          }, 8e3);
         }
       },
     },
@@ -8125,6 +8124,7 @@
     };
   };
   var ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY = AirborneHelper.$key.plugin_KEY;
+  var TAG_FLV = "[flvjs]：";
   var generateBangumiVideoSelectSetting = (option) => {
     return option.epList.map((item) => {
       return {
@@ -8156,7 +8156,7 @@
     },
     flvPlayer() {
       if (this.$data.currentOption == null) {
-        console.error("[flvjs]：获取当前配置为空");
+        console.error(TAG_FLV + "获取当前配置为空");
         return;
       }
       let flvInfoList = this.$data.currentOption.flvInfo;
@@ -8165,7 +8165,7 @@
         this.$data.flv?.destroy();
       }
       let currentOption = this.$data.currentOption;
-      console.log("[flvjs]：加载视频", flvInfoList);
+      console.log(TAG_FLV + "加载视频", flvInfoList);
       if (flvInfoList.length > 1)
         this.$data.flv = flv_js.default.createPlayer(
           {
@@ -8180,7 +8180,7 @@
               };
             }),
           },
-          { stashInitialSize: 1024 * 100 }
+          { stashInitialSize: 102400 }
         );
       else
         this.$data.flv = flv_js.default.createPlayer(
@@ -8188,7 +8188,7 @@
             type: "flv",
             url: flvInfoList[0].url,
           },
-          { stashInitialSize: 1024 * 100 }
+          { stashInitialSize: 102400 }
         );
       this.$data.flv.attachMediaElement(this.$data.art.video);
       this.$data.flv.load();
@@ -10057,10 +10057,10 @@
       videoInfo.forEach((videoInfoItem) => {
         let $ele = null;
         if (videoInfoItem.goto === this.$cardGoto.av) $ele = this.getRecommendItemAVElement(videoInfoItem);
-        else if (videoInfoItem.goto === this.$cardGoto.picture)
+        else if (videoInfoItem.goto === this.$cardGoto.picture) {
           if (allowLoadPictureCard) $ele = this.getRecommendItemPictureElement(videoInfoItem);
           else return;
-        else {
+        } else {
           log.error("该goto暂未适配", videoInfoItem);
           return;
         }
@@ -10377,12 +10377,12 @@
       ]);
       domUtils.on($gmFace, "click", (event) => {
         domUtils.preventEvent(event);
-        if (isLogin)
+        if (isLogin) {
           if (uid != null) {
             let url = BilibiliUrl.getUserSpaceUrl(uid);
             BilibiliUtils.goToUrl(url, false);
           } else qmsg.default.error("获取用户id失败");
-        else BilibiliUtils.goToLogin(window.location.href);
+        } else BilibiliUtils.goToLogin(window.location.href);
       });
     },
     beautifyTopNavBar() {

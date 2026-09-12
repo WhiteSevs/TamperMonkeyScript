@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.8.12
+// @version            2026.9.12
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -17,10 +17,10 @@
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.min.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.min.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.min.js
-// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.min.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@26.3.6/i18next.min.js
-// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.1/dist/otpauth.umd.min.js
-// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.min.css
+// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.min.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@26.4.2/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.2/dist/otpauth.umd.min.js
+// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
 // @grant              GM_addStyle

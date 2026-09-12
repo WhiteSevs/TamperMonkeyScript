@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.1
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -57,7 +57,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -344,20 +344,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils$1.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -512,15 +512,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -867,7 +868,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -878,7 +879,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -1923,12 +1924,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2086,9 +2087,10 @@
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils$1.DocumentCookieHandler();
   var _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
   var DouYinNetWorkHook = {
@@ -2412,89 +2414,89 @@
       const urlInst = new URL(this.__href);
       return [
         () => {
-          if (this.__origin.value)
-            if (this.__origin.type === "same")
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
               if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "startsWith")
+            } else if (this.__origin.type === "startsWith") {
               if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "endsWith")
+            } else if (this.__origin.type === "endsWith") {
               if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "includes")
+            } else if (this.__origin.type === "includes") {
               if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
               else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            else if (this.__origin.type === "match")
+            } else if (this.__origin.type === "match") {
               if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
               else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
               else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-            else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-          else return true;
+            } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+          } else return true;
         },
         () => {
-          if (this.__protocol.value)
-            if (this.__protocol.type === "same")
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "startsWith")
+            } else if (this.__protocol.type === "startsWith") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "endsWith")
+            } else if (this.__protocol.type === "endsWith") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "includes")
+            } else if (this.__protocol.type === "includes") {
               if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
               else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            else if (this.__protocol.type === "match")
+            } else if (this.__protocol.type === "match") {
               if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
               else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
               else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-            else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-          else return true;
+            } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
           if (this.__host.value) {
             const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same")
+            if (this.__host.type === "same") {
               if (typeof this.__host.value === "string") return this.__host.value === host;
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "startsWith")
+            } else if (this.__host.type === "startsWith") {
               if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "endsWith")
+            } else if (this.__host.type === "endsWith") {
               if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "includes")
+            } else if (this.__host.type === "includes") {
               if (typeof this.__host.value === "string") return host.includes(this.__host.value);
               else throw new TypeError("host value should be string by type " + this.__host.type);
-            else if (this.__host.type === "match")
+            } else if (this.__host.type === "match") {
               if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
               else if (typeof this.__host.value === "string") return host.match(this.__host.value);
               else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-            else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+            } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
           } else return true;
         },
         () => {
-          if (this.__pathname.value)
-            if (this.__pathname.type === "same")
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "startsWith")
+            } else if (this.__pathname.type === "startsWith") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "endsWith")
+            } else if (this.__pathname.type === "endsWith") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "includes")
+            } else if (this.__pathname.type === "includes") {
               if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
               else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            else if (this.__pathname.type === "match")
+            } else if (this.__pathname.type === "match") {
               if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
               else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
               else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-            else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-          else return true;
+            } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+          } else return true;
         },
         () => {
           let flag = true;
@@ -2504,24 +2506,24 @@
           });
           for (let index = 0; index < searchParamsList.length; index++) {
             const item = searchParamsList[index];
-            if (item.type)
-              if (item.type === "same")
+            if (item.type) {
+              if (item.type === "same") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search === item.value.toString();
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "startsWith")
+              } else if (item.type === "startsWith") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.startsWith(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "endsWith")
+              } else if (item.type === "endsWith") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.endsWith(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "includes")
+              } else if (item.type === "includes") {
                 if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
                   return urlInst.search.includes(item.value.toString());
                 else throw new TypeError("search value should be string、number、boolean by type " + item.type);
-              else if (item.type === "match")
+              } else if (item.type === "match") {
                 if (item.value instanceof RegExp) return item.value.test(urlInst.search);
                 else if (
                   typeof item.value === "string" ||
@@ -2530,8 +2532,8 @@
                 )
                   return urlInst.search.match(item.value.toString());
                 else throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
-              else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
-            else if (typeof item.name === "string") {
+              } else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            } else if (typeof item.name === "string") {
               let value = item.value;
               if (
                 value == null ||
@@ -2573,7 +2575,7 @@
                   value = value.toString();
                   flag = value === targetValue;
                   if (!flag) break;
-                } else if (value instanceof RegExp)
+                } else if (value instanceof RegExp) {
                   if (targetValue) {
                     if (!value.test(targetValue)) {
                       flag = false;
@@ -2583,7 +2585,7 @@
                     flag = false;
                     break;
                   }
-                else
+                } else
                   throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
               } else {
                 flag = false;
@@ -3008,8 +3010,8 @@
         "has_login_show",
         JSON.stringify({
           count: 1,
-          lastTime: Date.now() - 1e3 * 60 * 60 * 12,
-          firstTime: Date.now() - 1e3 * 60 * 60 * 12,
+          lastTime: Date.now() - 432e5,
+          firstTime: Date.now() - 432e5,
         })
       );
       return result;
@@ -4680,7 +4682,7 @@
       log.success("退出手势模式");
       if (typeof this.config.beforeHistoryBackCallBack === "function")
         this.config.beforeHistoryBackCallBack(isUrlChange);
-      let maxDate = Date.now() + 1e3 * 5;
+      let maxDate = Date.now() + 5e3;
       while (true) {
         if (Date.now() > maxDate) {
           log.error("未知情况，history.back()失败，无法退出手势模式");
@@ -8030,7 +8032,7 @@
             rule: filterRule,
           };
           flag = await this.checkFilterWithRule(config, filterRule.data);
-          if (flag)
+          if (flag) {
             if (Array.isArray(filterRule.dynamicData) && filterRule.dynamicData.length) {
               const dynamicConfigList = [];
               for (let dynamicIndex = 0; dynamicIndex < filterRule.dynamicData.length; dynamicIndex++) {
@@ -8065,13 +8067,14 @@
                 awemeInfo,
                 filterRule,
               });
-          if (flag)
+          }
+          if (flag) {
             if (isQueryAllMatchedFilterRules) matchedFilterOptionList.push(filterRule);
             else {
               matchedFilterOption = filterRule;
               break outerLoop;
             }
-          else if (isQueryAllMatchedFilterRules) notMatchedFilterRule.push(filterRule);
+          } else if (isQueryAllMatchedFilterRules) notMatchedFilterRule.push(filterRule);
         }
       }
       return {
@@ -9464,10 +9467,10 @@
         domUtils.onReady(() => {
           ReactUtils.waitReactPropsToSet(
             () => {
-              if (isWebSiteFullScreen)
+              if (isWebSiteFullScreen) {
                 if (DouYinRouter.isLive()) return $(DouYinElement.liveWebsiteFullScreen());
                 else return $(DouYinElement.videoFullScreen()) || $(DouYinElement.searchPageActiveVideoFullScreen());
-              else if (DouYinRouter.isLive())
+              } else if (DouYinRouter.isLive())
                 return $(DouYinElement.liveFullScreen()) || $(DouYinElement.liveQuitFullScreen());
               else return $(DouYinElement.activeVideoFullScreen());
             },
@@ -9502,7 +9505,7 @@
             qmsg.default.error("未找到video元素");
             return;
           }
-          if (options.isDouble)
+          if (options.isDouble) {
             if (videoPaused) {
               log.info(`双击动作：${$video.paused ? "由暂停恢复到双击前的播放" : "保持暂停"}`);
               $video.pause();
@@ -9510,7 +9513,7 @@
               log.info(`双击动作：${$video.paused ? "保持播放" : "由播放恢复到双击前的暂停"}`);
               $video.play();
             }
-          else videoPaused = $video.paused;
+          } else videoPaused = $video.paused;
         },
         {
           eventType: "click",
@@ -9605,18 +9608,27 @@
           gearName: "智能",
           gearType: 0,
         },
+        {
+          done: -999,
+          gearClarity: "-999",
+          gearName: "无",
+          gearType: -999,
+        },
       ].find((item) => item.gearType === mode);
-      function setVideoQuality(value) {
-        _unsafeWindow.sessionStorage.setItem(QualitySessionKey, value);
-      }
+      const setVideoQuality = function (value) {
+        _unsafeWindow.sessionStorage.setItem(
+          QualitySessionKey,
+          typeof value === "string" ? value : JSON.stringify(value)
+        );
+      };
       if (choose) {
-        const chooseStr = JSON.stringify(choose);
+        if (choose.gearName === "无") return;
         const intervalId = setInterval(() => {
-          setVideoQuality(chooseStr);
-        }, 250);
+          setVideoQuality(choose);
+        }, 200);
         setTimeout(() => {
           clearInterval(intervalId);
-        }, 10 * 1e3);
+        }, 5e3);
         log.success("设置当前视频的清晰度: " + choose.gearName);
       } else log.error("该清晰度不存在: " + mode);
     },
@@ -9661,12 +9673,12 @@
             let videoQualityTransform = videoWidth.toString();
             const qualityMax = Math.max(videoWidth, videoHeight);
             const qualityMin = Math.min(videoWidth, videoHeight);
-            if (qualityMax > 1920 && qualityMin > 1080)
+            if (qualityMax > 1920 && qualityMin > 1080) {
               if (qualityMax > 7e3 && qualityMax < 9e3) videoQualityTransform = "8K";
               else if (qualityMax > 3500) videoQualityTransform = "4K";
               else if (qualityMax > 2e3) videoQualityTransform = "2K";
               else videoQualityTransform = `${qualityMin}P`;
-            else videoQualityTransform = `${qualityMin}P`;
+            } else videoQualityTransform = `${qualityMin}P`;
             let downloadFileName = data.videoDownloadInfo.fileName;
             downloadFileName = transformDownloadFileName(
               {
@@ -10086,7 +10098,7 @@
         }
         try {
           const awemeInfo = utils$1.queryProperty(parentReactFilber || basePlayerContainerReactFiber, (target) => {
-            if (typeof target.memoizedProps === "object" && target.memoizedProps != null)
+            if (typeof target.memoizedProps === "object" && target.memoizedProps != null) {
               if (typeof target.memoizedProps.awemeInfo === "object" && target.memoizedProps.awemeInfo != null)
                 return {
                   isFind: true,
@@ -10102,7 +10114,7 @@
                   isFind: false,
                   data: null,
                 };
-            else
+            } else
               return {
                 isFind: false,
                 data: null,
@@ -10747,7 +10759,7 @@
             return;
           }
           const awemeInfo = utils$1.queryProperty(basePlayerContainerReactFiber, (target) => {
-            if (typeof target.memoizedProps === "object" && target.memoizedProps != null)
+            if (typeof target.memoizedProps === "object" && target.memoizedProps != null) {
               if (typeof target.memoizedProps.awemeInfo === "object" && target.memoizedProps.awemeInfo != null)
                 return {
                   isFind: true,
@@ -10763,7 +10775,7 @@
                   isFind: false,
                   data: null,
                 };
-            else
+            } else
               return {
                 isFind: false,
                 data: null,
@@ -12227,7 +12239,7 @@
     },
     disableVideoSatisfaction() {
       log.info(`禁用视频满意评价`);
-      _unsafeWindow.localStorage.setItem("questionV1", String(Date.now() + 1e3 * 60 * 60 * 24 * 365));
+      _unsafeWindow.localStorage.setItem("questionV1", String(Date.now() + 31536e6));
     },
   };
   var mobile_default =
@@ -12474,7 +12486,7 @@
           if (!DouYinRouter.isSearch()) return;
           domUtils.preventEvent(event);
           const $video = (selectorTarget.parentElement?.parentElement).querySelector("video");
-          if ($video)
+          if ($video) {
             if ($video.paused) {
               $video.play();
               log.info(".focusPanel：播放视频");
@@ -12482,7 +12494,7 @@
               $video.pause();
               log.info(".focusPanel：暂停视频");
             }
-          else qmsg.default.error(".focusPanel未找到 video标签", { isHTML: false });
+          } else qmsg.default.error(".focusPanel未找到 video标签", { isHTML: false });
         },
         {
           capture: true,
@@ -13865,6 +13877,10 @@
                       {
                         text: "智能",
                         value: 0,
+                      },
+                      {
+                        text: "无",
+                        value: -999,
                       },
                     ],
                     void 0,

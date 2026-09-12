@@ -1,13 +1,13 @@
 import fs from "fs";
 import { defineConfig } from "vite";
-import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
-import { GetLib, ViteUtils } from "./../../vite.utils";
+import { GenerateUserConfig } from "./../../script-components/components/vite.config.base.mjs";
+import { GetLib, ViteUtils } from "./../../vite.utils.mjs";
 
 /**
  * 更新README.md的版本信息
  */
 const updateREADMEInfo = (name: "erdua" | "VConsole" | "PageSpy", replace: string) => {
-  const filePath = Utils.getAbsolutePath("./README.md");
+  const filePath = utils.getAbsolutePath("./README.md");
   const README_Text = fs.readFileSync(filePath, { encoding: "utf-8" });
   const README_Text_Split = README_Text.split("\n");
   let flag = false;
@@ -88,7 +88,7 @@ const getResource = () => {
     },
   ];
   // 插件版本json路径
-  const versionJSONFilePath = Utils.getAbsolutePath("./src/main/version.json");
+  const versionJSONFilePath = utils.getAbsolutePath("./src/main/version.json");
   // 读取版本json
   const versionJSON = JSON.parse(
     fs.readFileSync(versionJSONFilePath, {
@@ -96,14 +96,14 @@ const getResource = () => {
     })
   ) as ToolVersionInfo;
   // 获取并更新eruda及插件版本
-  let erudaVersion = Utils.getNpmLibVersion("eruda");
+  let erudaVersion = utils.getNpmLibVersion("eruda");
   if (versionJSON["eruda"].version != erudaVersion) {
     console.log(`更新Eruda版本 ${versionJSON["eruda"].version} ==> ${erudaVersion}`);
     updateREADMEInfo("erdua", erudaVersion);
   }
   versionJSON["eruda"].version = erudaVersion;
   eruda_DynamicQueryResourceVersion.forEach((item) => {
-    let version = Utils.getNpmLibVersion(item.npm);
+    let version = utils.getNpmLibVersion(item.npm);
     if (versionJSON["eruda"]["plugin"][item.npm] != version) {
       console.log(`更新Eruda插件${item.npm}版本 ${versionJSON["eruda"]["plugin"][item.npm]} ==> ${version}`);
     }
@@ -111,14 +111,14 @@ const getResource = () => {
     resourceMap[item.resourceName] = `https://fastly.jsdelivr.net/npm/${item.npm}@${version}`;
   });
   // 获取并更新vConsole及插件版本
-  let vConsoleVersion = Utils.getNpmLibVersion("vconsole");
+  let vConsoleVersion = utils.getNpmLibVersion("vconsole");
   if (versionJSON["vconsole"].version != vConsoleVersion) {
     console.log(`更新vConsole版本 ${versionJSON["vconsole"].version} ==> ${vConsoleVersion}`);
     updateREADMEInfo("VConsole", vConsoleVersion);
   }
   versionJSON["vconsole"].version = vConsoleVersion;
   vConsole_DynamicQueryResourceVersion.forEach((item) => {
-    let version = Utils.getNpmLibVersion(item.npm);
+    let version = utils.getNpmLibVersion(item.npm);
     if (versionJSON["vconsole"]["plugin"][item.npm] != version) {
       console.log(`更新vConsole插件${item.npm}版本 ${versionJSON["vconsole"]["plugin"][item.npm]} ==> ${version}`);
     }
@@ -126,7 +126,7 @@ const getResource = () => {
     resourceMap[item.resourceName] = `https://fastly.jsdelivr.net/npm/${item.npm}@${version}`;
   });
   // 获取并更新pageSpy版本
-  let pageSpyVersion = Utils.getNpmLibVersion("@huolala-tech/page-spy-browser");
+  let pageSpyVersion = utils.getNpmLibVersion("@huolala-tech/page-spy-browser");
   if (versionJSON["@huolala-tech/page-spy-browser"].version != pageSpyVersion) {
     console.log(`更新PageSpy版本 ${versionJSON["@huolala-tech/page-spy-browser"].version} ==> ${pageSpyVersion}`);
     updateREADMEInfo("PageSpy", pageSpyVersion);
@@ -141,12 +141,11 @@ const getResource = () => {
   return resourceMap;
 };
 
-const Utils = new ViteUtils(__dirname);
-const pkg = Utils.getPackageJSON();
+const utils = new ViteUtils(import.meta.dirname);
+const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: __dirname,
-  gitProjectPath: "scripts-vite/网页调试",
+  projectDirName: utils.dirName,
   monkeyOption: {
     userscript: {
       name: "网页调试",
@@ -163,7 +162,7 @@ const userConfig = await GenerateUserConfig({
       // 资源引用
       resource: {
         ...getResource(),
-        Resource_erudaGeolocation: await Utils.getGitHubLibLatestVersionUrl(
+        Resource_erudaGeolocation: await utils.getGitHubLibLatestVersionUrl(
           "WhiteSevs/eruda-geolocation",
           "master",
           "eruda-geolocation.js"

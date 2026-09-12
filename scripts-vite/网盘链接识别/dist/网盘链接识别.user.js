@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.7.27
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -13,14 +13,14 @@
 // @exclude      *://video.qq.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@fd6abf2d553ad697ff037f59a12cb800aaa88b53/scripts-vite/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB/%E7%BD%91%E7%9B%98%E9%93%BE%E6%8E%A5%E8%AF%86%E5%88%AB-%E5%9B%BE%E6%A0%87.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect      *
 // @connect      lanzoub.com
 // @connect      lanzouc.com
@@ -121,7 +121,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -426,20 +426,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils$1.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -594,15 +594,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -949,7 +950,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -960,7 +961,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -2005,12 +2006,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2162,9 +2163,10 @@
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils$1.DocumentCookieHandler();
   var _SCRIPT_NAME_ = SCRIPT_NAME || "网盘链接识别";
   var __DataPaging = _whitesev_data_paging.default;
@@ -5041,7 +5043,7 @@
     getValue() {
       let localValue = _GM_getValue(this.key, []);
       if (!Array.isArray(localValue)) localValue = [localValue];
-      localValue = localValue.filter((it) => Date.now() - it.time < 1440 * 60 * 1e3);
+      localValue = localValue.filter((it) => Date.now() - it.time < 864e5);
       this.setValue(localValue);
       return localValue;
     },
@@ -6450,7 +6452,7 @@
           findGenerator = _whitesev_domutils.default.findElementsWithText(document.documentElement, dataSharecode);
           iterator = findGenerator.next();
         }
-        if (iterator?.value)
+        if (iterator?.value) {
           if (iterator.value.nodeType === Node.ELEMENT_NODE && iterator.value.getClientRects().length) {
             iterator.value.scrollIntoView({
               behavior: "smooth",
@@ -6544,6 +6546,7 @@
             onClickCallBack($click);
             return;
           }
+        }
         iterator = findGenerator.next();
         if (iterator.done) {
           if (!NetDiskGlobalData.smallIconNavgiator["pops-netdisk-icon-click-event-loop-find-sharecode"].value) {
@@ -7457,7 +7460,7 @@
     }
     checkCanDownloadFile(fileSize) {
       if (typeof fileSize === "number" && fileSize > 512e3 && !this.isVip) {
-        qmsg.default.error(`非会员无法下载超过${utils$1.formatByteToSize(512e3 * 1024)}的文件`, { timeout: 5e3 });
+        qmsg.default.error(`非会员无法下载超过${utils$1.formatByteToSize(524288e3)}的文件`, { timeout: 5e3 });
         return false;
       }
       return true;
@@ -8355,7 +8358,7 @@
       if (!response.status) return;
       const data = utils$1.toJSON(response.data.responseText);
       log.info(data);
-      if (data.code == 0)
+      if (data.code == 0) {
         if (utils$1.isNull(data.data.DownloadURL)) {
           if (Array.isArray(data.data.dispatchList) && typeof data.data.downloadPath === "string") {
             const findValue = data.data.dispatchList.find((it) => it?.prefix?.startsWith?.("http"));
@@ -8376,6 +8379,7 @@
             data: { DownloadURL },
           };
         }
+      }
       return {
         code: data.code,
         message: data.message,
@@ -8902,7 +8906,8 @@
           const item = imgList[i];
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
         }
-        const viewer = new viewerjs.default(domUtils.createElement("ul", { innerHTML: viewerULNodeHTML }), {
+        const $viewerContainer = domUtils.createElement("ul", { innerHTML: viewerULNodeHTML });
+        const viewer = new viewerjs.default($viewerContainer, {
           inline: false,
           url: "data-src",
           zIndex: utils$1.getMaxZIndex(1, $alert.$shadowRoot) + 100,
@@ -9738,7 +9743,7 @@
       if (json_data) {
         log.info(`json_data：`, json_data);
         const { zt, info, text } = json_data;
-        if (zt !== 1)
+        if (zt !== 1) {
           if (zt === 4) failMsg = text;
           else if (info?.includes("密码不正确")) {
             qmsg.default.error("密码不正确!");
@@ -9763,6 +9768,7 @@
             return await this.parseFiles(shareCode, newAccessCodeInfo.accssCode);
           } else if (info?.includes("没有了")) failMsg = "没有文件了";
           else failMsg = "未知错误";
+        }
         if (Array.isArray(text)) infos = text;
       }
       if (typeof failMsg === "string") log.error(failMsg);
@@ -10935,10 +10941,10 @@
               let fileDownloadUrl = "";
               let fileDownloadUrlInfo = await this.getDownload(this.shareCode, stoken, item.fid, item.share_fid_token);
               $loading.close();
-              if (fileDownloadUrlInfo)
+              if (fileDownloadUrlInfo) {
                 if (fileDownloadUrlInfo.length) fileDownloadUrl = fileDownloadUrlInfo[0].download_url;
                 else fileDownloadUrl = "";
-              else fileDownloadUrl = "";
+              } else fileDownloadUrl = "";
               if (item.ban) qmsg.default.error("文件已被禁止下载");
               else {
                 let schemeDownloadUrl = fileDownloadUrl;
@@ -11073,7 +11079,7 @@
       log.success(response);
       if (!response.status) return;
       let jsonData = utils$1.toJSON(response.data.responseText);
-      if (jsonData["code"] === 0)
+      if (jsonData["code"] === 0) {
         if (jsonData["data"]["fileList"][0]["type"] === 2) {
           qmsg.default.error("该链接为多层级文件嵌套，跳转");
           NetDiskLinkClickMode.openBlankUrl(
@@ -11089,7 +11095,7 @@
             that.accessCode
           );
         } else await that.getDownloadUrl(jsonData["data"]["fileList"][0]);
-      else if (jsonData["code"] in that.code) qmsg.default.error(that.code[jsonData["code"]]);
+      } else if (jsonData["code"] in that.code) qmsg.default.error(that.code[jsonData["code"]]);
       else qmsg.default.error("获取文件信息失败");
     }
     async getDownloadUrl(info) {
@@ -12695,11 +12701,12 @@
       }
     },
     syncAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode) {
-      if (NetDiskGlobalData.historyMatch.saveMatchNetDisk.value)
+      if (NetDiskGlobalData.historyMatch.saveMatchNetDisk.value) {
         if (NetDiskHistoryMatchView.changeMatchedDataAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode)) {
           log.success("已成功同步访问码至历史匹配记录");
           return true;
         } else log.error("同步访问码至历史匹配记录失败");
+      }
       return false;
     },
     changeMatchedDataAccessCode(ruleKeyName, ruleIndex, shareCode, accessCode) {
@@ -13359,7 +13366,7 @@
     registerWorkerInitErrorNeverTipToast(hostname) {
       let menuText = "💀 Worker初始化失败";
       const menuTextDynamic = () => {
-        if (NetDiskWorkerInitError.findHost(hostname)) return "💀 Worker初始化失败（已设置不再提示）";
+        if (NetDiskWorkerInitError.findHost(hostname)) return menuText + "（已设置不再提示）";
         else return menuText;
       };
       const menuOption = {
@@ -14025,13 +14032,13 @@
         let parseRuleResult = NetDiskUserRule.parseRuleStrToRule(ruleText);
         if (parseRuleResult.success) {
           let userRule = parseRuleResult.data;
-          if (isEdit)
+          if (isEdit) {
             if (NetDiskUserRule.updateRule(ruleKey, userRule)) qmsg.default.success("更新成功");
             else {
               qmsg.default.error("更新失败");
               return;
             }
-          else {
+          } else {
             NetDiskUserRule.addRule(userRule);
             qmsg.default.success("添加成功");
           }
@@ -15397,11 +15404,12 @@
             if (parseResult.data) checkedData.push(parseResult.data);
           }
           const notCheckedRuleCount = data.length - checkedData.length;
-          if (notCheckedRuleCount > 0)
+          if (notCheckedRuleCount > 0) {
             if (notCheckedRuleCount === data.length)
               qmsg.default.error("所有规则均未通过规则检查，请检查规则", { timeout: 4e3 });
             else
               qmsg.default.warning(`检测到有 ${notCheckedRuleCount}条未通过规则检查的规则，已忽略`, { timeout: 4e3 });
+          }
           if (!checkedData.length) return;
           updateRuleToStorage(checkedData);
           resolve(true);
@@ -15778,7 +15786,7 @@
                   shareCode,
                   accessCode,
                   (option) => {
-                    if (isHistoryView)
+                    if (isHistoryView) {
                       if (option.isUpdatedMatchedDict) {
                         const currentTime = new Date().getTime();
                         const $updateTime = $link.closest("li").querySelector(".netdiskrecord-update-time");
@@ -15791,7 +15799,7 @@
                           { isHTML: true }
                         );
                       } else qmsg.default.error("修改失败");
-                    else {
+                    } else {
                       domUtils.attr($link, "data-accesscode", option.accessCode);
                       if (option.isUpdatedMatchedDict)
                         qmsg.default.success(
@@ -15820,7 +15828,7 @@
                   shareCode,
                   "",
                   (option) => {
-                    if (isHistoryView)
+                    if (isHistoryView) {
                       if (option.isUpdatedMatchedDict) {
                         const currentTime = new Date().getTime();
                         const $updateTime = $link.closest("li").querySelector(".netdiskrecord-update-time");
@@ -15828,7 +15836,7 @@
                         domUtils.attr($link, "data-accesscode", option.accessCode);
                         log.info("删除成功");
                       } else qmsg.default.error("删除失败");
-                    else {
+                    } else {
                       domUtils.attr($link, "data-accesscode", option.accessCode);
                       if (option.isUpdatedMatchedDict) log.info("删除成功");
                       else if (option.isFindInMatchedDict) qmsg.default.error("删除访问码失败");
@@ -16098,9 +16106,10 @@
       else if (suspension_X < 0) suspension_X = 0;
       if (suspension_Y > MAX_Y) suspension_Y = MAX_Y;
       else if (suspension_Y < 0) suspension_Y = 0;
-      if (NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value)
+      if (NetDiskGlobalData.suspension["suspended-button-adsorption-edge"].value) {
         if (NetDiskSuspensionConfig.position.isRight.value) suspension_X = MAX_X;
         else suspension_X = 0;
+      }
       if (isTrusted)
         NetDiskSuspension.savePosition({
           x: suspension_X,
@@ -19223,7 +19232,7 @@
         },
         details
       );
-      if (sizeConfig != null)
+      if (sizeConfig != null) {
         if (__pops__.isPhone()) {
           let popsWidth =
             typeof sizeConfig.Mobile.width === "function" ? sizeConfig.Mobile.width() : sizeConfig.Mobile.width;
@@ -19237,6 +19246,7 @@
           details.width = popsWidth;
           details.height = popsHeight;
         }
+      }
       if (details.mask == null) details.mask = {};
       if (typeof details.mask.enable !== "boolean") details.mask.enable = true;
       if (details.mask.clickEvent == null) details.mask.clickEvent = {};

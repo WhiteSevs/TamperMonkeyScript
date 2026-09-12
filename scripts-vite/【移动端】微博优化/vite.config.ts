@@ -7,8 +7,7 @@ const utils = new ViteUtils(import.meta.dirname);
 const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: utils.dirName,
-  gitProjectPath: "scripts-vite/【移动端】微博优化",
+  projectDirName: utils.dirName,
   monkeyOption: {
     userscript: {
       name: "【移动端】微博优化",

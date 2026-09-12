@@ -2,7 +2,7 @@
 // @name               GreasyFork优化
 // @name:en-US         GreasyFork Optimization
 // @namespace          https://github.com/WhiteSevs/TamperMonkeyScript
-// @version            2026.8.12
+// @version            2026.9.12
 // @author             WhiteSevs
 // @description        自动登录账号、快捷寻找自己库被其他脚本引用、更新自己的脚本列表、库、优化图片浏览、美化页面、Markdown复制按钮
 // @description:en-US  Automatically log in to the account, quickly find your own library referenced by other scripts, update your own script list, library, optimize image browsing, beautify the page, Markdown copy button
@@ -17,10 +17,10 @@
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require            https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.js
-// @require            https://fastly.jsdelivr.net/npm/i18next@26.3.6/i18next.min.js
-// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.1/dist/otpauth.umd.min.js
-// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.8/dist/viewer.min.css
+// @require            https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
+// @require            https://fastly.jsdelivr.net/npm/i18next@26.4.2/i18next.min.js
+// @require            https://fastly.jsdelivr.net/npm/otpauth@9.5.2/dist/otpauth.umd.min.js
+// @resource           ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect            greasyfork.org
 // @connect            sleazyfork.org
 // @grant              GM_addStyle
@@ -63,7 +63,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -397,20 +397,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -526,9 +526,10 @@
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils.DocumentCookieHandler();
   var KEY = "GM_Panel";
   var ATTRIBUTE_INIT = "data-init";
@@ -677,15 +678,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -1032,7 +1034,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -1043,7 +1045,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -2087,12 +2089,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -3626,10 +3628,10 @@
               let localDataIndex = result.data.findIndex((item) => {
                 return this.checkUrlIsSame(window.location.href, item.url);
               });
-              if (localDataIndex !== -1)
+              if (localDataIndex !== -1) {
                 if (utils.isNull(data.text)) result.data.splice(localDataIndex, 1);
                 else result.data[localDataIndex] = utils.assign(result.data[localDataIndex], data);
-              else result.data = result.data.concat(data);
+              } else result.data = result.data.concat(data);
               this.$data.db.save(this.$key.DB_KEY, result.data).then((result) => {
                 if (result.success) {
                 } else log.error("保存失败", result);
@@ -3681,9 +3683,10 @@
       const KEY = "gf-last-time-autoClearRememberReplayContent";
       let lastClearTime = _GM_getValue(KEY);
       let intervalTime = intervalDay * 24 * 60 * 60 * 1e3;
-      if (lastClearTime)
+      if (lastClearTime) {
         if (Date.now() - lastClearTime > intervalTime) _GM_setValue(KEY, Date.now());
         else return;
+      }
       _GM_setValue(KEY, Date.now());
     },
     async getAllRememberReplyContent() {
@@ -5382,7 +5385,6 @@
           break;
         case 0:
           installButton.textContent = installButton.getAttribute("data-reinstall-label");
-          break;
       }
     },
     async checkForUpdatesJS(installButton, retry) {
@@ -5470,10 +5472,10 @@
               let okRatingCount = parseInt($okRatingCount.innerText);
               let badRatingCount = parseInt($badRatingCount.innerText);
               let totalRatingCount = goodRatingCount + okRatingCount + badRatingCount;
-              if (totalRatingCount >= 10)
+              if (totalRatingCount >= 10) {
                 if (goodRatingCount / totalRatingCount >= 0.6) $ratingScoreRight.classList.add("good-rating-count");
                 else $ratingScoreRight.classList.add("bad-rating-count");
-              else if (totalRatingCount == 0) $ratingScoreRight.classList.add("good-rating-count");
+              } else if (totalRatingCount == 0) $ratingScoreRight.classList.add("good-rating-count");
               else if (goodRatingCount > okRatingCount + badRatingCount)
                 $ratingScoreRight.classList.add("good-rating-count");
               else $ratingScoreRight.classList.add("bad-rating-count");
@@ -6184,7 +6186,8 @@
         imgList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}" loading="lazy"></li>`;
         });
-        let viewer = new viewerjs.default(domUtils.createElement("ul", { innerHTML: viewerULNodeHTML }), {
+        let viewerULNode = domUtils.createElement("ul", { innerHTML: viewerULNodeHTML });
+        let viewer = new viewerjs.default(viewerULNode, {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,

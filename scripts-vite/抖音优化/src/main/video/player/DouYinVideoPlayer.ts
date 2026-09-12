@@ -477,23 +477,31 @@ export const DouYinVideoPlayer = {
         gearName: "智能",
         gearType: 0,
       },
+      {
+        done: -999,
+        gearClarity: "-999",
+        gearName: "无",
+        gearType: -999,
+      },
     ];
     const choose = definition.find((item) => item.gearType === mode);
     /**
      * 抖音清晰度读取是来自session的
      * @param value
      */
-    function setVideoQuality(value: string) {
-      unsafeWindow.sessionStorage.setItem(QualitySessionKey, value);
-    }
+    const setVideoQuality = function (value: string | object) {
+      unsafeWindow.sessionStorage.setItem(QualitySessionKey, typeof value === "string" ? value : JSON.stringify(value));
+    };
     if (choose) {
-      const chooseStr = JSON.stringify(choose);
+      if (choose.gearName === "无") {
+        return;
+      }
       const intervalId = setInterval(() => {
-        setVideoQuality(chooseStr);
-      }, 250);
+        setVideoQuality(choose);
+      }, 200);
       setTimeout(() => {
         clearInterval(intervalId);
-      }, 10 * 1000);
+      }, 5 * 1000);
       log.success("设置当前视频的清晰度: " + choose.gearName);
     } else {
       log.error("该清晰度不存在: " + mode);

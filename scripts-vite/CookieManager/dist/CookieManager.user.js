@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -9,9 +9,9 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @connect      *
@@ -55,7 +55,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -69,22 +69,25 @@
   _whitesev_pops = __toESM(_whitesev_pops);
   _whitesev_utils = __toESM(_whitesev_utils);
   crypto_js = __toESM(crypto_js);
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_cookie = typeof GM_cookie != "undefined" ? GM_cookie : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var CommonUtil = {
     waitRemove(...args) {
       args.forEach((selector) => {
@@ -117,6 +120,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -265,7 +273,7 @@
       let loop = async (isTimeout) => {
         const result = await fn(isTimeout);
         if ((typeof result === "boolean" && result) || isTimeout) {
-          utils.workerClearTimeout(timeId);
+          utils$1.workerClearTimeout(timeId);
           return;
         }
         intervalTimeCount += intervalTime;
@@ -273,7 +281,7 @@
           loop(true);
           return;
         }
-        timeId = utils.workerSetTimeout(() => {
+        timeId = utils$1.workerSetTimeout(() => {
           loop(false);
         }, intervalTime);
       };
@@ -335,20 +343,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
-        if (days > 7) result = utils.formatTime(oldTime.getTime());
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
+        if (days > 7) result = utils$1.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -426,7 +434,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -437,7 +445,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -701,20 +709,21 @@
       $panel: null,
       panelContent: [],
       get contentConfigInitDefaultValue() {
-        if (this.__contentConfigInitDefaultValue == null) this.__contentConfigInitDefaultValue = new utils.Dictionary();
+        if (this.__contentConfigInitDefaultValue == null)
+          this.__contentConfigInitDefaultValue = new utils$1.Dictionary();
         return this.__contentConfigInitDefaultValue;
       },
       contentConfigInitDisabledKeys: [],
       get onceExecMenuData() {
-        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils.Dictionary();
+        if (this.__onceExecMenuData == null) this.__onceExecMenuData = new utils$1.Dictionary();
         return this.__onceExecMenuData;
       },
       get urlChangeReloadMenuExecOnce() {
-        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils.Dictionary();
+        if (this.__urlChangeReloadMenuExecOnce == null) this.__urlChangeReloadMenuExecOnce = new utils$1.Dictionary();
         return this.__urlChangeReloadMenuExecOnce;
       },
       get onceExecData() {
-        if (this.__onceExecData == null) this.__onceExecData = new utils.Dictionary();
+        if (this.__onceExecData == null) this.__onceExecData = new utils$1.Dictionary();
         return this.__onceExecData;
       },
       get scriptName() {
@@ -787,9 +796,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -1256,7 +1266,7 @@
           domUtils.empty($searchResultWrapper);
         };
         const createSearchResultItem = (pathInfo) => {
-          const searchPath = utils.queryProperty(pathInfo, (target) => {
+          const searchPath = utils$1.queryProperty(pathInfo, (target) => {
             if (target?.next)
               return {
                 isFind: false,
@@ -1327,7 +1337,7 @@
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
                   if ($fold) {
                     $fold.querySelector(".pops-panel-forms-fold-container").click();
-                    await utils.sleep(500);
+                    await utils$1.sleep(500);
                   }
                   scrollToElementAndListen($findTargetMenu, () => {
                     addFlashingClass($findTargetMenu);
@@ -1350,9 +1360,9 @@
               const configItem = configList[index];
               const childViewConfig = configItem.views;
               if (childViewConfig && Array.isArray(childViewConfig)) {
-                const deepMenuPath = utils.deepClone(path);
+                const deepMenuPath = utils$1.deepClone(path);
                 if (configItem.type === "deepMenu") {
-                  const deepNext = utils.queryProperty(deepMenuPath, (target) => {
+                  const deepNext = utils$1.queryProperty(deepMenuPath, (target) => {
                     if (target?.next)
                       return {
                         isFind: false,
@@ -1387,8 +1397,8 @@
                   return configText.match(searchTextRegExp);
                 });
                 if (matchedIndex !== -1) {
-                  const matchedPath = utils.deepClone(path);
-                  const deepNext = utils.queryProperty(matchedPath, (target) => {
+                  const matchedPath = utils$1.deepClone(path);
+                  const deepNext = utils$1.queryProperty(matchedPath, (target) => {
                     if (target?.next)
                       return {
                         isFind: false,
@@ -1410,7 +1420,7 @@
                     },
                   };
                   const pathList = [];
-                  utils.queryProperty(matchedPath, (target) => {
+                  utils$1.queryProperty(matchedPath, (target) => {
                     const name = target?.name;
                     if (typeof name === "string" && name.trim() !== "") pathList.push(name);
                     if (target?.next)
@@ -1456,7 +1466,7 @@
         domUtils.on(
           $searchInput,
           "input",
-          utils.debounce((evt2) => {
+          utils$1.debounce((evt2) => {
             domUtils.preventEvent(evt2);
             const searchText = domUtils.val($searchInput).trim();
             if (searchText === "") {
@@ -1527,12 +1537,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -1576,10 +1586,10 @@
       defaultValue: false,
     },
   };
-  var utils = _whitesev_utils.default.noConflict();
+  var utils$1 = _whitesev_utils.default.noConflict();
   var domUtils = _whitesev_domutils.default.noConflict();
   var __pops__ = _whitesev_pops.default;
-  var log = new utils.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
+  var log = new utils$1.Log(_GM_info, _unsafeWindow.console || _monkeyWindow.console);
   var SCRIPT_NAME = _GM_info?.script?.name || void 0;
   var AnyTouch = _whitesev_pops.default.fn.Utils.AnyTouch();
   log.config({
@@ -1591,7 +1601,7 @@
   var getPageMaxZIndex = () => {
     const deviation = 100;
     const popsZIndex = _whitesev_pops.default.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
-    const pointZIndex = utils.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
+    const pointZIndex = utils$1.getMaxZIndexNodeInfoFromPoint()[0]?.zIndex ?? 0;
     return Math.max(deviation, popsZIndex, pointZIndex);
   };
   qmsg.default.config({
@@ -1642,15 +1652,15 @@
     },
     drag: true,
   });
-  var MenuRegister = new utils.GM_Menu({
+  var MenuRegister = new utils$1.GM_Menu({
     GM_getValue: _GM_getValue,
     GM_setValue: _GM_setValue,
     GM_registerMenuCommand: _GM_registerMenuCommand,
     GM_unregisterMenuCommand: _GM_unregisterMenuCommand,
   });
-  var httpx = new utils.Httpx({
+  var httpx = new utils$1.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -1680,18 +1690,20 @@
     _unsafeWindow.clearInterval.bind(_unsafeWindow));
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
-  var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  var cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: "GM_cookie" });
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
-  new utils.DocumentCookieHandler();
+  }
+  new utils$1.DocumentCookieHandler();
   var PanelContent = {
     $data: {
       __contentConfig: null,
       get contentConfig() {
-        if (this.__contentConfig == null) this.__contentConfig = new utils.Dictionary();
+        if (this.__contentConfig == null) this.__contentConfig = new utils$1.Dictionary();
         return this.__contentConfig;
       },
       __defaultBottomContentConfig: [],
@@ -1730,7 +1742,7 @@
             download: fileName,
           })
           .click();
-        utils.workerSetTimeout(() => {
+        utils$1.workerSetTimeout(() => {
           globalThis.URL.revokeObjectURL(blobUrl);
         }, 500);
       };
@@ -1780,15 +1792,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -1800,7 +1813,7 @@
           };
           const importFile = (configText) => {
             return new Promise(async (resolve) => {
-              const data = utils.toJSON(configText);
+              const data = utils$1.toJSON(configText);
               if (Object.keys(data).length === 0) qmsg.default.warning(translateCallback("解析为空配置，不导入"));
               else await updateConfigToStorage(data);
               resolve(true);
@@ -1848,7 +1861,7 @@
                   text: translateCallback("导入"),
                   callback: async (details) => {
                     const url = details.text;
-                    if (utils.isNull(url)) {
+                    if (utils$1.isNull(url)) {
                       qmsg.default.error(translateCallback("请填入完整的url"));
                       return;
                     }
@@ -1896,7 +1909,7 @@
           });
         };
         const exportConfig = (
-          fileName = `${SCRIPT_NAME}_panel-setting-${utils.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
+          fileName = `${SCRIPT_NAME}_panel-setting-${utils$1.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
           fileData
         ) => {
           const $alert = __pops__.alert({
@@ -1951,7 +1964,7 @@
             }
           });
           domUtils.on($exportToClipboard, "click", async () => {
-            if (await utils.copy(fileData)) {
+            if (await utils$1.copy(fileData)) {
               qmsg.default.success(translateCallback("复制成功"));
               $alert.close();
             } else qmsg.default.error(translateCallback("复制失败"));
@@ -2036,7 +2049,7 @@
       };
       const click_callback = () => {
         let supportURL = _GM_info?.script?.supportURL || _GM_info?.script?.namespace;
-        if (typeof supportURL === "string" && utils.isNotNull(supportURL)) window.open(supportURL, "_blank");
+        if (typeof supportURL === "string" && utils$1.isNotNull(supportURL)) window.open(supportURL, "_blank");
       };
       return [
         {
@@ -2194,7 +2207,7 @@
                 dialogConfig.exportType,
                 dialogConfig.encodePwd
               );
-              if (await utils.copy(cookieText)) qmsg.default.success("复制成功");
+              if (await utils$1.copy(cookieText)) qmsg.default.success("复制成功");
               else qmsg.default.error("复制失败");
               eventDetails.close();
             },
@@ -2304,7 +2317,7 @@
             name: "_ga",
             value: "GA1.2.123456789.987654321",
             domain: window.location.hostname,
-            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            expires: Date.now() + 2592e6,
             partitioned: false,
             path: "/",
             sameSite: "unspecified",
@@ -2314,7 +2327,7 @@
             name: "PHPSESSID",
             value: "28f2d88ee9322cfd2e4f1e",
             domain: window.location.hostname,
-            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            expires: Date.now() + 2592e6,
             partitioned: false,
             path: "/",
             sameSite: "unspecified",
@@ -2324,7 +2337,7 @@
             name: "csrftoken",
             value: "abcdef123456",
             domain: window.location.hostname,
-            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            expires: Date.now() + 2592e6,
             partitioned: false,
             path: "/",
             sameSite: "unspecified",
@@ -2334,7 +2347,7 @@
             name: "logged_in",
             value: "true",
             domain: window.location.hostname,
-            expires: Date.now() + 1e3 * 60 * 60 * 24 * 30,
+            expires: Date.now() + 2592e6,
             partitioned: false,
             path: "/",
             sameSite: "unspecified",
@@ -2421,16 +2434,16 @@
                 let cookieListStr = dialogConfig.value;
                 if (decodePwd.trim() === "") {
                 } else cookieListStr = CookieBackUpManager.decrypt(cookieListStr, decodePwd);
-                const cookie = utils.toJSON(cookieListStr);
+                const cookie = utils$1.toJSON(cookieListStr);
                 if (Array.isArray(cookie)) {
                   log.info(`使用${CookieManager.baseCookieHandler}导入cookie数据`);
                   for (const cookieInfo of cookie) await CookieManager.update(cookieInfo);
                 } else if (typeof cookie === "object" && Object.keys(cookie).length && Array.isArray(cookie["data"])) {
-                  const cookieManager = new utils.CookieManagerService({ baseCookieHandler: cookie.api });
+                  const cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: cookie.api });
                   log.info(`使用${cookieManager.baseCookieHandler}导入cookie数据`);
                   for (const cookieInfo of cookie.data) await cookieManager.update(cookieInfo);
                 } else if (typeof cookie === "object" && !Object.keys(cookie).length) {
-                  let utilsCookieManager = new utils.DocumentCookieHandler();
+                  let utilsCookieManager = new utils$1.DocumentCookieHandler();
                   log.info(`使用${CookieManager.baseCookieHandler}导入cookie数据`);
                   let cookieObj = utilsCookieManager.parseCookie(cookieListStr);
                   for (const cookieInfo of cookieObj)
@@ -2628,7 +2641,7 @@
       domUtils.on(
         $import_text,
         ["input", "propertychange"],
-        utils.debounce(() => {
+        utils$1.debounce(() => {
           DialogConfigManager.saveConfig();
         })
       );
@@ -3013,7 +3026,7 @@
         `,
           html: true,
         },
-        btn: utils.assign(
+        btn: utils$1.assign(
           {
             ok: {
               callback: async () => {
@@ -3296,7 +3309,7 @@
         });
         domUtils.onInput(
           $searchInput,
-          utils.debounce(async () => {
+          utils$1.debounce(async () => {
             await execFilter(false);
           })
         );
@@ -3898,7 +3911,7 @@
     },
     getTemplateData() {
       return {
-        uuid: utils.generateUUID(),
+        uuid: utils$1.generateUUID(),
         enable: true,
         name: "",
         data: {
@@ -4003,7 +4016,7 @@
           const uploadFile = $input.files[0];
           const fileReader = new FileReader();
           fileReader.onload = () => {
-            const data = utils.toJSON(fileReader.result);
+            const data = utils$1.toJSON(fileReader.result);
             if (!Array.isArray(data)) {
               log.error("不是正确的规则文件", data);
               qmsg.default.error("不是正确的规则文件");
@@ -4033,13 +4046,13 @@
             ok: {
               callback: async (eventDetails) => {
                 const url = eventDetails.text;
-                if (utils.isNull(url)) {
+                if (utils$1.isNull(url)) {
                   qmsg.default.error("请填入完整的url");
                   return;
                 }
                 const response = await httpx.get(url);
                 if (!response.status) return;
-                const data = utils.toJSON(response.data.responseText);
+                const data = utils$1.toJSON(response.data.responseText);
                 if (!Array.isArray(data)) {
                   log.error("不是正确的规则文件", response, data);
                   qmsg.default.error("不是正确的规则文件");
@@ -4151,10 +4164,10 @@
         hostOnly: false,
         httpOnly: false,
         sameSite: "lax",
-        expirationDate: Date.now() + 3600 * 24 * 30 * 1e3,
+        expirationDate: Date.now() + 2592e6,
       };
-      let cookieInfo = utils.assign({}, defaultCookieInfo, true);
-      utils.assign(cookieInfo, __cookieInfo__ ?? {}, true);
+      let cookieInfo = utils$1.assign({}, defaultCookieInfo, true);
+      utils$1.assign(cookieInfo, __cookieInfo__ ?? {}, true);
       cookieInfo = CookieInfoTransform.beforeEdit(cookieInfo, isEdit);
       const $editContent = __pops__
         .confirm({
@@ -4740,7 +4753,7 @@
         domUtils.on($cookieItemCopy, "click", (event) => {
           domUtils.preventEvent(event);
           const cookieText = cookieInfo.value;
-          utils.copy(cookieText).then((status) => {
+          utils$1.copy(cookieText).then((status) => {
             if (status) qmsg.default.success("复制成功");
             else qmsg.default.error("复制失败");
           });
@@ -4791,7 +4804,7 @@
       domUtils.on(
         $search,
         ["input", "propertychange"],
-        utils.debounce(async (event) => {
+        utils$1.debounce(async (event) => {
           const searchText = domUtils.val($search);
           const isNotFilter = searchText.trim() === "";
           const enableRegExp = Panel.getValue("search-config-use-regexp");
@@ -4820,7 +4833,7 @@
             log.error("该项上未获取到data-value值");
             return;
           }
-          utils.copy(value).then((status) => {
+          utils$1.copy(value).then((status) => {
             if (status) qmsg.default.success(`复制 ${key} 成功`);
             else qmsg.default.error(`复制 ${key} 失败`);
           });
@@ -5012,7 +5025,7 @@
         log.success(`执行规则：${cookieRuleItem.name}`);
         let apiName = cookieRuleItem.data.execApiName;
         if (apiName === "use-global") apiName = void 0;
-        const cookieManager = new utils.CookieManagerService({ baseCookieHandler: apiName });
+        const cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: apiName });
         const cookieListResult = await cookieManager.listAll();
         for (let cookieInfoIndex = 0; cookieInfoIndex < cookieListResult.length; cookieInfoIndex++) {
           const cookieInfo = cookieListResult[cookieInfoIndex];
@@ -5026,7 +5039,7 @@
             if (operationMode === "delete") cookieManager.delete(cookieInfo);
             else if (operationMode.startsWith("extended")) {
               let currentTime = Date.now();
-              let oneMonth = 720 * 60 * 60 * 1e3;
+              let oneMonth = 2592e6;
               let threeMonth = oneMonth * 3;
               let halfAYear = oneMonth * 6;
               let oneYear = oneMonth * 12;

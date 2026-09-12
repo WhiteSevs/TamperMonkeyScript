@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ImageViewer
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  Viewer看图工具，支持图片翻转、旋转、缩放
 // @license      GPL-3.0-only
@@ -9,12 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.min.js
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -50,7 +50,7 @@
     },
     f = (e, t, n) => (
       (n = e == null ? {} : a(l(e))),
-      d(t || !e || !e.__esModule ? o(n, `default`, { value: e, enumerable: !0 }) : n, e)
+      d(t || !e || !e.__esModule || !u.call(e, `default`) ? o(n, `default`, { value: e, enumerable: !0 }) : n, e)
     );
   ((e = f(e)), (t = f(t)), (n = f(n)), (r = f(r)), (i = f(i)));
   var p = typeof GM_addValueChangeListener < `u` ? GM_addValueChangeListener : void 0,
@@ -85,7 +85,7 @@
       },
       createBlockCSSNode(...e) {
         let n = [];
-        if (e.length !== 0 && !(e.length === 1 && typeof e[0] == `string` && e[0].trim() === ``))
+        if (e.length !== 0 && (e.length !== 1 || typeof e[0] != `string` || e[0].trim() !== ``))
           return (
             e.forEach((e) => {
               Array.isArray(e) ? (n = n.concat(e)) : n.push(e);
@@ -101,7 +101,7 @@
         let t = [];
         if (
           e.length !== 0 &&
-          !(e.length === 1 && typeof e[0] == `string` && e[0].trim() === ``) &&
+          (e.length !== 1 || typeof e[0] != `string` || e[0].trim() !== ``) &&
           (e.forEach((e) => {
             Array.isArray(e) ? (t = t.concat(e)) : t.push(e);
           }),
@@ -112,6 +112,10 @@
             `${t.join(`,
 `)}{display: none !important;}`
           );
+      },
+      addBlockCSSWithEnd(...e) {
+        let t = E.addBlockCSS(...e);
+        return (t && document.documentElement.appendChild(t), t);
       },
       setGMResourceCSS(e) {
         let t = typeof h == `function` ? h(e.keyName) : null;
@@ -206,8 +210,8 @@
             });
         }
         function n() {
-          return !(
-            typeof navigator?.clipboard?.readText != `function` || typeof navigator?.permissions?.query != `function`
+          return (
+            typeof navigator?.clipboard?.readText == `function` && typeof navigator?.permissions?.query == `function`
           );
         }
         return new Promise((e) => {
@@ -311,18 +315,18 @@
         let n = e,
           r = new Date(typeof e == `string` ? e.replace(/-/g, `/`) : e),
           i = new Date(t ?? Date.now()).getTime() - r.getTime(),
-          a = Math.floor(i / (24 * 3600 * 1e3));
+          a = Math.floor(i / 864e5);
         if (a > 0) n = a > 7 ? D.formatTime(r.getTime()) : a + `天前`;
         else {
-          let e = i % (24 * 3600 * 1e3),
-            t = Math.floor(e / (3600 * 1e3));
+          let e = i % 864e5,
+            t = Math.floor(e / 36e5);
           if (t > 0) n = t + `小时前`;
           else {
-            let t = e % (3600 * 1e3),
-              r = Math.floor(t / (60 * 1e3));
+            let t = e % 36e5,
+              r = Math.floor(t / 6e4);
             if (r > 0) n = r + `分钟前`;
             else {
-              let e = t % (60 * 1e3);
+              let e = t % 6e4;
               n = Math.round(e / 1e3) + `秒前`;
             }
           }
@@ -371,7 +375,7 @@
       drag: !0,
     }));
   var N = new D.GM_Menu({ GM_getValue: g, GM_setValue: b, GM_registerMenuCommand: y, GM_unregisterMenuCommand: te }),
-    P = new D.Httpx({ xmlHttpRequest: S, logDetails: !1 });
+    P = new D.Httpx({ xmlHttpRequest: S, isConsoleRequestOption: !1 });
   (P.interceptors.request.use((e) => e),
     P.interceptors.response.use(
       (e) => e,
@@ -398,7 +402,7 @@
     C.setInterval.bind(C),
     C.clearInterval.bind(C));
   var F = O.addStyle.bind(O);
-  E.addBlockCSS.bind(E);
+  (E.addBlockCSS.bind(E), E.addBlockCSSWithEnd.bind(E));
   var I = t.default.selector.bind(t.default),
     L = t.default.selectorAll.bind(t.default),
     R = new D.CookieManagerService({ baseCookieHandler: `GM_cookie` });
@@ -841,7 +845,7 @@
         if (Array.isArray(t)) i = i.concat(t);
         else {
           let e = (t) => {
-            if (typeof t == `object` && t)
+            if (typeof t == `object` && t) {
               if (t instanceof Element) i.push(t);
               else if (Array.isArray(t)) e(t);
               else {
@@ -849,7 +853,7 @@
                 (e != null && (Array.isArray(e) ? (i = i.concat(e)) : e instanceof Element && i.push(e)),
                   typeof n == `function` && i.push(n));
               }
-            else i.push(t);
+            } else i.push(t);
           };
           e(t);
         }
@@ -957,7 +961,8 @@
             }),
             e
           );
-        } else return this.cacheData;
+        }
+        return this.cacheData;
       }
       setLocalValue(e) {
         ((this.cacheData = null), (this.cacheData = e), b(this.storageKey, e));
@@ -1117,9 +1122,10 @@
       },
       setDefaultValue(e, t) {
         (this.$data.contentConfigInitDefaultValue.has(e) &&
-          A.warn(`该key已存在，初始化默认值失败: `, {
+          A.warn(`该key的默认值已进行初始化，覆盖该默认值: `, {
             key: e,
-            initValue: this.$data.contentConfigInitDefaultValue.get(e),
+            defaultValue: t,
+            coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(e),
           }),
           this.$data.contentConfigInitDefaultValue.set(e, t));
       },
@@ -1263,7 +1269,7 @@
             }
           },
           l = () => {
-            let e = a.every((e) => (e ? e.checkMenuExec() : !0));
+            let e = a.every((e) => !e || e.checkMenuExec());
             if ((c(!1), e)) {
               let n = t();
               o.handlerResult(e, n);
@@ -1514,7 +1520,8 @@
                           if (r) r.click();
                           else return (e.default.error(i(`未找到对应的二级菜单`)), { isFind: !0, data: t });
                           return { isFind: !1, data: t.next };
-                        } else {
+                        }
+                        {
                           let r = await O.waitNode(
                             () =>
                               Array.from(n.$shadowRoot.querySelectorAll(`li:not(.pops-panel-deepMenu-nav-item)`)).find(
@@ -1675,12 +1682,14 @@
           ));
       },
       transformKey(e) {
-        if (Array.isArray(e))
+        if (Array.isArray(e)) {
           if (e.length > 1) {
             let t = e.sort();
             return JSON.stringify(t);
-          } else return e[0];
-        else return e;
+          }
+          return e[0];
+        }
+        return e;
       },
       getDynamicValue(e, t) {
         let n = !1,
@@ -1892,15 +1901,16 @@
         e.forEach((e) => {
           n += `<li><img data-src="${e}" loading="lazy"></li>`;
         });
-        let r = new i.default(O.createElement(`ul`, { innerHTML: n }), {
-          inline: !1,
-          url: `data-src`,
-          zIndex: D.getMaxZIndex() + 100,
-          hidden: () => {
-            r.destroy();
-          },
-        });
-        ((t = parseInt(t.toString())), (isNaN(t) || t < 0) && (t = 0), r.view(t), r.zoomTo(1), r.show());
+        let r = O.createElement(`ul`, { innerHTML: n }),
+          a = new i.default(r, {
+            inline: !1,
+            url: `data-src`,
+            zIndex: D.getMaxZIndex() + 100,
+            hidden: () => {
+              a.destroy();
+            },
+          });
+        ((t = parseInt(t.toString())), (isNaN(t) || t < 0) && (t = 0), a.view(t), a.zoomTo(1), a.show());
       },
     },
     $ = {

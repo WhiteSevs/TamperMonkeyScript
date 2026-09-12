@@ -1,0 +1,32 @@
+// ==UserScript==
+// @name         无尽冬日
+// @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
+// @version      2026.9.12
+// @author       WhiteSevs
+// @description  角色查询
+// @license      GPL-3.0-only
+// @icon         https://wjdr.cn/favicon.ico
+// @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
+// @match        *://wjdr.cn/*
+// @match        *://*.wjdr.cn/*
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.min.js
+// @connect      *
+// @grant        GM_addValueChangeListener
+// @grant        GM_deleteValue
+// @grant        GM_getResourceText
+// @grant        GM_getValue
+// @grant        GM_info
+// @grant        GM_listValues
+// @grant        GM_registerMenuCommand
+// @grant        GM_removeValueChangeListener
+// @grant        GM_setValue
+// @grant        GM_setValues
+// @grant        GM_unregisterMenuCommand
+// @grant        GM_xmlhttpRequest
+// @grant        unsafeWindow
+// @run-at       document-start
+// ==/UserScript==

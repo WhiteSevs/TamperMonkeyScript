@@ -62,6 +62,10 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       text: "智能",
                       value: 0,
                     },
+                    {
+                      text: "无",
+                      value: -999,
+                    },
                   ],
                   void 0,
                   "自行选择清晰度"

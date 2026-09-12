@@ -1,13 +1,12 @@
 import { defineConfig } from "vite";
-import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
-import { ViteUtils } from "./../../vite.utils";
+import { GenerateUserConfig } from "./../../script-components/components/vite.config.base.mjs";
+import { ViteUtils } from "./../../vite.utils.mjs";
 
-const Utils = new ViteUtils(__dirname);
-const pkg = Utils.getPackageJSON();
+const utils = new ViteUtils(import.meta.dirname);
+const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: __dirname,
-  gitProjectPath: "scripts-vite/ImageViewer",
+  projectDirName: utils.dirName,
   monkeyOption: {
     userscript: {
       name: "ImageViewer",

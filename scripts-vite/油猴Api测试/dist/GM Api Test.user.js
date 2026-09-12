@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GM Api Test
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  用于测试您的油猴脚本管理器对油猴函数的支持程度
 // @license      GPL-3.0-only
@@ -9,7 +9,7 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://*/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.11.7/dist/viewer.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect      *
 // @grant        GM.addElement
 // @grant        GM.addStyle
@@ -983,7 +983,7 @@
       for (const key in globalConfig) {
         if (!Object.hasOwn(globalConfig, key)) continue;
         const descriptor = Object.getOwnPropertyDescriptor(globalConfig, key);
-        if (descriptor)
+        if (descriptor) {
           if ("get" in descriptor) {
             Reflect.deleteProperty(that.INS_DEFAULT, key);
             Object.defineProperty(that.INS_DEFAULT, key, {
@@ -999,7 +999,7 @@
               enumerable: true,
             });
           } else throw new TypeError("Qmsg.config: descriptor.get or descriptor.value is null");
-        else Reflect.set(that.INS_DEFAULT, key, globalConfig[key]);
+        } else Reflect.set(that.INS_DEFAULT, key, globalConfig[key]);
       }
       return that.INS_DEFAULT;
     }
@@ -1040,38 +1040,41 @@
     }
   };
   var qmsg = new Qmsg();
-  var _GM = typeof GM != "undefined" ? GM : void 0;
-  var _GM_addElement = typeof GM_addElement != "undefined" ? GM_addElement : void 0;
-  var _GM_addStyle = typeof GM_addStyle != "undefined" ? GM_addStyle : void 0;
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_cookie = typeof GM_cookie != "undefined" ? GM_cookie : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_deleteValues = typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0;
-  var _GM_download = typeof GM_download != "undefined" ? GM_download : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getResourceURL = typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0;
-  var _GM_getTab = typeof GM_getTab != "undefined" ? GM_getTab : void 0;
-  var _GM_getTabs = typeof GM_getTabs != "undefined" ? GM_getTabs : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_getValues = typeof GM_getValues != "undefined" ? GM_getValues : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_log = typeof GM_log != "undefined" ? GM_log : void 0;
-  var _GM_notification = typeof GM_notification != "undefined" ? GM_notification : void 0;
-  var _GM_openInTab = typeof GM_openInTab != "undefined" ? GM_openInTab : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_saveTab = typeof GM_saveTab != "undefined" ? GM_saveTab : void 0;
-  var _GM_setClipboard = typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_webRequest = typeof GM_webRequest != "undefined" ? GM_webRequest : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _GM_audio = typeof GM_audio != "undefined" ? GM_audio : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM = (() => (typeof GM != "undefined" ? GM : void 0))();
+  var _GM_addElement = (() => (typeof GM_addElement != "undefined" ? GM_addElement : void 0))();
+  var _GM_addStyle = (() => (typeof GM_addStyle != "undefined" ? GM_addStyle : void 0))();
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_cookie = (() => (typeof GM_cookie != "undefined" ? GM_cookie : void 0))();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_deleteValues = (() => (typeof GM_deleteValues != "undefined" ? GM_deleteValues : void 0))();
+  var _GM_download = (() => (typeof GM_download != "undefined" ? GM_download : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getResourceURL = (() => (typeof GM_getResourceURL != "undefined" ? GM_getResourceURL : void 0))();
+  var _GM_getTab = (() => (typeof GM_getTab != "undefined" ? GM_getTab : void 0))();
+  var _GM_getTabs = (() => (typeof GM_getTabs != "undefined" ? GM_getTabs : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_getValues = (() => (typeof GM_getValues != "undefined" ? GM_getValues : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_log = (() => (typeof GM_log != "undefined" ? GM_log : void 0))();
+  var _GM_notification = (() => (typeof GM_notification != "undefined" ? GM_notification : void 0))();
+  var _GM_openInTab = (() => (typeof GM_openInTab != "undefined" ? GM_openInTab : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_saveTab = (() => (typeof GM_saveTab != "undefined" ? GM_saveTab : void 0))();
+  var _GM_setClipboard = (() => (typeof GM_setClipboard != "undefined" ? GM_setClipboard : void 0))();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_webRequest = (() => (typeof GM_webRequest != "undefined" ? GM_webRequest : void 0))();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _GM_audio = (() => (typeof GM_audio != "undefined" ? GM_audio : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var version$2 = "2.0.8";
   var WindowApi$1 = class {
     defaultApi = {
@@ -2405,10 +2408,10 @@
       let selector = void 0;
       let handler;
       let options;
-      if (args.length === 2)
+      if (args.length === 2) {
         if (typeof args[1] === "function") handler = args[1];
         else throw new TypeError("handler is not a function");
-      else if (args.length === 3)
+      } else if (args.length === 3) {
         if (typeof args[1] === "function") {
           handler = args[1];
           options = args[2];
@@ -2416,7 +2419,7 @@
           selector = args[1];
           handler = args[2];
         }
-      else if (args.length === 4) {
+      } else if (args.length === 4) {
         selector = args[1];
         handler = args[2];
         options = args[3];
@@ -2544,7 +2547,7 @@
       const that = this;
       if (typeof $el === "string") $el = that.selectorAll($el);
       if ($el == null) return;
-      if (CommonUtils$1.isNodeList($el))
+      if (CommonUtils$1.isNodeList($el)) {
         if (attrValue == null) return that.attr($el[0], attrName, attrValue);
         else {
           $el.forEach(($elItem) => {
@@ -2552,6 +2555,7 @@
           });
           return;
         }
+      }
       if (attrValue == null) return $el.getAttribute(attrName);
       else $el.setAttribute(attrName, attrValue);
     }
@@ -2592,7 +2596,7 @@
       if (typeof $el === "string") $el = that.selectorAll($el);
       if ($el == null) return;
       if (CommonUtils$1.isNodeList($el)) {
-        if (typeof property === "string")
+        if (typeof property === "string") {
           if (value == null) return that.css($el[0], property);
           else {
             $el.forEach(($elItem) => {
@@ -2600,7 +2604,7 @@
             });
             return;
           }
-        else if (typeof property === "object") {
+        } else if (typeof property === "object") {
           $el.forEach(($elItem) => {
             that.css($elItem, property);
           });
@@ -2620,10 +2624,10 @@
           $el.style.setProperty(propertyName, propertyValue);
         }
       };
-      if (typeof property === "string")
+      if (typeof property === "string") {
         if (value == null) return that.windowApi.globalThis.getComputedStyle($el).getPropertyValue(property);
         else setStyleProperty(property, value);
-      else if (typeof property === "object")
+      } else if (typeof property === "object")
         for (const prop in property) {
           const value = property[prop];
           setStyleProperty(prop, value);
@@ -2705,10 +2709,10 @@
           });
         return;
       }
-      if (value == null)
+      if (value == null) {
         if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) return $el.checked;
         else return $el.value;
-      else if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) $el.checked = !!value;
+      } else if ($el.localName === "input" && ($el.type === "checkbox" || $el.type === "radio")) $el.checked = !!value;
       else $el.value = value;
     }
     prop($el, propName, propValue) {
@@ -3189,7 +3193,7 @@
           !$el.disabled &&
           ($el.checked ||
             ["text", "hidden", "password", "textarea", "select-one", "select-multiple"].includes($el.type))
-        )
+        ) {
           if ($el.type === "select-multiple") {
             for (let j = 0; j < $el.options.length; j++)
               if ($el.options[j].selected)
@@ -3202,6 +3206,7 @@
               name: $el.name,
               value: $el.value,
             });
+        }
       }
       return serializedArray
         .map((item) => `${encodeURIComponent(item.name)}=${encodeURIComponent(item.value)}`)
@@ -3367,7 +3372,7 @@
     }
     *findElementsWithText($el, text, filter) {
       const that = this;
-      if ($el.outerHTML.includes(text))
+      if ($el.outerHTML.includes(text)) {
         if ($el.children.length === 0) {
           if (!(typeof filter === "function" ? filter($el) : false)) yield $el;
         } else {
@@ -3377,6 +3382,7 @@
               if (!(typeof filter === "function" ? filter($el) : false)) yield $child;
             }
         }
+      }
       for (let index = 0; index < $el.children.length; index++) {
         const $child = $el.children[index];
         yield* that.findElementsWithText($child, text, filter);
@@ -3407,7 +3413,7 @@
       }
     }
   })();
-  var version$1 = "4.2.8";
+  var version$1 = "4.2.9";
   var GlobalConfig = {
     config: {},
     setGlobalConfig(config) {
@@ -3621,23 +3627,23 @@
       $el.innerHTML = this.getSafeHTML(text);
     },
   };
-  var n$1 = "clientX",
-    e$2 = "clientY",
-    t$1 = 16,
-    c$3 = "start",
-    o$1 = "move",
-    s$1 = "cancel",
-    u$3 = "end",
-    a$2 = "left",
-    i$3 = "right",
-    r$4 = "up",
-    d$1 = "down",
-    m$2 = {
-      4: "start",
-      5: "move",
-      1: "end",
-      3: "cancel",
-    };
+  var n$1 = "clientX";
+  var e$2 = "clientY";
+  var t$1 = 16;
+  var c$3 = "start";
+  var o$1 = "move";
+  var s$1 = "cancel";
+  var u$3 = "end";
+  var a$2 = "left";
+  var i$3 = "right";
+  var r$4 = "up";
+  var d$1 = "down";
+  var m$2 = {
+    4: "start",
+    5: "move",
+    1: "end",
+    3: "cancel",
+  };
   function v$1(n) {
     return m$2[n];
   }
@@ -3690,23 +3696,23 @@
   function p$3(n) {
     return Math.round(100 * n) / 100;
   }
-  var x = (r) => Math.sqrt(r.x * r.x + r.y * r.y),
-    y = (r, a) => r.x * a.x + r.y * a.y,
-    e$1 = (r, a) => {
-      var t = x(r) * x(a);
-      if (0 === t) return 0;
-      var h = y(r, a) / t;
-      return (h > 1 && (h = 1), Math.acos(h));
-    },
-    n = (r, a) => r.x * a.y - a.x * r.y,
-    o = (r) => (r / Math.PI) * 180,
-    s = (r, a) => {
-      var t = e$1(r, a);
-      return (n(r, a) > 0 && (t *= -1), o(t));
-    },
-    u$2 = (x, y) => {
-      if (0 !== x || 0 !== y) return Math.abs(x) >= Math.abs(y) ? (0 < x ? i$3 : a$2) : 0 < y ? d$1 : r$4;
-    };
+  var x = (r) => Math.sqrt(r.x * r.x + r.y * r.y);
+  var y = (r, a) => r.x * a.x + r.y * a.y;
+  var e$1 = (r, a) => {
+    var t = x(r) * x(a);
+    if (0 === t) return 0;
+    var h = y(r, a) / t;
+    return (h > 1 && (h = 1), Math.acos(h));
+  };
+  var n = (r, a) => r.x * a.y - a.x * r.y;
+  var o = (r) => (r / Math.PI) * 180;
+  var s = (r, a) => {
+    var t = e$1(r, a);
+    return (n(r, a) > 0 && (t *= -1), o(t));
+  };
+  var u$2 = (x, y) => {
+    if (0 !== x || 0 !== y) return Math.abs(x) >= Math.abs(y) ? (0 < x ? i$3 : a$2) : 0 < y ? d$1 : r$4;
+  };
   function p$2() {
     let n = 0,
       e = 0;
@@ -4068,8 +4074,8 @@
     return ((s = n), "[object Function]" === Object.prototype.toString.call(s) ? n(t) : !!n);
     var s;
   }
-  var h$1 = ["touchstart", "touchmove", "touchend", "touchcancel", "mousedown"],
-    p$1 = ["mousemove", "mouseup"];
+  var h$1 = ["touchstart", "touchmove", "touchend", "touchcancel", "mousedown"];
+  var p$1 = ["mousemove", "mouseup"];
   var g = {
     domEvents: {
       bubbles: true,
@@ -5433,7 +5439,7 @@
       if (typeof $el === "string") $el = that.selectorAll($el);
       if ($el == null) return;
       if (Array.isArray($el) || $el instanceof NodeList) {
-        if (typeof property === "string")
+        if (typeof property === "string") {
           if (value == null) return that.css($el[0], property);
           else {
             $el.forEach(($elItem) => {
@@ -5441,7 +5447,7 @@
             });
             return;
           }
-        else if (typeof property === "object") {
+        } else if (typeof property === "object") {
           $el.forEach(($elItem) => {
             that.css($elItem, property);
           });
@@ -5461,10 +5467,10 @@
           $el.style.setProperty(propertyName, propertyValue);
         }
       };
-      if (typeof property === "string")
+      if (typeof property === "string") {
         if (value == null) return PopsCore.globalThis.getComputedStyle($el).getPropertyValue(property);
         else setStyleProperty(property, value);
-      else if (typeof property === "object")
+      } else if (typeof property === "object")
         for (const prop in property) {
           const value = property[prop];
           setStyleProperty(prop, value);
@@ -5653,10 +5659,10 @@
       $cloneNode.setAttribute("style", "visibility: hidden !important;display:block !important;");
       let $parent = PopsCore.document.documentElement;
       const $root = $ele.getRootNode();
-      if (ownParent == null)
+      if (ownParent == null) {
         if ($root == $ele) $parent = PopsCore.document.documentElement;
         else $parent = $root;
-      else $parent = ownParent;
+      } else $parent = ownParent;
       $parent.appendChild($cloneNode);
       return {
         cloneNode: $cloneNode,
@@ -5996,7 +6002,7 @@
       '.pops {\n  --button-font-size: 14px;\n  --button-height: 32px;\n  --button-color: rgb(51, 51, 51);\n  --button-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n  --button-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n  --button-margin-top: 0px;\n  --button-margin-bottom: 0px;\n  --button-margin-left: 5px;\n  --button-margin-right: 5px;\n  --button-padding-top: 6px;\n  --button-padding-bottom: 6px;\n  --button-padding-left: 12px;\n  --button-padding-right: 12px;\n  --button-radius: 4px;\n\n  --container-title-height: 55px;\n  --container-bottom-btn-height: 55px;\n\n  /* default按钮 */\n  --button-default-color: #333333;\n  --button-default-bd-color: #dcdfe6;\n  --button-default-bg-color: #ffffff;\n  --button-default-active-color: #409eff;\n  --button-default-active-bd-color: #409eff;\n  --button-default-active-bg-color: #ecf5ff;\n  --button-default-hover-color: #409eff;\n  --button-default-hover-bd-color: #c6e2ff;\n  --button-default-hover-bg-color: #ecf5ff;\n  --button-default-focus-visible-outline-color: #a0cfff;\n  --button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\n  --button-default-focus-visible-outline-offset: 1px;\n  --button-default-disabled-color: #a8abb2;\n  --button-default-disabled-bd-color: #ffffff;\n  --button-default-disabled-bg-color: #e4e7ed;\n\n  /* primary按钮 */\n  --button-primary-color: #ffffff;\n  --button-primary-bd-color: #409eff;\n  --button-primary-bg-color: #409eff;\n  --button-primary-active-color: #ffffff;\n  --button-primary-active-bd-color: #337ecc;\n  --button-primary-active-bg-color: #337ecc;\n  --button-primary-hover-color: #ffffff;\n  --button-primary-hover-bd-color: #79bbff;\n  --button-primary-hover-bg-color: #79bbff;\n  --button-primary-focus-visible-outline-color: #a0cfff;\n  --button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\n  --button-primary-focus-visible-outline-offset: 1px;\n  --button-primary-disabled-color: #ffffff80;\n  --button-primary-disabled-bd-color: #a0cfff;\n  --button-primary-disabled-bg-color: #a0cfff;\n\n  /* success按钮 */\n  --button-success-color: #ffffff;\n  --button-success-bd-color: #4cae4c;\n  --button-success-bg-color: #5cb85c;\n  --button-success-active-color: #ffffff;\n  --button-success-active-bd-color: #529b2e;\n  --button-success-active-bg-color: #529b2e;\n  --button-success-hover-color: #ffffff;\n  --button-success-hover-bd-color: #95d475;\n  --button-success-hover-bg-color: #95d475;\n  --button-success-focus-visible-outline-color: #b3e19d;\n  --button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\n  --button-success-focus-visible-outline-offset: 1px;\n  --button-success-disabled-color: #ffffff80;\n  --button-success-disabled-bd-color: #b3e19d;\n  --button-success-disabled-bg-color: #b3e19d;\n\n  /* info按钮 */\n  --button-info-color: #ffffff;\n  --button-info-bd-color: #909399;\n  --button-info-bg-color: #909399;\n  --button-info-active-color: #ffffff;\n  --button-info-active-bd-color: #73767a;\n  --button-info-active-bg-color: #73767a;\n  --button-info-hover-color: #ffffff;\n  --button-info-hover-bd-color: #b1b3b8;\n  --button-info-hover-bg-color: #b1b3b8;\n  --button-info-focus-visible-outline-color: #c8c9cc;\n  --button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\n  --button-info-focus-visible-outline-offset: 1px;\n  --button-info-disabled-color: #ffffff80;\n  --button-info-disabled-bd-color: #c8c9cc;\n  --button-info-disabled-bg-color: #c8c9cc;\n\n  /* warning按钮 */\n  --button-warning-color: #ffffff;\n  --button-warning-bd-color: #e6a23c;\n  --button-warning-bg-color: #e6a23c;\n  --button-warning-active-color: #ffffff;\n  --button-warning-active-bd-color: #b88230;\n  --button-warning-active-bg-color: #b88230;\n  --button-warning-hover-color: #ffffff80;\n  --button-warning-hover-bd-color: #eebe77;\n  --button-warning-hover-bg-color: #eebe77;\n  --button-warning-focus-visible-outline-color: #f3d19e;\n  --button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\n  --button-warning-focus-visible-outline-offset: 1px;\n  --button-warning-disabled-color: #ffffff80;\n  --button-warning-disabled-bd-color: #f3d19e;\n  --button-warning-disabled-bg-color: #f3d19e;\n\n  /* danger按钮 */\n  --button-danger-color: #ffffff;\n  --button-danger-bd-color: #f56c6c;\n  --button-danger-bg-color: #f56c6c;\n  --button-danger-active-color: #ffffff;\n  --button-danger-active-bd-color: #c45656;\n  --button-danger-active-bg-color: #c45656;\n  --button-danger-hover-color: #ffffff;\n  --button-danger-hover-bd-color: #f89898;\n  --button-danger-hover-bg-color: #f89898;\n  --button-danger-focus-visible-outline-color: #fab6b6;\n  --button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\n  --button-danger-focus-visible-outline-offset: 1px;\n  --button-danger-disabled-color: #ffffff80;\n  --button-danger-disabled-bd-color: #fab6b6;\n  --button-danger-disabled-bg-color: #fab6b6;\n\n  /* xiaomi-primary按钮 */\n  --button-xiaomi-primary-color: #ffffff;\n  --button-xiaomi-primary-bd-color: #ff5c00;\n  --button-xiaomi-primary-bg-color: #ff5c00;\n  --button-xiaomi-primary-active-color: #ffffff;\n  --button-xiaomi-primary-active-bd-color: #da4f00;\n  --button-xiaomi-primary-active-bg-color: #da4f00;\n  --button-xiaomi-primary-hover-color: #ffffff;\n  --button-xiaomi-primary-hover-bd-color: #ff7e29;\n  --button-xiaomi-primary-hover-bg-color: #ff7e29;\n  --button-xiaomi-primary-focus-visible-outline-color: #ffa061;\n  --button-xiaomi-primary-focus-visible-outline: 2px solid var(--button-xiaomi-primary-focus-visible-outline-color);\n  --button-xiaomi-primary-focus-visible-outline-offset: 1px;\n  --button-xiaomi-primary-disabled-color: #ffffff80;\n  --button-xiaomi-primary-disabled-bd-color: #fad5b6;\n  --button-xiaomi-primary-disabled-bg-color: #fad5b6;\n\n  /* violet按钮 */\n  --button-violet-color: #ffffff;\n  --button-violet-bd-color: #626aef;\n  --button-violet-bg-color: #626aef;\n  --button-violet-active-color: #ffffff;\n  --button-violet-active-bd-color: #8188f2;\n  --button-violet-active-bg-color: #8188f2;\n  --button-violet-hover-color: #ffffff;\n  --button-violet-hover-bd-color: #4b50ad;\n  --button-violet-hover-bg-color: #4b50ad;\n  --button-violet-focus-visible-outline-color: #2a598a;\n  --button-violet-focus-visible-outline: 2px solid var(--button-violet-focus-visible-outline-color);\n  --button-violet-focus-visible-outline-offset: 1px;\n  --button-violet-disabled-color: #ffffff80;\n  --button-violet-disabled-bd-color: #3b3f82;\n  --button-violet-disabled-bg-color: #3b3f82;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops {\n    /* default按钮 */\n    --button-default-color: #cfd3dc;\n    --button-default-bd-color: #4c4d4f;\n    --button-default-bg-color: transparent;\n    --button-default-active-color: #409eff;\n    --button-default-active-bd-color: #409eff;\n    --button-default-active-bg-color: #18222c;\n    --button-default-hover-color: #409eff;\n    --button-default-hover-bd-color: #213d5b;\n    --button-default-hover-bg-color: #18222c;\n    --button-default-focus-visible-outline-color: #2a598a;\n    --button-default-focus-visible-outline: 2px solid var(--button-default-focus-visible-outline-color);\n    --button-default-focus-visible-outline-offset: 1px;\n    --button-default-disabled-color: #ffffff80;\n    --button-default-disabled-bd-color: #414243;\n    --button-default-disabled-bg-color: transparent;\n\n    /* primary按钮 */\n    --button-primary-color: #ffffff;\n    --button-primary-bd-color: #409eff;\n    --button-primary-bg-color: #409eff;\n    --button-primary-active-color: #ffffff;\n    --button-primary-active-bd-color: #66b1ff;\n    --button-primary-active-bg-color: #66b1ff;\n    --button-primary-hover-color: #ffffff;\n    --button-primary-hover-bd-color: #3375b9;\n    --button-primary-hover-bg-color: #3375b9;\n    --button-primary-focus-visible-outline-color: #2a598a;\n    --button-primary-focus-visible-outline: 2px solid var(--button-primary-focus-visible-outline-color);\n    --button-primary-focus-visible-outline-offset: 1px;\n    --button-primary-disabled-color: #ffffff80;\n    --button-primary-disabled-bd-color: #2a598a;\n    --button-primary-disabled-bg-color: #2a598a;\n\n    /* success按钮 */\n    --button-success-color: #ffffff;\n    --button-success-bd-color: #67c23a;\n    --button-success-bg-color: #67c23a;\n    --button-success-active-color: #ffffff;\n    --button-success-active-bd-color: #85ce61;\n    --button-success-active-bg-color: #85ce61;\n    --button-success-hover-color: #ffffff;\n    --button-success-hover-bd-color: #4e8e2f;\n    --button-success-hover-bg-color: #4e8e2f;\n    --button-success-focus-visible-outline-color: #3e6b27;\n    --button-success-focus-visible-outline: 2px solid var(--button-success-focus-visible-outline-color);\n    --button-success-focus-visible-outline-offset: 1px;\n    --button-success-disabled-color: #ffffff80;\n    --button-success-disabled-bd-color: #3e6b27;\n    --button-success-disabled-bg-color: #3e6b27;\n\n    /* info按钮 */\n    --button-info-color: #ffffff;\n    --button-info-bd-color: #909399;\n    --button-info-bg-color: #909399;\n    --button-info-active-color: #ffffff;\n    --button-info-active-bd-color: #a6a9ad;\n    --button-info-active-bg-color: #a6a9ad;\n    --button-info-hover-color: #ffffff;\n    --button-info-hover-bd-color: #6b6d71;\n    --button-info-hover-bg-color: #6b6d71;\n    --button-info-focus-visible-outline-color: #525457;\n    --button-info-focus-visible-outline: 2px solid var(--button-info-focus-visible-outline-color);\n    --button-info-focus-visible-outline-offset: 1px;\n    --button-info-disabled-color: #ffffff80;\n    --button-info-disabled-bd-color: #525457;\n    --button-info-disabled-bg-color: #525457;\n\n    /* warning按钮 */\n    --button-warning-color: #ffffff;\n    --button-warning-bd-color: #e6a23c;\n    --button-warning-bg-color: #e6a23c;\n    --button-warning-active-color: #ffffff;\n    --button-warning-active-bd-color: #ebb563;\n    --button-warning-active-bg-color: #ebb563;\n    --button-warning-hover-color: #ffffff80;\n    --button-warning-hover-bd-color: #a77730;\n    --button-warning-hover-bg-color: #a77730;\n    --button-warning-focus-visible-outline-color: #7d5b28;\n    --button-warning-focus-visible-outline: 2px solid var(--button-warning-focus-visible-outline-color);\n    --button-warning-focus-visible-outline-offset: 1px;\n    --button-warning-disabled-color: #ffffff80;\n    --button-warning-disabled-bd-color: #7d5b28;\n    --button-warning-disabled-bg-color: #7d5b28;\n\n    /* danger按钮 */\n    --button-danger-color: #ffffff;\n    --button-danger-bd-color: #f56c6c;\n    --button-danger-bg-color: #f56c6c;\n    --button-danger-active-color: #ffffff;\n    --button-danger-active-bd-color: #f78989;\n    --button-danger-active-bg-color: #f78989;\n    --button-danger-hover-color: #ffffff;\n    --button-danger-hover-bd-color: #b25252;\n    --button-danger-hover-bg-color: #b25252;\n    --button-danger-focus-visible-outline-color: #854040;\n    --button-danger-focus-visible-outline: 2px solid var(--button-danger-focus-visible-outline-color);\n    --button-danger-focus-visible-outline-offset: 1px;\n    --button-danger-disabled-color: #ffffff80;\n    --button-danger-disabled-bd-color: #854040;\n    --button-danger-disabled-bg-color: #854040;\n  }\n}\n.pops[data-bottom-btn="false"] {\n  --container-bottom-btn-height: 0px;\n}\n.pops button {\n  white-space: nowrap;\n  float: right;\n  display: inline-block;\n  margin: var(--button-margin-top) var(--button-margin-right) var(--button-margin-bottom) var(--button-margin-left);\n  padding: var(--button-padding-top) var(--button-padding-right) var(--button-padding-bottom) var(--button-padding-left);\n  outline: 0;\n}\n.pops button[data-has-icon="false"] .pops-bottom-icon {\n  display: none;\n}\n.pops button {\n  border-radius: var(--button-radius);\n  box-shadow: none;\n  font-weight: 400;\n  font-size: var(--button-font-size);\n  cursor: pointer;\n  transition: all 0.3s ease-in-out;\n}\n.pops button {\n  display: flex;\n  align-items: center;\n  height: var(--button-height);\n  line-height: normal;\n  box-sizing: border-box;\n  border: 1px solid var(--button-bd-color);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops button {\n  color: var(--button-color);\n  border-color: var(--button-bd-color);\n  background-color: var(--button-bg-color);\n}\n.pops button:active {\n  color: var(--button-color);\n  border-color: var(--button-bd-color);\n  background-color: var(--button-bg-color);\n  outline: 0;\n}\n.pops button:hover {\n  color: var(--button-color);\n  border-color: var(--button-bd-color);\n  background-color: var(--button-bg-color);\n}\n.pops button:focus-visible {\n  color: var(--button-color);\n  border-color: var(--button-bd-color);\n  background-color: var(--button-bg-color);\n}\n.pops button:disabled {\n  cursor: not-allowed;\n  color: var(--button-color);\n  border-color: var(--button-bd-color);\n  background-color: var(--button-bg-color);\n}\n.pops button.pops-button-large {\n  --button-height: 32px;\n  --button-padding-top: 12px;\n  --button-padding-bottom: 12px;\n  --button-padding-left: 19px;\n  --button-padding-right: 19px;\n  --button-font-size: 14px;\n  --button-border-radius: 4px;\n}\n\n.pops button.pops-button-small {\n  --button-height: 24px;\n  --button-padding-top: 5px;\n  --button-padding-bottom: 5px;\n  --button-padding-left: 11px;\n  --button-padding-right: 11px;\n  --button-font-size: 12px;\n  --button-border-radius: 4px;\n}\n.pops-panel-button-no-icon .pops-panel-button_inner i {\n  display: none;\n}\n.pops-panel-button-right-icon .pops-panel-button_inner {\n  flex-direction: row-reverse;\n}\n.pops-panel-button .pops-panel-button_inner i:has(svg),\n.pops-panel-button-right-icon .pops-panel-button-text {\n  margin-right: 6px;\n}\n\n.pops button[data-type="default"] {\n  --button-color: var(--button-default-color);\n  --button-bd-color: var(--button-default-bd-color);\n  --button-bg-color: var(--button-default-bg-color);\n}\n.pops button[data-type="default"]:active {\n  --button-color: var(--button-default-active-color);\n  --button-bd-color: var(--button-default-active-bd-color);\n  --button-bg-color: var(--button-default-active-bg-color);\n}\n.pops button[data-type="default"]:hover {\n  --button-color: var(--button-default-hover-color);\n  --button-bd-color: var(--button-default-hover-bd-color);\n  --button-bg-color: var(--button-default-hover-bg-color);\n}\n.pops button[data-type="default"]:focus-visible {\n  outline: var(--button-default-focus-visible-outline);\n  outline-offset: var(--button-default-focus-visible-outline-offset);\n}\n.pops button[data-type="default"]:disabled {\n  --button-color: var(--button-default-disabled-color);\n  --button-bd-color: var(--button-default-disabled-bd-color);\n  --button-bg-color: var(--button-default-disabled-bg-color);\n}\n\n.pops button[data-type="primary"] {\n  --button-color: var(--button-primary-color);\n  --button-bd-color: var(--button-primary-bd-color);\n  --button-bg-color: var(--button-primary-bg-color);\n}\n.pops button[data-type="primary"]:active {\n  --button-color: var(--button-primary-active-color);\n  --button-bd-color: var(--button-primary-active-bd-color);\n  --button-bg-color: var(--button-primary-active-bg-color);\n}\n.pops button[data-type="primary"]:hover {\n  --button-color: var(--button-primary-hover-color);\n  --button-bd-color: var(--button-primary-hover-bd-color);\n  --button-bg-color: var(--button-primary-hover-bg-color);\n}\n.pops button[data-type="primary"]:focus-visible {\n  outline: var(--button-primary-focus-visible-outline);\n  outline-offset: var(--button-primary-focus-visible-outline-offset);\n}\n.pops button[data-type="primary"]:disabled {\n  --button-color: var(--button-primary-disabled-color);\n  --button-bd-color: var(--button-primary-disabled-bd-color);\n  --button-bg-color: var(--button-primary-disabled-bg-color);\n}\n\n.pops button[data-type="success"] {\n  --button-color: var(--button-success-color);\n  --button-bd-color: var(--button-success-bd-color);\n  --button-bg-color: var(--button-success-bg-color);\n}\n.pops button[data-type="success"]:active {\n  --button-color: var(--button-success-active-color);\n  --button-bd-color: var(--button-success-active-bd-color);\n  --button-bg-color: var(--button-success-active-bg-color);\n}\n.pops button[data-type="success"]:hover {\n  --button-color: var(--button-success-hover-color);\n  --button-bd-color: var(--button-success-hover-bd-color);\n  --button-bg-color: var(--button-success-hover-bg-color);\n}\n.pops button[data-type="success"]:focus-visible {\n  outline: var(--button-success-focus-visible-outline);\n  outline-offset: var(--button-success-focus-visible-outline-offset);\n}\n.pops button[data-type="success"]:disabled {\n  --button-color: var(--button-success-disabled-color);\n  --button-bd-color: var(--button-success-disabled-bd-color);\n  --button-bg-color: var(--button-success-disabled-bg-color);\n}\n\n.pops button[data-type="info"] {\n  --button-color: var(--button-info-color);\n  --button-bd-color: var(--button-info-bd-color);\n  --button-bg-color: var(--button-info-bg-color);\n}\n.pops button[data-type="info"]:active {\n  --button-color: var(--button-info-active-color);\n  --button-bd-color: var(--button-info-active-bd-color);\n  --button-bg-color: var(--button-info-active-bg-color);\n}\n.pops button[data-type="info"]:hover {\n  --button-color: var(--button-info-hover-color);\n  --button-bd-color: var(--button-info-hover-bd-color);\n  --button-bg-color: var(--button-info-hover-bg-color);\n}\n.pops button[data-type="info"]:focus-visible {\n  outline: var(--button-info-focus-visible-outline);\n  outline-offset: var(--button-info-focus-visible-outline-offset);\n}\n.pops button[data-type="info"]:disabled {\n  --button-color: var(--button-info-disabled-color);\n  --button-bd-color: var(--button-info-disabled-bd-color);\n  --button-bg-color: var(--button-info-disabled-bg-color);\n}\n\n.pops button[data-type="warning"] {\n  --button-color: var(--button-warning-color);\n  --button-bd-color: var(--button-warning-bd-color);\n  --button-bg-color: var(--button-warning-bg-color);\n}\n.pops button[data-type="warning"]:active {\n  --button-color: var(--button-warning-active-color);\n  --button-bd-color: var(--button-warning-active-bd-color);\n  --button-bg-color: var(--button-warning-active-bg-color);\n}\n.pops button[data-type="warning"]:hover {\n  --button-color: var(--button-warning-hover-color);\n  --button-bd-color: var(--button-warning-hover-bd-color);\n  --button-bg-color: var(--button-warning-hover-bg-color);\n}\n.pops button[data-type="warning"]:focus-visible {\n  outline: var(--button-warning-focus-visible-outline);\n  outline-offset: var(--button-warning-focus-visible-outline-offset);\n}\n.pops button[data-type="warning"]:disabled {\n  --button-color: var(--button-warning-disabled-color);\n  --button-bd-color: var(--button-warning-disabled-bd-color);\n  --button-bg-color: var(--button-warning-disabled-bg-color);\n}\n\n.pops button[data-type="danger"] {\n  --button-color: var(--button-danger-color);\n  --button-bd-color: var(--button-danger-bd-color);\n  --button-bg-color: var(--button-danger-bg-color);\n}\n.pops button[data-type="danger"]:active {\n  --button-color: var(--button-danger-active-color);\n  --button-bd-color: var(--button-danger-active-bd-color);\n  --button-bg-color: var(--button-danger-active-bg-color);\n}\n.pops button[data-type="danger"]:hover {\n  --button-color: var(--button-danger-hover-color);\n  --button-bd-color: var(--button-danger-hover-bd-color);\n  --button-bg-color: var(--button-danger-hover-bg-color);\n}\n.pops button[data-type="danger"]:focus-visible {\n  outline: var(--button-danger-focus-visible-outline);\n  outline-offset: var(--button-danger-focus-visible-outline-offset);\n}\n.pops button[data-type="danger"]:disabled {\n  --button-color: var(--button-danger-disabled-color);\n  --button-bd-color: var(--button-danger-disabled-bd-color);\n  --button-bg-color: var(--button-danger-disabled-bg-color);\n}\n\n.pops button[data-type="xiaomi-primary"] {\n  --button-color: var(--button-xiaomi-primary-color);\n  --button-bd-color: var(--button-xiaomi-primary-bd-color);\n  --button-bg-color: var(--button-xiaomi-primary-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:active {\n  --button-color: var(--button-xiaomi-primary-active-color);\n  --button-bd-color: var(--button-xiaomi-primary-active-bd-color);\n  --button-bg-color: var(--button-xiaomi-primary-active-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:hover {\n  --button-color: var(--button-xiaomi-primary-hover-color);\n  --button-bd-color: var(--button-xiaomi-primary-hover-bd-color);\n  --button-bg-color: var(--button-xiaomi-primary-hover-bg-color);\n}\n.pops button[data-type="xiaomi-primary"]:focus-visible {\n  outline: var(--button-xiaomi-primary-focus-visible-outline);\n  outline-offset: var(--button-xiaomi-primary-focus-visible-outline-offset);\n}\n.pops button[data-type="xiaomi-primary"]:disabled {\n  --button-color: var(--button-xiaomi-primary-disabled-color);\n  --button-bd-color: var(--button-xiaomi-primary-disabled-bd-color);\n  --button-bg-color: var(--button-xiaomi-primary-disabled-bg-color);\n}\n\n.pops button[data-type="violet"] {\n  --button-color: var(--button-violet-color);\n  --button-bd-color: var(--button-violet-bd-color);\n  --button-bg-color: var(--button-violet-bg-color);\n}\n.pops button[data-type="violet"]:active {\n  --button-color: var(--button-violet-active-color);\n  --button-bd-color: var(--button-violet-active-bd-color);\n  --button-bg-color: var(--button-violet-active-bg-color);\n}\n.pops button[data-type="violet"]:hover {\n  --button-color: var(--button-violet-hover-color);\n  --button-bd-color: var(--button-violet-hover-bd-color);\n  --button-bg-color: var(--button-violet-hover-bg-color);\n}\n.pops button[data-type="violet"]:focus-visible {\n  outline: var(--button-violet-focus-visible-outline);\n  outline-offset: var(--button-violet-focus-visible-outline-offset);\n}\n.pops button[data-type="violet"]:disabled {\n  --button-color: var(--button-violet-disabled-color);\n  --button-bd-color: var(--button-violet-disabled-bd-color);\n  --button-bg-color: var(--button-violet-disabled-bg-color);\n}\n',
     common:
       ".pops-flex-items-center {\n  display: flex;\n  align-items: center;\n}\n.pops-flex-y-center {\n  display: flex;\n  justify-content: space-between;\n}\n.pops-flex-x-center {\n  display: flex;\n  align-content: center;\n}\n.pops-hide {\n  display: none;\n}\n.pops-hide-important {\n  display: none !important;\n}\n.pops-no-border {\n  border: 0;\n}\n.pops-no-border-important {\n  border: 0 !important;\n}\n.pops-user-select-none {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-line-height-center {\n  line-height: normal;\n  align-content: center;\n}\n.pops-width-fill {\n  width: 100%;\n  width: -moz-available;\n  width: -webkit-fill-available;\n}\n.pops-height-fill {\n  height: 100%;\n  height: -moz-available;\n  height: -webkit-fill-available;\n}\n.pops-text-is-disabled {\n  --pops-text-is-disabled-color: #a8abb2;\n  --pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color);\n  color: var(--pops-text-is-disabled-color);\n}\n.pops-text-is-disabled-important {\n  --pops-text-is-disabled-color: #a8abb2;\n  --pops-panel-forms-container-item-left-desc-text-color: var(--pops-text-is-disabled-color) !important;\n  color: var(--pops-text-is-disabled-color) !important;\n}\n",
-    anim: '@keyframes rotating {\n  0% {\n    transform: rotate(0);\n  }\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes iframeLoadingChange_85 {\n  0% {\n    background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n  }\n  20% {\n    background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n  }\n  40% {\n    background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n  }\n  60% {\n    background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n  }\n  80% {\n    background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n  }\n  100% {\n    background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n  }\n  from {\n    width: 75%;\n  }\n  to {\n    width: 100%;\n  }\n}\n@keyframes iframeLoadingChange {\n  0% {\n    background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n  }\n  20% {\n    background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n  }\n  40% {\n    background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n  }\n  60% {\n    background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n  }\n  80% {\n    background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n  }\n  100% {\n    background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n  }\n  from {\n    width: 0;\n  }\n  to {\n    width: 75%;\n  }\n}\n\n@keyframes searchSelectFalIn {\n  from {\n    opacity: 0;\n    display: none;\n  }\n  to {\n    display: block;\n    opacity: 1;\n  }\n}\n@keyframes searchSelectFalOut {\n  from {\n    display: block;\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n    display: none;\n  }\n}\n\n@keyframes pops-anim-wait-rotate {\n  form {\n    transform: rotate(0);\n  }\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes pops-anim-spread {\n  0% {\n    opacity: 0;\n    transform: scaleX(0);\n  }\n  100% {\n    opacity: 1;\n    transform: scaleX(1);\n  }\n}\n@keyframes pops-anim-shake {\n  0%,\n  100% {\n    transform: translateX(0);\n  }\n  10%,\n  30%,\n  50%,\n  70%,\n  90% {\n    transform: translateX(-10px);\n  }\n  20%,\n  40%,\n  60%,\n  80% {\n    transform: translateX(10px);\n  }\n}\n@keyframes pops-anim-rolling-left {\n  0% {\n    opacity: 0;\n    transform: translateX(-100%) rotate(-120deg);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n}\n@keyframes pops-anim-rolling-right {\n  0% {\n    opacity: 0;\n    transform: translateX(100%) rotate(120deg);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n}\n@keyframes pops-anim-slide-top {\n  0% {\n    opacity: 0;\n    transform: translateY(-200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes pops-anim-slide-bottom {\n  0% {\n    opacity: 0;\n    transform: translateY(200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes pops-anim-slide-left {\n  0% {\n    opacity: 0;\n    transform: translateX(-200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\n@keyframes pops-anim-slide-right {\n  0% {\n    transform: translateX(200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\n@keyframes pops-anim-fadein {\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes pops-anim-fadein-zoom {\n  0% {\n    opacity: 0;\n    transform: scale(0.5);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes pops-anim-fadein-alert {\n  0% {\n    transform: scale(0.5);\n  }\n  45% {\n    transform: scale(1.05);\n  }\n  80% {\n    transform: scale(0.95);\n  }\n  100% {\n    transform: scale(1);\n  }\n}\n@keyframes pops-anim-don {\n  0% {\n    opacity: 0;\n    transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  2.08333% {\n    transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  4.16667% {\n    transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  6.25% {\n    transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  8.33333% {\n    transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  10.4167% {\n    transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  12.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  14.5833% {\n    transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  16.6667% {\n    transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  18.75% {\n    transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  20.8333% {\n    transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  22.9167% {\n    transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  25% {\n    transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  27.0833% {\n    transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  29.1667% {\n    transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  31.25% {\n    transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  33.3333% {\n    transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  35.4167% {\n    transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  37.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  39.5833% {\n    transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  41.6667% {\n    transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  43.75% {\n    transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  45.8333% {\n    transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  47.9167% {\n    transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  50% {\n    opacity: 1;\n    transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  52.0833% {\n    transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  54.1667% {\n    transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  56.25% {\n    transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  58.3333% {\n    transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  60.4167% {\n    transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  62.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  64.5833% {\n    transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  66.6667% {\n    transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  68.75% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  70.8333% {\n    transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  72.9167% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  75% {\n    transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  77.0833% {\n    transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  79.1667% {\n    transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  81.25% {\n    transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  83.3333% {\n    transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  85.4167% {\n    transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  87.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  89.5833% {\n    transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  91.6667% {\n    transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  93.75% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  95.8333% {\n    transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  97.9167% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  100% {\n    opacity: 1;\n    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n}\n@keyframes pops-anim-roll {\n  0% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n  }\n  100% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n  }\n}\n@keyframes pops-anim-sandra {\n  0% {\n    opacity: 0;\n    transform: scale3d(1.1, 1.1, 1);\n  }\n  100% {\n    opacity: 1;\n    transform: scale3d(1, 1, 1);\n  }\n}\n@keyframes pops-anim-gather {\n  0% {\n    opacity: 0;\n    transform: scale(5, 0);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1, 1);\n  }\n}\n@keyframes pops-anim-spread-reverse {\n  0% {\n    opacity: 1;\n    transform: scaleX(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scaleX(0);\n  }\n}\n@keyframes pops-anim-shake-reverse {\n  0%,\n  100% {\n    transform: translateX(10px);\n  }\n  10%,\n  30%,\n  50%,\n  70%,\n  90% {\n    transform: translateX(-10px);\n  }\n  20%,\n  40%,\n  60%,\n  80% {\n    transform: translateX(0);\n  }\n}\n@keyframes pops-anim-rolling-left-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateX(-100%) rotate(-120deg);\n  }\n}\n@keyframes pops-anim-rolling-right-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateX(100%) rotate(120deg);\n  }\n}\n@keyframes pops-anim-slide-top-reverse {\n  0% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-200%);\n  }\n}\n@keyframes pops-anim-slide-bottom-reverse {\n  0% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(200%);\n  }\n}\n@keyframes pops-anim-slide-left-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateX(-200%);\n  }\n}\n@keyframes pops-anim-slide-right-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n  100% {\n    transform: translateX(200%);\n  }\n}\n@keyframes pops-anim-fadein-reverse {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n  }\n}\n@keyframes pops-anim-fadein-zoom-reverse {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.5);\n  }\n}\n@keyframes pops-anim-fadein-alert-reverse {\n  0% {\n    transform: scale(1);\n  }\n  45% {\n    transform: scale(0.95);\n  }\n  80% {\n    transform: scale(1.05);\n  }\n  100% {\n    transform: scale(0.5);\n  }\n}\n@keyframes pops-anim-don-reverse {\n  100% {\n    opacity: 0;\n    transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  97.9167% {\n    transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  95.8333% {\n    transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  93.75% {\n    transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  91.6667% {\n    transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  89.5833% {\n    transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  87.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  85.4167% {\n    transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  83.3333% {\n    transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  81.25% {\n    transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  79.1667% {\n    transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  77.0833% {\n    transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  75% {\n    transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  72.9167% {\n    transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  70.8333% {\n    transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  68.75% {\n    transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  66.6667% {\n    transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  64.5833% {\n    transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  62.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  60.4167% {\n    transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  58.3333% {\n    transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  56.25% {\n    transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  54.1667% {\n    transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  52.0833% {\n    transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  50% {\n    opacity: 1;\n    transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  47.9167% {\n    transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  45.8333% {\n    transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  43.75% {\n    transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  41.6667% {\n    transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  39.5833% {\n    transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  37.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  35.4167% {\n    transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  33.3333% {\n    transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  31.25% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  29.1667% {\n    transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  27.0833% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  25% {\n    transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  22.9167% {\n    transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  20.8333% {\n    transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  18.75% {\n    transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  16.6667% {\n    transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  14.5833% {\n    transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  12.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  10.4167% {\n    transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  8.33333% {\n    transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  6.25% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  4.16667% {\n    transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  2.08333% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  0% {\n    opacity: 1;\n    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n}\n@keyframes pops-anim-roll-reverse {\n  0% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n  }\n  100% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n  }\n}\n@keyframes pops-anim-sandra-reverse {\n  0% {\n    opacity: 1;\n    transform: scale3d(1, 1, 1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale3d(1.1, 1.1, 1);\n  }\n}\n@keyframes pops-anim-gather-reverse {\n  0% {\n    opacity: 0;\n    transform: scale(5, 0);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(5, 0);\n  }\n}\n\n@-webkit-keyframes pops-motion-fadeInTop {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(-30px);\n    transform: translateY(-30px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n@keyframes pops-motion-fadeInTop {\n  0% {\n    opacity: 0;\n    transform: translateY(-30px);\n    -ms-transform: translateY(-30px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutTop {\n  0% {\n    opacity: 10;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-30px);\n    transform: translateY(-30px);\n  }\n}\n@keyframes pops-motion-fadeOutTop {\n  0% {\n    opacity: 1;\n    transform: translateY(0);\n    -ms-transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-30px);\n    -ms-transform: translateY(-30px);\n  }\n}\n@-webkit-keyframes pops-motion-fadeInBottom {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n  }\n}\n@keyframes pops-motion-fadeInBottom {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n    -ms-transform: translateY(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n    -ms-transform: translateY(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutBottom {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n  }\n}\n@keyframes pops-motion-fadeOutBottom {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n    -ms-transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n    -ms-transform: translateY(20px);\n  }\n}\n@-webkit-keyframes pops-motion-fadeInLeft {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(-20px);\n    transform: translateX(-20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n@keyframes pops-motion-fadeInLeft {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(-30px);\n    transform: translateX(-30px);\n    -ms-transform: translateX(-30px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutLeft {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(-30px);\n    transform: translateX(-30px);\n  }\n}\n@keyframes pops-motion-fadeOutLeft {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(-20px);\n    transform: translateX(-20px);\n    -ms-transform: translateX(-20px);\n  }\n}\n@-webkit-keyframes pops-motion-fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n@keyframes pops-motion-fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n    -ms-transform: translateX(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutRight {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n  }\n}\n@keyframes pops-motion-fadeOutRight {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n    -ms-transform: translateX(20px);\n  }\n}\n\n/* 动画 */\n.pops-anim[anim="pops-anim-spread"] {\n  animation: pops-anim-spread 0.3s;\n}\n.pops-anim[anim="pops-anim-shake"] {\n  animation: pops-anim-shake 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left"] {\n  animation: pops-anim-rolling-left 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right"] {\n  animation: pops-anim-rolling-right 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top"] {\n  animation: pops-anim-slide-top 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom"] {\n  animation: pops-anim-slide-bottom 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left"] {\n  animation: pops-anim-slide-left 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right"] {\n  animation: pops-anim-slide-right 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein"] {\n  animation: pops-anim-fadein 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom"] {\n  animation: pops-anim-fadein-zoom 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert"] {\n  animation: pops-anim-fadein-alert 0.3s;\n}\n.pops-anim[anim="pops-anim-don"] {\n  animation: pops-anim-don 0.3s;\n}\n.pops-anim[anim="pops-anim-roll"] {\n  animation: pops-anim-roll 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra"] {\n  animation: pops-anim-sandra 0.3s;\n}\n.pops-anim[anim="pops-anim-gather"] {\n  animation: pops-anim-gather 0.3s;\n}\n.pops-anim[anim="pops-anim-spread-reverse"] {\n  animation: pops-anim-spread-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-shake-reverse"] {\n  animation: pops-anim-shake-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\n  animation: pops-anim-rolling-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\n  animation: pops-anim-rolling-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\n  animation: pops-anim-slide-top-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\n  animation: pops-anim-slide-bottom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\n  animation: pops-anim-slide-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\n  animation: pops-anim-slide-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-reverse"] {\n  animation: pops-anim-fadein-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\n  animation: pops-anim-fadein-zoom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\n  animation: pops-anim-fadein-alert-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-don-reverse"] {\n  animation: pops-anim-don-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-roll-reverse"] {\n  animation: pops-anim-roll-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra-reverse"] {\n  animation: pops-anim-sandra-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-gather-reverse"] {\n  animation: pops-anim-gather-reverse 0.3s;\n}\n',
+    anim: '@keyframes rotating {\n  0% {\n    transform: rotate(0);\n  }\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes iframeLoadingChange_85 {\n  0% {\n    background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n  }\n  20% {\n    background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n  }\n  40% {\n    background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n  }\n  60% {\n    background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n  }\n  80% {\n    background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n  }\n  100% {\n    background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n  }\n  from {\n    width: 75%;\n  }\n  to {\n    width: 100%;\n  }\n}\n@keyframes iframeLoadingChange {\n  0% {\n    background: linear-gradient(to right, #4995dd, #fff, rgb(202 224 246));\n  }\n  20% {\n    background: linear-gradient(to right, #4995dd, #ead0d0, rgb(123 185 246));\n  }\n  40% {\n    background: linear-gradient(to right, #4995dd, #f4b7b7, rgb(112 178 244));\n  }\n  60% {\n    background: linear-gradient(to right, #4995dd, #ec9393, rgb(80 163 246));\n  }\n  80% {\n    background: linear-gradient(to right, #4995dd, #e87f7f, rgb(25 139 253));\n  }\n  100% {\n    background: linear-gradient(to right, #4995dd, #ee2c2c, rgb(0 124 247));\n  }\n  from {\n    width: 0;\n  }\n  to {\n    width: 75%;\n  }\n}\n\n@keyframes searchSelectFalIn {\n  from {\n    opacity: 0;\n    display: none;\n  }\n  to {\n    display: block;\n    opacity: 1;\n  }\n}\n@keyframes searchSelectFalOut {\n  from {\n    display: block;\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n    display: none;\n  }\n}\n\n@keyframes pops-anim-wait-rotate {\n  from {\n    transform: rotate(0);\n  }\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes pops-anim-spread {\n  0% {\n    opacity: 0;\n    transform: scaleX(0);\n  }\n  100% {\n    opacity: 1;\n    transform: scaleX(1);\n  }\n}\n@keyframes pops-anim-shake {\n  0%,\n  100% {\n    transform: translateX(0);\n  }\n  10%,\n  30%,\n  50%,\n  70%,\n  90% {\n    transform: translateX(-10px);\n  }\n  20%,\n  40%,\n  60%,\n  80% {\n    transform: translateX(10px);\n  }\n}\n@keyframes pops-anim-rolling-left {\n  0% {\n    opacity: 0;\n    transform: translateX(-100%) rotate(-120deg);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n}\n@keyframes pops-anim-rolling-right {\n  0% {\n    opacity: 0;\n    transform: translateX(100%) rotate(120deg);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n}\n@keyframes pops-anim-slide-top {\n  0% {\n    opacity: 0;\n    transform: translateY(-200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes pops-anim-slide-bottom {\n  0% {\n    opacity: 0;\n    transform: translateY(200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n@keyframes pops-anim-slide-left {\n  0% {\n    opacity: 0;\n    transform: translateX(-200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\n@keyframes pops-anim-slide-right {\n  0% {\n    transform: translateX(200%);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n}\n@keyframes pops-anim-fadein {\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes pops-anim-fadein-zoom {\n  0% {\n    opacity: 0;\n    transform: scale(0.5);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes pops-anim-fadein-alert {\n  0% {\n    transform: scale(0.5);\n  }\n  45% {\n    transform: scale(1.05);\n  }\n  80% {\n    transform: scale(0.95);\n  }\n  100% {\n    transform: scale(1);\n  }\n}\n@keyframes pops-anim-don {\n  0% {\n    opacity: 0;\n    transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  2.08333% {\n    transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  4.16667% {\n    transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  6.25% {\n    transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  8.33333% {\n    transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  10.4167% {\n    transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  12.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  14.5833% {\n    transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  16.6667% {\n    transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  18.75% {\n    transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  20.8333% {\n    transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  22.9167% {\n    transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  25% {\n    transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  27.0833% {\n    transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  29.1667% {\n    transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  31.25% {\n    transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  33.3333% {\n    transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  35.4167% {\n    transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  37.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  39.5833% {\n    transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  41.6667% {\n    transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  43.75% {\n    transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  45.8333% {\n    transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  47.9167% {\n    transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  50% {\n    opacity: 1;\n    transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  52.0833% {\n    transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  54.1667% {\n    transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  56.25% {\n    transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  58.3333% {\n    transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  60.4167% {\n    transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  62.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  64.5833% {\n    transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  66.6667% {\n    transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  68.75% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  70.8333% {\n    transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  72.9167% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  75% {\n    transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  77.0833% {\n    transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  79.1667% {\n    transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  81.25% {\n    transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  83.3333% {\n    transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  85.4167% {\n    transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  87.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  89.5833% {\n    transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  91.6667% {\n    transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  93.75% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  95.8333% {\n    transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  97.9167% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  100% {\n    opacity: 1;\n    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n}\n@keyframes pops-anim-roll {\n  0% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n  }\n  100% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n  }\n}\n@keyframes pops-anim-sandra {\n  0% {\n    opacity: 0;\n    transform: scale3d(1.1, 1.1, 1);\n  }\n  100% {\n    opacity: 1;\n    transform: scale3d(1, 1, 1);\n  }\n}\n@keyframes pops-anim-gather {\n  0% {\n    opacity: 0;\n    transform: scale(5, 0);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1, 1);\n  }\n}\n@keyframes pops-anim-spread-reverse {\n  0% {\n    opacity: 1;\n    transform: scaleX(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scaleX(0);\n  }\n}\n@keyframes pops-anim-shake-reverse {\n  0%,\n  100% {\n    transform: translateX(10px);\n  }\n  10%,\n  30%,\n  50%,\n  70%,\n  90% {\n    transform: translateX(-10px);\n  }\n  20%,\n  40%,\n  60%,\n  80% {\n    transform: translateX(0);\n  }\n}\n@keyframes pops-anim-rolling-left-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateX(-100%) rotate(-120deg);\n  }\n}\n@keyframes pops-anim-rolling-right-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0) rotate(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateX(100%) rotate(120deg);\n  }\n}\n@keyframes pops-anim-slide-top-reverse {\n  0% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-200%);\n  }\n}\n@keyframes pops-anim-slide-bottom-reverse {\n  0% {\n    opacity: 1;\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(200%);\n  }\n}\n@keyframes pops-anim-slide-left-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateX(-200%);\n  }\n}\n@keyframes pops-anim-slide-right-reverse {\n  0% {\n    opacity: 1;\n    transform: translateX(0);\n  }\n  100% {\n    transform: translateX(200%);\n  }\n}\n@keyframes pops-anim-fadein-reverse {\n  0% {\n    opacity: 1;\n  }\n  100% {\n    opacity: 0;\n  }\n}\n@keyframes pops-anim-fadein-zoom-reverse {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.5);\n  }\n}\n@keyframes pops-anim-fadein-alert-reverse {\n  0% {\n    transform: scale(1);\n  }\n  45% {\n    transform: scale(0.95);\n  }\n  80% {\n    transform: scale(1.05);\n  }\n  100% {\n    transform: scale(0.5);\n  }\n}\n@keyframes pops-anim-don-reverse {\n  100% {\n    opacity: 0;\n    transform: matrix3d(0.7, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  97.9167% {\n    transform: matrix3d(0.75266, 0, 0, 0, 0, 0.76342, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  95.8333% {\n    transform: matrix3d(0.81071, 0, 0, 0, 0, 0.84545, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  93.75% {\n    transform: matrix3d(0.86808, 0, 0, 0, 0, 0.9286, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  91.6667% {\n    transform: matrix3d(0.92038, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  89.5833% {\n    transform: matrix3d(0.96482, 0, 0, 0, 0, 1.05202, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  87.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.08204, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  85.4167% {\n    transform: matrix3d(1.02563, 0, 0, 0, 0, 1.09149, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  83.3333% {\n    transform: matrix3d(1.04227, 0, 0, 0, 0, 1.08453, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  81.25% {\n    transform: matrix3d(1.05102, 0, 0, 0, 0, 1.06666, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  79.1667% {\n    transform: matrix3d(1.05334, 0, 0, 0, 0, 1.04355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  77.0833% {\n    transform: matrix3d(1.05078, 0, 0, 0, 0, 1.02012, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  75% {\n    transform: matrix3d(1.04487, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  72.9167% {\n    transform: matrix3d(1.03699, 0, 0, 0, 0, 0.98534, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  70.8333% {\n    transform: matrix3d(1.02831, 0, 0, 0, 0, 0.97688, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  68.75% {\n    transform: matrix3d(1.01973, 0, 0, 0, 0, 0.97422, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  66.6667% {\n    transform: matrix3d(1.01191, 0, 0, 0, 0, 0.97618, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  64.5833% {\n    transform: matrix3d(1.00526, 0, 0, 0, 0, 0.98122, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  62.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.98773, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  60.4167% {\n    transform: matrix3d(0.99617, 0, 0, 0, 0, 0.99433, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  58.3333% {\n    transform: matrix3d(0.99368, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  56.25% {\n    transform: matrix3d(0.99237, 0, 0, 0, 0, 1.00413, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  54.1667% {\n    transform: matrix3d(0.99202, 0, 0, 0, 0, 1.00651, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  52.0833% {\n    transform: matrix3d(0.99241, 0, 0, 0, 0, 1.00726, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  50% {\n    opacity: 1;\n    transform: matrix3d(0.99329, 0, 0, 0, 0, 1.00671, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  47.9167% {\n    transform: matrix3d(0.99447, 0, 0, 0, 0, 1.00529, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  45.8333% {\n    transform: matrix3d(0.99577, 0, 0, 0, 0, 1.00346, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  43.75% {\n    transform: matrix3d(0.99705, 0, 0, 0, 0, 1.0016, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  41.6667% {\n    transform: matrix3d(0.99822, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  39.5833% {\n    transform: matrix3d(0.99921, 0, 0, 0, 0, 0.99884, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  37.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 0.99816, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  35.4167% {\n    transform: matrix3d(1.00057, 0, 0, 0, 0, 0.99795, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  33.3333% {\n    transform: matrix3d(1.00095, 0, 0, 0, 0, 0.99811, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  31.25% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99851, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  29.1667% {\n    transform: matrix3d(1.00119, 0, 0, 0, 0, 0.99903, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  27.0833% {\n    transform: matrix3d(1.00114, 0, 0, 0, 0, 0.99955, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  25% {\n    transform: matrix3d(1.001, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  22.9167% {\n    transform: matrix3d(1.00083, 0, 0, 0, 0, 1.00033, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  20.8333% {\n    transform: matrix3d(1.00063, 0, 0, 0, 0, 1.00052, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  18.75% {\n    transform: matrix3d(1.00044, 0, 0, 0, 0, 1.00058, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  16.6667% {\n    transform: matrix3d(1.00027, 0, 0, 0, 0, 1.00053, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  14.5833% {\n    transform: matrix3d(1.00012, 0, 0, 0, 0, 1.00042, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  12.5% {\n    transform: matrix3d(1, 0, 0, 0, 0, 1.00027, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  10.4167% {\n    transform: matrix3d(0.99991, 0, 0, 0, 0, 1.00013, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  8.33333% {\n    transform: matrix3d(0.99986, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  6.25% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99991, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  4.16667% {\n    transform: matrix3d(0.99982, 0, 0, 0, 0, 0.99985, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  2.08333% {\n    transform: matrix3d(0.99983, 0, 0, 0, 0, 0.99984, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n  0% {\n    opacity: 1;\n    transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);\n  }\n}\n@keyframes pops-anim-roll-reverse {\n  0% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 0deg);\n  }\n  100% {\n    transform: perspective(1000px) rotate3d(1, 0, 0, 90deg);\n  }\n}\n@keyframes pops-anim-sandra-reverse {\n  0% {\n    opacity: 1;\n    transform: scale3d(1, 1, 1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale3d(1.1, 1.1, 1);\n  }\n}\n@keyframes pops-anim-gather-reverse {\n  0% {\n    opacity: 0;\n    transform: scale(5, 0);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(5, 0);\n  }\n}\n\n@-webkit-keyframes pops-motion-fadeInTop {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(-30px);\n    transform: translateY(-30px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n@keyframes pops-motion-fadeInTop {\n  0% {\n    opacity: 0;\n    transform: translateY(-30px);\n    -ms-transform: translateY(-30px);\n  }\n  100% {\n    opacity: 1;\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutTop {\n  0% {\n    opacity: 10;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-30px);\n    transform: translateY(-30px);\n  }\n}\n@keyframes pops-motion-fadeOutTop {\n  0% {\n    opacity: 1;\n    transform: translateY(0);\n    -ms-transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-30px);\n    -ms-transform: translateY(-30px);\n  }\n}\n@-webkit-keyframes pops-motion-fadeInBottom {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n  }\n}\n@keyframes pops-motion-fadeInBottom {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n    -ms-transform: translateY(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n    -ms-transform: translateY(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutBottom {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n  }\n}\n@keyframes pops-motion-fadeOutBottom {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateY(0);\n    transform: translateY(0);\n    -ms-transform: translateY(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(20px);\n    transform: translateY(20px);\n    -ms-transform: translateY(20px);\n  }\n}\n@-webkit-keyframes pops-motion-fadeInLeft {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(-20px);\n    transform: translateX(-20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n@keyframes pops-motion-fadeInLeft {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(-30px);\n    transform: translateX(-30px);\n    -ms-transform: translateX(-30px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutLeft {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(-30px);\n    transform: translateX(-30px);\n  }\n}\n@keyframes pops-motion-fadeOutLeft {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(-20px);\n    transform: translateX(-20px);\n    -ms-transform: translateX(-20px);\n  }\n}\n@-webkit-keyframes pops-motion-fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n}\n@keyframes pops-motion-fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n    -ms-transform: translateX(20px);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n}\n@-webkit-keyframes pops-motion-fadeOutRight {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n  }\n}\n@keyframes pops-motion-fadeOutRight {\n  0% {\n    opacity: 1;\n    -webkit-transform: translateX(0);\n    transform: translateX(0);\n    -ms-transform: translateX(0);\n  }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateX(20px);\n    transform: translateX(20px);\n    -ms-transform: translateX(20px);\n  }\n}\n\n/* 动画 */\n.pops-anim[anim="pops-anim-spread"] {\n  animation: pops-anim-spread 0.3s;\n}\n.pops-anim[anim="pops-anim-shake"] {\n  animation: pops-anim-shake 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left"] {\n  animation: pops-anim-rolling-left 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right"] {\n  animation: pops-anim-rolling-right 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top"] {\n  animation: pops-anim-slide-top 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom"] {\n  animation: pops-anim-slide-bottom 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left"] {\n  animation: pops-anim-slide-left 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right"] {\n  animation: pops-anim-slide-right 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein"] {\n  animation: pops-anim-fadein 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom"] {\n  animation: pops-anim-fadein-zoom 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert"] {\n  animation: pops-anim-fadein-alert 0.3s;\n}\n.pops-anim[anim="pops-anim-don"] {\n  animation: pops-anim-don 0.3s;\n}\n.pops-anim[anim="pops-anim-roll"] {\n  animation: pops-anim-roll 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra"] {\n  animation: pops-anim-sandra 0.3s;\n}\n.pops-anim[anim="pops-anim-gather"] {\n  animation: pops-anim-gather 0.3s;\n}\n.pops-anim[anim="pops-anim-spread-reverse"] {\n  animation: pops-anim-spread-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-shake-reverse"] {\n  animation: pops-anim-shake-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-left-reverse"] {\n  animation: pops-anim-rolling-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-rolling-right-reverse"] {\n  animation: pops-anim-rolling-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-top-reverse"] {\n  animation: pops-anim-slide-top-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-bottom-reverse"] {\n  animation: pops-anim-slide-bottom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-left-reverse"] {\n  animation: pops-anim-slide-left-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-slide-right-reverse"] {\n  animation: pops-anim-slide-right-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-reverse"] {\n  animation: pops-anim-fadein-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-zoom-reverse"] {\n  animation: pops-anim-fadein-zoom-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-fadein-alert-reverse"] {\n  animation: pops-anim-fadein-alert-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-don-reverse"] {\n  animation: pops-anim-don-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-roll-reverse"] {\n  animation: pops-anim-roll-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-sandra-reverse"] {\n  animation: pops-anim-sandra-reverse 0.3s;\n}\n.pops-anim[anim="pops-anim-gather-reverse"] {\n  animation: pops-anim-gather-reverse 0.3s;\n}\n',
     alertCSS: "",
     confirmCSS: "",
     promptCSS:
@@ -6010,7 +6016,7 @@
     drawerCSS:
       '.pops[type-value="drawer"] {\n  position: fixed;\n  box-sizing: border-box;\n  display: flex;\n  flex-direction: column;\n  box-shadow:\n    0px 16px 48px 16px rgba(0, 0, 0, 0.08),\n    0px 12px 32px rgba(0, 0, 0, 0.12),\n    0px 8px 16px -8px rgba(0, 0, 0, 0.16);\n  overflow: hidden;\n  transition: all 0.3s;\n}\n\n.pops[type-value="drawer"][direction="top"] {\n  width: 100%;\n  left: 0;\n  right: 0;\n  top: 0;\n}\n.pops[type-value="drawer"][direction="bottom"] {\n  width: 100%;\n  left: 0;\n  right: 0;\n  bottom: 0;\n}\n.pops[type-value="drawer"][direction="left"] {\n  height: 100%;\n  top: 0;\n  bottom: 0;\n  left: 0;\n}\n.pops[type-value="drawer"][direction="right"] {\n  height: 100%;\n  top: 0;\n  bottom: 0;\n  right: 0;\n}\n',
     folderCSS:
-      '.pops-folder-list {\n  --folder-arrow-fill-color: #d4d7de;\n  --folder-arrow-active-fill-color: #06a7ff;\n  --header-breadcrumb-text-color: #06a7ff;\n  --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n  --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n  --header-breadcrumb-all-files-last-text-color: #999999;\n  --table-header-row-text-color: #818999;\n  --table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n  --table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n  --table-body-row-text-color: #05082c;\n  --table-body-row-file-name-text-color: #05082c;\n  --table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n  --table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n  --table-body-row-file-name-hover-text-color: #06a7ff;\n  --table-body-row-content-text-color: #818999;\n}\n.pops-folder-list .cursor-p {\n  cursor: pointer;\n}\n.pops-folder-list a {\n  background: 0 0;\n  text-decoration: none;\n  -webkit-tap-highlight-color: transparent;\n  color: var(--header-breadcrumb-text-color);\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n  width: 100%;\n  table-layout: fixed;\n  border-collapse: collapse;\n  border-spacing: 0;\n  padding: 0 20px;\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n  height: 100%;\n  background: 0 0;\n  overflow: hidden;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  -ms-flex-direction: column;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n}\ntable.pops-folder-list-table__body {\n  height: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-folder-list table tr {\n  line-height: normal;\n  align-content: center;\n}\n.pops-folder-list-table__header-row {\n  height: 50px;\n  line-height: normal;\n  align-content: center;\n  color: var(--table-header-row-text-color);\n  text-align: left;\n  font-size: 12px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-folder-list-table__body-row {\n  height: 50px;\n  line-height: normal;\n  align-content: center;\n  color: var(--table-body-row-text-color);\n  font-size: 12px;\n}\n.pops-folder-list-table__body-row:hover {\n  background-color: var(--table-body-row-hover-bg-color);\n  border-color: var(--table-body-row-hover-bd-color);\n  border: 0;\n  outline: none;\n}\n.pops-folder-list table th {\n  border: 0;\n  border-bottom: 1px solid var(--table-body-th-text-color);\n}\n.pops-folder-list table td {\n  border: 0;\n  border-bottom: 1px solid var(--table-body-td-text-color);\n  position: relative;\n}\n.pops-folder-list .list-name-text {\n  display: inline-block;\n  padding-left: 12px;\n  line-height: normal;\n  align-content: center;\n  max-width: 176px;\n}\n.pops-folder-list-file-name > div {\n  display: flex;\n  align-items: center;\n}\n\n.pops-mobile-folder-list-file-name {\n  display: flex;\n  align-items: center;\n}\n.pops-mobile-folder-list-file-name > div {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: flex-start;\n  align-items: flex-start;\n  padding: 6px 0px;\n  flex-direction: column;\n}\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\n  width: 45px;\n  height: 45px;\n}\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\n  padding-left: unset;\n  max-width: 250px;\n  overflow-x: hidden;\n  font-weight: 400;\n  line-height: unset;\n  margin-bottom: 4px;\n  white-space: normal;\n  text-overflow: unset;\n}\n\n/* 修改滚动 */\n.pops-folder-content {\n  overflow: hidden !important;\n}\n.pops-folder-content .pops-folder-list {\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n}\n.pops-folder-content .pops-folder-list-table__body-div {\n  height: 100%;\n  flex: 1 auto;\n  overflow: auto;\n  padding-bottom: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\n  height: 100%;\n  flex: 1 auto;\n  overflow: auto;\n  padding-bottom: 0;\n}\n.pops-folder-content table.pops-folder-list-table__body {\n  overflow: auto;\n}\n.pops-folder-content .pops-folder-list-table__header-div {\n  flex: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\n  display: none;\n}\n\n.pops-folder-list .pops-folder-list-file-name-title-text {\n  color: var(--table-body-row-file-name-text-color);\n}\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\n  text-decoration: none;\n  color: var(--table-body-row-file-name-hover-text-color);\n}\n.pops-folder-list .text-ellip {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.pops-folder-list .content {\n  color: var(--table-body-row-content-text-color);\n  position: relative;\n  width: 100%;\n  text-align: left;\n}\n.pops-folder-list .inline-block-v-middle {\n  display: inline-block;\n  vertical-align: middle;\n}\n.pops-folder-list .flex-a-i-center {\n  display: flex;\n  align-items: center;\n}\n.pops-folder-list .u-file-icon {\n  display: inline-block;\n  vertical-align: middle;\n}\n.pops-folder-list .u-file-icon--list {\n  width: 32px;\n  height: 32px;\n}\n.pops-folder-list .pops-folder-list-file-icon {\n  line-height: normal;\n  align-content: center;\n  position: relative;\n  vertical-align: middle;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\n  flex: 1;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  min-height: 17px;\n  flex-wrap: wrap;\n}\n.pops-folder-list .pops-folder-list-table__sort {\n  display: inline-flex;\n  margin-left: 4px;\n  flex-direction: column;\n}\n\n.pops-folder-list .pops-folder-icon-arrow {\n  width: 10px;\n  height: 10px;\n  fill: var(--folder-arrow-fill-color);\n}\n.pops-folder-list .pops-folder-icon-active {\n  fill: var(--folder-arrow-active-fill-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb {\n  padding: 4px 20px;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  -webkit-box-pack: start;\n  -webkit-justify-content: start;\n  -ms-flex-pack: start;\n  justify-content: flex-start;\n  min-height: 35px;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\n  font-size: 12px;\n  color: var(--header-breadcrumb-all-files-text-color);\n  line-height: normal;\n  align-content: center;\n  font-weight: 700;\n  display: inline-block;\n  max-width: 140px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-wrap: normal;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\n  color: var(--header-breadcrumb-all-files-last-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\n  font-size: 14px;\n  color: var(--header-breadcrumb-all-files-first-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\n  width: 16px;\n  height: 16px;\n}\n.pops-folder-list .iconArrow {\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\n    55% 50%/6px 9px no-repeat;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops[type-value="folder"] {\n    --pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n  }\n  .pops-folder-list {\n    --header-breadcrumb-text-color: #06a7ff;\n    --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n    --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n    --header-breadcrumb-all-files-last-text-color: #818999;\n    --table-body-row-text-color: #f7f8fa;\n    --table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --table-body-td-text-color: #495366;\n    --table-body-row-hover-bd-color: #1f2022;\n    --table-body-row-hover-bg-color: #1f2022;\n    --table-body-row-file-name-text-color: #f7f8fa;\n  }\n}\n',
+      '.pops-folder-list {\n  --folder-arrow-fill-color: #d4d7de;\n  --folder-arrow-active-fill-color: #06a7ff;\n  --header-breadcrumb-text-color: #06a7ff;\n  --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n  --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n  --header-breadcrumb-all-files-last-text-color: #999999;\n  --table-header-row-text-color: #818999;\n  --table-body-td-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n  --table-body-th-text-color: rgb(247, 248, 250, var(--pops-bg-opacity));\n  --table-body-row-text-color: #05082c;\n  --table-body-row-file-name-text-color: #05082c;\n  --table-body-row-hover-bd-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n  --table-body-row-hover-bg-color: rgb(245, 246, 247, var(--pops-bg-opacity));\n  --table-body-row-file-name-hover-text-color: #06a7ff;\n  --table-body-row-content-text-color: #818999;\n}\n.pops-folder-list .cursor-p {\n  cursor: pointer;\n}\n.pops-folder-list a {\n  background: 0 0;\n  text-decoration: none;\n  -webkit-tap-highlight-color: transparent;\n  color: var(--header-breadcrumb-text-color);\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n  width: 100%;\n  table-layout: fixed;\n  border-collapse: collapse;\n  border-spacing: 0;\n}\n.pops-folder-list-table__header-div,\n.pops-folder-list-table__body-div {\n  padding: 0 20px;\n}\ntable.pops-folder-list-table__body,\ntable.pops-folder-list-table__header {\n  height: auto;\n  background: 0 0;\n  overflow: hidden;\n  -ms-flex-direction: column;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n}\ntable.pops-folder-list-table__body {\n  height: auto;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-folder-list table tr {\n  line-height: normal;\n  align-content: center;\n}\n.pops-folder-list-table__header-row {\n  height: 50px;\n  line-height: normal;\n  align-content: center;\n  color: var(--table-header-row-text-color);\n  text-align: left;\n  font-size: 12px;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-folder-list-table__body-row {\n  height: 50px;\n  line-height: normal;\n  align-content: center;\n  color: var(--table-body-row-text-color);\n  font-size: 12px;\n}\n.pops-folder-list-table__body-row:hover {\n  background-color: var(--table-body-row-hover-bg-color);\n  border-color: var(--table-body-row-hover-bd-color);\n  border: 0;\n  outline: none;\n}\n.pops-folder-list table th {\n  border: 0;\n  border-bottom: 1px solid var(--table-body-th-text-color);\n}\n.pops-folder-list table td {\n  border: 0;\n  border-bottom: 1px solid var(--table-body-td-text-color);\n  position: relative;\n}\n.pops-folder-list .list-name-text {\n  display: inline-block;\n  padding-left: 12px;\n  line-height: normal;\n  align-content: center;\n  max-width: 176px;\n}\n.pops-folder-list-file-name > div {\n  display: flex;\n  align-items: center;\n}\n\n.pops-mobile-folder-list-file-name {\n  display: flex;\n  align-items: center;\n}\n.pops-mobile-folder-list-file-name > div {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: flex-start;\n  align-items: flex-start;\n  padding: 6px 0px;\n  flex-direction: column;\n}\n.pops-mobile-folder-list-file-name img.pops-folder-list-file-icon {\n  width: 45px;\n  height: 45px;\n}\n.pops-mobile-folder-list-file-name a.pops-folder-list-file-name-title-text {\n  padding-left: unset;\n  max-width: 250px;\n  overflow-x: hidden;\n  font-weight: 400;\n  line-height: unset;\n  margin-bottom: 4px;\n  white-space: normal;\n  text-overflow: unset;\n}\n\n/* 修改滚动 */\n.pops-folder-content {\n  overflow: hidden !important;\n}\n.pops-folder-content .pops-folder-list {\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n}\n.pops-folder-content .pops-folder-list-table__body-div {\n  height: 100%;\n  flex: 1 auto;\n  overflow: auto;\n  padding-bottom: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__body-div {\n  height: 100%;\n  flex: 1 auto;\n  overflow: auto;\n  padding-bottom: 0;\n}\n.pops-folder-content table.pops-folder-list-table__body {\n  overflow: auto;\n}\n.pops-folder-content .pops-folder-list-table__header-div {\n  flex: 0;\n}\n.pops-mobile-folder-content .pops-folder-list-table__header-div {\n  display: none;\n}\n\n.pops-folder-list .pops-folder-list-file-name-title-text {\n  color: var(--table-body-row-file-name-text-color);\n}\n.pops-folder-list .pops-folder-list-file-name-title-text:hover {\n  text-decoration: none;\n  color: var(--table-body-row-file-name-hover-text-color);\n}\n.pops-folder-list .text-ellip {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.pops-folder-list .content {\n  color: var(--table-body-row-content-text-color);\n  position: relative;\n  width: 100%;\n  text-align: left;\n}\n.pops-folder-list .inline-block-v-middle {\n  display: inline-block;\n  vertical-align: middle;\n}\n.pops-folder-list .flex-a-i-center {\n  display: flex;\n  align-items: center;\n}\n.pops-folder-list .u-file-icon {\n  display: inline-block;\n  vertical-align: middle;\n}\n.pops-folder-list .u-file-icon--list {\n  width: 32px;\n  height: 32px;\n}\n.pops-folder-list .pops-folder-list-file-icon {\n  line-height: normal;\n  align-content: center;\n  position: relative;\n  vertical-align: middle;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-primary {\n  flex: 1;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  min-height: 17px;\n  flex-wrap: wrap;\n}\n.pops-folder-list .pops-folder-list-table__sort {\n  display: inline-flex;\n  margin-left: 4px;\n  flex-direction: column;\n}\n\n.pops-folder-list .pops-folder-icon-arrow {\n  width: 10px;\n  height: 10px;\n  fill: var(--folder-arrow-fill-color);\n}\n.pops-folder-list .pops-folder-icon-active {\n  fill: var(--folder-arrow-active-fill-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb {\n  padding: 4px 20px;\n  -webkit-box-sizing: border-box;\n  box-sizing: border-box;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n  -ms-flex-align: center;\n  align-items: center;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: row;\n  -ms-flex-direction: row;\n  flex-direction: row;\n  -webkit-box-pack: start;\n  -webkit-justify-content: start;\n  -ms-flex-pack: start;\n  justify-content: flex-start;\n  min-height: 35px;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles {\n  font-size: 12px;\n  color: var(--header-breadcrumb-all-files-text-color);\n  line-height: normal;\n  align-content: center;\n  font-weight: 700;\n  display: inline-block;\n  max-width: 140px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  word-wrap: normal;\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:last-child a {\n  color: var(--header-breadcrumb-all-files-last-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb-allFiles:first-child a {\n  font-size: 14px;\n  color: var(--header-breadcrumb-all-files-first-text-color);\n}\n.pops-folder-list .pops-folder-file-list-breadcrumb .iconArrow {\n  width: 16px;\n  height: 16px;\n}\n.pops-folder-list .iconArrow {\n  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAASCAMAAABYd88+AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAABFUExURUdwTOLi4uLi4t7e3uPj49/f397e3t3d3f///97e3vDw8N3d3d7e3t3d3d3d3ejo6N/f397e3t7e3t3d3d/f393d3d3d3RK+NoEAAAAWdFJOUwAnM4YPU/iQA+UIeMDaHhY41i7zX7UebpjFAAAAUElEQVQI15XOORaAIAwE0LATXHCd+x9VfCiksXCq+UUWou8oZ1vXHrt7YVBiYkW4gdMKYFIC4CSATWCNHWPuM6HuHkr1x3N0ZrBu/9gl0b9c3+kF7C7hS1YAAAAASUVORK5CYII=)\n    55% 50%/6px 9px no-repeat;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops[type-value="folder"] {\n    --pops-title-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --pops-bottom-btn-controls-border-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n  }\n  .pops-folder-list {\n    --header-breadcrumb-text-color: #06a7ff;\n    --header-breadcrumb-all-files-text-color: var(--header-breadcrumb-text-color);\n    --header-breadcrumb-all-files-first-text-color: var(--header-breadcrumb-text-color);\n    --header-breadcrumb-all-files-last-text-color: #818999;\n    --table-body-row-text-color: #f7f8fa;\n    --table-body-td-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --table-body-th-text-color: rgb(73, 83, 102, var(--pops-bg-opacity));\n    --table-body-td-text-color: #495366;\n    --table-body-row-hover-bd-color: #1f2022;\n    --table-body-row-hover-bg-color: #1f2022;\n    --table-body-row-file-name-text-color: #f7f8fa;\n  }\n}\n',
     panelCSS:
       '.pops[type-value="panel"] {\n  --pops-bg-color: #f2f2f2;\n  --pops-color: #333333;\n  --panel-title-bg-color: #ffffff;\n\n  --panel-aside-bg-color: #ffffff;\n  --panel-aside-hover-color: rgb(64, 158, 255);\n  --panel-aside-hover-bg-color: rgba(64, 158, 255, 0.1);\n\n  --pops-panel-forms-margin-top-bottom: 10px;\n  --pops-panel-forms-margin-left-right: 20px;\n  --pops-panel-forms-header-icon-size: calc(var(--pops-panel-forms-container-li-padding-left-right) + 1px);\n  --pops-panel-forms-header-padding-top-bottom: 15px;\n  --pops-panel-forms-header-padding-left-right: 10px;\n  --pops-panel-forms-container-item-left-text-gap: 6px;\n  --pops-panel-forms-container-item-left-desc-text-size: 0.8em;\n  --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n  --pops-panel-forms-container-item-bg-color: #ffffff;\n  --pops-panel-forms-container-item-title-color: #333;\n  --pops-panel-forms-container-item-border-radius: 6px;\n  --pops-panel-forms-container-item-margin-top-bottom: 10px;\n  --pops-panel-forms-container-item-margin-left-right: var(--pops-panel-forms-margin-left-right);\n  --pops-panel-forms-container-li-border-color: var(--pops-bd-color);\n  --pops-panel-forms-container-li-padding-top-bottom: 12px;\n  --pops-panel-forms-container-li-padding-left-right: 16px;\n\n  --pops-panel-forms-container-deepMenu-item-active-bg: #e9e9e9;\n}\n.pops[type-value="panel"] {\n  color: var(--pops-color);\n  background: var(--pops-bg-color);\n}\n.pops[type-value] .pops-panel-title {\n  background: var(--panel-title-bg-color);\n}\n\n/* ↓panel的CSS↓ */\n/* 左侧的列表 */\naside.pops-panel-aside {\n  box-sizing: border-box;\n  flex-shrink: 0;\n  max-width: 200px;\n  min-width: 100px;\n  height: 100%;\n  background: var(--panel-aside-bg-color);\n  border-right: 1px solid var(--panel-aside-bg-color);\n  font-size: 0.9em;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n}\naside.pops-panel-aside .pops-panel-aside-top-container {\n  overflow: auto;\n}\naside.pops-panel-aside ul li {\n  margin: 6px 8px;\n  border-radius: 4px;\n  padding: 6px 10px;\n  cursor: default;\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n}\naside.pops-panel-aside .pops-is-visited,\naside.pops-panel-aside ul li:not(.pops-panel-disabled-aside-hover-css):hover {\n  color: var(--panel-aside-hover-color);\n  background: var(--panel-aside-hover-bg-color);\n}\n/* 左侧的列表 */\n\n/* 底部的容器 */\n.pops-panel-bottom-wrapper {\n  background: var(--panel-aside-bg-color);\n  border-top: 1px solid #ebeef5;\n}\n.pops-panel-bottom-wrapper:has(.pops-panel-bottom-left-container:empty):has(.pops-panel-bottom-right-container:empty) {\n  border-top: 0;\n}\n.pops-panel-bottom-container {\n  display: flex;\n  flex-wrap: nowrap;\n  justify-content: space-between;\n}\n.pops-panel-bottom-left-container {\n}\n.pops-panel-bottom-right-container {\n}\n.pops-panel-bottom-wrapper .pops-panel-bottom-item {\n  list-style-type: none;\n  margin: 6px 8px;\n  border-radius: 4px;\n  padding: 6px 10px;\n  cursor: default;\n}\n.pops-panel-bottom-wrapper:not(.pops-panel-disable-bottom-item-hover-css) .pops-panel-bottom-item:hover {\n  color: var(--panel-aside-hover-color);\n  background: var(--panel-aside-hover-bg-color);\n}\n/* 底部的容器 */\n\n.pops-panel-content {\n  display: flex;\n  flex-direction: row;\n  flex: 1;\n  overflow: auto;\n  flex-basis: auto;\n  box-sizing: border-box;\n  min-width: 0;\n  bottom: 0 !important;\n}\n\n.pops-panel-section-wrapper {\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\n\nsection.pops-panel-container {\n  width: 100%;\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\nsection.pops-panel-container .pops-panel-container-header-ul,\nsection.pops-panel-container .pops-panel-deepMenu-container-header-ul {\n  border-bottom: 1px solid rgba(223, 223, 223, var(--pops-bg-opacity));\n  flex: 0 auto;\n}\nsection.pops-panel-container .pops-panel-container-header-ul li,\nsection.pops-panel-container .pops-panel-container-header-ul li.pops-panel-container-header-title-text {\n  display: flex;\n  justify-content: flex-start !important;\n  margin: 0px !important;\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right));\n  text-align: left;\n}\nsection.pops-panel-container ul.pops-panel-container-main-ul {\n  overflow: auto;\n  /*flex: 1;*/\n}\nsection.pops-panel-container > ul li:not(.pops-panel-forms-container-item) {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin: var(--pops-panel-forms-margin-top-bottom)\n    calc(var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-margin-left-right));\n  gap: 10px;\n}\nsection.pops-panel-container .pops-panel-forms-container-item-header-text {\n  margin: 10px;\n  margin-left: calc(\n    var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right)\n  );\n  font-size: 0.9em;\n  text-align: left;\n  color: var(--pops-panel-forms-container-item-title-color);\n}\nsection.pops-panel-container li.pops-panel-forms-container-item {\n  /* 去除<li>左侧的圆点 */\n  display: block;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist {\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\n  background: var(--pops-panel-forms-container-item-bg-color);\n  margin: var(--pops-panel-forms-container-item-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul.pops-panel-forms-container-item-formlist li {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n    var(--pops-panel-forms-container-li-padding-left-right);\n  margin: 0px 0px;\n  border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n  text-align: left;\n}\n/*section.pops-panel-container\n	.pops-panel-forms-container-item\n	ul\n	li.pops-panel-deepMenu-nav-item {\n	padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px;\n	margin: 0px var(--pops-panel-forms-container-li-padding-left-right);\n	border-bottom: 1px solid var(--pops-panel-forms-container-li-border-color);\n}*/\nsection.pops-panel-container\n  .pops-panel-forms-container-item\n  ul.pops-panel-forms-container-item-formlist\n  li:last-child {\n  border: 0px;\n}\n/* 左侧的文字 */\nsection.pops-panel-container .pops-panel-item-left-text {\n  display: flex;\n  flex-direction: column;\n  gap: var(--pops-panel-forms-container-item-left-text-gap);\n}\n\n/* 左侧的主文字 */\n/*section.pops-panel-container .pops-panel-item-left-main-text {\n	\n}*/\n/* 左侧的描述文字 */\nsection.pops-panel-container .pops-panel-item-left-desc-text {\n  font-size: var(--pops-panel-forms-container-item-left-desc-text-size);\n  color: var(--pops-panel-forms-container-item-left-desc-text-color);\n}\n\n/* 折叠面板 */\nsection.pops-panel-container .pops-panel-forms-fold {\n  border-radius: var(--pops-panel-forms-container-item-border-radius);\n  background: var(--pops-panel-forms-container-item-bg-color);\n  margin: var(--pops-panel-forms-margin-top-bottom) var(--pops-panel-forms-margin-left-right);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container {\n  display: flex;\n  align-items: center;\n  fill: #6c6c6c;\n  justify-content: space-between;\n  margin: 0px var(--pops-panel-forms-container-li-padding-left-right) !important;\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom) 0px !important;\n}\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-fold-container-icon {\n  transform: rotate(90deg);\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-fold-container-icon {\n  width: 15px;\n  height: 15px;\n  display: flex;\n  align-items: center;\n  transform: rotate(-90deg);\n  transition: transform 0.3s;\n}\n/* 折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold[data-fold-enable] .pops-panel-forms-container-item-formlist {\n  height: 0;\n}\n/* 非折叠状态 */\nsection.pops-panel-container .pops-panel-forms-fold ul.pops-panel-forms-container-item-formlist {\n  margin: 0;\n}\nsection.pops-panel-container .pops-panel-forms-fold .pops-panel-forms-container-item-formlist {\n  transition: height 0.3s;\n  overflow: hidden;\n  border-radius: unset;\n  background: unset;\n  margin: 0;\n  height: calc-size(auto, size);\n}\n/* 折叠面板 */\n\n/* 姑且认为小于600px的屏幕为移动端 */\n@media (max-width: 600px) {\n  /* 兼容移动端CSS */\n  .pops[type-value="panel"] {\n    --pops-panel-forms-margin-left-right: 10px;\n  }\n  .pops[type-value="panel"] {\n    width: 92%;\n    width: 92vw;\n    width: 92dvw;\n  }\n  .pops[type-value="panel"] .pops-panel-content aside.pops-panel-aside {\n    max-width: 20%;\n    min-width: auto;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item > div {\n    text-align: left;\n    --pops-panel-forms-margin-left-right: 0px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-forms-container-item ul {\n    margin: 0px !important;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li {\n    margin: 10px 10px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li div:nth-child(2) {\n    max-width: 55%;\n  }\n  .pops[type-value="panel"] .pops-panel-select .el-select__selected-item.el-select__placeholder {\n    max-width: -moz-available;\n    max-width: -webkit-fill-available;\n  }\n  .pops[type-value="panel"] section.pops-panel-container > ul > li .pops-panel-input span.pops-panel-input__suffix {\n    padding: 0 4px;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-select select {\n    min-width: 88px !important;\n    width: -moz-available;\n    width: -webkit-fill-available;\n  }\n  .pops[type-value="panel"] section.pops-panel-container .pops-panel-container-header-ul li {\n    font-size: 16px;\n  }\n  .pops[type-value="panel"] .pops-panel-title p[pops],\n  .pops[type-value="panel"] section.pops-panel-container > ul li,\n  .pops[type-value="panel"] aside.pops-panel-aside ul li {\n    font-size: 14px;\n  }\n}\n/* switch的CSS */\n.pops-panel-switch {\n  --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n  --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n  --panel-switch-circle-color: #dcdfe6;\n  --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  --panel-switch-checked-circle-color: #409eff;\n  --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n  --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n}\n.pops-panel-switch {\n  display: inline-flex;\n  flex-direction: row-reverse;\n  align-items: center;\n  position: relative;\n  font-size: 14px;\n  line-height: normal;\n  align-content: center;\n  height: 32px;\n  vertical-align: middle;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-panel-switch input.pops-panel-switch__input {\n  position: absolute;\n  width: 0;\n  height: 0;\n  opacity: 0;\n  margin: 0;\n}\n.pops-panel-switch:has(input.pops-panel-switch__input:disabled),\n.pops-panel-switch[data-disabled],\n.pops-panel-switch[data-disabled] .pops-panel-switch__core,\n.pops-panel-switch input.pops-panel-switch__input:disabled + .pops-panel-switch__core {\n  cursor: not-allowed;\n  opacity: 0.6;\n}\n.pops-panel-switch span.pops-panel-switch__core {\n  display: inline-flex;\n  position: relative;\n  align-items: center;\n  min-width: 40px;\n  height: 20px;\n  border: 1px solid var(--panel-switch-core-bd-color);\n  outline: 0;\n  border-radius: 10px;\n  box-sizing: border-box;\n  background: var(--panel-switch-core-bg-color);\n  cursor: pointer;\n  transition:\n    border-color 0.3s,\n    background-color 0.3s;\n}\n.pops-panel-switch .pops-panel-switch__action {\n  position: absolute;\n  left: 1px;\n  border-radius: 100%;\n  transition: all 0.3s;\n  width: 16px;\n  height: 16px;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: var(--panel-switch-circle-bg-color);\n  color: var(--panel-switch-circle-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked span.pops-panel-switch__core {\n  border-color: var(--panel-switch-checked-core-bd-color);\n  background-color: var(--panel-switch-checked-core-bg-color);\n}\n.pops-panel-switch.pops-panel-switch-is-checked .pops-panel-switch__action {\n  left: calc(100% - 17px);\n  color: var(--panel-switch-checked-circle-color);\n}\n/* switch的CSS */\n\n/* slider旧的CSS */\nsection.pops-panel-container .pops-panel-slider:has(> input[type="range"]) {\n  overflow: hidden;\n  height: 25px;\n  line-height: normal;\n  align-content: center;\n  display: flex;\n  align-items: center;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"] {\n  height: 6px;\n  background: rgb(228, 231, 237, var(--pops-bg-opacity));\n  outline: 0;\n  -webkit-appearance: none;\n  appearance: none;\n  width: 100%;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-webkit-slider-thumb {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  box-shadow:\n    0 0 2px rgba(0, 0, 0, 0.3),\n    0 3px 5px rgba(0, 0, 0, 0.2);\n  cursor: pointer;\n  -webkit-appearance: none;\n  appearance: none;\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-thumb {\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  border: 1px solid rgb(64, 159, 255, var(--pops-bd-opacity));\n  background-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n  box-shadow:\n    0 0 2px rgba(0, 0, 0, 0.3),\n    0 3px 5px rgba(0, 0, 0, 0.2);\n  cursor: pointer;\n  -webkit-appearance: none;\n  appearance: none;\n}\nsection.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-progress {\n  height: 6px;\n  border-image: linear-gradient(#409eff, #409eff) 0 fill/9 25 9 0/0 0 0 100vw;\n}\n/* slider旧的CSS */\n\n/* slider的CSS */\n.pops-slider {\n  --pops-slider-color-white: #ffffff;\n  --pops-slider-color-primary: #409eff;\n  --pops-slider-color-info: #909399;\n  --pops-slider-text-color-placeholder: #a8abb2;\n  --pops-slider-border-color-light: #e4e7ed;\n  --pops-slider-border-radius-circle: 100%;\n  --pops-slider-transition-duration-fast: 0.2s;\n\n  --pops-slider-main-bg-color: var(--pops-slider-color-primary);\n  --pops-slider-runway-bg-color: var(--pops-slider-border-color-light);\n  --pops-slider-stop-bg-color: var(--pops-slider-color-white);\n  --pops-slider-disabled-color: var(--pops-slider-text-color-placeholder);\n  --pops-slider-border-radius: 3px;\n  --pops-slider-height: 6px;\n  --pops-slider-button-size: 20px;\n  --pops-slider-button-wrapper-size: 36px;\n  --pops-slider-button-wrapper-offset: -15px;\n}\n\n.pops-slider {\n  width: 100%;\n  height: 32px;\n  display: flex;\n  align-items: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.pops-slider-width {\n  flex: 0 0 52%;\n  margin-left: 10px;\n}\n\n.pops-slider__runway {\n  flex: 1;\n  height: var(--pops-slider-height);\n  background-color: var(--pops-slider-runway-bg-color);\n  border-radius: var(--pops-slider-border-radius);\n  position: relative;\n  cursor: pointer;\n}\n\n.pops-slider__runway.show-input {\n  margin-right: 30px;\n  width: auto;\n}\n\n.pops-slider__runway.pops-slider-is-disabled {\n  cursor: default;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__bar {\n  background-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button {\n  border-color: var(--pops-slider-disabled-color);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  cursor: not-allowed;\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  transform: scale(1);\n}\n\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button:hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.hover,\n.pops-slider__runway.pops-slider-is-disabled .pops-slider__button.dragging {\n  cursor: not-allowed;\n}\n\n.pops-slider__input {\n  flex-shrink: 0;\n  width: 130px;\n}\n\n.pops-slider__bar {\n  height: var(--pops-slider-height);\n  background-color: var(--pops-slider-main-bg-color);\n  border-top-left-radius: var(--pops-slider-border-radius);\n  border-bottom-left-radius: var(--pops-slider-border-radius);\n  position: absolute;\n}\n\n.pops-slider__button-wrapper {\n  height: var(--pops-slider-button-wrapper-size);\n  width: var(--pops-slider-button-wrapper-size);\n  position: absolute;\n  z-index: 1;\n  top: var(--pops-slider-button-wrapper-offset);\n  transform: translate(-50%);\n  background-color: transparent;\n  text-align: center;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  line-height: normal;\n  outline: none;\n}\n\n.pops-slider__button-wrapper:after {\n  display: inline-block;\n  content: "";\n  height: 100%;\n  vertical-align: middle;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n  cursor: grab;\n}\n\n.pops-slider__button {\n  display: inline-block;\n  width: var(--pops-slider-button-size);\n  height: var(--pops-slider-button-size);\n  vertical-align: middle;\n  border: solid 2px var(--pops-slider-main-bg-color);\n  background-color: var(--pops-slider-color-white);\n  border-radius: 50%;\n  box-sizing: border-box;\n  transition: var(--pops-slider-transition-duration-fast);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover,\n.pops-slider__button.dragging {\n  transform: scale(1.2);\n}\n\n.pops-slider__button:hover,\n.pops-slider__button.hover {\n  cursor: grab;\n}\n\n.pops-slider__button.dragging {\n  cursor: grabbing;\n}\n\n.pops-slider__stop {\n  position: absolute;\n  height: var(--pops-slider-height);\n  width: var(--pops-slider-height);\n  border-radius: var(--pops-slider-border-radius-circle);\n  background-color: var(--pops-slider-stop-bg-color);\n  transform: translate(-50%);\n}\n\n.pops-slider__marks {\n  top: 0;\n  left: 12px;\n  width: 18px;\n  height: 100%;\n}\n\n.pops-slider__marks-text {\n  position: absolute;\n  transform: translate(-50%);\n  font-size: 14px;\n  color: var(--pops-slider-color-info);\n  margin-top: 15px;\n  white-space: pre;\n}\n\n.pops-slider.is-vertical {\n  position: relative;\n  display: inline-flex;\n  width: auto;\n  height: 100%;\n  flex: 0;\n}\n\n.pops-slider.is-vertical .pops-slider__runway {\n  width: var(--pops-slider-height);\n  height: 100%;\n  margin: 0 16px;\n}\n\n.pops-slider.is-vertical .pops-slider__bar {\n  width: var(--pops-slider-height);\n  height: auto;\n  border-radius: 0 0 3px 3px;\n}\n\n.pops-slider.is-vertical .pops-slider__button-wrapper {\n  top: auto;\n  left: var(--pops-slider-button-wrapper-offset);\n  transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__stop {\n  transform: translateY(50%);\n}\n\n.pops-slider.is-vertical .pops-slider__marks-text {\n  margin-top: 0;\n  left: 15px;\n  transform: translateY(50%);\n}\n\n.pops-slider--large {\n  height: 40px;\n}\n\n.pops-slider--small {\n  height: 24px;\n}\n/* slider的CSS */\n\n/* input的CSS */\n.pops-panel-input {\n  --el-disabled-text-color: #a8abb2;\n  --el-disabled-bg-color: #f5f7fa;\n  --el-disabled-border-color: #e4e7ed;\n  --el-color-danger: #f56c6c;\n\n  --pops-panel-components-input-border-radius: 4px;\n  --pops-panel-components-input-text-color: #000000;\n  --pops-panel-components-input-text-bg-color: transparent;\n  --pops-panel-components-input-text-default-padding: 8px;\n  --pops-panel-components-input-bd-color: #dcdfe6;\n  --pops-panel-components-input-bg-color: #ffffff;\n  --pops-panel-components-input-hover-bd-color: #c0c4cc;\n  --pops-panel-components-input-focus-bd-color: #409eff;\n  --pops-panel-components-input-suffix-color: #a8abb2;\n  --pops-panel-components-input-suffix-bg-color: #ffffff;\n}\n.pops-panel-input {\n  display: flex;\n  align-items: center;\n  flex-direction: column;\n  position: relative;\n  box-shadow: none;\n  width: 200px;\n  border: 0px;\n}\n.pops-panel-input_inner {\n  display: flex;\n  align-items: center;\n  width: 100%;\n  border: 1px solid var(--pops-panel-components-input-bd-color);\n  border-radius: var(--pops-panel-components-input-border-radius);\n  background-color: var(--pops-panel-components-input-bg-color);\n  box-shadow: none;\n}\n.pops-panel-input_inner:hover {\n  border: 1px solid var(--pops-panel-components-input-hover-bd-color);\n}\n.pops-panel-input:has(input:disabled):hover {\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input_inner:has(input:focus) {\n  outline: 0;\n  border: 1px solid var(--pops-panel-components-input-focus-bd-color);\n  border-radius: var(--pops-panel-components-input-border-radius);\n  box-shadow: none;\n}\n.pops-panel-input input {\n  display: inline-flex;\n  justify-content: center;\n  text-align: start;\n  align-items: center;\n  align-content: center;\n  white-space: nowrap;\n  cursor: text;\n  box-sizing: border-box;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  vertical-align: middle;\n  -webkit-appearance: none;\n  appearance: none;\n  color: var(--pops-panel-components-input-text-color);\n  background-color: var(--pops-panel-components-input-text-bg-color);\n  outline: 0;\n  transition: 0.1s;\n  border: 0;\n  font-size: 14px;\n  font-weight: 500;\n  line-height: normal;\n  height: 32px;\n  width: 100%;\n  flex: 1;\n  /*margin-right: calc(1em + 8px);*/\n  margin: 0px;\n  padding: var(--pops-panel-components-input-text-default-padding);\n}\n.pops-panel-input input[type="search"]::-webkit-search-cancel-button {\n  -webkit-appearance: none;\n  display: none;\n}\n/* 颜色选择器不需要那么宽 */\n.pops-panel-input:has(input[type="color"]) {\n  width: 50px;\n}\n.pops-panel-input input[type="color"] {\n  padding: 0px;\n}\n.pops-panel-input_inner:has(input[type="file"]) {\n  border: 0px;\n  background: transparent;\n}\n.pops-panel-input input[type="file"] {\n  padding: 0px;\n  line-height: 32px;\n}\n.pops-panel-input span.pops-panel-input__suffix {\n  display: inline-flex;\n  white-space: nowrap;\n  flex-shrink: 0;\n  flex-wrap: nowrap;\n  height: 100%;\n  height: -moz-available;\n  height: -webkit-fill-available;\n  text-align: center;\n  color: var(--pops-panel-components-input-suffix-color);\n  background: var(--pops-panel-components-input-suffix-bg-color);\n  transition: all 0.3s;\n  pointer-events: none;\n  padding: 0 8px;\n  position: relative;\n  right: 0px;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 4px;\n  border: 1px solid transparent;\n}\n.pops-panel-input span.pops-panel-input__suffix-inner {\n  pointer-events: all;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}\n/* 如果包含清空图标的按钮，则默认隐藏清空图标，当:hover、:focus、:focus-within、:active时显示清空图标 */\n.pops-panel-input span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n  display: none;\n}\n.pops-panel-input:hover span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:focus-within span.pops-panel-input__suffix:has(svg[data-type="circleClose"]),\n.pops-panel-input:active span.pops-panel-input__suffix:has(svg[data-type="circleClose"]) {\n  display: inline-flex;\n}\n/* 当清空图标显示时或查看图标存在时，则隐藏输入框的padding-right */\n.pops-panel-input:hover:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:focus:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:focus-within:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:active:has(span.pops-panel-input__suffix svg[data-type="circleClose"]) input,\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="view"]) input,\n.pops-panel-input:has(span.pops-panel-input__suffix svg[data-type="hide"]) input {\n  padding-right: 0;\n}\n.pops-panel-input .pops-panel-icon {\n  cursor: pointer;\n}\n.pops-panel-input .pops-panel-icon {\n  height: inherit;\n  line-height: normal;\n  align-content: center;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.3s;\n}\n.pops-panel-input .pops-panel-icon svg {\n  height: 1em;\n  width: 1em;\n}\n\n.pops-input-disabled {\n  background-color: var(--pops-components-is-disabled-bg-color);\n  border-radius: 4px;\n}\n.pops-panel-input.pops-input-disabled:hover {\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input input:disabled,\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  color: var(--el-disabled-text-color);\n  -webkit-text-fill-color: var(--el-disabled-text-color);\n  cursor: not-allowed;\n}\n.pops-panel-input input:disabled + .pops-panel-input__suffix {\n  display: none;\n}\n/* 校验样式 */\n.pops-panel-input:has(.pops-panel-input-valid-error) {\n  --pops-panel-components-input-bd-color: var(--el-color-danger) !important;\n  --pops-panel-components-input-hover-bd-color: var(--pops-panel-components-input-bd-color);\n  --pops-panel-components-input-focus-bd-color: var(--pops-panel-components-input-bd-color);\n}\n.pops-panel-input .pops-panel-input-valid-error {\n  width: 100%;\n  color: var(--el-color-danger);\n  font-weight: 500;\n  font-size: 0.8em;\n  box-sizing: border-box;\n  vertical-align: middle;\n  display: inline-flex;\n  position: relative;\n}\n/* input的CSS */\n\n/* textarea的CSS */\n.pops-panel-textarea {\n  --pops-panel-components-textarea-text-color: #000000;\n  --pops-panel-components-textarea-text-bg-color: #ffffff;\n  --pops-panel-components-textarea-bd-color: #dcdfe6;\n  --pops-panel-components-textarea-hover-bd-color: #c0c4cc;\n  --pops-panel-components-textarea-focus-bd-color: #409eff;\n}\n.pops-panel-textarea textarea {\n  width: 100%;\n  /*vertical-align: bottom;*/\n  position: relative;\n  display: block;\n  resize: none;\n  padding: 5px 11px;\n  /*line-height: 1;*/\n  box-sizing: border-box;\n  font-size: inherit;\n  font-family: inherit;\n  color: var(--pops-panel-components-textarea-text-color);\n  background-color: var(--pops-panel-components-textarea-text-bg-color);\n  background-image: none;\n  -webkit-appearance: none;\n  appearance: none;\n  box-shadow: none;\n  border-radius: 0;\n  transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);\n  border: 1px solid var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea textarea:hover {\n  border-color: var(--pops-panel-components-textarea-hover-bd-color);\n}\n.pops-panel-textarea:has(textarea:disabled):hover {\n  --pops-panel-components-textarea-hover-bd-color: var(--pops-panel-components-textarea-bd-color);\n}\n.pops-panel-textarea-disable {\n  --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color) !important;\n  --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-textarea-disable textarea {\n  cursor: not-allowed;\n}\n.pops-panel-textarea textarea:focus {\n  outline: 0;\n  border-color: var(--pops-panel-components-textarea-focus-bd-color);\n}\n/* textarea的CSS */\n\n/* select的CSS */\n.pops-panel-select {\n  --pops-panel-components-select-disabled-text-color: #a8abb2;\n  --pops-panel-components-select-text-color: #000000;\n  --pops-panel-components-select-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n  --pops-panel-components-select-hover-bd-color: rgb(184, 184, 184, var(--pops-bd-opacity));\n  --pops-panel-components-select-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n}\n.pops-panel-select {\n  border: 0;\n}\n.pops-panel-select select {\n  width: 100%;\n  height: 32px;\n  line-height: normal;\n  align-content: center;\n  min-width: 200px;\n  border: 1px solid var(--pops-panel-components-select-bd-color);\n  border-radius: 5px;\n  text-align: center;\n  outline: 0;\n  color: var(--pops-panel-components-select-text-color);\n  background-color: var(--pops-panel-components-select-bg-color);\n  box-shadow: none;\n}\n.pops-panel-select select:hover {\n  border: 1px solid var(--pops-panel-components-select-hover-bd-color);\n}\n.pops-panel-select-disable {\n  --pops-panel-components-select-text-color: var(--pops-components-is-disabled-text-color);\n  --pops-panel-components-select-bg-color: var(--pops-components-is-disabled-bg-color);\n}\n.pops-panel-select-disable select {\n  cursor: not-allowed;\n}\n.pops-panel-select-disable select:hover {\n  box-shadow: none;\n  --pops-panel-components-select-hover-bd-color: var(--pops-panel-components-select-bd-color);\n}\n.pops-panel-select select:focus {\n  border: 1px solid rgb(64, 158, 255, var(--pops-bd-opacity));\n  box-shadow: none;\n}\n/* select的CSS */\n\n/* select dialog 的CSS */\n.pops-panel-select[data-mode="dialog"] {\n}\n/* select dialog 的CSS */\n\n/* select horizontal 的CSS */\n.pops-panel-select[data-mode="horizontal"] {\n  --pops-panel-components-select-horizontal-selected-text-color: #626aef;\n  --pops-panel-components-select-horizontal-selected-bg-color: #eff0fd;\n}\n.pops-panel-select[data-mode="horizontal"] .el-select__wrapper {\n  padding: 0;\n  gap: 0;\n  border: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item {\n  flex: 1;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  border: 1px solid var(--el-border-color);\n  height: -moz-available;\n  height: -webkit-fill-available;\n  border-left: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:hover {\n  color: var(--el-color-primary);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:first-child {\n  border-left: 1px solid var(--el-border-color);\n  border-top-left-radius: var(--el-border-radius-base);\n  border-bottom-left-radius: var(--el-border-radius-base);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:last-child {\n  border-top-right-radius: var(--el-border-radius-base);\n  border-bottom-right-radius: var(--el-border-radius-base);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item.select__selected-item {\n  color: var(--pops-panel-components-select-horizontal-selected-text-color);\n  background-color: var(--pops-panel-components-select-horizontal-selected-bg-color);\n  border-color: var(--pops-panel-components-select-horizontal-selected-bg-color);\n}\n.pops-panel-select[data-mode="horizontal"] .select-item:has(+ .select__selected-item) {\n  border-right: 0;\n}\n.pops-panel-select[data-mode="horizontal"] .select-item[disabled] {\n  color: var(--pops-panel-components-select-disabled-text-color);\n  --pops-panel-components-select-horizontal-selected-text-color: var(\n    --pops-panel-components-select-disabled-text-color\n  );\n  cursor: not-allowed;\n  background: unset;\n}\n/* select horizontal 的CSS */\n\n/* select-multiple的CSS*/\n.pops-panel-select-multiple,\n.pops-panel-select {\n  --el-border-radius-base: 4px;\n  --el-fill-color-blank: #ffffff;\n  --el-transition-duration: 0.3s;\n  --el-border-color: #cbcbcb;\n  --el-text-color-placeholder: #a8abb2;\n  --color: inherit;\n  --el-select-input-color: #a8abb2;\n  --el-select-input-font-size: 14px;\n  --el-text-color-regular: #606266;\n  --el-color-info: #909399;\n  --el-color-info-light-9: #f4f4f5;\n  --el-color-info-light-8: #e9e9eb;\n  --el-color-primary-light-9: #ecf5ff;\n  --el-color-primary-light-8: #d9ecff;\n  --el-color-primary: #409eff;\n  --el-color-white: #ffffff;\n  width: 200px;\n}\n.pops-panel-select .el-select__wrapper,\n.pops-panel-select-multiple .el-select__wrapper {\n  display: flex;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  text-align: left;\n  font-size: 14px;\n  padding: 4px 12px;\n  gap: 6px;\n  min-height: 32px;\n  line-height: normal;\n  align-content: center;\n  border-radius: var(--el-border-radius-base);\n  background-color: var(--el-fill-color-blank);\n  transition: var(--el-transition-duration);\n  transform: translateZ(0);\n  border: 1px solid var(--el-border-color);\n}\n.pops-panel-select .el-select__wrapper.is-focused,\n.pops-panel-select-multiple .el-select__wrapper.is-focused {\n  --el-border-color: var(--el-color-primary);\n}\n.pops-panel-select .el-select__selection,\n.pops-panel-select-multiple .el-select__selection {\n  position: relative;\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  flex: 1;\n  min-width: 0;\n  gap: 6px;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="left"] {\n  justify-content: left;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="center"] {\n  justify-content: center;\n}\n.pops-panel-select .el-select__selection[data-selected-text-align="right"] {\n  justify-content: right;\n}\n.pops-panel-select .el-select__selected-item,\n.pops-panel-select-multiple .el-select__selected-item {\n  display: flex;\n  flex-wrap: wrap;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.pops-panel-select .el-select__selected-item span {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.pops-panel-select .el-select__selected-item.el-select__choose_tag .el-tag,\n.pops-panel-select-multiple .el-select__selected-item.el-select__choose_tag .el-tag {\n  max-width: 200px;\n}\n.pops-panel-select .el-select__input-wrapper,\n.pops-panel-select-multiple .el-select__input-wrapper {\n  max-width: 100%;\n}\n.pops-panel-select .el-select__selection.is-near,\n.pops-panel-select-multiple .el-select__selection.is-near {\n  margin-left: -8px;\n}\n.pops-panel-select .el-select__placeholder,\n.pops-panel-select-multiple .el-select__placeholder {\n  position: absolute;\n  display: block;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  color: var(--el-input-text-color, var(--el-text-color-regular));\n}\n.pops-panel-select .el-select__placeholder.is-transparent,\n.pops-panel-select-multiple .el-select__placeholder.is-transparent {\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n  color: var(--el-text-color-placeholder);\n}\n.pops-panel-select .el-select__prefix,\n.pops-panel-select .el-select__suffix,\n.pops-panel-select-multiple .el-select__prefix,\n.pops-panel-select-multiple .el-select__suffix {\n  display: flex;\n  align-items: center;\n  flex-shrink: 0;\n  gap: 6px;\n  color: var(--el-input-icon-color, var(--el-text-color-placeholder));\n}\n.pops-panel-select .el-icon,\n.pops-panel-select-multiple .el-icon {\n  --color: inherit;\n  height: 1em;\n  width: 1em;\n  line-height: normal;\n  align-content: center;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  fill: currentColor;\n  color: var(--color);\n  font-size: inherit;\n}\n.pops-panel-select .el-icon svg,\n.pops-panel-select-multiple .el-icon svg {\n  height: 1em;\n  width: 1em;\n}\n.pops-panel-select .el-select__caret,\n.pops-panel-select-multiple .el-select__caret {\n  color: var(--el-select-input-color);\n  font-size: var(--el-select-input-font-size);\n  transition: transform var(--el-transition-duration);\n  transform: rotate(0);\n  cursor: pointer;\n}\n/* 把箭头旋转 */\n.pops-panel-select[data-show-option] .el-select__caret,\n.pops-panel-select-multiple[data-show-option] .el-select__caret {\n  transform: rotate(180deg);\n}\n.pops-panel-select-multiple .el-tag {\n  --el-tag-font-size: 12px;\n  --el-tag-border-radius: 4px;\n  --el-tag-border-radius-rounded: 9999px;\n}\n.pops-panel-select-multiple .el-tag {\n  background-color: var(--el-tag-bg-color);\n  border-color: var(--el-tag-border-color);\n  color: var(--el-tag-text-color);\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  vertical-align: middle;\n  height: 24px;\n  padding: 0 9px;\n  font-size: var(--el-tag-font-size);\n  line-height: normal;\n  align-content: center;\n  border-width: 1px;\n  border-style: solid;\n  border-radius: var(--el-tag-border-radius);\n  box-sizing: border-box;\n  white-space: nowrap;\n  --el-icon-size: 14px;\n  --el-tag-bg-color: var(--el-color-primary-light-9);\n  --el-tag-border-color: var(--el-color-primary-light-8);\n  --el-tag-hover-color: var(--el-color-primary);\n}\n.pops-panel-select-multiple .el-select__selection .el-tag {\n  cursor: pointer;\n  border-color: transparent;\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n  --el-tag-bg-color: var(--el-color-info-light-9);\n  --el-tag-border-color: var(--el-color-info-light-8);\n  --el-tag-hover-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.el-tag--info {\n  --el-tag-text-color: var(--el-color-info);\n}\n.pops-panel-select-multiple .el-tag.is-closable {\n  padding-right: 5px;\n}\n.pops-panel-select-multiple .el-select__selection .el-tag .el-tag__content {\n  min-width: 0;\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n  flex-shrink: 0;\n  color: var(--el-tag-text-color);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close:hover {\n  color: var(--el-color-white);\n  background-color: var(--el-tag-hover-color);\n}\n.pops-panel-select-multiple .el-tag .el-icon {\n  border-radius: 50%;\n  cursor: pointer;\n  font-size: calc(var(--el-icon-size) - 2px);\n  height: var(--el-icon-size);\n  width: var(--el-icon-size);\n}\n.pops-panel-select-multiple .el-tag .el-tag__close {\n  margin-left: 6px;\n}\n.pops-panel-select-multiple .el-select__tags-text {\n  display: block;\n  line-height: normal;\n  align-content: center;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n/* 禁用样式 */\n.pops-panel-select-disable {\n  --el-fill-color-blank: #f5f7fa;\n  --color: #a8abb2;\n  --el-border-color: #cbcbcb;\n}\n.pops-panel-select-disable .el-tag.el-tag--info {\n  --el-tag-bg-color: #e7e7e7;\n  --el-tag-text-color: var(--pops-components-is-disabled-text-color);\n}\n.pops-panel-select-disable .el-select__selection .el-tag,\n.pops-panel-select-disable .el-tag .el-tag__close:hover,\n.pops-panel-select-disable .el-select__wrapper,\n.pops-panel-select-disable .el-select__caret {\n  cursor: not-allowed;\n}\n/* select-multiple的CSS*/\n\n/* deepMenu的css */\n.pops-panel-deepMenu-nav-item {\n  cursor: pointer;\n}\n.pops-panel-deepMenu-nav-item:active {\n  background: var(--pops-panel-forms-container-deepMenu-item-active-bg);\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:active {\n  padding: var(--pops-panel-forms-container-li-padding-top-bottom)\n    var(--pops-panel-forms-container-li-padding-left-right);\n  margin: 0px;\n}\n/* 去除上个兄弟item的底部边框颜色 */\nsection.pops-panel-container .pops-panel-forms-container-item ul li:has(+ .pops-panel-deepMenu-nav-item:active) {\n  border-bottom: 1px solid transparent;\n}\n/* 第一个和最后一个跟随圆角 */\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:first-child:active {\n  border-top-left-radius: var(--pops-panel-forms-container-item-border-radius);\n  border-top-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\nsection.pops-panel-container .pops-panel-forms-container-item ul li.pops-panel-deepMenu-nav-item:last-child:active {\n  border-bottom-left-radius: var(--pops-panel-forms-container-item-border-radius);\n  border-bottom-right-radius: var(--pops-panel-forms-container-item-border-radius);\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu {\n  display: flex;\n  align-items: center;\n  color: #6c6c6c;\n  fill: #6c6c6c;\n}\n.pops-panel-deepMenu-nav-item .pops-panel-deepMenu-arrowRight-icon {\n  width: 15px;\n  height: 15px;\n  display: flex;\n  align-items: center;\n}\nsection.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-panel-deepMenu-container-header {\n  display: flex;\n  align-items: center;\n  width: -moz-available;\n  width: -webkit-fill-available;\n  padding: var(--pops-panel-forms-header-padding-top-bottom)\n    calc(\n      var(--pops-panel-forms-margin-left-right) + var(--pops-panel-forms-container-li-padding-left-right) -\n        var(--pops-panel-forms-header-icon-size)\n    );\n  gap: 0px;\n}\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n  width: var(--pops-panel-forms-header-icon-size);\n  height: var(--pops-panel-forms-header-icon-size);\n  display: flex;\n  align-items: center;\n  cursor: pointer;\n}\n/* 修复safari上图标大小未正常显示 */\n.pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon > svg {\n  width: inherit;\n  height: inherit;\n}\n/* deepMenu的css */\n\n/* 文字对齐 */\n.pops-panel-item-left-desc-text:has(code) {\n  display: flex;\n  align-items: baseline;\n  flex-wrap: wrap;\n}\n\n@media (prefers-color-scheme: dark) {\n  .pops[type-value="panel"] {\n    --pops-bg-color: #000000;\n    --pops-color: #f2f2f2;\n    --panel-title-bg-color: #000000;\n    --panel-aside-bg-color: #262626;\n    --pops-panel-forms-container-item-left-desc-text-color: #6c6c6c;\n    --pops-panel-forms-container-item-bg-color: #262626;\n    --pops-panel-forms-container-item-title-color: #c1c1c1;\n\n    --pops-panel-forms-container-li-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n    --pops-panel-forms-container-deepMenu-item-active-bg: #333333;\n  }\n  .pops[type-value="panel"] .pops-panel-deepMenu-container .pops-panel-deepMenu-container-left-arrow-icon {\n    fill: #f2f2f2;\n  }\n\n  /* switch的CSS */\n  .pops-panel-switch {\n    --panel-switch-core-bd-color: rgb(220, 223, 230, var(--pops-bd-opacity));\n    --panel-switch-core-bg-color: rgb(220, 223, 230, var(--pops-bg-opacity));\n    --panel-switch-circle-color: #dcdfe6;\n    --panel-switch-circle-bg-color: rgb(255, 255, 255, var(--pops-bg-opacity));\n    --panel-switch-checked-circle-color: #409eff;\n    --panel-switch-checked-core-bd-color: rgb(64, 158, 255, var(--pops-bd-opacity));\n    --panel-switch-checked-core-bg-color: rgb(64, 158, 255, var(--pops-bg-opacity));\n  }\n  /* select的CSS */\n  .pops-panel-select {\n    --pops-panel-components-select-text-color: #f2f2f2;\n    --pops-panel-components-select-bd-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n    --pops-panel-components-select-bg-color: #141414;\n  }\n  /* select-multiple的CSS*/\n  .pops-panel-select-multiple {\n    --el-fill-color-blank: #141414;\n    --el-border-color: #4c4d4f;\n    --el-text-color-placeholder: #a8abb2;\n    --el-select-input-color: #a8abb2;\n    --el-text-color-regular: #606266;\n    --el-color-info: #909399;\n    --el-color-info-light-8: #e9e9eb;\n    --el-color-primary-light-9: #ecf5ff;\n    --el-color-primary-light-8: #d9ecff;\n    --el-color-primary: #409eff;\n    --el-color-white: #ffffff;\n  }\n  .pops-panel-select-multiple .el-tag {\n    --el-color-info-light-9: #202121;\n  }\n  .pops-panel-select-multiple-disable {\n    --el-border-color: rgb(51, 51, 51, var(--pops-bd-opacity));\n  }\n  .pops-panel-select-multiple-disable .el-tag.el-tag--info {\n    --el-tag-bg-color: #2f2f2f;\n  }\n  /* select-multiple的CSS*/\n  /* slider的CSS */\n  .pops-slider {\n    --pops-slider-border-color-light: #414243;\n  }\n  /* input的CSS */\n  .pops-panel-input {\n    --pops-panel-components-input-text-color: #f2f2f2;\n    --pops-panel-components-input-bd-color: #4f5052;\n    --pops-panel-components-input-bg-color: #141414;\n    --pops-panel-components-input-hover-bd-color: #6f7175;\n    --pops-panel-components-input-focus-bd-color: #409eff;\n    --pops-panel-components-input-suffix-color: #a8abb2;\n    --pops-panel-components-input-suffix-bg-color: var(--pops-dark-color);\n  }\n  /* textarea的CSS */\n  .pops-panel-textarea {\n    --pops-panel-components-textarea-text-color: #f2f2f2;\n    --pops-panel-components-textarea-text-bg-color: #141414;\n    --pops-panel-components-textarea-bd-color: #4f5052;\n    --pops-panel-components-textarea-hover-bd-color: #6f7175;\n    --pops-panel-components-textarea-focus-bd-color: #409eff;\n  }\n  .pops-panel-textarea-disable {\n    --pops-panel-components-textarea-text-color: var(--pops-components-is-disabled-text-color);\n    --pops-panel-components-textarea-text-bg-color: var(--pops-components-is-disabled-bg-color);\n  }\n  /* slider */\n  .pops-slider {\n    --pops-slider-text-color-placeholder: #8d9095;\n  }\n}\n',
     rightClickMenu:
@@ -6127,11 +6133,11 @@
       return function (after_obj, before_obj) {
         const beforeValue = getBeforeValueFun(before_obj);
         const afterValue = getAfterValueFun(after_obj);
-        if (sortByDesc)
+        if (sortByDesc) {
           if (afterValue > beforeValue) return -1;
           else if (afterValue < beforeValue) return 1;
           else return 0;
-        else if (afterValue < beforeValue) return -1;
+        } else if (afterValue < beforeValue) return -1;
         else if (afterValue > beforeValue) return 1;
         else return 0;
       };
@@ -6719,7 +6725,7 @@
       else return target;
     },
     handleOnly(type, config) {
-      if (config.only)
+      if (config.only) {
         if (type === "loading" || type === "tooltip" || type === "rightClickMenu") {
           const inst = PopsInstData[type];
           if (inst) PopsInstHandler.removeInstance([inst], "", true);
@@ -6737,6 +6743,7 @@
             "",
             true
           );
+      }
       if (type !== "rightClickMenu") config = this.handleZIndex(config);
       return config;
     },
@@ -8186,16 +8193,16 @@
           if (downloadInfo) {
             const downloadUrl = this.updateFileLink($row, downloadInfo);
             if (downloadUrl) {
-              if (typeof downloadInfo.mode === "string")
+              if (typeof downloadInfo.mode === "string") {
                 if (downloadInfo.mode === "a" || downloadInfo.mode === "aBlank") {
                   const $anchor = popsDOMUtils.createElement("a");
                   if (downloadInfo.mode === "aBlank") $anchor.setAttribute("target", "_blank");
                   $anchor.href = downloadUrl;
                   $anchor.click();
-                } else if (downloadInfo.mode === "open" || downloadInfo.mode === "openBlank")
+                } else if (downloadInfo.mode === "open" || downloadInfo.mode === "openBlank") {
                   if (downloadInfo.mode === "openBlank") globalThis.open(downloadUrl, "_blank");
                   else globalThis.open(downloadUrl);
-                else if (downloadInfo.mode === "iframe") {
+                } else if (downloadInfo.mode === "iframe") {
                   const $downloadIframe = popsDOMUtils.createElement("iframe");
                   $downloadIframe.src = downloadUrl;
                   $downloadIframe.onload = function () {
@@ -8206,8 +8213,9 @@
                   $shadowRoot.appendChild($downloadIframe);
                   popsUtils.setTimeout(() => {
                     popsDOMUtils.remove($downloadIframe);
-                  }, 180 * 1e3);
+                  }, 18e4);
                 } else console.error("未知的下载模式", downloadInfo);
+              }
             }
           }
         }
@@ -8252,13 +8260,13 @@
                 beforeVal = new Date(beforeVal || "").getTime();
                 afterVal = new Date(afterVal || "").getTime();
               }
-              if (beforeVal > afterVal)
+              if (beforeVal > afterVal) {
                 if (isDesc) return -1;
                 else return 1;
-              else if (beforeVal < afterVal)
+              } else if (beforeVal < afterVal) {
                 if (isDesc) return 1;
                 else return -1;
-              else return 0;
+              } else return 0;
             });
             onlyFileDataConfigList.sort((beforeConfig, afterConfig) => {
               let beforeVal = beforeConfig[sortName];
@@ -8272,13 +8280,13 @@
                 beforeVal = new Date(beforeVal).getTime();
                 afterVal = new Date(afterVal).getTime();
               }
-              if (beforeVal > afterVal)
+              if (beforeVal > afterVal) {
                 if (isDesc) return -1;
                 else return 1;
-              else if (beforeVal < afterVal)
+              } else if (beforeVal < afterVal) {
                 if (isDesc) return 1;
                 else return -1;
-              else return 0;
+              } else return 0;
             });
           }
           return [...onlyFolderDataConfigList, ...onlyFileDataConfigList];
@@ -9154,7 +9162,7 @@
                       console.warn(`select当前选项为空`);
                       return;
                     }
-                    if (isSelectedInfo.addCustomInput)
+                    if (isSelectedInfo.addCustomInput) {
                       if (isSelectedInfo.value === "") {
                         if (isSelectedInfo.customInputStoreKey) {
                           console.log(`select删除自定义输入的值`);
@@ -9167,7 +9175,7 @@
                         if (isSelectedInfo.customInputStoreKey)
                           window.localStorage.setItem(isSelectedInfo.customInputStoreKey, isSelectedInfo.value);
                       }
-                    else
+                    } else
                       console.log(`select当前选项：${isSelectedInfo.value}，当前选项显示文本：${isSelectedInfo.text}`);
                   },
                   data: [
@@ -9718,7 +9726,7 @@
       const targetElement_Y_center_pos = targetElement_top + targetElement_height / 2 - toolTipElement_height / 2;
       let mouseX = 0;
       let mouseY = 0;
-      if (event != null)
+      if (event != null) {
         if (event instanceof MouseEvent || event instanceof PointerEvent) {
           mouseX = event.pageX;
           mouseY = event.y;
@@ -9730,6 +9738,7 @@
           if (typeof event.clientX === "number") mouseX = event.clientX;
           if (typeof event.clientY === "number") mouseY = event.clientY;
         }
+      }
       return {
         TOP: {
           left: targetElement_X_center_pos - otherDistance,
@@ -10753,7 +10762,7 @@
               popsDOMUtils.preventEvent(evt);
               if (this.isDisabled()) return;
               this.removeCircleIcon();
-              if (inputType === "password")
+              if (inputType === "password") {
                 if (this.$data.isVisible) {
                   this.$data.isVisible = false;
                   this.setInputType("text");
@@ -10763,7 +10772,7 @@
                   this.setInputType("password");
                   this.setCircleIcon(PopsIcon.getIcon("view"));
                 }
-              else {
+              } else {
                 this.setInputValue("");
                 this.$el.input.focus();
                 this.$el.input.dispatchEvent(new Event("input"));
@@ -10792,10 +10801,10 @@
                     this.$el.input.valueAsDate
                   );
                 else ret = viewConfig.callback(event, this.$el.input.value);
-                if (ret)
+                if (ret) {
                   if (ret.valid) this.removeValidErrorMsg();
                   else this.addValidErrorMsg(ret.message);
-                else this.removeValidErrorMsg();
+                } else this.removeValidErrorMsg();
               }
             });
           },
@@ -12564,7 +12573,7 @@
           (evt) => {
             if (evt.key === "Escape" && !evt.ctrlKey && !evt.shiftKey && !evt.altKey && !evt.metaKey) {
               const $exitBtn = $panelRightSectionWrapper.querySelector(
-                ".pops-panel-deepMenu-container-left-arrow-icon"
+                ".pops-panel-container:last-child .pops-panel-deepMenu-container-left-arrow-icon"
               );
               if ($exitBtn) $exitBtn.click();
             }
@@ -13120,7 +13129,14 @@
             emitter.emit("pops:before-append-to-page", $shadowRoot, $shadowContainer);
             popsDOMUtils.appendBody($shadowContainer);
           }
-          this.handlerShowMenuCSS(menuElement, menuEvent);
+          let posInfo;
+          if (menuEvent instanceof TouchEvent)
+            posInfo = {
+              clientX: menuEvent.touches?.[0].clientX || 0,
+              clientY: menuEvent.touches?.[0].clientY || 0,
+            };
+          else posInfo = menuEvent;
+          this.handlerShowMenuCSS(menuElement, posInfo);
           return menuElement;
         },
         showClildMenu(menuEvent, posInfo, dataConfig, $root, $targetLi, $listenerRootNode) {
@@ -13670,10 +13686,10 @@
         },
         showEvent() {
           SearchSuggestion.updateStyleSheet();
-          if (config.toHideWithNotResult)
+          if (config.toHideWithNotResult) {
             if (SearchSuggestion.$data.isEmpty) SearchSuggestion.hide(true);
             else SearchSuggestion.show();
-          else SearchSuggestion.show();
+          } else SearchSuggestion.show();
         },
         setShowEvent(option = defaultListenerOption) {
           if (config.followPosition === "target")
@@ -13770,13 +13786,14 @@
           const documentWidth = popsDOMUtils.width(document);
           const arrowHeight = config.useArrow ? popsDOMUtils.height(SearchSuggestion.$el.$arrow) : 0;
           let position = config.position;
-          if (config.position === "auto")
+          if (config.position === "auto") {
             if (
               targetRect.bottom + (popsDOMUtils.height(SearchSuggestion.$el.$dropdownWrapper) + arrowHeight) >
               documentHeight
             )
               position = "top";
             else position = "bottom";
+          }
           if (position === "top") {
             if (config.positionTopToReverse) SearchSuggestion.$el.root.setAttribute("data-top-reverse", "true");
             if (config.useFoldAnimation) SearchSuggestion.$el.root.setAttribute("data-popper-placement", "top");
@@ -14163,13 +14180,13 @@
   };
   var loadOrReturnBroker = createLoadOrReturnBroker(
     load,
-    `(()=>{var e={455(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}},t={};function r(n){var o=t[n];if(void 0!==o)return o.exports;var s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},m=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},f=new Map,h=d(globalThis.clearTimeout,f),p=new Map,v=d(globalThis.clearTimeout,p),w=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=m(f,performance,globalThis.setTimeout,w),T=m(p,performance,globalThis.setTimeout,w);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):v(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`
+    `(()=>{var e={455(e,t){!function(e){"use strict";var t=function(e){return function(t){var r=e(t);return t.add(r),r}},r=function(e){return function(t,r){return e.set(t,r),r}},n=void 0===Number.MAX_SAFE_INTEGER?9007199254740991:Number.MAX_SAFE_INTEGER,o=536870912,s=2*o,a=function(e,t){return function(r){var a=t.get(r),i=void 0===a?r.size:a<s?a+1:0;if(!r.has(i))return e(r,i);if(r.size<o){for(;r.has(i);)i=Math.floor(Math.random()*s);return e(r,i)}if(r.size>n)throw new Error("Congratulations, you created a collection of unique numbers which uses all available integers!");for(;r.has(i);)i=Math.floor(Math.random()*n);return e(r,i)}},i=new WeakMap,u=r(i),c=a(u,i),l=t(c);e.addUniqueNumber=l,e.generateUniqueNumber=c}(t)}};const t={};function r(n){const o=t[n];if(void 0!==o)return o.exports;const s=t[n]={exports:{}};return e[n].call(s.exports,s,s.exports,r),s.exports}(()=>{"use strict";const e=-32603,t=-32602,n=-32601,o=(e,t)=>Object.assign(new Error(e),{status:t}),s=t=>o('The handler of the method called "'.concat(t,'" returned an unexpected result.'),e),a=(t,r)=>async({data:{id:a,method:i,params:u}})=>{const c=r[i];try{if(void 0===c)throw(e=>o('The requested method called "'.concat(e,'" is not supported.'),n))(i);const r=void 0===u?c():c(u);if(void 0===r)throw(t=>o('The handler of the method called "'.concat(t,'" returned no required result.'),e))(i);const l=r instanceof Promise?await r:r;if(null===a){if(void 0!==l.result)throw s(i)}else{if(void 0===l.result)throw s(i);const{result:e,transferables:r=[]}=l;t.postMessage({id:a,result:e},r)}}catch(e){const{message:r,status:n=-32603}=e;t.postMessage({error:{code:n,message:r},id:a})}};var i=r(455);const u=new Map,c=(e,r,n)=>({...r,connect:({port:t})=>{t.start();const n=e(t,r),o=(0,i.generateUniqueNumber)(u);return u.set(o,()=>{n(),t.close(),u.delete(o)}),{result:o}},disconnect:({portId:e})=>{const r=u.get(e);if(void 0===r)throw(e=>o('The specified parameter called "portId" with the given value "'.concat(e,'" does not identify a port connected to this worker.'),t))(e);return r(),{result:null}},isSupported:async()=>{if(await new Promise(e=>{const t=new ArrayBuffer(0),{port1:r,port2:n}=new MessageChannel;r.onmessage=({data:t})=>e(null!==t),n.postMessage(t,[t])})){const e=n();return{result:e instanceof Promise?await e:e}}return{result:!1}}}),l=(e,t,r=()=>!0)=>{const n=c(l,t,r),o=a(e,n);return e.addEventListener("message",o),()=>e.removeEventListener("message",o)},d=(e,t)=>r=>{const n=t.get(r);if(void 0===n)return Promise.resolve(!1);const[o,s]=n;return e(o),t.delete(r),s(!1),Promise.resolve(!0)},m=(e,t,r,n)=>(o,s,a)=>{const i=o+s-t.timeOrigin,u=i-t.now();return new Promise(t=>{e.set(a,[r(n,u,i,e,t,a),t])})},f=new Map,h=d(globalThis.clearTimeout,f),p=new Map,w=d(globalThis.clearTimeout,p),v=((e,t)=>{const r=(n,o,s,a)=>{const i=n-e.now();i>0?o.set(a,[t(r,i,n,o,s,a),s]):(o.delete(a),s(!0))};return r})(performance,globalThis.setTimeout),g=m(f,performance,globalThis.setTimeout,v),T=m(p,performance,globalThis.setTimeout,v);l(self,{clear:async({timerId:e,timerType:t})=>({result:await("interval"===t?h(e):w(e))}),set:async({delay:e,now:t,timerId:r,timerType:n})=>({result:await("interval"===n?g:T)(e,t,r)})})})()})();`
   );
   var clearInterval$1 = (timerId) => loadOrReturnBroker().clearInterval(timerId);
   var clearTimeout$1 = (timerId) => loadOrReturnBroker().clearTimeout(timerId);
   var setInterval$1 = (...args) => loadOrReturnBroker().setInterval(...args);
   var setTimeout$1 = (...args) => loadOrReturnBroker().setTimeout(...args);
-  var version = "2.12.2";
+  var version = "2.13.1";
   var ajaxHooker = function () {
     const version = "1.4.8";
     const hookInst = {
@@ -14823,9 +14840,10 @@
           xhr.open = fakeXhrOpen;
           xhr.setRequestHeader = (header, value) => {
             ah.originalMethods.setRequestHeader(header, value);
-            if (xhr.readyState === 1)
+            if (xhr.readyState === 1) {
               if (ah.headers[header]) ah.headers[header] += ", " + value;
               else ah.headers[header] = value;
+            }
           };
           xhr.addEventListener = function (...args) {
             if (xhrAsyncEvents.includes(args[0])) ah.hookedEvents[args[0]].add(args[1]);
@@ -15201,10 +15219,11 @@
           console.log(`%c ${error}`, "color: #f20000");
           console.trace(callback);
         }
-        if (handleErrorFunc)
+        if (handleErrorFunc) {
           if (typeof handleErrorFunc === "string")
             result = new Function(handleErrorFunc).apply(funcThis, [...args, error]);
           else result = handleErrorFunc.apply(funcThis, [...args, error]);
+        }
       }
       return result;
     }
@@ -15255,13 +15274,13 @@
         else
           switch (typeof obj) {
             case "object":
-              if (typeof obj[Symbol.iterator] === "function")
+              if (typeof obj[Symbol.iterator] === "function") {
                 if (obj instanceof Map) flag = obj.size === 0;
                 else {
                   const length = obj.length;
                   if (typeof length === "number") flag = length === 0;
                 }
-              else if (obj?.toString() === "[object Object]") flag = Object.keys(obj).length === 0;
+              } else if (obj?.toString() === "[object Object]") flag = Object.keys(obj).length === 0;
               break;
             case "number":
               flag = isNaN(obj) ? true : obj === 0;
@@ -15749,23 +15768,23 @@
     GM_Api = { xmlHttpRequest: null };
     HttpxRequestHook = {
       $config: { configList: [] },
-      async beforeRequestCallBack(details) {
-        if (typeof details.allowInterceptConfig === "boolean") {
-          if (!details.allowInterceptConfig) return details;
-        } else if (details.allowInterceptConfig != null) {
+      async beforeRequestCallBack(requestOption) {
+        if (typeof requestOption.allowInterceptConfig === "boolean") {
+          if (!requestOption.allowInterceptConfig) return requestOption;
+        } else if (requestOption.allowInterceptConfig != null) {
           if (
-            typeof details.allowInterceptConfig.beforeRequest === "boolean" &&
-            !details.allowInterceptConfig.beforeRequest
+            typeof requestOption.allowInterceptConfig.beforeRequest === "boolean" &&
+            !requestOption.allowInterceptConfig.beforeRequest
           )
-            return details;
+            return requestOption;
         }
         for (let index = 0; index < this.$config.configList.length; index++) {
           const item = this.$config.configList[index];
           if (typeof item.fn === "function") {
-            if ((await item.fn(details)) == null) return;
+            if ((await item.fn(requestOption)) == null) return;
           }
         }
-        return details;
+        return requestOption;
       },
       add(fn) {
         if (typeof fn === "function") {
@@ -15793,31 +15812,31 @@
     };
     HttpxResponseHook = {
       $config: { configList: [] },
-      async successResponseCallBack(response, details) {
-        if (typeof details.allowInterceptConfig === "boolean") {
-          if (!details.allowInterceptConfig) return details;
-        } else if (details.allowInterceptConfig != null) {
+      async successResponseCallBack(response, requestOption) {
+        if (typeof requestOption.allowInterceptConfig === "boolean") {
+          if (!requestOption.allowInterceptConfig) return requestOption;
+        } else if (requestOption.allowInterceptConfig != null) {
           if (
-            typeof details.allowInterceptConfig.afterResponseSuccess === "boolean" &&
-            !details.allowInterceptConfig.afterResponseSuccess
+            typeof requestOption.allowInterceptConfig.afterResponseSuccess === "boolean" &&
+            !requestOption.allowInterceptConfig.afterResponseSuccess
           )
-            return details;
+            return requestOption;
         }
         for (let index = 0; index < this.$config.configList.length; index++) {
           const item = this.$config.configList[index];
           if (typeof item.successFn === "function") {
-            if ((await item.successFn(response, details)) == null) return;
+            if ((await item.successFn(response, requestOption)) == null) return;
           }
         }
         return response;
       },
       async errorResponseCallBack(data) {
-        if (typeof data.details.allowInterceptConfig === "boolean") {
-          if (!data.details.allowInterceptConfig) return data;
-        } else if (data.details.allowInterceptConfig != null) {
+        if (typeof data.requestOption.allowInterceptConfig === "boolean") {
+          if (!data.requestOption.allowInterceptConfig) return data;
+        } else if (data.requestOption.allowInterceptConfig != null) {
           if (
-            typeof data.details.allowInterceptConfig.afterResponseError === "boolean" &&
-            !data.details.allowInterceptConfig.afterResponseError
+            typeof data.requestOption.allowInterceptConfig.afterResponseError === "boolean" &&
+            !data.requestOption.allowInterceptConfig.afterResponseError
           )
             return data;
         }
@@ -15875,8 +15894,9 @@
         let url = userRequestOption.url || this.context.#defaultRequestOption.url;
         if (typeof url === "string") {
           url = url.trim();
-          if (url.startsWith("http://") || url.startsWith("https://"));
-          else if (typeof this.context.#defaultInitOption.baseURL === "string")
+          if (url.startsWith("http://") || url.startsWith("https://")) {
+            if (this.context.#defaultInitOption.isAutoHttps) url = url.replace(/^http:\/\//, "https://");
+          } else if (typeof this.context.#defaultInitOption.baseURL === "string")
             url = this.context.#defaultInitOption.baseURL + url;
         }
         const requestOption = {
@@ -15988,10 +16008,11 @@
                 urlSearch = new URLSearchParams(requestOption.data).toString();
               }
               if (deleteData) Reflect.deleteProperty(requestOption, "data");
-              if (urlSearch.trim() != "")
+              if (urlSearch.trim() != "") {
                 if (urlInst.search.trim() === "") urlInst.search = urlSearch;
                 else if (urlInst.search.trim().endsWith("&")) urlInst.search = urlInst.search + urlSearch;
                 else urlInst.search = `${urlInst.search}&${urlSearch}`;
+              }
               requestOption.url = urlInst.toString();
             } else if (method === "POST" && requestOption.headers != null) {
               const headersKeyList = Object.keys(requestOption.headers);
@@ -16076,8 +16097,8 @@
     };
     HttpxResponseCallBack = {
       context: this,
-      async onAbort(details, resolve, _reject, argsResult) {
-        if (typeof details?.onabort === "function") details.onabort.apply(this, argsResult);
+      async onAbort(requestOption, resolve, _reject, argsResult) {
+        if (typeof requestOption?.onabort === "function") requestOption.onabort.apply(this, argsResult);
         else if (typeof this.context.#defaultRequestOption?.onabort === "function")
           this.context.#defaultRequestOption.onabort.apply(this, argsResult);
         let response = argsResult;
@@ -16085,23 +16106,24 @@
         if (
           (await this.context.HttpxResponseHook.errorResponseCallBack({
             type: "onabort",
-            error: new Error("request canceled"),
+            error: new Error("request cancel"),
             response: null,
-            details,
+            requestOption,
           })) == null
         )
           return;
         resolve({
           data: response,
-          details,
+          requestOption,
           msg: "请求被取消",
           status: false,
+          isSuccess: false,
           statusCode: -1,
           type: "onabort",
         });
       },
-      async onTimeout(details, resolve, _reject, argsResult) {
-        if (typeof details?.ontimeout === "function") details.ontimeout.apply(this, argsResult);
+      async onTimeout(requestOption, resolve, _reject, argsResult) {
+        if (typeof requestOption?.ontimeout === "function") requestOption.ontimeout.apply(this, argsResult);
         else if (typeof this.context.#defaultRequestOption?.ontimeout === "function")
           this.context.#defaultRequestOption.ontimeout.apply(this, argsResult);
         let response = argsResult;
@@ -16109,23 +16131,24 @@
         if (
           (await this.context.HttpxResponseHook.errorResponseCallBack({
             type: "ontimeout",
-            error: new Error("request timeout"),
+            error: new Error("request timeout in " + requestOption.timeout + "ms"),
             response,
-            details,
+            requestOption,
           })) == null
         )
           return;
         resolve({
           data: response,
-          details,
+          requestOption,
           msg: "请求超时",
           status: false,
+          isSuccess: false,
           statusCode: 0,
           type: "ontimeout",
         });
       },
-      async onError(details, resolve, _reject, argsResult) {
-        if (typeof details?.onerror === "function") details.onerror.apply(this, argsResult);
+      async onError(requestOption, resolve, _reject, argsResult, reason) {
+        if (typeof requestOption?.onerror === "function") requestOption.onerror.apply(this, argsResult);
         else if (typeof this.context.#defaultRequestOption?.onerror === "function")
           this.context.#defaultRequestOption.onerror.apply(this, argsResult);
         let response = argsResult;
@@ -16133,29 +16156,31 @@
         if (
           (await this.context.HttpxResponseHook.errorResponseCallBack({
             type: "onerror",
-            error: new Error("request error"),
+            error: new Error(reason ?? "request error"),
             response,
-            details,
+            requestOption,
           })) == null
         )
           return;
         resolve({
           data: response,
-          details,
-          msg: "请求异常",
+          requestOption,
+          msg: "请求失败",
           status: false,
+          isSuccess: false,
           statusCode: response["status"],
           type: "onerror",
         });
       },
-      async onLoad(details, resolve, _reject, argsResult) {
+      async onLoad(requestOption, resolve, _reject, argsResult) {
         const originResponse = argsResult[0];
-        if (commonUtil.isNull(originResponse["responseText"]) && commonUtil.isNotNull(originResponse["response"]))
+        if (commonUtil.isNull(originResponse["responseText"]) && commonUtil.isNotNull(originResponse["response"])) {
           if (typeof originResponse["response"] === "object")
             TryCatch().run(() => {
               originResponse["responseText"] = JSON.stringify(originResponse["response"]);
             });
           else originResponse["responseText"] = originResponse["response"];
+        }
         if (
           originResponse["response"] == null &&
           typeof originResponse["responseText"] === "string" &&
@@ -16163,11 +16188,12 @@
         ) {
           const httpxResponseText = originResponse.responseText;
           let httpxResponse = httpxResponseText;
-          if (details.responseType === "json") httpxResponse = commonUtil.toJSON(httpxResponseText);
-          else if (details.responseType === "document")
+          if (requestOption.responseType === "json") httpxResponse = commonUtil.toJSON(httpxResponseText);
+          else if (requestOption.responseType === "document")
             httpxResponse = new DOMParser().parseFromString(httpxResponseText, "text/html");
-          else if (details.responseType === "arraybuffer") httpxResponse = new TextEncoder().encode(httpxResponseText);
-          else if (details.responseType === "blob") {
+          else if (requestOption.responseType === "arraybuffer")
+            httpxResponse = new TextEncoder().encode(httpxResponseText);
+          else if (requestOption.responseType === "blob") {
             const arrayBuffer = new TextEncoder().encode(httpxResponseText);
             httpxResponse = new Blob([arrayBuffer]);
           }
@@ -16193,49 +16219,59 @@
         if (originResponse["finalUrl"] == null && originResponseURL != null)
           Reflect.set(originResponse, "finalUrl", originResponseURL);
         if (Math.floor(originResponse.status / 100) === 2) {
-          if ((await this.context.HttpxResponseHook.successResponseCallBack(originResponse, details)) == null) return;
+          if ((await this.context.HttpxResponseHook.successResponseCallBack(originResponse, requestOption)) == null)
+            return;
           resolve({
             data: originResponse,
-            details,
+            requestOption,
             msg: "请求成功",
             status: true,
+            isSuccess: false,
             statusCode: originResponse.status,
             type: "onload",
           });
-        } else this.context.HttpxResponseCallBack.onError(details, resolve, _reject, argsResult);
+        } else
+          this.context.HttpxResponseCallBack.onError(
+            requestOption,
+            resolve,
+            _reject,
+            argsResult,
+            "response status is not 2xx"
+          );
       },
-      onLoadStart(details, argsResult) {
-        if (typeof details?.onloadstart === "function") details.onloadstart.apply(this, argsResult);
+      onLoadStart(requestOption, argsResult) {
+        if (typeof requestOption?.onloadstart === "function") requestOption.onloadstart.apply(this, argsResult);
         else if (typeof this.context.#defaultRequestOption?.onloadstart === "function")
           this.context.#defaultRequestOption.onloadstart.apply(this, argsResult);
       },
-      onReadyStateChange(details, argsResult) {
-        if (typeof details?.onreadystatechange === "function") details.onreadystatechange.apply(this, argsResult);
+      onReadyStateChange(requestOption, argsResult) {
+        if (typeof requestOption?.onreadystatechange === "function")
+          requestOption.onreadystatechange.apply(this, argsResult);
         else if (typeof this.context.#defaultRequestOption?.onreadystatechange === "function")
           this.context.#defaultRequestOption.onreadystatechange.apply(this, argsResult);
       },
-      onProgress(details, argsResult) {
-        if (typeof details?.onprogress === "function") details.onprogress.apply(this, argsResult);
+      onProgress(requestOption, argsResult) {
+        if (typeof requestOption?.onprogress === "function") requestOption.onprogress.apply(this, argsResult);
         else if (typeof this.context.#defaultRequestOption?.onprogress === "function")
           this.context.#defaultRequestOption.onprogress.apply(this, argsResult);
       },
     };
     HttpxRequest = {
       context: this,
-      async request(details) {
-        if (this.context.#defaultInitOption.logDetails)
-          console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", details);
+      async request(requestOption) {
+        if (this.context.#defaultInitOption.isConsoleRequestOption)
+          console.log("[Httpx-HttpxRequest.request] 请求前的配置👇", requestOption);
         if (typeof this.context.HttpxRequestHook.beforeRequestCallBack === "function") {
-          if ((await this.context.HttpxRequestHook.beforeRequestCallBack(details)) == null) return;
+          if ((await this.context.HttpxRequestHook.beforeRequestCallBack(requestOption)) == null) return;
         }
-        if (details.fetch) {
+        if (requestOption.fetch) {
           const { fetchOption, fetchRequestOption, abortController } =
-            this.context.HttpxRequestOption.handleFetchOption(details);
+            this.context.HttpxRequestOption.handleFetchOption(requestOption);
           return this.fetch(fetchOption, fetchRequestOption, abortController);
-        } else return this.xmlHttpRequest(details);
+        } else return this.xmlHttpRequest(requestOption);
       },
-      xmlHttpRequest(details) {
-        return this.context.GM_Api.xmlHttpRequest(details);
+      xmlHttpRequest(requestOption) {
+        return this.context.GM_Api.xmlHttpRequest(requestOption);
       },
       fetch(option, fetchRequestOption, abortController) {
         fetch(option.url, fetchRequestOption)
@@ -16363,7 +16399,8 @@
     };
     #defaultInitOption = {
       baseURL: void 0,
-      logDetails: false,
+      isConsoleRequestOption: false,
+      isAutoHttps: false,
     };
     constructor(option = {}) {
       if (typeof option.xmlHttpRequest !== "function")
@@ -16455,8 +16492,8 @@
       userRequestOption.method = "PUT";
       return this.request(userRequestOption);
     }
-    request(details, beforeRequestOption) {
-      const userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(details);
+    request(requestOption, beforeRequestOption) {
+      const userRequestOption = this.HttpxRequestOption.handleBeforeRequestOptionArgs(requestOption);
       let abortFn = null;
       const promise = new globalThis.Promise(async (resolve, reject) => {
         let requestOption = this.HttpxRequestOption.getRequestOption(
@@ -17127,7 +17164,6 @@
                 break;
               case "object":
                 if (this.searchObject(module, query)) results.push(module);
-                break;
             }
           } else if (typeof query === "function") {
             if (query(module)) results.push(module);
@@ -17345,12 +17381,10 @@
           path: "/",
           secure: true,
           httpOnly: false,
-          expirationDate: Math.floor(Date.now()) + 3600 * 24 * 30,
+          expirationDate: Math.floor(Date.now()) + 2592e3,
         };
         defaultOption = commonUtil.assign(defaultOption, option);
-        const life = defaultOption.expirationDate
-          ? defaultOption.expirationDate
-          : Math.floor(Date.now()) + 3600 * 24 * 30;
+        const life = defaultOption.expirationDate ? defaultOption.expirationDate : Math.floor(Date.now()) + 2592e3;
         let cookieStr = `${defaultOption.name}=${decodeURIComponent(defaultOption.value)};expires=${new Date(life).toGMTString()}; path=/`;
         if (commonUtil.isNull(defaultOption.domain)) cookieStr += `; domain=${defaultOption.domain}`;
         this.windowApi.document.cookie = cookieStr;
@@ -17792,9 +17826,10 @@
             if (isSame) return;
             if (effect.scheduler) effect.scheduler();
             else effect.run();
-          } else if (effect.options.triggerMethod === "set")
+          } else if (effect.options.triggerMethod === "set") {
             if (effect.scheduler) effect.scheduler();
             else effect.run();
+          }
         });
       }
     }
@@ -17844,8 +17879,8 @@
       return true;
     return false;
   };
-  var __GM_cookie__ = isSupportGM_cookie() ? GM_cookie : void 0;
-  var __GM_async_cookie__ = isSupportGM_async_cookie() ? GM?.cookie : void 0;
+  var __GM_cookie__ = (() => (isSupportGM_cookie() ? GM_cookie : void 0))();
+  var __GM_async_cookie__ = (() => (isSupportGM_async_cookie() ? GM?.cookie : void 0))();
   var __document_cookie__ = new DocumentCookieHandler();
   var CookieManagerService = class {
     __defaultCookieHandler = "document.cookie";
@@ -18350,18 +18385,18 @@
       let diffValue = Math.round(Math.abs((bigDate - smallDate) / remainderValue));
       if (type === "auto") {
         const timeDifference = bigTimeStamp - smallTimeStamp;
-        diffValue = Math.floor(timeDifference / (24 * 3600 * 1e3));
+        diffValue = Math.floor(timeDifference / 864e5);
         if (diffValue > 0) diffValue = `${diffValue}天`;
         else {
-          const leave1 = timeDifference % (24 * 3600 * 1e3);
-          const hours = Math.floor(leave1 / (3600 * 1e3));
+          const leave1 = timeDifference % 864e5;
+          const hours = Math.floor(leave1 / 36e5);
           if (hours > 0) diffValue = `${hours}小时`;
           else {
-            const leave2 = leave1 % (3600 * 1e3);
-            const minutes = Math.floor(leave2 / (60 * 1e3));
+            const leave2 = leave1 % 36e5;
+            const minutes = Math.floor(leave2 / 6e4);
             if (minutes > 0) diffValue = `${minutes}分钟`;
             else {
-              const leave3 = leave2 % (60 * 1e3);
+              const leave3 = leave2 % 6e4;
               diffValue = `${Math.round(leave3 / 1e3)}秒`;
             }
           }
@@ -18602,13 +18637,13 @@
     }
     getRandomValue(...args) {
       const result = [...args];
-      if (result.length > 1)
+      if (result.length > 1) {
         if (result.length === 2 && typeof result[0] === "number" && typeof result[1] === "number") {
           const leftNumber = result[0] > result[1] ? result[1] : result[0];
           const rightNumber = result[0] > result[1] ? result[0] : result[1];
           return Math.round(Math.random() * (rightNumber - leftNumber)) + leftNumber;
         } else return result[Math.floor(Math.random() * result.length)];
-      else if (result.length === 1) {
+      } else if (result.length === 1) {
         const paramData = result[0];
         if (Array.isArray(paramData)) return paramData[Math.floor(Math.random() * paramData.length)];
         else if (typeof paramData === "object" && Object.keys(paramData).length > 0)
@@ -19078,10 +19113,10 @@
           }
         });
       }
-      if (release)
+      if (release) {
         if (functionNameList.length === 0) releaseAll();
         else releaseOne();
-      else if (functionNameList.length === 0) recoveryAll();
+      } else if (functionNameList.length === 0) recoveryAll();
       else recoveryOne();
     }
     parseBase64ToBlob(dataUri) {
@@ -19215,10 +19250,10 @@
         mimetype: "text/plain",
       }
     ) {
-      if (typeof data === "object")
+      if (typeof data === "object") {
         if (data instanceof Element) data = data.outerHTML;
         else data = JSON.stringify(data);
-      else if (typeof data !== "string") data = data.toString();
+      } else if (typeof data !== "string") data = data.toString();
       let textType = typeof info === "object" ? info.type : info;
       if (textType.includes("html")) textType = "text/html";
       else textType = "text/plain";
@@ -19474,11 +19509,11 @@
       const sortFunc = function (afterInst, beforeInst) {
         const beforeValue = getTargetValue(beforeInst);
         const afterValue = getTargetValue(afterInst);
-        if (sortByDesc)
+        if (sortByDesc) {
           if (beforeValue < afterValue) return -1;
           else if (beforeValue > afterValue) return 1;
           else return 0;
-        else if (beforeValue > afterValue) return -1;
+        } else if (beforeValue > afterValue) return -1;
         else if (beforeValue < afterValue) return 1;
         else return 0;
       };
@@ -19935,6 +19970,11 @@
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
+    },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
       if (typeof cssText === "string" && cssText) return addStyle(cssText);
@@ -20152,20 +20192,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -20247,7 +20287,7 @@
   });
   var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -20277,12 +20317,14 @@
     _unsafeWindow.clearInterval.bind(_unsafeWindow));
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   domUtils$2.selector.bind(domUtils$2);
   domUtils$2.selectorAll.bind(domUtils$2);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils.DocumentCookieHandler();
   var KEY = "GM_Panel";
   var ATTRIBUTE_INIT = "data-init";
@@ -20430,15 +20472,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -20785,7 +20828,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -20796,7 +20839,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -21099,9 +21142,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -21839,12 +21883,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -21867,8 +21911,8 @@
     },
   };
   var injectDocumentTime = "";
-  if (document.documentElement)
-    if (document.head)
+  if (document.documentElement) {
+    if (document.head) {
       if (document.body)
         injectDocumentTime = `<html>
     <head>
@@ -21895,12 +21939,12 @@
 </html>
 
 注入速度等级：2`;
-    else
+    } else
       injectDocumentTime = `<html>
 </html>
 
 注入速度等级：1`;
-  else
+  } else
     injectDocumentTime = `document.documentElement is null
 	
 注入速度等级：0`;
@@ -22744,7 +22788,7 @@
         let newCookieInfo = {
           name: "test",
           value: "1",
-          expirationDate: (Date.now() + 1440 * 60 * 1e3) / 1e3,
+          expirationDate: (Date.now() + 864e5) / 1e3,
         };
         [
           {
@@ -23692,7 +23736,7 @@
                     tag: "error",
                   };
                 resourceBase64Data = resourceBase64Data.trim();
-                if (resourceBase64Data.startsWith("data:text/css;base64"))
+                if (resourceBase64Data.startsWith("data:text/css;base64")) {
                   if (
                     resourceBase64Data.startsWith(
                       "data:text/css;base64,LyohCiAqIFZpZXdlci5qcyB2MS4xMS43CiAqIGh0dHBzOi8vZmVuZ3"
@@ -23709,7 +23753,7 @@
                       ),
                       tag: "warn",
                     };
-                else
+                } else
                   return {
                     text: CommonUtil.escapeHtml("支持通过@resource引用资源，但是未对资源进行base64编码"),
                     tag: "warn",
@@ -24234,7 +24278,7 @@
               let localStorageDefaultValue = 123;
               return UIInfo(() => {
                 return {
-                  text: "存储object类型的null，读取时指定默认值为" + localStorageDefaultValue,
+                  text: "存储object类型的null，读取时指定默认值为123",
                   description: `${apiNameTag}("${localStorageDataKey}", ${localStorageDefaultValue})`,
                   tag: "info",
                   afterRender(container) {
@@ -24292,8 +24336,7 @@
                       domUtils.preventEvent(event);
                       try {
                         let value = await data.fn(localStorageDataKey, localStorageDefaultValue);
-                        if (typeof value === typeof localStorageDefaultValue)
-                          qmsg.success("读取的值是默认值：" + value);
+                        if (typeof value === "number") qmsg.success("读取的值是默认值：" + value);
                         else qmsg.error("读取的值不是默认值：" + value);
                       } catch (error) {
                         qmsg.error(error.toString());
@@ -24395,14 +24438,15 @@
         ].forEach((data) => {
           let apiNameTag = data.name;
           data.formList.push(
-            UIInfo(() => {
-              return {
-                text: "测试直接读取",
-                description: "没有入参",
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.toElement(
-                    `
+            (() => {
+              return UIInfo(() => {
+                return {
+                  text: "测试直接读取",
+                  description: "没有入参",
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.toElement(
+                      `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -24410,35 +24454,37 @@
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", async (event) => {
-                    domUtils.preventEvent(event);
-                    try {
-                      let value = await data.fn();
-                      qmsg.info("请在控制台查看读取的数据");
-                      console.log(value);
-                    } catch (error) {
-                      qmsg.error(error.toString());
-                    }
-                  });
-                },
-              };
-            }),
-            UIInfo(() => {
-              let localStorageDataValue = utils.toJSON(`{
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      domUtils.preventEvent(event);
+                      try {
+                        let value = await data.fn();
+                        qmsg.info("请在控制台查看读取的数据");
+                        console.log(value);
+                      } catch (error) {
+                        qmsg.error(error.toString());
+                      }
+                    });
+                  },
+                };
+              });
+            })(),
+            (() => {
+              return UIInfo(() => {
+                let localStorageDataValue = utils.toJSON(`{
 								"${apiNameTag}-test-key-non-exists-1": 1111,
 								"${apiNameTag}-test-key-non-exists-2": 2222,
 							}`);
-              return {
-                text: "测试读取不存在的数据",
-                description: "数据默认值：" + JSON.stringify(localStorageDataValue),
-                tag: "info",
-                afterRender(container) {
-                  let $button = domUtils.toElement(
-                    `
+                return {
+                  text: "测试读取不存在的数据",
+                  description: "数据默认值：" + JSON.stringify(localStorageDataValue),
+                  tag: "info",
+                  afterRender(container) {
+                    let $button = domUtils.toElement(
+                      `
 									<div class="pops-panel-button pops-panel-button-no-icon">
 										<button class="pops-panel-button_inner" type="button" data-type="default">
 											<i class="pops-bottom-icon" is-loading="false"></i>
@@ -24446,26 +24492,27 @@
 										</button>
 									</div>
 								`,
-                    false,
-                    false
-                  );
-                  domUtils.after(container.$leftContainer, $button);
-                  domUtils.on($button, "click", async (event) => {
-                    domUtils.preventEvent(event);
-                    try {
-                      let value = await data.fn(localStorageDataValue);
-                      console.log(value);
-                      if (value == null) qmsg.error("读取失败，读取的数据为null");
-                      else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue))
-                        qmsg.success("读取成功，读取的数据和默认值相同");
-                      else qmsg.error("读取成功，但读取的数据和默认值不同");
-                    } catch (error) {
-                      qmsg.error(error.toString());
-                    }
-                  });
-                },
-              };
-            }),
+                      false,
+                      false
+                    );
+                    domUtils.after(container.$leftContainer, $button);
+                    domUtils.on($button, "click", async (event) => {
+                      domUtils.preventEvent(event);
+                      try {
+                        let value = await data.fn(localStorageDataValue);
+                        console.log(value);
+                        if (value == null) qmsg.error("读取失败，读取的数据为null");
+                        else if (JSON.stringify(value) === JSON.stringify(localStorageDataValue))
+                          qmsg.success("读取成功，读取的数据和默认值相同");
+                        else qmsg.error("读取成功，但读取的数据和默认值不同");
+                      } catch (error) {
+                        qmsg.error(error.toString());
+                      }
+                    });
+                  },
+                };
+              });
+            })(),
             (() => {
               let localStorageDataValue = utils.toJSON(`{
 							"${apiNameTag}-test-key-1": 1,
@@ -24781,10 +24828,10 @@
                     try {
                       let ret = await data.fn();
                       console.log(data.name + " call result", ret);
-                      if (Array.isArray(ret))
+                      if (Array.isArray(ret)) {
                         if (ret.find((it) => typeof it !== "string")) qmsg.error("返回值数组中存在非string类型");
                         else alert(JSON.stringify(ret, null, 4));
-                      else qmsg.error("返回值不是数组");
+                      } else qmsg.error("返回值不是数组");
                     } catch (error) {
                       qmsg.error(error.toString());
                     }
@@ -25446,7 +25493,7 @@
                         domUtils.text(container.$leftDesc, this.text);
                         domUtils.show(container.$leftDesc, false);
                         let result = await data.fn("https://www.example.com/", { active: false });
-                        if (typeof result === "object")
+                        if (typeof result === "object") {
                           if (result == null) TagUtil.setTag(container.$leftText, "error", "返回值为null");
                           else {
                             let support_close = "close" in result && typeof result.close === "function";
@@ -25461,7 +25508,7 @@
 										`
                             );
                           }
-                        else TagUtil.setTag(container.$leftText, "error", "返回值不是对象：" + typeof result);
+                        } else TagUtil.setTag(container.$leftText, "error", "返回值不是对象：" + typeof result);
                       } catch (error) {
                         qmsg.error(error.toString());
                       }
@@ -25782,7 +25829,7 @@
                         timeId = setTimeoutLog(() => {
                           clearInterval(intervalId);
                           TagUtil.setTag(container.$leftText, "error", "测试超时，未触发回调");
-                        }, 10 * 1e3);
+                        }, 1e4);
                         const menuCommandId = await data.fn("Test Menu", (event) => {
                           try {
                             clearInterval(intervalId);
@@ -26688,12 +26735,12 @@
                         domUtils.preventEvent(event);
                         clearTimeout(timeId);
                         const menuCommandId = _GM_registerMenuCommand("Test UnRegister Menu", (event) => {});
-                        qmsg.info("已注册菜单，10s后自动执行卸载", { timeout: 10 * 1e3 });
+                        qmsg.info("已注册菜单，10s后自动执行卸载", { timeout: 1e4 });
                         clearTimeout(timeId);
                         timeId = setTimeoutLog(async () => {
                           await data.fn(menuCommandId);
                           qmsg.success("已执行卸载菜单命令，请自行验证");
-                        }, 10 * 1e3);
+                        }, 1e4);
                       } catch (error) {
                         qmsg.error(error.toString());
                       }
@@ -27759,7 +27806,7 @@
           name: apiName,
           isSupport,
         });
-      if (apiAsyncInfo)
+      if (apiAsyncInfo) {
         if (apiAsyncInfo.isSupport)
           supportApiNameList.push({
             name: apiAsyncInfo.name,
@@ -27772,6 +27819,7 @@
             isSupport: apiAsyncInfo.isSupport,
             leftTargetSelector: "#aside-" + apiName,
           });
+      }
     });
     let createFeatureItem = (config) => {
       let $item = domUtils.createElement("div", {
