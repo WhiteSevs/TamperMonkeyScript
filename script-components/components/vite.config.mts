@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
-import { ViteUtils } from "./../../vite.utils";
-import { GenerateUserConfig } from "./vite.config.base";
+import { ViteUtils } from "./../../vite.utils.mjs";
+import { GenerateUserConfig } from "./vite.config.base.mjs";
 
-const Utils = new ViteUtils(__dirname);
-const pkg = Utils.getPackageJSON();
+const utils = new ViteUtils(import.meta.dirname);
+const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: __dirname,
+  __dirname: utils.dirName,
   monkeyOption: {
     userscript: {
       name: "",

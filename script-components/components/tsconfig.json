@@ -1,10 +1,14 @@
 {
-  "extends": "./tsconfig.base.json",
+  "extends": "./../../script-components/components/tsconfig.base.json",
   "compilerOptions": {
     "paths": {
+      // 本项目
       "@/*": ["./src/*"],
+      // 根引用
+      "@root/*": ["./../../*"],
       "@lib/*": ["./../../lib/*"],
-      "@components/*": ["./src/*"]
+      "@script-components/*": ["./../../script-components/components/*"],
+      "@components/*": ["./../../script-components/components/src/*"]
     }
   },
   "references": [
@@ -12,5 +16,5 @@
       "path": "./tsconfig.node.json"
     }
   ],
-  "include": ["src", "types"]
+  "include": ["src", "types", "./../../script-components/components/types/*.d.ts"]
 }

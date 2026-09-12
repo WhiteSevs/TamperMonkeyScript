@@ -2,20 +2,19 @@ import vue from "@vitejs/plugin-vue";
 import fs from "fs";
 import path from "path";
 import pc from "picocolors";
+import { simpleGit } from "simple-git";
 import AutoImport from "unplugin-auto-import/vite";
 import IconsResolver from "unplugin-icons/resolver";
 import Icons from "unplugin-icons/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import Components from "unplugin-vue-components/vite";
 import { type Plugin, type UserConfig } from "vite";
+import { getCommandArgv } from "vite-plugin-env-command";
 import mkcert from "vite-plugin-mkcert";
 import monkey, { cdn, type MonkeyOption as __MonkeyOption__ } from "vite-plugin-monkey";
-import { GetLib, ViteUtils, viteUtils } from "../../vite.utils";
-import { simpleGit } from "simple-git";
-import { getCommandArgv } from "vite-plugin-env-command";
+import { GetLib, ViteUtils, viteUtils } from "../../vite.utils.mjs";
 
-type IArray<T> = T[] | T;
-
+type IArray<T> = T | T[];
 type SuperMonkeyOption = {
   /**
    * 是否是Vue项目
@@ -203,7 +202,7 @@ const UserScriptUtils = {
   },
 };
 
-const baseUtils = new ViteUtils(__dirname);
+const rootUtils = new ViteUtils(import.meta.dirname);
 /**
  * 生成用户配置
  * @param option 配置项
@@ -238,8 +237,8 @@ const GenerateUserConfig = async (option: {
    * 当前是否是build模式
    */
   const isBuild = process.argv.findIndex((i) => i.startsWith("build")) !== -1;
-  const inheritUtils = new ViteUtils(option.__dirname);
-  const pkg = inheritUtils.getPackageJSON();
+  const projectUtils = new ViteUtils(option.__dirname);
+  const pkg = projectUtils.getPackageJSON();
   let SCRIPT_NAME = option.monkeyOption.userscript.name;
   if (typeof SCRIPT_NAME === "object" && SCRIPT_NAME) {
     SCRIPT_NAME = Object.values(SCRIPT_NAME).find((it) => typeof it === "string");
@@ -279,7 +278,7 @@ const GenerateUserConfig = async (option: {
     // 获取命令行参数
     const commandEnv = getCommandArgv();
     if (commandEnv === "all-new") {
-      VERSION = baseUtils.getLatestScriptVersion();
+      VERSION = rootUtils.getLatestScriptVersion();
       console.log("script build force new version: ", pc.green(VERSION));
     } else {
       let gitProjectPath = option.gitProjectPath;
@@ -310,10 +309,10 @@ const GenerateUserConfig = async (option: {
         } else {
           console.log(pc.yellow("git history version is empty"));
         }
-        VERSION = inheritUtils.getLatestScriptVersion(historyVersion);
+        VERSION = projectUtils.getLatestScriptVersion(historyVersion);
         console.log("script build version: ", pc.green(VERSION));
       } else {
-        VERSION = inheritUtils.getScriptVersion(!isEmptyOutDir);
+        VERSION = projectUtils.getScriptVersion(!isEmptyOutDir);
       }
     }
   }
@@ -338,23 +337,23 @@ const GenerateUserConfig = async (option: {
     },
     "@whitesev/utils": {
       cdn: cdn.jsdelivrFastly("Utils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
-      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Utils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+      local: `file:///${rootUtils.getAbsolutePath(`./../../lib/Utils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     "@whitesev/domutils": {
       cdn: cdn.jsdelivrFastly("DOMUtils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
-      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/DOMUtils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+      local: `file:///${rootUtils.getAbsolutePath(`./../../lib/DOMUtils/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     "@whitesev/pops": {
       cdn: cdn.jsdelivrFastly("pops", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
-      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/pops/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+      local: `file:///${rootUtils.getAbsolutePath(`./../../lib/pops/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     "@whitesev/data-paging": {
       cdn: cdn.jsdelivrFastly("DataPaging", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
-      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/DataPaging/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+      local: `file:///${rootUtils.getAbsolutePath(`./../../lib/DataPaging/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     qmsg: {
       cdn: cdn.jsdelivrFastly("Qmsg", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
-      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Qmsg/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
+      local: `file:///${rootUtils.getAbsolutePath(`./../../lib/Qmsg/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     showdown: {
       local: GetLib("showdown", true),
@@ -364,7 +363,7 @@ const GenerateUserConfig = async (option: {
         const url = await GetLib("element-plus", false);
         return isMinify ? url : url.replace("min.js", "js");
       })(),
-      local: `file:///${baseUtils.getAbsolutePath(`./../../lib/Element-Plus/index.full.${isMinify ? "min." : ""}js`)}`,
+      local: `file:///${rootUtils.getAbsolutePath(`./../../lib/Element-Plus/index.full.${isMinify ? "min." : ""}js`)}`,
     },
     viewerjs: {
       cdn: cdn.jsdelivrFastly("Viewer", isMinify ? "dist/viewer.min.js" : "dist/viewer.js"),
@@ -564,9 +563,13 @@ const GenerateUserConfig = async (option: {
     plugins: [mkcert()],
     resolve: {
       alias: {
-        "@": inheritUtils.getAbsolutePath("./src"),
-        "@lib": baseUtils.getAbsolutePath("./../../lib"),
-        "@components": baseUtils.getAbsolutePath("./src"),
+        // 项目
+        "@": projectUtils.getAbsolutePath("./src"),
+        // 根
+        "@root": rootUtils.getAbsolutePath("./../.."),
+        "@lib": rootUtils.getAbsolutePath("./../../lib"),
+        "@script-components": rootUtils.getAbsolutePath("."),
+        "@components": rootUtils.getAbsolutePath("./src"),
       },
     },
     server: {
@@ -724,10 +727,8 @@ const GenerateUserConfig = async (option: {
   const otherGrant = defaultSuperMonkeyOption.userscript.otherGrant;
   if (Array.isArray(otherGrant)) {
     if (Array.isArray(defaultMonkeyOption!.userscript!.grant)) {
-      defaultMonkeyOption.userscript!.grant = defaultMonkeyOption.userscript!.grant.concat(
-        // @ts-expect-error
-        otherGrant
-      );
+      // @ts-expect-error
+      defaultMonkeyOption.userscript!.grant = defaultMonkeyOption.userscript!.grant.concat(otherGrant);
     } else {
       // @ts-expect-error
       defaultMonkeyOption.userscript!.grant = otherGrant;
@@ -938,7 +939,7 @@ const GenerateUserConfig = async (option: {
         // 本地meta文件名
         localMetaFileName = `${localMetaFileName}.meta.local.user.js`;
         // meta文件内容
-        const metaLocalContentSplitList = (<string[]>[]).concat(splitContent);
+        const metaLocalContentSplitList = ([] as string[]).concat(splitContent);
         for (let index = 0; index < metaLocalContentSplitList.length; index++) {
           const metaItem = metaLocalContentSplitList[index];
           const metaItemInfo = UserScriptUtils.parseMetaItem(metaItem);
@@ -966,6 +967,22 @@ const GenerateUserConfig = async (option: {
     },
   };
 
+  // 移除@require和@resource中空的引用
+  if (Array.isArray(defaultMonkeyOption.userscript?.require)) {
+    defaultMonkeyOption.userscript.require = defaultMonkeyOption.userscript.require.filter((it) => {
+      return it.trim() !== "";
+    });
+  }
+  if (
+    typeof defaultMonkeyOption.userscript?.resource === "object" &&
+    defaultMonkeyOption.userscript?.resource != null
+  ) {
+    for (const [key, value] of Object.entries(defaultMonkeyOption.userscript.resource)) {
+      if (value.trim() === "") {
+        throw new Error(`(!) resource ${key} url is empty`);
+      }
+    }
+  }
   plugins.push([ScriptManagerTransformPlugin, SuperMonkeyPlugin]);
   plugins.push(monkey(defaultMonkeyOption));
 
@@ -973,4 +990,4 @@ const GenerateUserConfig = async (option: {
   return BaseUserConfig;
 };
 
-export { baseUtils, GenerateUserConfig };
+export { rootUtils as baseUtils, GenerateUserConfig };

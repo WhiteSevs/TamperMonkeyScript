@@ -19,7 +19,7 @@
     "sourceMap": true,
     "typeRoots": ["types"]
   },
-  "exclude": ["./vite.utils.ts"],
+  "exclude": ["./vite.utils.mts"],
   "references": [
     {
       "path": "./tsconfig.node.json"

@@ -1,4 +1,4 @@
 {
-  "extends": "./tsconfig.node.base.json",
-  "include": ["./vite.config.ts", "vite.config.base.ts", "./../../vite.utils.ts"]
+  "extends": "./../../script-components/components/tsconfig.node.base.json",
+  "include": ["vite.config.mts", "./../../script-components/components/vite.config.base.mts", "./../../vite.utils.mts"]
 }
