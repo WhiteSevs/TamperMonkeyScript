@@ -7,7 +7,7 @@ const utils = new ViteUtils(import.meta.dirname);
 const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: utils.dirName,
+  projectDirName: utils.dirName,
   monkeyOption: {
     userscript: {
       name: "Demo_Script_Name",
