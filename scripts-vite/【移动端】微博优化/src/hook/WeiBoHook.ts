@@ -1,4 +1,4 @@
-import { log, utils } from "@/env";
+import { httpx, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 import { WeiBoNetWorkHook } from "./WeiBoNetWorkHook";
 import { VueUtils } from "@components/utils/VueUtils";
@@ -176,30 +176,35 @@ export const WeiBoHook = {
           log.info(`重构/status/push响应`, originResponseData);
           originResponse.responseText = JSON.stringify(originResponseData);
         };
-      } else if (
-        requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex") &&
-        Panel.getValue("weibo-request-blockArticleAds")
-      ) {
-        /**
-         * 重构响应
-         */
-        request.response = function (originResponse) {
+      } else if (requestUrl.startsWith("https://m.weibo.cn/api/container/getIndex")) {
+        request.response = async function (originResponse) {
           let originResponseData = utils.toJSON(originResponse.responseText);
-          let cards = originResponseData["data"]["cards"];
-          if (Array.isArray(cards)) {
-            for (let index = 0; index < cards.length; index++) {
-              const card = cards[index];
-              let mblog = card?.mblog;
-              if (mblog) {
-                let id = mblog.id;
-                let ad_state = mblog?.ad_state;
-                let cardText = mblog?.text;
-                let page_title = mblog?.page_info?.page_title;
-                if (ad_state) {
-                  cards.splice(index, 1);
-                  index--;
-                  log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
-                  log.info(`移除广告card：` + cardText);
+          // 由于接口限制导致未登录获取不到更多信息了
+          if (Panel.getValue("weibo_hook_network_container_getIndex")) {
+            if (originResponseData.ok !== 1) {
+              log.error("由于尚未登录，获取不到更多数据", originResponseData);
+              originResponseData = {
+                ok: 1,
+              };
+            }
+          }
+          if (Panel.getValue("weibo-request-blockArticleAds")) {
+            const cards = originResponseData?.["data"]?.["cards"];
+            if (Array.isArray(cards)) {
+              for (let index = 0; index < cards.length; index++) {
+                const card = cards[index];
+                let mblog = card?.mblog;
+                if (mblog) {
+                  const id = mblog.id;
+                  const ad_state = mblog?.ad_state;
+                  const cardText = mblog?.text;
+                  const page_title = mblog?.page_info?.page_title;
+                  if (ad_state) {
+                    cards.splice(index, 1);
+                    index--;
+                    log.info(`移除广告url：` + "https://m.weibo.cn/detail/" + id);
+                    log.info(`移除广告card：` + cardText);
+                  }
                 }
               }
             }

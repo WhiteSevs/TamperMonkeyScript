@@ -1,7 +1,7 @@
 import { Panel } from "@components/setting/panel";
 import { WeiBo } from "./main/WeiBo";
 import { PanelContent } from "@components/setting/panel-content";
-import { SettingUICommon } from "./setting/view/common";
+import { SettingUIGeneral } from "./setting/view/general";
 import { SettingUIHome } from "./setting/view/home";
 import { SettingUIDetail } from "./setting/view/detail";
 import { SettingUISearch } from "./setting/view/search";
@@ -11,7 +11,7 @@ import { SettingUICardArticle } from "./setting/view/card";
 import { SettingUIOther } from "./setting/view/other";
 
 PanelContent.addContentConfig([
-  SettingUICommon,
+  SettingUIGeneral,
   SettingUIHome,
   SettingUIDetail,
   // SettingUIUserHome,

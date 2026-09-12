@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】微博优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.5.11
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  劫持自动跳转登录，修复用户主页正确跳转，伪装客户端，可查看名人堂日程表，解锁视频清晰度(1080p、2K、2K-60、4K、4K-60)
 // @license      GPL-3.0-only
@@ -13,9 +13,9 @@
 // @match        *://card.weibo.com/*
 // @match        *://weibo.com/l/wblive/m/show/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.12.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @connect      m.weibo.cn
 // @connect      www.weibo.com
@@ -59,7 +59,7 @@
   var __toESM = (mod, isNodeMode, target) => (
     (target = mod != null ? __create(__getProtoOf(mod)) : {}),
     __copyProps(
-      isNodeMode || !mod || !mod.__esModule
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
         ? __defProp(target, "default", {
             value: mod,
             enumerable: true,
@@ -72,21 +72,24 @@
   _whitesev_domutils = __toESM(_whitesev_domutils);
   _whitesev_pops = __toESM(_whitesev_pops);
   _whitesev_utils = __toESM(_whitesev_utils);
-  var _GM_addValueChangeListener = typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0;
-  var _GM_deleteValue = typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0;
-  var _GM_getResourceText = typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0;
-  var _GM_getValue = typeof GM_getValue != "undefined" ? GM_getValue : void 0;
-  var _GM_info = typeof GM_info != "undefined" ? GM_info : void 0;
-  var _GM_listValues = typeof GM_listValues != "undefined" ? GM_listValues : void 0;
-  var _GM_registerMenuCommand = typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0;
-  var _GM_removeValueChangeListener =
-    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0;
-  var _GM_setValue = typeof GM_setValue != "undefined" ? GM_setValue : void 0;
-  var _GM_setValues = typeof GM_setValues != "undefined" ? GM_setValues : void 0;
-  var _GM_unregisterMenuCommand = typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0;
-  var _GM_xmlhttpRequest = typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0;
-  var _unsafeWindow = typeof unsafeWindow != "undefined" ? unsafeWindow : void 0;
-  var _monkeyWindow = window;
+  var _GM_addValueChangeListener = (() =>
+    typeof GM_addValueChangeListener != "undefined" ? GM_addValueChangeListener : void 0)();
+  var _GM_deleteValue = (() => (typeof GM_deleteValue != "undefined" ? GM_deleteValue : void 0))();
+  var _GM_getResourceText = (() => (typeof GM_getResourceText != "undefined" ? GM_getResourceText : void 0))();
+  var _GM_getValue = (() => (typeof GM_getValue != "undefined" ? GM_getValue : void 0))();
+  var _GM_info = (() => (typeof GM_info != "undefined" ? GM_info : void 0))();
+  var _GM_listValues = (() => (typeof GM_listValues != "undefined" ? GM_listValues : void 0))();
+  var _GM_registerMenuCommand = (() =>
+    typeof GM_registerMenuCommand != "undefined" ? GM_registerMenuCommand : void 0)();
+  var _GM_removeValueChangeListener = (() =>
+    typeof GM_removeValueChangeListener != "undefined" ? GM_removeValueChangeListener : void 0)();
+  var _GM_setValue = (() => (typeof GM_setValue != "undefined" ? GM_setValue : void 0))();
+  var _GM_setValues = (() => (typeof GM_setValues != "undefined" ? GM_setValues : void 0))();
+  var _GM_unregisterMenuCommand = (() =>
+    typeof GM_unregisterMenuCommand != "undefined" ? GM_unregisterMenuCommand : void 0)();
+  var _GM_xmlhttpRequest = (() => (typeof GM_xmlhttpRequest != "undefined" ? GM_xmlhttpRequest : void 0))();
+  var _unsafeWindow = (() => (typeof unsafeWindow != "undefined" ? unsafeWindow : void 0))();
+  var _monkeyWindow = (() => window)();
   var PanelSettingConfig = {
     qmsg_config_position: {
       key: "qmsg-config-position",
@@ -141,6 +144,11 @@
       });
       selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
       if (selectorList.length) return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
+    },
+    addBlockCSSWithEnd(...args) {
+      const $css = CommonUtil.addBlockCSS(...args);
+      if ($css) document.documentElement.appendChild($css);
+      return $css;
     },
     setGMResourceCSS(resourceMapData) {
       const cssText = typeof _GM_getResourceText === "function" ? _GM_getResourceText(resourceMapData.keyName) : null;
@@ -359,20 +367,20 @@
       let result = time;
       let oldTime = new Date(typeof time === "string" ? time.replace(/-/g, "/") : time);
       let timeDifference = new Date(endTime ?? Date.now()).getTime() - oldTime.getTime();
-      let days = Math.floor(timeDifference / (24 * 3600 * 1e3));
-      if (days > 0)
+      let days = Math.floor(timeDifference / 864e5);
+      if (days > 0) {
         if (days > 7) result = utils.formatTime(oldTime.getTime());
         else result = days + "天前";
-      else {
-        let leave1 = timeDifference % (24 * 3600 * 1e3);
-        let hours = Math.floor(leave1 / (3600 * 1e3));
+      } else {
+        let leave1 = timeDifference % 864e5;
+        let hours = Math.floor(leave1 / 36e5);
         if (hours > 0) result = hours + "小时前";
         else {
-          let leave2 = leave1 % (3600 * 1e3);
-          let minutes = Math.floor(leave2 / (60 * 1e3));
+          let leave2 = leave1 % 36e5;
+          let minutes = Math.floor(leave2 / 6e4);
           if (minutes > 0) result = minutes + "分钟前";
           else {
-            let leave3 = leave2 % (60 * 1e3);
+            let leave3 = leave2 % 6e4;
             result = Math.round(leave3 / 1e3) + "秒前";
           }
         }
@@ -454,7 +462,7 @@
   });
   var httpx = new utils.Httpx({
     xmlHttpRequest: _GM_xmlhttpRequest,
-    logDetails: false,
+    isConsoleRequestOption: false,
   });
   httpx.interceptors.request.use((data) => {
     return data;
@@ -484,12 +492,14 @@
     _unsafeWindow.clearInterval.bind(_unsafeWindow));
   var addStyle = domUtils.addStyle.bind(domUtils);
   CommonUtil.addBlockCSS.bind(CommonUtil);
+  CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
   var cookieManager = new utils.CookieManagerService({ baseCookieHandler: "GM_cookie" });
-  if (!cookieManager.isSupportGM_cookie)
+  if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
     else cookieManager.setOptions({ baseCookieHandler: "document.cookie" });
+  }
   new utils.DocumentCookieHandler();
   var KEY = "GM_Panel";
   var ATTRIBUTE_INIT = "data-init";
@@ -638,15 +648,16 @@
           const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
           const $clipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='clipboard']");
           const updateConfigToStorage = async (data) => {
-            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）")))
-              if (typeof _GM_listValues === "function")
+            if (confirm(translateCallback("是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）"))) {
+              if (typeof _GM_listValues === "function") {
                 if (typeof _GM_deleteValue === "function") {
                   _GM_listValues().forEach((key) => {
                     _GM_deleteValue(key);
                   });
                   qmsg.default.success(translateCallback("已清空脚本存储的配置"));
                 } else qmsg.default.error(translateCallback("不支持GM_deleteValue函数，无法执行删除脚本配置"));
-              else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+              } else qmsg.default.error(translateCallback("不支持GM_listValues函数，无法清空脚本存储的配置"));
+            }
             if (typeof _GM_setValues === "function") _GM_setValues(data);
             else
               Object.keys(data).forEach((key) => {
@@ -993,7 +1004,7 @@
       if (Array.isArray(args)) resultValueList = resultValueList.concat(args);
       else {
         const handleArgs = (obj) => {
-          if (typeof obj === "object" && obj != null)
+          if (typeof obj === "object" && obj != null) {
             if (obj instanceof Element) resultValueList.push(obj);
             else if (Array.isArray(obj)) handleArgs(obj);
             else {
@@ -1004,7 +1015,7 @@
               }
               if (typeof destory === "function") resultValueList.push(destory);
             }
-          else resultValueList.push(obj);
+          } else resultValueList.push(obj);
         };
         handleArgs(args);
       }
@@ -1307,9 +1318,10 @@
     },
     setDefaultValue(key, defaultValue) {
       if (this.$data.contentConfigInitDefaultValue.has(key))
-        log.warn("该key已存在，初始化默认值失败: ", {
+        log.warn("该key的默认值已进行初始化，覆盖该默认值: ", {
           key,
-          initValue: this.$data.contentConfigInitDefaultValue.get(key),
+          defaultValue,
+          coverDefaultValue: this.$data.contentConfigInitDefaultValue.get(key),
         });
       this.$data.contentConfigInitDefaultValue.set(key, defaultValue);
     },
@@ -2047,12 +2059,12 @@
       );
     },
     transformKey(key) {
-      if (Array.isArray(key))
+      if (Array.isArray(key)) {
         if (key.length > 1) {
           const keyArray = key.sort();
           return JSON.stringify(keyArray);
         } else return key[0];
-      else return key;
+      } else return key;
     },
     getDynamicValue(key, defaultValue) {
       let isInit = false;
@@ -2697,13 +2709,13 @@
             });
           }
           let searchParams = new URLSearchParams(window.location.search);
-          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status())
+          if (WeiBoRouter.isMWeiBo_detail() || WeiBoRouter.isMWeiBo_status()) {
             if (searchParams.has("cid")) handleCardLzlTime();
             else {
               handleCardMainTime();
               handleCardCommentTime();
             }
-          else handleCardMainTime();
+          } else handleCardMainTime();
         },
       });
     },
@@ -2911,7 +2923,7 @@
                   });
                   return true;
                 });
-                if (userSetQualitySign !== -1)
+                if (userSetQualitySign !== -1) {
                   if (qualityInfo["qualityList"].find((item) => item["sign"] === userSetQualitySign))
                     qualityInfo["defaultSign"] = userSetQualitySign;
                   else {
@@ -2924,7 +2936,7 @@
                     qualityInfo["defaultSign"] = userSetQualitySignLower;
                     log.error("该清晰度不存在，选择比该画质低的清晰度：" + userSetQualitySignLower);
                   }
-                else {
+                } else {
                   let signList = qualityInfo["qualityList"].map((item) => item.sign);
                   qualityInfo["defaultSign"] = utils.getMaxValue(...signList);
                 }
@@ -2986,7 +2998,7 @@
                           src,
                         };
                         let ld_mp4_url = urls["mp4_ld_mp4"];
-                        if (ld_mp4_url)
+                        if (ld_mp4_url) {
                           if (!that.$data.videoQualityMap.has(ld_mp4_url))
                             that.$data.videoQualityMap.set(ld_mp4_url, [mapInfo]);
                           else {
@@ -2994,6 +3006,7 @@
                             currentMapInfo.push(mapInfo);
                             that.$data.videoQualityMap.set(ld_mp4_url, currentMapInfo);
                           }
+                        }
                       }
                       if (srcName in VideoQualityMap) {
                         let newSrcInfo = VideoQualityMap[srcName];
