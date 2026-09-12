@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CSDN优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.11.19
+// @version      2026.9.12
 // @author       WhiteSevs
 // @description  支持PC和手机端、屏蔽广告、优化浏览体验、重定向拦截的Url、自动展开全文、自动展开代码块、全文居中、允许复制内容、去除复制内容的小尾巴、自定义屏蔽元素等
 // @license      GPL-3.0-only
@@ -540,7 +540,14 @@ div.ios-shadowbox,
 }
 #mainBox main {
   width: inherit !important;
+
+  & .left-toolbox {
+    left: 0px !important;
+    right: 0px !important;
+    margin: 0 auto !important;
+  }
 }
+
 /* 当文章向下滚动时，触发左侧信息悬浮 */
 aside.blog_container_aside[style*="position: fixed;"] {
   display: none !important;
@@ -548,7 +555,10 @@ aside.blog_container_aside[style*="position: fixed;"] {
 
 @media (min-width: 1320px) and (max-width: 1380px) {
   .nodata .container {
-    width: 900px !important;
+    &,
+    & .left-toolbox {
+      width: 900px !important;
+    }
   }
 
   .nodata .container main {
@@ -566,7 +576,10 @@ aside.blog_container_aside[style*="position: fixed;"] {
 
 @media screen and (max-width: 1320px) {
   .nodata .container {
-    width: 760px !important;
+    &,
+    & .left-toolbox {
+      width: 760px !important;
+    }
   }
 
   .nodata .container main {
@@ -592,7 +605,10 @@ aside.blog_container_aside[style*="position: fixed;"] {
 
 @media screen and (min-width: 1380px) {
   .nodata .container {
-    width: 1010px !important;
+    &,
+    & .left-toolbox {
+      width: 1010px !important;
+    }
   }
 
   .nodata .container main {
@@ -610,7 +626,10 @@ aside.blog_container_aside[style*="position: fixed;"] {
 
 @media (min-width: 1550px) and (max-width: 1700px) {
   .nodata .container {
-    width: 820px !important;
+    &,
+    & .left-toolbox {
+      width: 820px !important;
+    }
   }
 
   .nodata .container main {
@@ -628,7 +647,10 @@ aside.blog_container_aside[style*="position: fixed;"] {
 
 @media screen and (min-width: 1700px) {
   .nodata .container {
-    width: 1010px !important;
+    &,
+    & .left-toolbox {
+      width: 1010px !important;
+    }
   }
 
   .nodata .container main {

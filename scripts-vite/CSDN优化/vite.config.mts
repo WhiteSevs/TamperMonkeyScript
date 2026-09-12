@@ -1,12 +1,12 @@
 import { defineConfig } from "vite";
-import { GenerateUserConfig } from "./../../script-components/components/vite.config.base";
-import { ViteUtils } from "./../../vite.utils";
+import { GenerateUserConfig } from "../../script-components/components/vite.config.base.mjs";
+import { ViteUtils } from "../../vite.utils.mjs";
 
-const Utils = new ViteUtils(import.meta.dirname);
-const pkg = Utils.getPackageJSON();
+const utils = new ViteUtils(import.meta.dirname);
+const pkg = utils.getPackageJSON();
 
 const userConfig = await GenerateUserConfig({
-  __dirname: import.meta.dirname,
+  __dirname: utils.dirName,
   gitProjectPath: "scripts-vite/CSDN优化",
   monkeyOption: {
     userscript: {
