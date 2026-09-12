@@ -217,9 +217,9 @@ const GenerateUserConfig = async (option: {
    */
   userConfig?: UserConfig;
   /**
-   * 本地开发的项目路径
+   * 本地项目的绝对路径
    */
-  __dirname: string;
+  projectDirName: string;
   /**
    * git项目中的项目路径
    * @example
@@ -230,14 +230,17 @@ const GenerateUserConfig = async (option: {
    * "/"
    * @example
    * ""
+   * @example
+   * true
+   * @default true
    */
-  gitProjectPath?: string;
+  gitProjectPath?: string|boolean;
 }) => {
   /**
    * 当前是否是build模式
    */
   const isBuild = process.argv.findIndex((i) => i.startsWith("build")) !== -1;
-  const projectUtils = new ViteUtils(option.__dirname);
+  const projectUtils = new ViteUtils(option.projectDirName);
   const pkg = projectUtils.getPackageJSON();
   let SCRIPT_NAME = option.monkeyOption.userscript.name;
   if (typeof SCRIPT_NAME === "object" && SCRIPT_NAME) {
@@ -281,7 +284,14 @@ const GenerateUserConfig = async (option: {
       VERSION = rootUtils.getLatestScriptVersion();
       console.log("script build force new version: ", pc.green(VERSION));
     } else {
-      let gitProjectPath = option.gitProjectPath;
+      let gitProjectPath = option.gitProjectPath ?? true;
+      if(typeof gitProjectPath === "boolean" && gitProjectPath){
+        // 主动识别路径并转换
+        // D:\xxx\xxx\xxx\scripts-vite\xxx-template-project
+        // 这里主动取最后两个路径就行
+        // git使用的路径是/而非\
+        gitProjectPath = option.projectDirName.split("\\").slice(-2).join("/");
+      }
       if (typeof gitProjectPath === "string") {
         gitProjectPath = gitProjectPath.trim();
         // 去除开始和末尾的/
@@ -289,7 +299,7 @@ const GenerateUserConfig = async (option: {
         gitProjectPath = gitProjectPath.replace(/\/$/, "");
         // 获取git提交的历史版本号
         const git = simpleGit({
-          baseDir: option.__dirname,
+          baseDir: option.projectDirName,
         });
         let historyVersion = "";
         const filePath = `${gitProjectPath === "" ? gitProjectPath : gitProjectPath + "/"}dist/${META_FILE_NAME}`;
@@ -537,7 +547,7 @@ const GenerateUserConfig = async (option: {
   defaultMonkeyOption = viteUtils.assign(defaultMonkeyOption, option.monkeyOption, true);
   process.on("exit", () => {
     try {
-      const dir = option.__dirname; // 当前目录
+      const dir = option.projectDirName; // 当前目录
       const pattern = /^vite\.config\.ts\.timestamp.+/;
 
       // 读取目录中的所有文件
