@@ -180,6 +180,11 @@ export const TiebaUniAppPost = {
       "uni-app .load-more",
       (event, $loadMore) => {
         DOMUtils.preventEvent(event);
+        const $loadErrorTip = $(".tb-error-page:contains('加载失败')");
+        if ($loadErrorTip) {
+          log.error(`uni-app ===> 检测到出现加载失败提示，不触发加载`);
+          return;
+        }
         const vue3Inst = VueUtils.getVue3($loadMore);
         const vue2Inst = VueUtils.getVue($loadMore);
         if (vue2Inst) {

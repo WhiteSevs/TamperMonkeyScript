@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.9.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -1578,7 +1578,7 @@ span[data-sex="2"] {
 			color: #ffffff;
 			z-index: 10000;
 		}
-		`)},mutationRemoveWakeUpBtn(){let e=new j.LockFunction(()=>{me(`.wake-app-btn`).forEach(e=>e.remove())}),t=j.mutationObserver(document,{config:{subtree:!0,childList:!0},callback:()=>{e.run()}});return[()=>{t.disconnect()}]},async overloadLoadMore(){P.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`),M.waitNode(`uni-app .load-more.wake-app`,1e4).then(e=>{e&&M.removeClass(e,`wake-app`)}),M.on(document,`click`,`uni-app .load-more`,(e,t)=>{M.preventEvent(e);let n=U.getVue3(t),r=U.getVue(t);if(r){let e=r?.$listeners?.[`handle-click`];typeof e==`function`?(e(),P.success(`uni-app ===> __vue__ 加载更多评论`)):P.error(`uni-app ==> __vue__ 点击加载更多失败`)}else if(n){let e=n?.attrs?.onHandleClick;typeof e==`function`?(e(),P.success(`uni-app ===> __vueParentComponent 加载更多评论`)):P.error(`uni-app ==> __vueParentComponent 点击加载更多失败`)}else P.error(`uni-app ==> 获取vue实例失败`)},{capture:!0,overrideTarget:!1}),M.on(document,`scroll`,j.debounce(async()=>{let e=L(`uni-app .load-more`);e&&j.isVisible(e,!0)&&e.click()}),{capture:!0,passive:!0,once:!1}),M.onReady(()=>{M.waitNode(`uni-app .load-more`,1e4).then(e=>{e&&M.emit(document,`scroll`)})})},addScrollTopButton(e){return e?(P.info(`uni-app ===> 添加滚动到顶部按钮`),Ab.addScrollTopButton(),I(`
+		`)},mutationRemoveWakeUpBtn(){let e=new j.LockFunction(()=>{me(`.wake-app-btn`).forEach(e=>e.remove())}),t=j.mutationObserver(document,{config:{subtree:!0,childList:!0},callback:()=>{e.run()}});return[()=>{t.disconnect()}]},async overloadLoadMore(){P.info(`uni-app ===> 覆盖页面的加载更多按钮，可实现加载更多评论`),M.waitNode(`uni-app .load-more.wake-app`,1e4).then(e=>{e&&M.removeClass(e,`wake-app`)}),M.on(document,`click`,`uni-app .load-more`,(e,t)=>{if(M.preventEvent(e),L(`.tb-error-page:contains('加载失败')`)){P.error(`uni-app ===> 检测到出现加载失败提示，不触发加载`);return}let n=U.getVue3(t),r=U.getVue(t);if(r){let e=r?.$listeners?.[`handle-click`];typeof e==`function`?(e(),P.success(`uni-app ===> __vue__ 加载更多评论`)):P.error(`uni-app ==> __vue__ 点击加载更多失败`)}else if(n){let e=n?.attrs?.onHandleClick;typeof e==`function`?(e(),P.success(`uni-app ===> __vueParentComponent 加载更多评论`)):P.error(`uni-app ==> __vueParentComponent 点击加载更多失败`)}else P.error(`uni-app ==> 获取vue实例失败`)},{capture:!0,overrideTarget:!1}),M.on(document,`scroll`,j.debounce(async()=>{let e=L(`uni-app .load-more`);e&&j.isVisible(e,!0)&&e.click()}),{capture:!0,passive:!0,once:!1}),M.onReady(()=>{M.waitNode(`uni-app .load-more`,1e4).then(e=>{e&&M.emit(document,`scroll`)})})},addScrollTopButton(e){return e?(P.info(`uni-app ===> 添加滚动到顶部按钮`),Ab.addScrollTopButton(),I(`
 				.whitesev-tb-totop{
 					display: unset !important;
 					right: 9px !important;

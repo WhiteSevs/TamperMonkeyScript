@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.9.13
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -26776,6 +26776,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           "uni-app .load-more",
           (event, $loadMore) => {
             domUtils.preventEvent(event);
+            if ($(".tb-error-page:contains('加载失败')")) {
+              log.error(`uni-app ===> 检测到出现加载失败提示，不触发加载`);
+              return;
+            }
             const vue3Inst = VueUtils.getVue3($loadMore);
             const vue2Inst = VueUtils.getVue($loadMore);
             if (vue2Inst) {
