@@ -1,6 +1,7 @@
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
+import pc from "picocolors";
 
 const originDirName = import.meta.dirname;
 export class ViteUtils {
@@ -263,7 +264,9 @@ export class ViteUtils {
       }).then((res) => res.json());
       let oid = scriptInfo?.oid;
       if (oid == null) {
-        throw new TypeError("获取github文件sha值失败", scriptInfo);
+        pc.red("获取github文件sha值失败");
+        pc.red(JSON.stringify(scriptInfo, null, 2));
+        process.exit();
       }
       // console.log(`github文件路径：https://github.com/${repoName}/tree/${branchName}/${pathName}`);
       // console.log(`github文件sha值：${oid}`);
@@ -653,7 +656,8 @@ export async function GetLib(
   } else if (Array.isArray(libName)) {
     needLib = [...libName];
   } else {
-    throw new TypeError("libName must be string or string[]");
+    console.error("libName must be string or string[]");
+    process.exit();
   }
   const ResourceList: string[] = [];
   // if (process.env.NODE_ENV === "development") {
