@@ -688,6 +688,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "例如：<code>相关搜索</code>、<code>AI搜索</code>、<code>合集</code>、<code>汽水音乐</code>...等"
                 ),
+                UISwitch(
+                  "【屏蔽】视频标签",
+                  "dy-video-blockVideoTag",
+                  false,
+                  void 0,
+                  "黄色的标签，例如：<code>#女团</code>"
+                ),
                 UISwitch("【屏蔽】及时接收作品更新提醒", "dy-video-blockClickUpdateReminder", false),
                 UISwitch(
                   "【屏蔽】作者声明",

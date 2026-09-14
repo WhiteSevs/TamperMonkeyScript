@@ -293,10 +293,10 @@ export const BlockTopNavigator = {
     return result;
   },
   /**
-   * 【屏蔽】私信
+   * 【屏蔽】消息
    */
   shieldPrivateMessage() {
-    log.info("【屏蔽】私信");
+    log.info("【屏蔽】消息");
     const result = [];
     result.push(
       addBlockCSS(

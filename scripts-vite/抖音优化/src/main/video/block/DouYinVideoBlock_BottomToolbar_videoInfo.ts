@@ -19,6 +19,9 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
     Panel.execMenuOnce("dy-video-bottom-shieldVideoUnderTitleTag", () => {
       return this.blockVideoUnderTitleTag();
     });
+    Panel.execMenuOnce("dy-video-blockVideoTag", () => {
+      return this.blockVideoTag();
+    });
     Panel.execMenuOnce("dy-video-blockAIIdentifyTheScreen", () => {
       return this.blockAIIdentifyTheScreen();
     });
@@ -78,6 +81,13 @@ export const DouYinVideoBlock_BottomToolbar_videoInfo = {
   blockVideoUnderTitleTag() {
     log.info(`【屏蔽】视频标题下的标签`);
     return [addBlockCSS("#video-info-wrap .under-title-tag", '.video-info-detail [data-e2e="video-desc"] + div')];
+  },
+  /**
+   * 【屏蔽】视频标签
+   */
+  blockVideoTag() {
+    log.info(`【屏蔽】视频标签`);
+    return addBlockCSS('[data-e2e="video-desc"] span:has(>a[href*="douyin.com/search"])');
   },
   /**
    * 【屏蔽】识别画面

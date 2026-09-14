@@ -382,7 +382,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】客户端", "shieldClient", true),
                 UISwitch("【屏蔽】快捷访问", "shieldQuickAccess"),
                 UISwitch("【屏蔽】通知", "shieldNotifitation"),
-                UISwitch("【屏蔽】私信", "shieldPrivateMessage"),
+                UISwitch("【屏蔽】消息", "shieldPrivateMessage"),
                 UISwitch("【屏蔽】投稿", "shieldSubmission"),
                 UISwitch("【屏蔽】壁纸", "shieldWallpaper"),
                 UISwitch("【屏蔽】更多", "shield-topNav-rightMenu-more"),
