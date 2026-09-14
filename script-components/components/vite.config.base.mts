@@ -234,7 +234,7 @@ const GenerateUserConfig = async (option: {
    * true
    * @default true
    */
-  gitProjectPath?: string|boolean;
+  gitProjectPath?: string | boolean;
 }) => {
   /**
    * 当前是否是build模式
@@ -285,7 +285,7 @@ const GenerateUserConfig = async (option: {
       console.log("script build force new version: ", pc.green(VERSION));
     } else {
       let gitProjectPath = option.gitProjectPath ?? true;
-      if(typeof gitProjectPath === "boolean" && gitProjectPath){
+      if (typeof gitProjectPath === "boolean" && gitProjectPath) {
         // 主动识别路径并转换
         // D:\xxx\xxx\xxx\scripts-vite\xxx-template-project
         // 这里主动取最后两个路径就行
@@ -989,7 +989,8 @@ const GenerateUserConfig = async (option: {
   ) {
     for (const [key, value] of Object.entries(defaultMonkeyOption.userscript.resource)) {
       if (value.trim() === "") {
-        throw new Error(`(!) resource ${key} url is empty`);
+        pc.red(`(!) resource ${key} url is empty`);
+        process.exit();
       }
     }
   }
@@ -1001,3 +1002,4 @@ const GenerateUserConfig = async (option: {
 };
 
 export { rootUtils as baseUtils, GenerateUserConfig };
+
