@@ -15,7 +15,7 @@ import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src
 import Qmsg from "qmsg";
 import { XHSArticleFilterBase } from "./XHSArticleFilterBase";
 
-type XHSArticleFilterOptionScope = "all" | "xhr-explore";
+type XHSArticleFilterOptionScope = "all" | "xhr-explore" | "xhr-search";
 
 /** 过滤器规则-动态属性 */
 export type XHSArticleFilterDynamicOption = {
@@ -175,6 +175,9 @@ export const XHSArticleFilter = {
         if (urlInst.pathname.startsWith("/api/sns/web/v1/homefeed")) {
           // 发现
           xhr_hook_callback_1("xhr-explore", request);
+        } else if (urlInst.pathname.startsWith("/api/sns/web/v1/search/notes")) {
+          // 搜索
+          xhr_hook_callback_1("xhr-search", request);
         }
       });
     });
@@ -290,6 +293,10 @@ export const XHSArticleFilter = {
                   {
                     text: "发现",
                     value: "xhr-explore",
+                  },
+                  {
+                    text: "搜索",
+                    value: "xhr-search",
                   },
                 ] as PopsPanelSelectMultipleConfig<XHSArticleFilterOptionScope>["data"]
               ).map((it) => {

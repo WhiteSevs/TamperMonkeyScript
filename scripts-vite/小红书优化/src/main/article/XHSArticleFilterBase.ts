@@ -24,7 +24,7 @@ export class XHSArticleFilterBase {
     /**
      * 笔记标题
      */
-    let display_title = note_card.display_title;
+    let display_title = note_card?.display_title;
     /** 是否已点赞该笔记 */
     let isLike = Boolean(note_card?.interact_info?.liked);
     /** 点赞数量 */
