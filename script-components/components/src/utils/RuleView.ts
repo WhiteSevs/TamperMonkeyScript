@@ -236,6 +236,9 @@ class RuleView<T> {
       style: /*css*/ `
       ${pops.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-view-search-container{
         display: flex;
         align-items: center;

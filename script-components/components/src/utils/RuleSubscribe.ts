@@ -333,6 +333,9 @@ class RuleSubscribe<
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
+      .pops{
+        max-height: 90dvh;
+      }
       .btn-control{
         display: inline-block;
         margin: 10px;
@@ -513,6 +516,11 @@ class RuleSubscribe<
         },
         width: PanelUISize.info.width,
         height: "auto",
+        style: /*css*/`
+        .pops{
+          max-height: 90dvh;
+        }
+        `
       });
       const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
       const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
@@ -580,19 +588,22 @@ class RuleSubscribe<
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-				.btn-control:hover{
-					color: #409eff;
-					border-color: #c6e2ff;
-					background-color: #ecf5ff;
-				}
+      .pops{
+        max-height: 90dvh;
+      }
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      .btn-control:hover{
+        color: #409eff;
+        border-color: #c6e2ff;
+        background-color: #ecf5ff;
+      }
             `,
     });
     /** 仅导出规则 */

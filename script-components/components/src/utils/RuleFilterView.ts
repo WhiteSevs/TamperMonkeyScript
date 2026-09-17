@@ -75,19 +75,22 @@ class RuleFilterView<T> {
       width: window.innerWidth > 500 ? "350px" : "80vw",
       height: window.innerHeight > 500 ? "300px" : "70vh",
       style: /*css*/ `
-            .filter-container{
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
-            }
-            .filter-container button{
-                text-wrap: wrap;
-                padding: 8px;
-                height: auto;
-                text-align: left;
-            }
-            `,
+      .pops{
+        max-height: 90dvh;
+      }
+      .filter-container{
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+      }
+      .filter-container button{
+          text-wrap: wrap;
+          padding: 8px;
+          height: auto;
+          text-align: left;
+      }
+        `,
     });
     let $filterContainer = $alert.$shadowRoot.querySelector<HTMLDivElement>(".filter-container")!;
     let $fragment = document.createDocumentFragment();

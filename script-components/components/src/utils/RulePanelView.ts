@@ -437,7 +437,7 @@ class RulePanelView<T> {
                   $subscribeRightContainer,
                   subscribeOption,
                   async () => {
-                    let $prompt = pops.prompt({
+                    const $prompt = pops.prompt({
                       title: {
                         text: "添加订阅",
                         position: "center",
@@ -660,6 +660,11 @@ class RulePanelView<T> {
                       },
                       width: PanelUISize.info.width,
                       height: "auto",
+                      style: /*css*/`
+                      .pops{
+                        max-height: 90dvh;
+                      }
+                      `
                     });
                     let $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
                     let $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok ")!;

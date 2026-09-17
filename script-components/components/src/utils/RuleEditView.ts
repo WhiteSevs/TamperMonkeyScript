@@ -108,6 +108,9 @@ class RuleEditView<T> {
       style: /*css*/ `
       ${pops.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -165,7 +168,7 @@ class RuleEditView<T> {
     });
 
     const $form = $dialog.$shadowRoot.querySelector<HTMLFormElement>(".rule-form-container")!;
-    const $submitInput = $dialog.$shadowRoot.querySelector<HTMLInputElement>("input[type=submit]")!;
+    // const $submitInput = $dialog.$shadowRoot.querySelector<HTMLInputElement>("input[type=submit]")!;
     const $ulist = $dialog.$shadowRoot.querySelector<HTMLUListElement>(".rule-form-ulist")!;
     const view = await this.option.getView(await this.option.data());
     DOMUtils.append($ulist, view);

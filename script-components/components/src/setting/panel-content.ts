@@ -141,6 +141,9 @@ const PanelContent = {
           width: PanelUISize.info.width,
           height: PanelUISize.info.height,
           style: /*css*/ `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -286,6 +289,11 @@ const PanelContent = {
             },
             width: PanelUISize.info.width,
             height: "auto",
+            style: /*css*/`
+            .pops{
+              max-height: 90dvh;
+            }
+            `
           });
           const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
           const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
@@ -357,6 +365,9 @@ const PanelContent = {
           width: PanelUISize.info.width,
           height: PanelUISize.info.height,
           style: /*css*/ `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -425,6 +436,9 @@ const PanelContent = {
         width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
         height: "auto",
         style: /*css*/ `
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;

@@ -163,15 +163,17 @@ class RuleStorage<
       width: PanelUISize.info.width,
       height: PanelUISize.info.height,
       style: /*css*/ `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
+      .pops{
+        max-height: 90dvh;
+      }
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }`,
     });
     /** 本地导入 */
     const $local = $alert.$shadowRoot.querySelector<HTMLElement>(".btn-control[data-mode='local']")!;
@@ -234,6 +236,11 @@ class RuleStorage<
             height: PanelUISize.info.height,
             mask: { enable: true },
             drag: true,
+            style: /*css*/`
+            .pops{
+              max-height: 90dvh;
+            }
+            `
           });
         });
         if (confirmRepeat) {
@@ -356,6 +363,11 @@ class RuleStorage<
         drag: true,
         width: PanelUISize.info.width,
         height: "auto",
+        style: /*css*/`
+        .pops{
+          max-height: 90dvh;
+        }
+        `
       });
       const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
       const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
