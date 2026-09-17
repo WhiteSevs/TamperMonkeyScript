@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.9.17
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -1774,6 +1774,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -1883,6 +1886,11 @@
               mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
+              style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -1938,6 +1946,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -2000,6 +2011,9 @@
             width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
             height: "auto",
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -2216,6 +2230,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .pops-content{
         padding: 20px;
       }
@@ -3042,6 +3059,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -3099,7 +3119,6 @@
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
-      $dialog.$shadowRoot.querySelector("input[type=submit]");
       const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
@@ -3146,6 +3165,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-view-search-container{
         display: flex;
         align-items: center;
@@ -4217,7 +4239,10 @@
           height: "auto",
           style: `
       ${__pops__.config.cssText.panelCSS}
-
+      
+      .pops{
+        max-height: 90dvh;
+      }
       .pops-panel-input input:disabled{
           color: #b4b4b4;
       }
@@ -4491,6 +4516,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .pops .pops-content{
         overflow: hidden;
         display: flex;

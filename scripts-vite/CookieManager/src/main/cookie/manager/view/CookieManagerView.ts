@@ -78,6 +78,9 @@ export const CookieManagerView = {
       style: /*css*/ `
       ${pops.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .pops .pops-content{
         overflow: hidden;
         display: flex;

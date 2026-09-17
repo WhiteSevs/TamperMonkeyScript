@@ -149,6 +149,9 @@ export const CookieBackUpManager = {
       style: /*css*/ `
       ${pops.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .pops-content{
         padding: 20px;
       }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CookieManager
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.9.17
 // @author       WhiteSevs
 // @description  简单而强大的Cookie编辑器，允许您快速创建、编辑和删除Cookie
 // @license      GPL-3.0-only
@@ -118,6 +118,9 @@
             <div class="btn-control" data-mode="local">${i(`本地导入`)}</div>
             <div class="btn-control" data-mode="network">${i(`网络导入`)}</div>
             <div class="btn-control" data-mode="clipboard">${i(`剪贴板导入`)}</div>`,html:!0},btn:{ok:{enable:!1},close:{enable:!0,callback(e){e.close()}}},drag:!0,mask:{enable:!0},width:M.info.width,height:M.info.height,style:`
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -130,10 +133,17 @@
             color: #409eff;
             border-color: #c6e2ff;
             background-color: #ecf5ff;
-          }`}),r=n.$shadowRoot.querySelector(`.btn-control[data-mode='local']`),a=n.$shadowRoot.querySelector(`.btn-control[data-mode='network']`),o=n.$shadowRoot.querySelector(`.btn-control[data-mode='clipboard']`),s=async n=>{confirm(i(`是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）`))&&(typeof y==`function`?typeof h==`function`?(y().forEach(e=>{h(e)}),e.default.success(i(`已清空脚本存储的配置`))):e.default.error(i(`不支持GM_deleteValue函数，无法执行删除脚本配置`)):e.default.error(i(`不支持GM_listValues函数，无法清空脚本存储的配置`))),typeof S==`function`?S(n):Object.keys(n).forEach(e=>{let t=n[e];x(e,t)}),e.default.success(i(`配置导入完毕`)),t?.()},c=t=>new Promise(async n=>{let r=F.toJSON(t);Object.keys(r).length===0?e.default.warning(i(`解析为空配置，不导入`)):await s(r),n(!0)});I.on(r,`click`,e=>{I.preventEvent(e),n.close();let t=I.createElement(`input`,{type:`file`,accept:`.json`});I.on(t,[`propertychange`,`input`],()=>{if(!t.files?.length)return;let e=t.files[0],n=new FileReader;n.onload=()=>{c(n.result)},n.readAsText(e,`UTF-8`)}),t.click()}),I.on(a,`click`,t=>{I.preventEvent(t),n.close();let r=L.prompt({title:{text:i(`网络导入`),position:`center`},content:{text:``,placeholder:i(`请填写URL`),focus:!0},btn:{close:{enable:!0,callback(e){e.close()}},ok:{text:i(`导入`),callback:async t=>{let n=t.text;if(F.isNull(n)){e.default.error(i(`请填入完整的url`));return}let r=e.default.loading(i(`正在获取配置...`)),a=await V.get(n,{allowInterceptConfig:!1});if(r.close(),!a.status){R.error(a),e.default.error(i(`获取配置失败`),{consoleLogContent:!0});return}await c(a.data.responseText)&&t.close()}},cancel:{enable:!1}},drag:!0,mask:{enable:!0},width:M.info.width,height:`auto`}),a=r.$shadowRoot.querySelector(`input`),o=r.$shadowRoot.querySelector(`.pops-prompt-btn-ok`);I.on(a,[`input`,`propertychange`],()=>{I.val(a)===``?I.attr(o,`disabled`,`true`):I.removeAttr(o,`disabled`)}),I.onKeyboard(a,`keydown`,(e,t,n)=>{e===`Enter`&&n.length===0&&I.val(a)!==``&&I.emit(o,`click`)}),I.emit(a,`input`)}),I.on(o,`click`,async t=>{I.preventEvent(t),n.close();let r=await w.getClipboardText();if(r.trim()===``){e.default.warning(i(`获取到的剪贴板内容为空`));return}await c(r)})},n=(t=`${z}_panel-setting-${F.formatTime(Date.now(),`yyyy_MM_dd_HH_mm_ss`)}.json`,n)=>{let r=L.alert({title:{text:i(`请选择导出方式`),position:`center`},content:{text:`
+          }`}),r=n.$shadowRoot.querySelector(`.btn-control[data-mode='local']`),a=n.$shadowRoot.querySelector(`.btn-control[data-mode='network']`),o=n.$shadowRoot.querySelector(`.btn-control[data-mode='clipboard']`),s=async n=>{confirm(i(`是否清空脚本存储的配置？（如果点击取消按钮，则仅做配置覆盖处理）`))&&(typeof y==`function`?typeof h==`function`?(y().forEach(e=>{h(e)}),e.default.success(i(`已清空脚本存储的配置`))):e.default.error(i(`不支持GM_deleteValue函数，无法执行删除脚本配置`)):e.default.error(i(`不支持GM_listValues函数，无法清空脚本存储的配置`))),typeof S==`function`?S(n):Object.keys(n).forEach(e=>{let t=n[e];x(e,t)}),e.default.success(i(`配置导入完毕`)),t?.()},c=t=>new Promise(async n=>{let r=F.toJSON(t);Object.keys(r).length===0?e.default.warning(i(`解析为空配置，不导入`)):await s(r),n(!0)});I.on(r,`click`,e=>{I.preventEvent(e),n.close();let t=I.createElement(`input`,{type:`file`,accept:`.json`});I.on(t,[`propertychange`,`input`],()=>{if(!t.files?.length)return;let e=t.files[0],n=new FileReader;n.onload=()=>{c(n.result)},n.readAsText(e,`UTF-8`)}),t.click()}),I.on(a,`click`,t=>{I.preventEvent(t),n.close();let r=L.prompt({title:{text:i(`网络导入`),position:`center`},content:{text:``,placeholder:i(`请填写URL`),focus:!0},btn:{close:{enable:!0,callback(e){e.close()}},ok:{text:i(`导入`),callback:async t=>{let n=t.text;if(F.isNull(n)){e.default.error(i(`请填入完整的url`));return}let r=e.default.loading(i(`正在获取配置...`)),a=await V.get(n,{allowInterceptConfig:!1});if(r.close(),!a.status){R.error(a),e.default.error(i(`获取配置失败`),{consoleLogContent:!0});return}await c(a.data.responseText)&&t.close()}},cancel:{enable:!1}},drag:!0,mask:{enable:!0},width:M.info.width,height:`auto`,style:`
+            .pops{
+              max-height: 90dvh;
+            }
+            `}),a=r.$shadowRoot.querySelector(`input`),o=r.$shadowRoot.querySelector(`.pops-prompt-btn-ok`);I.on(a,[`input`,`propertychange`],()=>{I.val(a)===``?I.attr(o,`disabled`,`true`):I.removeAttr(o,`disabled`)}),I.onKeyboard(a,`keydown`,(e,t,n)=>{e===`Enter`&&n.length===0&&I.val(a)!==``&&I.emit(o,`click`)}),I.emit(a,`input`)}),I.on(o,`click`,async t=>{I.preventEvent(t),n.close();let r=await w.getClipboardText();if(r.trim()===``){e.default.warning(i(`获取到的剪贴板内容为空`));return}await c(r)})},n=(t=`${z}_panel-setting-${F.formatTime(Date.now(),`yyyy_MM_dd_HH_mm_ss`)}.json`,n)=>{let r=L.alert({title:{text:i(`请选择导出方式`),position:`center`},content:{text:`
             <div class="btn-control" data-mode="export-to-file">${i(`导出至文件`)}</div>
             <div class="btn-control" data-mode="export-to-clipboard">${i(`导出至剪贴板`)}</div>
             `,html:!0},btn:{ok:{enable:!1},close:{enable:!0,callback(e){e.close()}}},drag:!0,mask:{enable:!0},width:M.info.width,height:M.info.height,style:`
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -147,6 +157,9 @@
             border-color: #c6e2ff;
             background-color: #ecf5ff;
           }`}),o=r.$shadowRoot.querySelector(`.btn-control[data-mode='export-to-file']`),s=r.$shadowRoot.querySelector(`.btn-control[data-mode='export-to-clipboard']`);I.on(o,`click`,i=>{I.preventEvent(i);try{a(t,n),r.close()}catch(t){e.default.error(t.toString(),{consoleLogContent:!0})}}),I.on(s,`click`,async()=>{await F.copy(n)?(e.default.success(i(`复制成功`)),r.close()):e.default.error(i(`复制失败`))})},r=L.confirm({title:{text:i(`配置`),position:`center`},content:{text:`<textarea name="config-value" id="config" readonly></textarea>`,html:!0},btn:{ok:{enable:!0,type:`primary`,text:i(`导入`),callback(){t()}},cancel:{enable:!0,text:i(`导出`),callback(){n(void 0,s)}}},width:j.width<450?`90vw`:`450px`,height:`auto`,style:`
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -201,6 +214,9 @@
 					`,html:!0},width:window.innerWidth<400?`88vw`:`400px`,height:`auto`,btn:{merge:!0,position:`space-between`,ok:{text:`导出`,async callback(t){let n=ye.$data.cookieList;if(n.length===0){e.default.warning(`Cookie为空`);return}let r=G.formatCookie(n,s.exportType,s.encodePwd),i=new Blob([r],{type:`text/plain`}),a=URL.createObjectURL(i);I.createElement(`a`,{download:`${window.location.hostname}_${s.exportType}_${W.baseCookieHandler}_${Date.now()}.txt`,href:a,target:`_blank`}).click(),setTimeout(()=>{URL.revokeObjectURL(a)},500),t.close()}},other:{enable:!0,text:`导出至剪贴板`,type:`xiaomi-primary`,async callback(t){let n=ye.$data.cookieList;if(n.length===0){e.default.warning(`Cookie为空`);return}let r=G.formatCookie(n,s.exportType,s.encodePwd);await F.copy(r)?e.default.success(`复制成功`):e.default.error(`复制失败`),t.close()}}},style:`
       ${L.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .pops-content{
         padding: 20px;
       }
@@ -435,6 +451,9 @@
         `,html:!0},btn:F.assign({ok:{callback:async()=>{await i()}}},this.option.btn||{},!0),drag:!0,mask:{enable:!0},style:`
       ${L.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -485,7 +504,7 @@
       }
 
       ${this.option?.style??``}
-      `,width:typeof this.option.width==`function`?this.option.width():window.innerWidth>500?`500px`:`88vw`,height:typeof this.option.height==`function`?this.option.height():window.innerHeight>500?`500px`:`80vh`}),t=e.$shadowRoot.querySelector(`.rule-form-container`);e.$shadowRoot.querySelector(`input[type=submit]`);let n=e.$shadowRoot.querySelector(`.rule-form-ulist`),r=await this.option.getView(await this.option.data());I.append(n,r);let i=async()=>{(await this.option.onsubmit(t,await this.option.data())).success&&(e.close(),typeof this.option.dialogCloseCallBack==`function`&&await this.option.dialogCloseCallBack(!0))};return e}},he=class{option;constructor(e){this.option=e}async showView(t){let n=L.confirm({title:{text:this.option.title,position:`center`},content:{text:`
+      `,width:typeof this.option.width==`function`?this.option.width():window.innerWidth>500?`500px`:`88vw`,height:typeof this.option.height==`function`?this.option.height():window.innerHeight>500?`500px`:`80vh`}),t=e.$shadowRoot.querySelector(`.rule-form-container`),n=e.$shadowRoot.querySelector(`.rule-form-ulist`),r=await this.option.getView(await this.option.data());I.append(n,r);let i=async()=>{(await this.option.onsubmit(t,await this.option.data())).success&&(e.close(),typeof this.option.dialogCloseCallBack==`function`&&await this.option.dialogCloseCallBack(!0))};return e}},he=class{option;constructor(e){this.option=e}async showView(t){let n=L.confirm({title:{text:this.option.title,position:`center`},content:{text:`
         <div class="rule-view-search-container">
           <div class="pops-panel-select pops-user-select-none" data-mode="native" style="min-width: 50px;">
             <select class="select-rule-status">
@@ -505,6 +524,9 @@
         `,html:!0},style:`
       ${L.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-view-search-container{
         display: flex;
         align-items: center;
@@ -608,7 +630,10 @@
                 }
             `}),n=t.$shadowRoot.querySelector(`.import-mode[data-mode='local']`),r=t.$shadowRoot.querySelector(`.import-mode[data-mode='network']`);I.on(n,`click`,n=>{I.preventEvent(n),t.close();let r=I.createElement(`input`,{type:`file`,accept:`.json`});I.on(r,[`propertychange`,`input`],()=>{if(!r.files?.length)return;let t=r.files[0],n=new FileReader;n.onload=()=>{let t=F.toJSON(n.result);if(!Array.isArray(t)){R.error(`不是正确的规则文件`,t),e.default.error(`不是正确的规则文件`);return}this.setData(t),e.default.success(`成功导入 ${t.length}条规则`)},n.readAsText(t,`UTF-8`)}),r.click()}),I.on(r,`click`,n=>{I.preventEvent(n),t.close(),L.prompt({title:{text:`网络导入`,position:`center`},content:{text:``,placeholder:`url`,focus:!0},btn:{ok:{callback:async t=>{let n=t.text;if(F.isNull(n)){e.default.error(`请填入完整的url`);return}let r=await V.get(n);if(!r.status)return;let i=F.toJSON(r.data.responseText);if(!Array.isArray(i)){R.error(`不是正确的规则文件`,r,i),e.default.error(`不是正确的规则文件`);return}this.setData(i),t.close(),e.default.success(`成功导入 ${i.length}条规则`)}}},width:M.info.width,height:`auto`})})}},ge={beforeEdit(e,t){let n=W.baseCookieHandler;return n===`cookieStore`?typeof e.expires==`number`&&(e.expirationDate=e.expires):(n===`GM_cookie`||n===`GM.cookie`)&&t&&typeof e.expirationDate==`number`&&(e.expirationDate*=1e3),e},afterEdit(e){let t=W.baseCookieHandler;return t===`document.cookie`?e.domain=``:t===`cookieStore`?typeof e.expirationDate==`number`&&(e.expires=e.expirationDate):(t===`GM_cookie`||t===`GM.cookie`)&&typeof e.expirationDate==`number`&&(e.expirationDate=Math.floor(e.expirationDate/1e3)),e}},Q=(e,t,n,r)=>({text:e,type:`input`,props:{},attributes:{},description:``,getValue(){return t()},callback(e,t){n(t)},placeholder:``,disabled:!!r}),_e=(e,t,n,r)=>({text:e,type:`textarea`,props:{},attributes:{},description:``,placeholder:``,getValue(){return t()},disabled:r,callback:function(e,t){n(t)}}),$=(e,t,n,r,i)=>({text:e,type:`select`,description:``,attributes:{},props:{},getValue(){return n()},callback(e){let t=e.value;r(t)},data:typeof t==`function`?t():t,disabled:!!i,width:`100%`}),ve={init(){},showView(t,n){let r=!!t,i={name:``,value:``,domain:window.location.hostname,path:`/`,secure:!1,session:!1,hostOnly:!1,httpOnly:!1,sameSite:`lax`,expirationDate:Date.now()+2592e6},a=F.assign({},i,!0);F.assign(a,t??{},!0),a=ge.beforeEdit(a,r);let o=L.confirm({title:{text:r?`编辑Cookie`:`添加Cookie`,position:`center`},content:{text:``,html:!0},drag:!0,btn:{position:`center`,ok:{text:r?`编辑`:`添加`,async callback(t){let i=ve.validCookieInfo(a);if(!i.status){typeof i.msg==`string`&&e.default.error(i.msg);return}if(a.value=encodeURIComponent(a.value),a=ge.afterEdit(a),r){let n=await W.update(a);n?e.default.error(n.toString()):(e.default.success(`修改成功`),t.close())}else{let n=await W.add(a);n?e.default.error(n.toString()):(e.default.success(`添加成功`),t.close())}typeof n==`function`&&n(a)}},cancel:{text:`取消`}},mask:{enable:!0},width:M.settingMiddle.width,height:`auto`,style:`
       ${L.config.cssText.panelCSS}
-
+      
+      .pops{
+        max-height: 90dvh;
+      }
       .pops-panel-input input:disabled{
           color: #b4b4b4;
       }
@@ -702,6 +727,9 @@
         </div>`,html:!0},btn:{ok:{enable:!1}},mask:{enable:!0},drag:!0,width:M.setting.width,height:M.setting.height,style:`
       ${L.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .pops .pops-content{
         overflow: hidden;
         display: flex;

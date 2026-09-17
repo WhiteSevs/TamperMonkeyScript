@@ -178,7 +178,10 @@ export const CookieManagerEditView = {
       height: "auto",
       style: /*css*/ `
       ${pops.config.cssText.panelCSS}
-
+      
+      .pops{
+        max-height: 90dvh;
+      }
       .pops-panel-input input:disabled{
           color: #b4b4b4;
       }
