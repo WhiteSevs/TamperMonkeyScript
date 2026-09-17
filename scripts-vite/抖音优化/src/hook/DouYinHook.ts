@@ -64,9 +64,9 @@ export const DouYinHook = {
      * @returns
      * + true 忽略
      */
-    const isIgnore = (): boolean => {
+    const isIgnore = ($target?: HTMLElement): boolean => {
       const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
-      const $active = $shadowRootActive ?? document.activeElement;
+      const $active = $target ?? $shadowRootActive ?? document.activeElement;
       if ($active == null) return true;
       // 输入框内不触发
       const isInputNode = ["input", "textarea"].includes($active?.tagName?.toLowerCase());
@@ -83,6 +83,9 @@ export const DouYinHook = {
       // pops弹窗内
       const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
       if (isInPops) return true;
+      // 可编辑元素内
+      const isInContentEditable = $active?.closest('[contenteditable="true"]');
+      if (isInContentEditable) return true;
       return false;
     };
     let timeId: number;
@@ -140,6 +143,7 @@ export const DouYinHook = {
             if (option.code !== "Space") return;
             if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
             utils.workerClearTimeout(timeId);
+            if (isIgnore()) return;
             timeId = utils.workerSetTimeout(() => {
               const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
               const playInViewList = DouYinElementUtil.getInViewPlayButton();

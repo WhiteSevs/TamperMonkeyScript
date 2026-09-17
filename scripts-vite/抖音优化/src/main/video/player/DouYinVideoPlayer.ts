@@ -1127,7 +1127,24 @@ export const DouYinVideoPlayer = {
             </svg>
           </span>
         </div>
-        <div class="xg-tips">下载</div>
+        <div class="xg-tips">下载${
+          DouYinVideoPlayerShortCut.shortCut.hasOption("dy-video-shortcut-parseVideo")
+            ? /*html*/ `<span class="shortcutKey" style="    vertical-align: baseline;
+    color: var(--color-bg-toast);
+    background: #fff;
+    border: 1px solid #fff;
+    border-radius: 3px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 3px;
+    margin: 0 5px;
+    font-family: PingFang SC, DFPKingGothicGB-Medium, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 21px;
+    display: inline-flex;">${DouYinVideoPlayerShortCut.shortCut.getShowText("dy-video-shortcut-parseVideo", "")}</span>`
+            : ""
+        }</div>
 				`,
         });
         return $btn;

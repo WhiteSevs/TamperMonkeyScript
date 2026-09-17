@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.14
+// @version      2026.9.17
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -494,6 +494,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -603,6 +606,11 @@
               mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
+              style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -658,6 +666,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -720,6 +731,9 @@
             width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
             height: "auto",
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -3579,8 +3593,9 @@
       });
     },
     hookKeyboard() {
-      const isIgnore = () => {
-        const $active = document.activeElement?.shadowRoot?.activeElement ?? document.activeElement;
+      const isIgnore = ($target) => {
+        const $shadowRootActive = document.activeElement?.shadowRoot?.activeElement;
+        const $active = $target ?? $shadowRootActive ?? document.activeElement;
         if ($active == null) return true;
         if (["input", "textarea"].includes($active?.tagName?.toLowerCase())) return true;
         if (
@@ -3593,6 +3608,7 @@
         )
           return true;
         if ($active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot) return true;
+        if ($active?.closest('[contenteditable="true"]')) return true;
         return false;
       };
       let timeId;
@@ -3617,6 +3633,7 @@
               if (option.code !== "Space") return;
               if (DouYinRouter.isChat() || DouYinRouter.isLive()) return;
               utils$1.workerClearTimeout(timeId);
+              if (isIgnore()) return;
               timeId = utils$1.workerSetTimeout(() => {
                 const videosInViewVideoList = DouYinElementUtil.getInViewVideo();
                 const playInViewList = DouYinElementUtil.getInViewPlayButton();
@@ -6620,15 +6637,17 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
+      .pops{
+        max-height: 90dvh;
+      }
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }`,
       });
       const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
       const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
@@ -6679,6 +6698,11 @@
                 height: PanelUISize.info.height,
                 mask: { enable: true },
                 drag: true,
+                style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
               });
             })
           ) {
@@ -6774,6 +6798,11 @@
           drag: true,
           width: PanelUISize.info.width,
           height: "auto",
+          style: `
+        .pops{
+          max-height: 90dvh;
+        }
+        `,
         });
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -6852,6 +6881,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -6909,7 +6941,6 @@
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
-      $dialog.$shadowRoot.querySelector("input[type=submit]");
       const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
@@ -6956,6 +6987,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-view-search-container{
         display: flex;
         align-items: center;
@@ -10058,7 +10092,24 @@
             </svg>
           </span>
         </div>
-        <div class="xg-tips">下载</div>
+        <div class="xg-tips">下载${
+          DouYinVideoPlayerShortCut.shortCut.hasOption("dy-video-shortcut-parseVideo")
+            ? `<span class="shortcutKey" style="    vertical-align: baseline;
+    color: var(--color-bg-toast);
+    background: #fff;
+    border: 1px solid #fff;
+    border-radius: 3px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 3px;
+    margin: 0 5px;
+    font-family: PingFang SC, DFPKingGothicGB-Medium, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 21px;
+    display: inline-flex;">${DouYinVideoPlayerShortCut.shortCut.getShowText("dy-video-shortcut-parseVideo", "")}</span>`
+            : ""
+        }</div>
 				`,
           });
         };
