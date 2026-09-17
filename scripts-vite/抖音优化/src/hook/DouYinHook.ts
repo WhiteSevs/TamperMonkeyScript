@@ -84,7 +84,7 @@ export const DouYinHook = {
       const isInPops = $active?.closest(".pops") && $active?.getRootNode() instanceof ShadowRoot;
       if (isInPops) return true;
       // 可编辑元素内
-      const isInContentEditable = $active?.closest('[contenteditable="true"]');
+      const isInContentEditable = $active?.closest("[contenteditable]");
       if (isInContentEditable) return true;
       return false;
     };
