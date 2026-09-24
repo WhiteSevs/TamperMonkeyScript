@@ -14,6 +14,17 @@ export const NetDiskRule_123pan: NetDiskRuleOption = {
       blank: "https://123pan.com/s/{#shareCode#}",
       copyUrl: "https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}",
     },
+    {
+      link_innerText: `123pan.cn/123pan/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+      link_innerHTML: `123pan.cn/123pan/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+      shareCode: new RegExp(`123pan.cn/123pan/([a-zA-Z0-9_-]{8,14})`, "gi"),
+      shareCodeNeedRemoveStr: new RegExp(`123pan.cn/123pan/`, "gi"),
+      checkAccessCode: /(((?<!解压)密码)|访问码|提取码|\?pwd=)[\s\S]+/g,
+      accessCode: /([0-9a-zA-Z]{4})/gi,
+      uiLinkShow: "123pan.cn/123pan/{#shareCode#} 提取码: {#accessCode#}",
+      blank: "https://123pan.cn/123pan/{#shareCode#}",
+      copyUrl: "https://123pan.cn/123pan/{#shareCode#}\n密码：{#accessCode#}",
+    },
   ],
   /** 设置项 */
   setting: <NetDiskRuleSetting>{

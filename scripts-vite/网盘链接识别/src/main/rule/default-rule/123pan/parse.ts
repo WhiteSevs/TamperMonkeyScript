@@ -29,6 +29,12 @@ export class NetDiskParse_123pan extends ParseFileCore {
   };
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
+    if (netDiskInfo.ruleIndex === 1) {
+      // https://github.com/qaiu/netdisk-fast-download/blob/main/parser/src/main/java/cn/qaiu/parser/impl/Ye2Tool.java
+      // 有空再研究，不过123云盘现在需要登录账号才能下载了，而且每个月还限制流量
+      Qmsg.error("暂不支持新版链接的解析");
+      return;
+    }
     this.panelList.length = 0;
     this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
     const $loading = Qmsg.loading("正在解析，请稍后...");

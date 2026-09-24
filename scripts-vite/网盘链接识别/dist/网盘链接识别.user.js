@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         网盘链接识别
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.9.24
 // @author       WhiteSevs
 // @description  识别网页中显示的网盘链接，目前支持的网盘如：百度网盘、蓝奏云、天翼云、中国移动云盘(原:和彩云)、阿里云盘、文叔叔、123盘、腾讯微云、迅雷网盘、115网盘、夸克网盘、城通网盘(部分)、坚果云、UC网盘、BT磁力、360云盘、小飞机网盘，页面动态监控加载的链接，可添加自定义规则来识别小众网盘/网赚网盘或者其它链接。
 // @license      GPL-3.0-only
@@ -18,7 +18,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/data-paging@0.0.5/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.14.0/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@886625af68455365e426018ecb55419dd4ea6f30/lib/CryptoJS/index.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect      *
@@ -576,6 +576,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -685,6 +688,11 @@
               mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
+              style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -740,6 +748,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -802,6 +813,9 @@
             width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
             height: "auto",
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -2914,6 +2928,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -2971,7 +2988,6 @@
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
-      $dialog.$shadowRoot.querySelector("input[type=submit]");
       const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
@@ -3023,7 +3039,7 @@
                       $subscribeRightContainer,
                       subscribeOption,
                       async () => {
-                        let $prompt = __pops__.prompt({
+                        const $prompt = __pops__.prompt({
                           title: {
                             text: "添加订阅",
                             position: "center",
@@ -3220,6 +3236,11 @@
                           mask: { enable: true },
                           width: PanelUISize.info.width,
                           height: "auto",
+                          style: `
+                      .pops{
+                        max-height: 90dvh;
+                      }
+                      `,
                         });
                         let $promptInput = $prompt.$shadowRoot.querySelector("input");
                         let $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok ");
@@ -4720,6 +4741,40 @@
           });
         });
       });
+    } else if (location.hostname.endsWith("share.123pan.cn") && location.pathname.startsWith("/123pan/")) {
+      log.success("自动填写链接", netDiskInfo);
+      domUtils.onReady(() => {
+        domUtils.waitAnyNode(["input[type=text][placeholder*='提取码']"], 1e4).then(async ($el) => {
+          if (!$el) return;
+          ReactUtils.waitReactPropsToSet($el, ["reactProps", "reactFiber"], {
+            check(reactPropInst) {
+              return (
+                typeof reactPropInst?.onChange === "function" ||
+                typeof reactPropInst?.memoizedProps?.onChange === "function"
+              );
+            },
+            async set(reactPropInst) {
+              if (!utils$1.isVisible($el)) {
+                log.error("输入框不可见，不输入密码");
+                return;
+              }
+              $el.value = netDiskInfo.accessCode;
+              (reactPropInst?.onChange || reactPropInst?.memoizedProps?.onChange)({
+                currentTarget: $el,
+                target: $el,
+              });
+              qmsg.default.success("自动填充访问码");
+              const $submit = $("button.submitCode") || $("button.app-input-button");
+              if (!$submit) {
+                qmsg.default.error("提交按钮不存在");
+                return;
+              }
+              await utils$1.sleep(1e3);
+              $submit.click();
+            },
+          });
+        });
+      });
     }
   };
   var NetDiskAutoFillAccessCode_weiyun = function (netDiskInfo) {
@@ -5386,43 +5441,79 @@
   var NetDiskCheckLinkValidity_123pan = {
     async init(netDiskInfo) {
       const { ruleIndex, shareCode, accessCode } = netDiskInfo;
-      const response = await httpx.get("https://www.123pan.com/api/share/info?shareKey=" + shareCode, {
-        headers: {
-          "User-Agent": utils$1.getRandomPCUA(),
-          Host: "www.123pan.com",
-          Origin: "https://www.123pan.com",
-          Referer: "https://www.123pan.com/",
-        },
-        responseType: "json",
-        ...NetDiskCheckLinkValidityRequestOption,
-      });
-      if (!response.status && utils$1.isNull(response.data.responseText))
+      if (netDiskInfo.ruleIndex === 1) {
+        const response = await httpx.get(`https://www.123pan.cn/gsb/s/share-list`, {
+          data: {
+            shareKey: shareCode,
+            SharePwd: accessCode,
+            OrderId: "",
+          },
+          headers: {
+            "User-Agent": utils$1.getRandomPCUA(),
+            "Content-Type": "application/json",
+            Host: "www.123pan.cn",
+            Origin: "https://www.123pan.cn",
+            Referer: "https://www.123pan.cn/",
+          },
+          ...NetDiskCheckLinkValidityRequestOption,
+        });
+        if (!response.status && utils$1.isNull(response.data.responseText))
+          return {
+            ...NetDiskCheckLinkValidityStatus.networkError,
+            data: response,
+          };
+        const data = utils$1.toJSON(response.data.responseText);
+        if (data.code !== 0) {
+          const message = data.message || "未知错误";
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            msg: message,
+            data,
+          };
+        }
         return {
-          ...NetDiskCheckLinkValidityStatus.networkError,
-          data: response,
-        };
-      const data = utils$1.toJSON(response.data.responseText);
-      if (response.data.responseText.includes("分享页面不存在"))
-        return {
-          ...NetDiskCheckLinkValidityStatus.failed,
-          msg: "分享页面不存在",
+          ...NetDiskCheckLinkValidityStatus.success,
           data,
         };
-      if (data["code"] !== 0)
+      } else {
+        const response = await httpx.get("https://www.123pan.com/api/share/info?shareKey=" + shareCode, {
+          headers: {
+            "User-Agent": utils$1.getRandomPCUA(),
+            Host: "www.123pan.com",
+            Origin: "https://www.123pan.com",
+            Referer: "https://www.123pan.com/",
+          },
+          responseType: "json",
+          ...NetDiskCheckLinkValidityRequestOption,
+        });
+        if (!response.status && utils$1.isNull(response.data.responseText))
+          return {
+            ...NetDiskCheckLinkValidityStatus.networkError,
+            data: response,
+          };
+        const data = utils$1.toJSON(response.data.responseText);
+        if (response.data.responseText.includes("分享页面不存在"))
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            msg: "分享页面不存在",
+            data,
+          };
+        if (data["code"] !== 0)
+          return {
+            ...NetDiskCheckLinkValidityStatus.failed,
+            msg: typeof data.message === "string" ? data.message : NetDiskCheckLinkValidityStatus.failed.msg,
+            data,
+          };
+        if (data["data"]["HasPwd"])
+          return {
+            ...NetDiskCheckLinkValidityStatus.needAccessCode,
+            data,
+          };
         return {
-          ...NetDiskCheckLinkValidityStatus.failed,
-          msg: typeof data.message === "string" ? data.message : NetDiskCheckLinkValidityStatus.failed.msg,
+          ...NetDiskCheckLinkValidityStatus.success,
           data,
         };
-      if (data["data"]["HasPwd"])
-        return {
-          ...NetDiskCheckLinkValidityStatus.needAccessCode,
-          data,
-        };
-      return {
-        ...NetDiskCheckLinkValidityStatus.success,
-        data,
-      };
+      }
     },
   };
   var NetDiskCheckLinkValidity_weiyun = {
@@ -8071,6 +8162,17 @@
         blank: "https://123pan.com/s/{#shareCode#}",
         copyUrl: "https://123pan.com/s/{#shareCode#}\n密码：{#accessCode#}",
       },
+      {
+        link_innerText: `123pan.cn/123pan/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-text-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-text-after#}}[0-9a-zA-Z]{4}|)`,
+        link_innerHTML: `123pan.cn/123pan/([a-zA-Z0-9_-]{8,14})([\\s\\S]{0,{#matchRange-html-before#}}(访问码|密码|提取码|\\?pwd=)[\\s\\S]{0,{#matchRange-html-after#}}[0-9a-zA-Z]{4}|)`,
+        shareCode: new RegExp(`123pan.cn/123pan/([a-zA-Z0-9_-]{8,14})`, "gi"),
+        shareCodeNeedRemoveStr: new RegExp(`123pan.cn/123pan/`, "gi"),
+        checkAccessCode: /(((?<!解压)密码)|访问码|提取码|\?pwd=)[\s\S]+/g,
+        accessCode: /([0-9a-zA-Z]{4})/gi,
+        uiLinkShow: "123pan.cn/123pan/{#shareCode#} 提取码: {#accessCode#}",
+        blank: "https://123pan.cn/123pan/{#shareCode#}",
+        copyUrl: "https://123pan.cn/123pan/{#shareCode#}\n密码：{#accessCode#}",
+      },
     ],
     setting: {
       name: "123盘",
@@ -8147,6 +8249,10 @@
     };
     async init(netDiskInfo) {
       super.init(netDiskInfo);
+      if (netDiskInfo.ruleIndex === 1) {
+        qmsg.default.error("暂不支持新版链接的解析");
+        return;
+      }
       this.panelList.length = 0;
       this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
       const $loading = qmsg.default.loading("正在解析，请稍后...");
@@ -11583,6 +11689,9 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: `
+      .pops{
+        max-height: 90dvh;
+      }
       .btn-control{
         display: inline-block;
         margin: 10px;
@@ -11721,6 +11830,11 @@
           mask: { enable: true },
           width: PanelUISize.info.width,
           height: "auto",
+          style: `
+        .pops{
+          max-height: 90dvh;
+        }
+        `,
         });
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -11772,19 +11886,22 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-				.btn-control:hover{
-					color: #409eff;
-					border-color: #c6e2ff;
-					background-color: #ecf5ff;
-				}
+      .pops{
+        max-height: 90dvh;
+      }
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      .btn-control:hover{
+        color: #409eff;
+        border-color: #c6e2ff;
+        background-color: #ecf5ff;
+      }
             `,
       });
       const $onlyExportRuleList = $alert.$shadowRoot.querySelector(".btn-control[data-mode='only-export-rule-list']");
