@@ -27,6 +27,20 @@ export const XHSRouter = {
    * 判断是否是搜索页面
    */
   isSearch() {
-    return RouterUtil.builder().pathnameStartsWith("/search_result/").or().pathname("/search_result_ai").r();
+    return this.isSearchResult() || this.isAISearch();
+  },
+  /**
+   *
+   *
+   * 判断是否是搜索结果页面
+   */
+  isSearchResult() {
+    return RouterUtil.builder().pathnameStartsWith("/search_result/").r();
+  },
+  /**
+   * 判断是否是AI搜索页面
+   */
+  isAISearch() {
+    return RouterUtil.builder().pathname("/search_result_ai").r();
   },
 };

@@ -6,7 +6,7 @@ import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { addStyle, log, MenuRegister, utils } from "./env";
 import { M_XHS } from "./m-main/M_XHS";
 import { XHS } from "./main/XHS";
-import { MSettingUI_Common } from "./setting/m-view/m-common";
+import { MSettingUI_General } from "./setting/m-view/m-general";
 import { MSettingUI_Home } from "./setting/m-view/m-home";
 import { MSettingUI_Notes } from "./setting/m-view/m-note";
 import { SettingUI_Article } from "./setting/view/article";
@@ -49,7 +49,7 @@ PanelMenu.addMenuOption([
 // 加载PC设置面板
 PanelContent.addContentConfig([SettingUI_General, SettingUI_Article, SettingUI_Search]);
 // 加载移动端设置面板
-PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
+PanelContent.addContentConfig([MSettingUI_General, MSettingUI_Home, MSettingUI_Notes]);
 Panel.init();
 
 let isMobile = utils.isPhone();
@@ -106,12 +106,21 @@ MenuRegister.add({
   },
 });
 
-if (isMobile) {
-  log.info("自动判定为移动端");
-  MenuRegister.delete("pc_setting");
-  M_XHS.init();
-} else {
-  log.info("自动判定为PC端");
-  MenuRegister.delete("m_setting");
-  XHS.init();
-}
+const start = () => {
+  if (isMobile) {
+    log.info("自动判定为移动端");
+    MenuRegister.delete("pc_setting");
+    M_XHS.init();
+  } else {
+    log.info("自动判定为PC端");
+    MenuRegister.delete("m_setting");
+    XHS.init();
+  }
+};
+
+start();
+
+window.addEventListener("urlchange", () => {
+  log.info("Router change!!!");
+  start();
+});

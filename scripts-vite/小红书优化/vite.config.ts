@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
-import { cdn } from "vite-plugin-monkey";
-import { ViteUtils, GetLib, viteUtils } from "./../../vite.utils.mjs";
 import { GenerateUserConfig } from "./../../script-components/components/vite.config.base.mjs";
+import { ViteUtils } from "./../../vite.utils.mjs";
 
 const utils = new ViteUtils(import.meta.dirname);
 const pkg = utils.getPackageJSON();
@@ -26,6 +25,7 @@ const userConfig = await GenerateUserConfig({
       resource: {
         ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
       },
+      grant: ["window.onurlchange"],
     },
     build: {
       // import库的文件映射

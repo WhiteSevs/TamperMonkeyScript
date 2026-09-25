@@ -3,8 +3,8 @@ import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
-export const MSettingUI_Common: PopsPanelContentConfig = {
-  id: "little-red-book-panel-config-common",
+export const MSettingUI_General: PopsPanelContentConfig = {
+  id: "little-red-book-panel-config-general",
   title: "通用",
   views: [
     {

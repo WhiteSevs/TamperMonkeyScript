@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.25
+// @version      2026.9.25.18
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -29,6 +29,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
+// @grant        window.onurlchange
 // @run-at       document-start
 // ==/UserScript==
 
@@ -2631,7 +2632,13 @@
       );
     },
     isSearch() {
-      return RouterUtil.builder().pathnameStartsWith("/search_result/").or().pathname("/search_result_ai").r();
+      return this.isSearchResult() || this.isAISearch();
+    },
+    isSearchResult() {
+      return RouterUtil.builder().pathnameStartsWith("/search_result/").r();
+    },
+    isAISearch() {
+      return RouterUtil.builder().pathname("/search_result_ai").r();
     },
   };
   var XHS_BASE_URL = "https://edith.xiaohongshu.com";
@@ -5905,9 +5912,17 @@
   };
   var XHSSearch = {
     init() {
-      Panel.execMenuOnce("xhs-search-blockRightAIPanel", () => {
-        return this.blockRightAIPanel();
+      Panel.execMenuOnce("xhs-search-redirectToNonAISearchResultPage", () => {
+        return this.redirectToNonAISearchResultPage();
       });
+      if (XHSRouter.isAISearch())
+        Panel.execMenuOnce("xhs-search-blockRightAIPanel", () => {
+          return this.blockRightAIPanel();
+        });
+    },
+    redirectToNonAISearchResultPage() {
+      log.info(`重定向至非AI搜索结果页面`);
+      if (XHSRouter.isAISearch()) window.location.pathname = "/search_result";
     },
     blockRightAIPanel() {
       log.info(`【屏蔽】右侧AI面板`);
@@ -5994,8 +6009,8 @@
       ];
     },
   };
-  var MSettingUI_Common = {
-    id: "little-red-book-panel-config-common",
+  var MSettingUI_General = {
+    id: "little-red-book-panel-config-general",
     title: "通用",
     views: [
       {
@@ -6535,8 +6550,16 @@
     views: [
       {
         type: "container",
-        text: "布局屏蔽",
-        views: [UISwitch("【屏蔽】右侧AI面板", "xhs-search-blockRightAIPanel", false, void 0, "屏蔽右侧的点点ai")],
+        text: "功能",
+        views: [
+          UISwitch(
+            "重定向至非AI搜索结果页面",
+            "xhs-search-redirectToNonAISearchResultPage",
+            false,
+            void 0,
+            "将搜索结果重定向至非AI搜索结果页面"
+          ),
+        ],
       },
     ],
   };
@@ -6573,7 +6596,7 @@
     },
   ]);
   PanelContent.addContentConfig([SettingUI_General, SettingUI_Article, SettingUI_Search]);
-  PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
+  PanelContent.addContentConfig([MSettingUI_General, MSettingUI_Home, MSettingUI_Notes]);
   Panel.init();
   var isMobile = utils.isPhone();
   var CHANGE_ENV_SET_KEY = "change_env_set";
@@ -6616,13 +6639,20 @@
       else _GM_setValue(CHANGE_ENV_SET_KEY, chooseMode);
     },
   });
-  if (isMobile) {
-    log.info("自动判定为移动端");
-    MenuRegister.delete("pc_setting");
-    M_XHS.init();
-  } else {
-    log.info("自动判定为PC端");
-    MenuRegister.delete("m_setting");
-    XHS.init();
-  }
+  var start = () => {
+    if (isMobile) {
+      log.info("自动判定为移动端");
+      MenuRegister.delete("pc_setting");
+      M_XHS.init();
+    } else {
+      log.info("自动判定为PC端");
+      MenuRegister.delete("m_setting");
+      XHS.init();
+    }
+  };
+  start();
+  window.addEventListener("urlchange", () => {
+    log.info("Router change!!!");
+    start();
+  });
 })(Qmsg, DOMUtils, pops, Utils, Viewer);

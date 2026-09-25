@@ -7,8 +7,21 @@ export const SettingUI_Search: PopsPanelContentConfig = {
   views: [
     {
       type: "container",
-      text: "布局屏蔽",
-      views: [UISwitch("【屏蔽】右侧AI面板", "xhs-search-blockRightAIPanel", false, void 0, "屏蔽右侧的点点ai")],
+      text: "功能",
+      views: [
+        UISwitch(
+          "重定向至非AI搜索结果页面",
+          "xhs-search-redirectToNonAISearchResultPage",
+          false,
+          void 0,
+          "将搜索结果重定向至非AI搜索结果页面"
+        ),
+      ],
     },
+    // {
+    //   type: "container",
+    //   text: "布局屏蔽",
+    //   views: [UISwitch("【屏蔽】右侧AI面板", "xhs-search-blockRightAIPanel", false, void 0, "屏蔽右侧的点点ai")],
+    // },
   ],
 };

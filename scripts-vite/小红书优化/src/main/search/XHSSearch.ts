@@ -1,12 +1,27 @@
 import { log } from "@/env";
+import { XHSRouter } from "@/router/XHSRouter";
 import { addBlockCSS, addStyle } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 
 export const XHSSearch = {
   init() {
-    Panel.execMenuOnce("xhs-search-blockRightAIPanel", () => {
-      return this.blockRightAIPanel();
+    Panel.execMenuOnce("xhs-search-redirectToNonAISearchResultPage", () => {
+      return this.redirectToNonAISearchResultPage();
     });
+    if (XHSRouter.isAISearch()) {
+      Panel.execMenuOnce("xhs-search-blockRightAIPanel", () => {
+        return this.blockRightAIPanel();
+      });
+    }
+  },
+  /**
+   * 重定向至非AI搜索结果页面
+   */
+  redirectToNonAISearchResultPage() {
+    log.info(`重定向至非AI搜索结果页面`);
+    if (XHSRouter.isAISearch()) {
+      window.location.pathname = "/search_result";
+    }
   },
   /**
    * 【屏蔽】右侧AI面板
