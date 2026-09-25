@@ -10,7 +10,8 @@ import { MSettingUI_Common } from "./setting/m-view/m-common";
 import { MSettingUI_Home } from "./setting/m-view/m-home";
 import { MSettingUI_Notes } from "./setting/m-view/m-note";
 import { SettingUI_Article } from "./setting/view/article";
-import { SettingUI_Common } from "./setting/view/common";
+import { SettingUI_General } from "./setting/view/general";
+import { SettingUI_Search } from "./setting/view/search";
 
 // 修复一下Qmsg的loading图标问题
 addStyle(/*css*/ `
@@ -45,7 +46,9 @@ PanelMenu.addMenuOption([
     },
   },
 ]);
-PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
+// 加载PC设置面板
+PanelContent.addContentConfig([SettingUI_General, SettingUI_Article, SettingUI_Search]);
+// 加载移动端设置面板
 PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
 Panel.init();
 

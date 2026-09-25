@@ -2,32 +2,38 @@ import { log } from "@/env";
 import type { XHSArticleFilterOption } from "./XHSArticleFilter";
 
 type CheckRuleDetail = {
-  /** 笔记信息的键 */
+  // * 笔记信息的键
   infoKey: string;
-  /** 笔记信息的值 */
+  // * 笔记信息的值
   infoValue: any;
-  /** 自定义规则的键 */
+  // * 自定义规则的键
   ruleKey: string;
-  /** 自定义规则的值 */
+  // * 自定义规则的值
   ruleValue: RegExp | string | undefined | null;
 };
 export class XHSArticleFilterBase {
   /**
    * 解析信息转为规则过滤的字典
    * @param info 数据信息
-   * @param showLog 是否显示日志输出
+   * @param _showLog 是否显示日志输出
    */
-  parseInfoDictData(info: XHSArticleInfo, showLog: boolean = false): XHSArticleHandlerInfo {
+  parseInfoDictData(info: XHSArticleInfo, _showLog: boolean = false): XHSArticleHandlerInfo | undefined {
     const note_card = info?.note_card;
-    /** 笔记id */
+    if (note_card == null) {
+      if (import.meta.hot) {
+        console.log("note_card is null", info);
+      }
+      return;
+    }
+    // * 笔记id
     let articleId = info.id;
     /**
      * 笔记标题
      */
     let display_title = note_card.display_title;
-    /** 是否已点赞该笔记 */
+    // * 是否已点赞该笔记
     let isLike = Boolean(note_card?.interact_info?.liked);
-    /** 点赞数量 */
+    // * 点赞数量
     let liked_count = 0;
     let liked_count_str = info?.note_card?.interact_info?.liked_count;
     if (typeof liked_count_str === "string") {
@@ -78,15 +84,15 @@ export class XHSArticleFilterBase {
       return false;
     }
     if (typeof details.infoValue === "string") {
-      /* info的值是字符串 */
-      /* 使用自定义规则的值进行匹配 */
-      if (Boolean(details.infoValue.match(details.ruleValue))) {
+      // info的值是字符串
+      // 使用自定义规则的值进行匹配
+      if (details.infoValue.match(details.ruleValue)) {
         return true;
       }
     } else if (typeof details.infoValue === "object") {
       if (Array.isArray(details.infoValue)) {
-        /* info的值是字符串数组 */
-        /* 使用自定义规则的值进行遍历匹配 */
+        // info的值是字符串数组
+        // 使用自定义规则的值进行遍历匹配
         let findValue = details.infoValue.find((infoDictValue) => {
           if (typeof infoDictValue === "string" && details.ruleValue != null) {
             return Boolean(infoDictValue.match(details.ruleValue));
@@ -100,8 +106,8 @@ export class XHSArticleFilterBase {
       }
     } else if (typeof details.infoValue === "number") {
       if (typeof details.ruleValue === "string") {
-        /* info的值是数字，用于比较 */
-        /* 自定义规则的值是数字，用于比较 */
+        // info的值是数字，用于比较
+        // 自定义规则的值是数字，用于比较
         let ruleValue = details.ruleValue.trim();
         let compareNumberMatch = ruleValue.match(/(\d+)/);
         if (!compareNumberMatch) {
@@ -147,7 +153,7 @@ export class XHSArticleFilterBase {
       }
     } else if (typeof details.infoValue === "boolean") {
       if (typeof details.ruleValue === "string") {
-        /* info的值是boolean */
+        // info的值是boolean
         let trimRuleValue = details.ruleValue.trim();
         return details.infoValue.toString() === trimRuleValue;
       }
@@ -160,89 +166,91 @@ export class XHSArticleFilterBase {
    * @param info 视频信息结构
    */
   checkInfoIsFilter(rule: XHSArticleFilterOption[], info: XHSArticleInfo) {
-    /** 对视频信息进行解析出需要的字典信息 */
-    let transformInfo = this.parseInfoDictData(info);
+    // * 对视频信息进行解析出需要的字典信息
+    const transformInfo = this.parseInfoDictData(info);
     let flag = false;
     let matchedFilterOption: XHSArticleFilterOption | null = null;
-    outerLoop: for (let index = 0; index < rule.length; index++) {
-      const filterOption = rule[index];
-      const ruleNameList = Array.isArray(filterOption.data.ruleName)
-        ? filterOption.data.ruleName
-        : [filterOption.data.ruleName];
-      for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
-        // 属性名
-        const ruleName = ruleNameList[ruleNameIndex];
-        if (!Reflect.has(transformInfo, ruleName)) {
-          continue;
-        }
-        /** 解析出的标签的名字 */
-        let tagKey = ruleName;
-        /** 解析出的标签的值 */
-        let tagValue = transformInfo[tagKey as keyof typeof transformInfo];
-        /** 配置 */
-        let details = {
-          infoKey: tagKey,
-          infoValue: tagValue,
-          ruleKey: filterOption.data.ruleName,
-          ruleValue: filterOption.data.ruleValue,
-        } as CheckRuleDetail;
-        flag = this.checkFilterWithRule(details);
-        if (flag) {
-          if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
-            // & 动态规则
-            let dynamicDetailsList: CheckRuleDetail[] = [];
-            for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
-              const dynamicOption = filterOption.dynamicData[dynamicIndex];
-              /** 解析出的标签的名字 */
-              let dynamicTagKey = dynamicOption.ruleName;
-              /** 解析出的标签的值 */
-              let dynamicTagValue = transformInfo[dynamicTagKey as keyof typeof transformInfo];
-              /** 配置 */
-              let dynamicDetails = {
-                infoKey: dynamicTagKey,
-                infoValue: dynamicTagValue,
-                ruleKey: dynamicOption.ruleName,
-                ruleValue: dynamicOption.ruleValue,
-              } as CheckRuleDetail;
-              dynamicDetailsList.push(dynamicDetails);
-              let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
-              flag = flag && dynamicCheckFlag;
-              if (!flag) {
-                // 多组的话有一个不成立就退出
-                break;
-              }
-            }
-            if (flag) {
-              log.success([
-                `视频过滤器-多组 ==> ${filterOption.name}`,
-                transformInfo,
-                details,
-                dynamicDetailsList,
-                info,
-                filterOption,
-              ]);
-            }
-          } else {
-            log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
+    if (transformInfo) {
+      outerLoop: for (let index = 0; index < rule.length; index++) {
+        const filterOption = rule[index];
+        const ruleNameList = Array.isArray(filterOption.data.ruleName)
+          ? filterOption.data.ruleName
+          : [filterOption.data.ruleName];
+        for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
+          // 属性名
+          const ruleName = ruleNameList[ruleNameIndex];
+          if (!Reflect.has(transformInfo, ruleName)) {
+            continue;
           }
-        }
-        if (flag) {
-          // 存在命中屏蔽规则
-          // 推出循环
-          matchedFilterOption = filterOption;
-          break outerLoop;
+          // * 解析出的标签的名字
+          let tagKey = ruleName;
+          // * 解析出的标签的值
+          let tagValue = transformInfo[tagKey as keyof typeof transformInfo];
+          // * 配置
+          let details = {
+            infoKey: tagKey,
+            infoValue: tagValue,
+            ruleKey: filterOption.data.ruleName,
+            ruleValue: filterOption.data.ruleValue,
+          } as CheckRuleDetail;
+          flag = this.checkFilterWithRule(details);
+          if (flag) {
+            if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
+              // & 动态规则
+              let dynamicDetailsList: CheckRuleDetail[] = [];
+              for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
+                const dynamicOption = filterOption.dynamicData[dynamicIndex];
+                // * 解析出的标签的名字
+                let dynamicTagKey = dynamicOption.ruleName;
+                // * 解析出的标签的值
+                let dynamicTagValue = transformInfo[dynamicTagKey as keyof typeof transformInfo];
+                // * 配置
+                let dynamicDetails = {
+                  infoKey: dynamicTagKey,
+                  infoValue: dynamicTagValue,
+                  ruleKey: dynamicOption.ruleName,
+                  ruleValue: dynamicOption.ruleValue,
+                } as CheckRuleDetail;
+                dynamicDetailsList.push(dynamicDetails);
+                let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+                flag = flag && dynamicCheckFlag;
+                if (!flag) {
+                  // 多组的话有一个不成立就退出
+                  break;
+                }
+              }
+              if (flag) {
+                log.success([
+                  `视频过滤器-多组 ==> ${filterOption.name}`,
+                  transformInfo,
+                  details,
+                  dynamicDetailsList,
+                  info,
+                  filterOption,
+                ]);
+              }
+            } else {
+              log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
+            }
+          }
+          if (flag) {
+            // 存在命中屏蔽规则
+            // 推出循环
+            matchedFilterOption = filterOption;
+            break outerLoop;
+          }
         }
       }
     }
 
     return {
-      /** 是否允许过滤 */
+      // * 是否允许过滤
       isFilter: flag,
-      /** 命中的过滤规则 */
+      // * 命中的过滤规则
       matchedFilterOption: matchedFilterOption,
-      /** 解析出的视频信息 */
+      // * 解析出的视频信息
       transformInfo: transformInfo,
-      /** 原始视频信息 */
+      // * 原始视频信息
       info: info,
     };
   }

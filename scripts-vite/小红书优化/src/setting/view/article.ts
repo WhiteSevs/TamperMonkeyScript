@@ -3,7 +3,7 @@ import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
-const SettingUI_Article: PopsPanelContentConfig = {
+export const SettingUI_Article: PopsPanelContentConfig = {
   id: "xhs-panel-config-article",
   title: "笔记",
   views: [
@@ -84,5 +84,3 @@ const SettingUI_Article: PopsPanelContentConfig = {
     },
   ],
 };
-
-export { SettingUI_Article };

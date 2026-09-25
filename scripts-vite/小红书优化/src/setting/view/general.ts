@@ -5,8 +5,8 @@ import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 
-export const SettingUI_Common: PopsPanelContentConfig = {
-  id: "xhs-panel-config-common",
+export const SettingUI_General: PopsPanelContentConfig = {
+  id: "xhs-panel-config-general",
   title: "通用",
   views: [
     {

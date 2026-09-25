@@ -7,6 +7,7 @@ import { unsafeWindow } from "ViteGM";
 import { XHSArticle } from "./article/XHSArticle";
 import { XHSArticleFilter } from "./article/XHSArticleFilter";
 import { XHSBlock } from "./XHSBlock";
+import { XHSSearch } from "./search/XHSSearch";
 
 export const XHS = {
   init() {
@@ -27,6 +28,9 @@ export const XHS = {
     if (XHSRouter.isArticle()) {
       log.info("Router: 笔记页面");
       XHSArticle.init();
+    } else if (XHSRouter.isSearch()) {
+      log.info("Router: 搜索页面");
+      XHSSearch.init();
     }
   },
   /**

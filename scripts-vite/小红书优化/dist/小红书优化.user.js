@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.9.25
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.14.0/dist/viewer.js
 // @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addValueChangeListener
@@ -508,7 +508,7 @@
     clearInterval: _unsafeWindow.clearInterval.bind(_unsafeWindow),
   };
   var addStyle = domUtils.addStyle.bind(domUtils);
-  CommonUtil.addBlockCSS.bind(CommonUtil);
+  var addBlockCSS = CommonUtil.addBlockCSS.bind(CommonUtil);
   CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
@@ -647,6 +647,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -756,6 +759,11 @@
               mask: { enable: true },
               width: PanelUISize.info.width,
               height: "auto",
+              style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
             });
             const $promptInput = $prompt.$shadowRoot.querySelector("input");
             const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -811,6 +819,9 @@
             width: PanelUISize.info.width,
             height: PanelUISize.info.height,
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -873,6 +884,9 @@
             width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
             height: "auto",
             style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -2105,15 +2119,510 @@
   };
   var _SCRIPT_NAME_ = SCRIPT_NAME || "小红书优化";
   var __viewer = viewerjs.default;
+  var RouterBuilder = class RouterBuilder {
+    __href__;
+    get __href() {
+      return this.__href__ || globalThis.location.href;
+    }
+    __origin = {
+      value: void 0,
+      type: "same",
+    };
+    __protocol = {
+      value: void 0,
+      type: "same",
+    };
+    __host = {
+      value: void 0,
+      type: "same",
+      hasPort: false,
+    };
+    __pathname = {
+      value: void 0,
+      type: "same",
+    };
+    __searchParams = { value: new Set() };
+    otherInstResultWithOr = false;
+    constructor(href) {
+      if (typeof href === "string") this.href(href);
+    }
+    href(url) {
+      this.__href__ = url;
+      return this;
+    }
+    origin(origin) {
+      this.__origin = {
+        value: origin,
+        type: "same",
+      };
+      return this;
+    }
+    originStartsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "startsWith",
+      };
+      return this;
+    }
+    originEndsWith(origin) {
+      this.__origin = {
+        value: origin,
+        type: "endsWith",
+      };
+      return this;
+    }
+    originIncludes(origin) {
+      this.__origin = {
+        value: origin,
+        type: "includes",
+      };
+      return this;
+    }
+    originMatch(origin) {
+      this.__origin = {
+        value: origin,
+        type: "match",
+      };
+      return this;
+    }
+    protocol(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "same",
+      };
+      return this;
+    }
+    protocolStartsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "startsWith",
+      };
+      return this;
+    }
+    protocolEndsWith(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "endsWith",
+      };
+      return this;
+    }
+    protocolIncludes(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "includes",
+      };
+      return this;
+    }
+    protocolMatch(protocol) {
+      this.__protocol = {
+        value: protocol,
+        type: "match",
+      };
+      return this;
+    }
+    host(host) {
+      this.__host = {
+        value: host,
+        type: "same",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostStartsWith(host) {
+      this.__host = {
+        value: host,
+        type: "startsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostEndsWith(host) {
+      this.__host = {
+        value: host,
+        type: "endsWith",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostIncludes(host) {
+      this.__host = {
+        value: host,
+        type: "includes",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostMatch(host) {
+      this.__host = {
+        value: host,
+        type: "match",
+        hasPort: true,
+      };
+      return this;
+    }
+    hostName(name) {
+      this.__host = {
+        value: name,
+        type: "same",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameStartsWith(name) {
+      this.__host = {
+        value: name,
+        type: "startsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameEndsWith(name) {
+      this.__host = {
+        value: name,
+        type: "endsWith",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameIncludes(name) {
+      this.__host = {
+        value: name,
+        type: "includes",
+        hasPort: false,
+      };
+      return this;
+    }
+    hostNameMatch(name) {
+      this.__host = {
+        value: name,
+        type: "match",
+        hasPort: false,
+      };
+      return this;
+    }
+    pathname(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "same",
+      };
+      return this;
+    }
+    pathnameStartsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "startsWith",
+      };
+      return this;
+    }
+    pathnameEndsWith(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "endsWith",
+      };
+      return this;
+    }
+    pathnameIncludes(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "includes",
+      };
+      return this;
+    }
+    pathnameMatch(pathname) {
+      this.__pathname = {
+        value: pathname,
+        type: "match",
+      };
+      return this;
+    }
+    searchParams(name, value) {
+      this.__searchParams.value.add({
+        name,
+        value,
+      });
+      return this;
+    }
+    search(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "same",
+      });
+      return this;
+    }
+    searchStartsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "startsWith",
+      });
+      return this;
+    }
+    searchEndsWith(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "endsWith",
+      });
+      return this;
+    }
+    searchIncludes(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "includes",
+      });
+      return this;
+    }
+    searchMatch(value) {
+      this.__searchParams.value.add({
+        name: "",
+        value,
+        type: "match",
+      });
+      return this;
+    }
+    build() {
+      if (!this.__host.value) throw new TypeError("host or hostName should be required");
+      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`;
+      if (this.__searchParams.value.size > 0) {
+        const searhList = [];
+        this.__searchParams.value.forEach((it) => {
+          if (typeof it.name === "string") {
+            let value = "";
+            if (typeof it.value === "string" || typeof it.value === "number" || typeof it.value === "boolean")
+              value = it.value.toString();
+            searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
+          }
+        });
+        if (searhList.length) url += `?${searhList.join("&")}`;
+      }
+      return url;
+    }
+    or(href) {
+      this.otherInstResultWithOr = this.otherInstResultWithOr || this.r();
+      const routerBuilder = new RouterBuilder(href);
+      routerBuilder.otherInstResultWithOr = this.otherInstResultWithOr;
+      return routerBuilder;
+    }
+    r() {
+      if (this.otherInstResultWithOr) return this.otherInstResultWithOr;
+      const urlInst = new URL(this.__href);
+      return [
+        () => {
+          if (this.__origin.value) {
+            if (this.__origin.type === "same") {
+              if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            } else if (this.__origin.type === "startsWith") {
+              if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            } else if (this.__origin.type === "endsWith") {
+              if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            } else if (this.__origin.type === "includes") {
+              if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
+              else throw new TypeError("origin value should be string by type " + this.__origin.type);
+            } else if (this.__origin.type === "match") {
+              if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
+              else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
+              else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
+            } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
+          } else return true;
+        },
+        () => {
+          if (this.__protocol.value) {
+            if (this.__protocol.type === "same") {
+              if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            } else if (this.__protocol.type === "startsWith") {
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            } else if (this.__protocol.type === "endsWith") {
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            } else if (this.__protocol.type === "includes") {
+              if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
+              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
+            } else if (this.__protocol.type === "match") {
+              if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
+              else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
+              else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
+            } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
+          } else return true;
+        },
+        () => {
+          if (this.__host.value) {
+            const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
+            if (this.__host.type === "same") {
+              if (typeof this.__host.value === "string") return this.__host.value === host;
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            } else if (this.__host.type === "startsWith") {
+              if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            } else if (this.__host.type === "endsWith") {
+              if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            } else if (this.__host.type === "includes") {
+              if (typeof this.__host.value === "string") return host.includes(this.__host.value);
+              else throw new TypeError("host value should be string by type " + this.__host.type);
+            } else if (this.__host.type === "match") {
+              if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
+              else if (typeof this.__host.value === "string") return host.match(this.__host.value);
+              else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
+            } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
+          } else return true;
+        },
+        () => {
+          if (this.__pathname.value) {
+            if (this.__pathname.type === "same") {
+              if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            } else if (this.__pathname.type === "startsWith") {
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            } else if (this.__pathname.type === "endsWith") {
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            } else if (this.__pathname.type === "includes") {
+              if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
+              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
+            } else if (this.__pathname.type === "match") {
+              if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
+              else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
+              else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
+            } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
+          } else return true;
+        },
+        () => {
+          let flag = true;
+          const searchParamsList = [];
+          this.__searchParams.value.forEach((item) => {
+            searchParamsList.push(item);
+          });
+          for (let index = 0; index < searchParamsList.length; index++) {
+            const item = searchParamsList[index];
+            if (item.type) {
+              if (item.type === "same") {
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
+                  return urlInst.search === item.value.toString();
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              } else if (item.type === "startsWith") {
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
+                  return urlInst.search.startsWith(item.value.toString());
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              } else if (item.type === "endsWith") {
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
+                  return urlInst.search.endsWith(item.value.toString());
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              } else if (item.type === "includes") {
+                if (typeof item.value === "string" || typeof item.value === "number" || typeof item.value === "boolean")
+                  return urlInst.search.includes(item.value.toString());
+                else throw new TypeError("search value should be string、number、boolean by type " + item.type);
+              } else if (item.type === "match") {
+                if (item.value instanceof RegExp) return item.value.test(urlInst.search);
+                else if (
+                  typeof item.value === "string" ||
+                  typeof item.value === "number" ||
+                  typeof item.value === "boolean"
+                )
+                  return urlInst.search.match(item.value.toString());
+                else throw new TypeError("search value should be RegExp、string、number、boolean by type " + item.type);
+              } else throw new TypeError("search type should be same, startsWith, endsWith, includes, match");
+            } else if (typeof item.name === "string") {
+              let value = item.value;
+              if (
+                value == null ||
+                typeof value === "string" ||
+                typeof value === "number" ||
+                typeof value === "boolean"
+              ) {
+                value = value == null ? void 0 : value.toString();
+                if (!urlInst.searchParams.has(item.name, value)) {
+                  flag = false;
+                  break;
+                }
+              } else if (value instanceof RegExp) {
+                const targetValue = urlInst.searchParams.get(item.name);
+                if (targetValue) {
+                  if (!value.test(targetValue)) {
+                    flag = false;
+                    break;
+                  }
+                } else {
+                  flag = false;
+                  break;
+                }
+              } else
+                throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
+            } else if (item.name instanceof RegExp) {
+              let targetKey = void 0;
+              let targetValue = void 0;
+              urlInst.searchParams.forEach((__value__, __key__) => {
+                if (!targetKey && __key__.match(item.name)) {
+                  targetKey = __key__;
+                  targetValue = __value__;
+                }
+              });
+              if (targetKey) {
+                let value = item.value;
+                if (value == null) {
+                } else if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+                  value = value.toString();
+                  flag = value === targetValue;
+                  if (!flag) break;
+                } else if (value instanceof RegExp) {
+                  if (targetValue) {
+                    if (!value.test(targetValue)) {
+                      flag = false;
+                      break;
+                    }
+                  } else {
+                    flag = false;
+                    break;
+                  }
+                } else
+                  throw new TypeError("searchParams value should be string, RegExp, boolean, number, null, undefined");
+              } else {
+                flag = false;
+                break;
+              }
+            } else throw new TypeError("searchParams name should be string or RegExp");
+          }
+          return flag;
+        },
+      ].every((it) => it());
+    }
+  };
+  var RouterUtil = {
+    host(host, href) {
+      return RouterUtil.builder(href).host(host);
+    },
+    hostName(name, href) {
+      return RouterUtil.builder(href).hostName(name);
+    },
+    search(value, href) {
+      return RouterUtil.builder(href).search(value);
+    },
+    seachParams(name, value, href) {
+      return RouterUtil.builder(href).searchParams(name, value);
+    },
+    pathname(name, href) {
+      return RouterUtil.builder(href).pathname(name);
+    },
+    protocol(protocol, href) {
+      return RouterUtil.builder(href).protocol(protocol);
+    },
+    builder(href) {
+      return new RouterBuilder(href);
+    },
+  };
   var XHSRouter = {
     isArticle() {
-      return (
-        globalThis.location.pathname.startsWith("/discovery/item/") ||
-        globalThis.location.pathname.startsWith("/explore/")
-      );
+      return RouterUtil.builder().pathnameStartsWith("/discovery/item/").or().pathnameStartsWith("/explore/").r();
     },
     isUserHome() {
-      return globalThis.location.pathname.startsWith("/user/profile/");
+      return RouterUtil.builder().pathnameStartsWith("/user/profile/").r();
     },
     isHome() {
       return (
@@ -2122,7 +2631,7 @@
       );
     },
     isSearch() {
-      return globalThis.location.pathname.startsWith("/search_result/");
+      return RouterUtil.builder().pathnameStartsWith("/search_result/").or().pathname("/search_result_ai").r();
     },
   };
   var XHS_BASE_URL = "https://edith.xiaohongshu.com";
@@ -3928,15 +4437,17 @@
         width: PanelUISize.info.width,
         height: PanelUISize.info.height,
         style: `
-                .btn-control{
-                    display: inline-block;
-                    margin: 10px;
-                    padding: 10px;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            `,
+      .pops{
+        max-height: 90dvh;
+      }
+      .btn-control{
+          display: inline-block;
+          margin: 10px;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          cursor: pointer;
+      }`,
       });
       const $local = $alert.$shadowRoot.querySelector(".btn-control[data-mode='local']");
       const $network = $alert.$shadowRoot.querySelector(".btn-control[data-mode='network']");
@@ -3987,6 +4498,11 @@
                 height: PanelUISize.info.height,
                 mask: { enable: true },
                 drag: true,
+                style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
               });
             })
           ) {
@@ -4082,6 +4598,11 @@
           drag: true,
           width: PanelUISize.info.width,
           height: "auto",
+          style: `
+        .pops{
+          max-height: 90dvh;
+        }
+        `,
         });
         const $promptInput = $prompt.$shadowRoot.querySelector("input");
         const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -4160,6 +4681,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -4217,7 +4741,6 @@
           typeof this.option.height === "function" ? this.option.height() : window.innerHeight > 500 ? "500px" : "80vh",
       });
       const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
-      $dialog.$shadowRoot.querySelector("input[type=submit]");
       const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
       const view = await this.option.getView(await this.option.data());
       domUtils.append($ulist, view);
@@ -4264,6 +4787,9 @@
         style: `
       ${__pops__.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-view-search-container{
         display: flex;
         align-items: center;
@@ -4690,8 +5216,9 @@
     }
   };
   var XHSArticleFilterBase = class {
-    parseInfoDictData(info, showLog = false) {
+    parseInfoDictData(info, _showLog = false) {
       const note_card = info?.note_card;
+      if (note_card == null) return;
       let articleId = info.id;
       let display_title = note_card.display_title;
       let isLike = Boolean(note_card?.interact_info?.liked);
@@ -4720,7 +5247,7 @@
       if (details.infoValue == null) return false;
       if (details.ruleValue == null) return false;
       if (typeof details.infoValue === "string") {
-        if (Boolean(details.infoValue.match(details.ruleValue))) return true;
+        if (details.infoValue.match(details.ruleValue)) return true;
       } else if (typeof details.infoValue === "object") {
         if (Array.isArray(details.infoValue)) {
           if (
@@ -4765,59 +5292,60 @@
       return false;
     }
     checkInfoIsFilter(rule, info) {
-      let transformInfo = this.parseInfoDictData(info);
+      const transformInfo = this.parseInfoDictData(info);
       let flag = false;
       let matchedFilterOption = null;
-      outerLoop: for (let index = 0; index < rule.length; index++) {
-        const filterOption = rule[index];
-        const ruleNameList = Array.isArray(filterOption.data.ruleName)
-          ? filterOption.data.ruleName
-          : [filterOption.data.ruleName];
-        for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
-          const ruleName = ruleNameList[ruleNameIndex];
-          if (!Reflect.has(transformInfo, ruleName)) continue;
-          let tagKey = ruleName;
-          let details = {
-            infoKey: tagKey,
-            infoValue: transformInfo[tagKey],
-            ruleKey: filterOption.data.ruleName,
-            ruleValue: filterOption.data.ruleValue,
-          };
-          flag = this.checkFilterWithRule(details);
-          if (flag) {
-            if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
-              let dynamicDetailsList = [];
-              for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
-                const dynamicOption = filterOption.dynamicData[dynamicIndex];
-                let dynamicTagKey = dynamicOption.ruleName;
-                let dynamicDetails = {
-                  infoKey: dynamicTagKey,
-                  infoValue: transformInfo[dynamicTagKey],
-                  ruleKey: dynamicOption.ruleName,
-                  ruleValue: dynamicOption.ruleValue,
-                };
-                dynamicDetailsList.push(dynamicDetails);
-                let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
-                flag = flag && dynamicCheckFlag;
-                if (!flag) break;
-              }
-              if (flag)
-                log.success([
-                  `视频过滤器-多组 ==> ${filterOption.name}`,
-                  transformInfo,
-                  details,
-                  dynamicDetailsList,
-                  info,
-                  filterOption,
-                ]);
-            } else log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
-          }
-          if (flag) {
-            matchedFilterOption = filterOption;
-            break outerLoop;
+      if (transformInfo)
+        outerLoop: for (let index = 0; index < rule.length; index++) {
+          const filterOption = rule[index];
+          const ruleNameList = Array.isArray(filterOption.data.ruleName)
+            ? filterOption.data.ruleName
+            : [filterOption.data.ruleName];
+          for (let ruleNameIndex = 0; ruleNameIndex < ruleNameList.length; ruleNameIndex++) {
+            const ruleName = ruleNameList[ruleNameIndex];
+            if (!Reflect.has(transformInfo, ruleName)) continue;
+            let tagKey = ruleName;
+            let details = {
+              infoKey: tagKey,
+              infoValue: transformInfo[tagKey],
+              ruleKey: filterOption.data.ruleName,
+              ruleValue: filterOption.data.ruleValue,
+            };
+            flag = this.checkFilterWithRule(details);
+            if (flag) {
+              if (Array.isArray(filterOption.dynamicData) && filterOption.dynamicData.length) {
+                let dynamicDetailsList = [];
+                for (let dynamicIndex = 0; dynamicIndex < filterOption.dynamicData.length; dynamicIndex++) {
+                  const dynamicOption = filterOption.dynamicData[dynamicIndex];
+                  let dynamicTagKey = dynamicOption.ruleName;
+                  let dynamicDetails = {
+                    infoKey: dynamicTagKey,
+                    infoValue: transformInfo[dynamicTagKey],
+                    ruleKey: dynamicOption.ruleName,
+                    ruleValue: dynamicOption.ruleValue,
+                  };
+                  dynamicDetailsList.push(dynamicDetails);
+                  let dynamicCheckFlag = this.checkFilterWithRule(dynamicDetails);
+                  flag = flag && dynamicCheckFlag;
+                  if (!flag) break;
+                }
+                if (flag)
+                  log.success([
+                    `视频过滤器-多组 ==> ${filterOption.name}`,
+                    transformInfo,
+                    details,
+                    dynamicDetailsList,
+                    info,
+                    filterOption,
+                  ]);
+              } else log.success([`视频过滤器 ==> ${filterOption.name}`, transformInfo, details, info, filterOption]);
+            }
+            if (flag) {
+              matchedFilterOption = filterOption;
+              break outerLoop;
+            }
           }
         }
-      }
       return {
         isFilter: flag,
         matchedFilterOption,
@@ -4861,31 +5389,34 @@
     execFilter() {
       Panel.execMenuOnce(this.$key.ENABLE_KEY, async () => {
         log.info(`执行笔记过滤器`);
-        let filterBase = new XHSArticleFilterBase();
-        let checkFilterCallBack = (filterTransformInfoResult) => {
-          if (this.$data.isReverse) {
+        const filterBase = new XHSArticleFilterBase();
+        const checkFilterCallBack = (filterTransformInfoResult) => {
+          if (this.$data.isReverse && filterTransformInfoResult?.transformInfo) {
             filterTransformInfoResult.isFilter = !filterTransformInfoResult.isFilter;
             if (
               typeof filterTransformInfoResult.transformInfo.articleId === "string" &&
               filterTransformInfoResult.matchedFilterOption
             ) {
-              let filterOptionList =
+              const filterOptionList =
                 this.$data.isFilterAwemeInfoList.get(filterTransformInfoResult.transformInfo.articleId) || [];
               filterOptionList.push(filterTransformInfoResult.matchedFilterOption);
               this.$data.isFilterAwemeInfoList.set(filterTransformInfoResult.transformInfo.articleId, filterOptionList);
             }
           }
-          if (typeof filterTransformInfoResult.transformInfo.articleId === "string")
+          if (
+            filterTransformInfoResult?.transformInfo &&
+            typeof filterTransformInfoResult.transformInfo.articleId === "string"
+          )
             this.$data.articleInfoMap.set(filterTransformInfoResult.transformInfo.articleId, {
               articleInfo: filterTransformInfoResult.info,
               transformArticleInfo: filterTransformInfoResult.transformInfo,
             });
         };
-        let queryScopeFilterOptionList = (scopeName) => {
+        const queryScopeFilterOptionList = (scopeName) => {
           if (!Panel.getValue(this.$key.ENABLE_KEY)) return [];
-          let filterOptionList = this.$data.videoFilterRuleStorage.getAllRule();
+          const filterOptionList = this.$data.videoFilterRuleStorage.getAllRule();
           if (!filterOptionList.length) return [];
-          let scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
+          const scopeNameList = Array.isArray(scopeName) ? scopeName : [scopeName];
           return filterOptionList.filter(
             (it) =>
               it.enable &&
@@ -4893,16 +5424,16 @@
                 Array.from(scopeNameList).findIndex((item) => it.data.scope.includes(item)) !== -1)
           );
         };
-        let xhr_hook_callback_1 = (scopeName, request) => {
+        const xhr_hook_callback_1 = (scopeName, request) => {
           request.response = (response) => {
-            let filterOptionList = queryScopeFilterOptionList(scopeName);
+            const filterOptionList = queryScopeFilterOptionList(scopeName);
             if (!filterOptionList.length) return;
-            let data = utils.toJSON(response.responseText);
-            let items = data?.["data"]?.["items"];
+            const data = utils.toJSON(response.responseText);
+            const items = data?.["data"]?.["items"];
             if (Array.isArray(items)) {
               for (let index = 0; index < items.length; index++) {
-                let awemeInfo = items[index] || {};
-                let filterResult = filterBase.checkInfoIsFilter(filterOptionList, awemeInfo);
+                const awemeInfo = items[index] || {};
+                const filterResult = filterBase.checkInfoIsFilter(filterOptionList, awemeInfo);
                 checkFilterCallBack(filterResult);
                 if (filterResult.isFilter) filterBase.removeArticle(items, index--);
               }
@@ -4911,8 +5442,11 @@
           };
         };
         XHSNetworkHook.ajaxHooker.hook((request) => {
-          let url = CommonUtil.fixUrl(request.url);
-          if (new URL(url).pathname.startsWith("/api/sns/web/v1/homefeed")) xhr_hook_callback_1("xhr-explore", request);
+          const url = CommonUtil.fixUrl(request.url);
+          const urlInst = new URL(url);
+          if (urlInst.pathname.startsWith("/api/sns/web/v1/homefeed")) xhr_hook_callback_1("xhr-explore", request);
+          else if (urlInst.pathname.startsWith("/api/sns/web/v2/search/notes"))
+            xhr_hook_callback_1("xhr-search", request);
         });
       });
     },
@@ -4935,7 +5469,7 @@
     },
     getRuleViewInstance() {
       const that = this;
-      let panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
+      const panelHandlerComponents = __pops__.fn.PanelHandlerComponents();
       function generateStorageApi(data) {
         return {
           get(key, defaultValue) {
@@ -4980,15 +5514,15 @@
           edit: {
             enable: true,
             getView: (data, isEdit) => {
-              let $fragment = document.createDocumentFragment();
+              const $fragment = document.createDocumentFragment();
               if (!isEdit) data = this.getTemplateData();
-              let enable_template = UISwitch("启用", "enable", true);
+              const enable_template = UISwitch("启用", "enable", true);
               Reflect.set(enable_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
-              let name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
+              const $enable = panelHandlerComponents.createSectionContainerItem_switch(enable_template).$el;
+              const name_template = UIInput("规则名称", "name", "", "", void 0, "必填");
               Reflect.set(name_template.props, PROPS_STORAGE_API, generateStorageApi(data));
-              let $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
-              let scope_template = UISelectMultiple(
+              const $name = panelHandlerComponents.createSectionContainerItem_input(name_template).$el;
+              const scope_template = UISelectMultiple(
                 "作用域",
                 "scope",
                 [],
@@ -5001,6 +5535,10 @@
                     text: "发现",
                     value: "xhr-explore",
                   },
+                  {
+                    text: "搜索",
+                    value: "xhr-search",
+                  },
                 ].map((it) => {
                   return {
                     ...it,
@@ -5011,8 +5549,8 @@
                 "选择需要在xxx上生效的作用域"
               );
               Reflect.set(scope_template.props, PROPS_STORAGE_API, generateStorageApi(data.data));
-              let $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template).$el;
-              let keyNameHandlerInfo = [
+              const $scope = panelHandlerComponents.createSectionContainerItem_select_multiple(scope_template).$el;
+              const keyNameHandlerInfo = [
                 "display_title",
                 "isLike",
                 "liked_count",
@@ -5021,8 +5559,8 @@
                 "isVideo",
                 "videoDuration",
               ];
-              let getDynamicProp = (storageData) => {
-                let ruleName_template = UISelectMultiple(
+              const getDynamicProp = (storageData) => {
+                const ruleName_template = UISelectMultiple(
                   "属性名",
                   "ruleName",
                   Array.isArray(storageData["ruleName"]) ? storageData["ruleName"] : [storageData["ruleName"]],
@@ -5036,9 +5574,9 @@
                   "选择需要的属性名 "
                 );
                 Reflect.set(ruleName_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleName =
+                const $ruleName =
                   panelHandlerComponents.createSectionContainerItem_select_multiple(ruleName_template).$el;
-                let ruleValue_template = UITextArea(
+                const ruleValue_template = UITextArea(
                   "属性值",
                   "ruleValue",
                   "",
@@ -5046,8 +5584,8 @@
                   void 0
                 );
                 Reflect.set(ruleValue_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
-                let $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template).$el;
-                let remarks_template = UITextArea("备注", "remarks", "", "", void 0);
+                const $ruleValue = panelHandlerComponents.createSectionContainerItem_textarea(ruleValue_template).$el;
+                const remarks_template = UITextArea("备注", "remarks", "", "", void 0);
                 Reflect.set(remarks_template.props, PROPS_STORAGE_API, generateStorageApi(storageData));
                 return {
                   $ruleName,
@@ -5055,7 +5593,7 @@
                   $remarks: panelHandlerComponents.createSectionContainerItem_textarea(remarks_template).$el,
                 };
               };
-              let $dynamicContainer = domUtils.createElement("div", {
+              const $dynamicContainer = domUtils.createElement("div", {
                 className: "rule-form-ulist-dynamic",
                 innerHTML: `
 							<div class="rule-form-ulist-dynamic__inner">
@@ -5069,16 +5607,16 @@
 							</div>
 							`,
               });
-              let $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
-              let $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
-              let addDynamicElementItem = (
+              const $dynamicInner = $dynamicContainer.querySelector(".rule-form-ulist-dynamic__inner");
+              const $addDynamicButton = $dynamicContainer.querySelector(".pops-panel-button");
+              const addDynamicElementItem = (
                 dynamicData = {
                   ruleName: [],
                   ruleValue: "",
                   remarks: "",
                 }
               ) => {
-                let $dynamicUListContainer = domUtils.createElement("div", {
+                const $dynamicUListContainer = domUtils.createElement("div", {
                   className: "rule-form-ulist-dynamic__inner-container",
                   innerHTML: `
 									<div class="dynamic-control-delete">
@@ -5094,17 +5632,17 @@
 									</ul>
 								`,
                 });
-                let $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
+                const $dynamicDelete = $dynamicUListContainer.querySelector(".dynamic-control-delete");
                 domUtils.on($dynamicDelete, "click", (event) => {
                   domUtils.preventEvent(event);
                   $dynamicUListContainer.remove();
                   if (Array.isArray(data.dynamicData)) {
-                    let findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
+                    const findIndex = data.dynamicData.findIndex((it) => it == dynamicData);
                     if (findIndex !== -1) data.dynamicData.splice(findIndex, 1);
                   }
                 });
-                let $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
-                let {
+                const $dynamicUList = $dynamicUListContainer.querySelector(".dynamic-forms");
+                const {
                   $ruleName: $dynamic_ruleName,
                   $ruleValue: $dynamic_ruleValue,
                   $remarks: $dynamic_remarks,
@@ -5123,38 +5661,38 @@
                   const moreDataItem = data.dynamicData[index];
                   addDynamicElementItem(moreDataItem);
                 }
-              let { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
+              const { $ruleName, $ruleValue, $remarks } = getDynamicProp(data.data);
               $fragment.append($enable, $name, $scope, $ruleName, $ruleValue, $remarks, $dynamicContainer);
               return $fragment;
             },
             onsubmit: ($form, isEdit, editData) => {
-              let $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
-              let data = this.getTemplateData();
+              const $ulist_li = $form.querySelectorAll(".rule-form-ulist > li");
+              const data = this.getTemplateData();
               if (isEdit) data.uuid = editData.uuid;
               $ulist_li.forEach(($li) => {
-                let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
                 if (!viewConfig) return;
-                let attrs = Reflect.get(viewConfig, "attributes");
+                const attrs = Reflect.get(viewConfig, "attributes");
                 if (!attrs) return;
-                let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                let value = storageApi.get(key, defaultValue);
+                const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                const value = storageApi.get(key, defaultValue);
                 if (Reflect.has(data, key)) Reflect.set(data, key, value);
                 else if (Reflect.has(data.data, key)) Reflect.set(data.data, key, value);
                 else log.error(`${key}不在数据中`);
               });
               $form.querySelectorAll(".rule-form-ulist-dynamic__inner-container").forEach(($inner) => {
-                let dynamicData = {};
+                const dynamicData = {};
                 $inner.querySelectorAll(".dynamic-forms > li").forEach(($li) => {
-                  let viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
+                  const viewConfig = Reflect.get($li, panelHandlerComponents.$data.nodeStoreConfigKey);
                   if (!viewConfig) return;
-                  let attrs = Reflect.get(viewConfig, "attributes");
+                  const attrs = Reflect.get(viewConfig, "attributes");
                   if (!attrs) return;
-                  let storageApi = Reflect.get($li, PROPS_STORAGE_API);
-                  let key = Reflect.get(attrs, ATTRIBUTE_KEY);
-                  let defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
-                  let value = storageApi.get(key, defaultValue);
+                  const storageApi = Reflect.get($li, PROPS_STORAGE_API);
+                  const key = Reflect.get(attrs, ATTRIBUTE_KEY);
+                  const defaultValue = Reflect.get(attrs, ATTRIBUTE_DEFAULT_VALUE);
+                  const value = storageApi.get(key, defaultValue);
                   Reflect.set(dynamicData, key, value);
                 });
                 data.dynamicData.push(dynamicData);
@@ -5365,6 +5903,24 @@
       ];
     },
   };
+  var XHSSearch = {
+    init() {
+      Panel.execMenuOnce("xhs-search-blockRightAIPanel", () => {
+        return this.blockRightAIPanel();
+      });
+    },
+    blockRightAIPanel() {
+      log.info(`【屏蔽】右侧AI面板`);
+      return [
+        addBlockCSS(".ai-feeds-page .ai-chat-section-divider", ".ai-feeds-page .ai-chat-section"),
+        addStyle(`
+        .ai-feeds-page .search-layout-wrapper{
+            padding-right: 0px !important;
+        }
+    `),
+      ];
+    },
+  };
   var XHS = {
     init() {
       XHSArticleFilter.init();
@@ -5384,6 +5940,9 @@
       if (XHSRouter.isArticle()) {
         log.info("Router: 笔记页面");
         XHSArticle.init();
+      } else if (XHSRouter.isSearch()) {
+        log.info("Router: 搜索页面");
+        XHSSearch.init();
       }
     },
     allowPCCopy() {
@@ -5749,8 +6308,8 @@
       },
     ],
   };
-  var SettingUI_Common = {
-    id: "xhs-panel-config-common",
+  var SettingUI_General = {
+    id: "xhs-panel-config-general",
     title: "通用",
     views: [
       {
@@ -5970,6 +6529,17 @@
       },
     ],
   };
+  var SettingUI_Search = {
+    id: "xhs-panel-config-search",
+    title: "搜索",
+    views: [
+      {
+        type: "container",
+        text: "布局屏蔽",
+        views: [UISwitch("【屏蔽】右侧AI面板", "xhs-search-blockRightAIPanel", false, void 0, "屏蔽右侧的点点ai")],
+      },
+    ],
+  };
   addStyle(`
 .qmsg svg.animate-turn {
   fill: none;
@@ -6002,7 +6572,7 @@
       },
     },
   ]);
-  PanelContent.addContentConfig([SettingUI_Common, SettingUI_Article]);
+  PanelContent.addContentConfig([SettingUI_General, SettingUI_Article, SettingUI_Search]);
   PanelContent.addContentConfig([MSettingUI_Common, MSettingUI_Home, MSettingUI_Notes]);
   Panel.init();
   var isMobile = utils.isPhone();

@@ -1,19 +1,18 @@
+import { RouterUtil } from "@components/utils/RouterUtil";
+
 /* 小红书router */
 export const XHSRouter = {
   /**
    * 判断是否是笔记页面
    */
   isArticle() {
-    return (
-      globalThis.location.pathname.startsWith("/discovery/item/") ||
-      globalThis.location.pathname.startsWith("/explore/")
-    );
+    return RouterUtil.builder().pathnameStartsWith("/discovery/item/").or().pathnameStartsWith("/explore/").r();
   },
   /**
    * 判断是否是用户主页页面
    */
   isUserHome() {
-    return globalThis.location.pathname.startsWith("/user/profile/");
+    return RouterUtil.builder().pathnameStartsWith("/user/profile/").r();
   },
   /**
    * 判断是否是主页
@@ -28,6 +27,6 @@ export const XHSRouter = {
    * 判断是否是搜索页面
    */
   isSearch() {
-    return globalThis.location.pathname.startsWith("/search_result/");
+    return RouterUtil.builder().pathnameStartsWith("/search_result/").or().pathname("/search_result_ai").r();
   },
 };
