@@ -133,6 +133,12 @@ class RouterBuilder {
   }
   /**
    * 主机（可带端口）
+   * 
+   * 字符串完全相同才行
+   * @example
+   * host("www.baidu.com")
+   * @example
+   * host("www.baidu.com:8080")
    */
   host(host: string) {
     this.__host = {
@@ -176,42 +182,47 @@ class RouterBuilder {
   }
   /**
    * 主机名
+   * 
+   * 字符串完全相同才行
+   * @param name 需要匹配的主机名
+   * @example
+   * .hostName("www.baidu.com")
    */
-  hostName(hostName: string) {
+  hostName(name: string) {
     this.__host = {
-      value: hostName,
+      value: name,
       type: "same",
       hasPort: false,
     };
     return this;
   }
-  hostNameStartsWith(hostName: string) {
+  hostNameStartsWith(name: string) {
     this.__host = {
-      value: hostName,
+      value: name,
       type: "startsWith",
       hasPort: false,
     };
     return this;
   }
-  hostNameEndsWith(hostName: string) {
+  hostNameEndsWith(name: string) {
     this.__host = {
-      value: hostName,
+      value: name,
       type: "endsWith",
       hasPort: false,
     };
     return this;
   }
-  hostNameIncludes(hostName: string) {
+  hostNameIncludes(name: string) {
     this.__host = {
-      value: hostName,
+      value: name,
       type: "includes",
       hasPort: false,
     };
     return this;
   }
-  hostNameMatch(hostName: RegExp) {
+  hostNameMatch(name: RegExp) {
     this.__host = {
-      value: hostName,
+      value: name,
       type: "match",
       hasPort: false,
     };
@@ -269,6 +280,10 @@ class RouterBuilder {
   }
   /**
    * 搜索参数总字符串
+   * @param value 需要进行匹配的内容
+   * 
+   * @example
+   * .search("?a=1&b=2")
    */
   search(value: string | number | boolean | RegExp) {
     this.__searchParams.value.add({
@@ -666,12 +681,39 @@ class RouterBuilder {
 }
 
 const RouterUtil = {
+  /**
+   * 主机（可带端口）
+   * 
+   * 字符串完全相同才行
+   * @param host 主机（可带端口）
+   * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
+   * @example
+   * .host("www.baidu.com")
+   * @example
+   * .host("www.baidu.com:8080")
+   */
   host(host: string, href?: string): RouterBuilder {
     return RouterUtil.builder(href).host(host);
   },
+  /**
+   * 主机名
+   * 
+   * 字符串完全相同才行
+   * @param name 需要匹配的主机名
+   * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
+   * @example
+   * .hostName("www.baidu.com")
+   */
   hostName(name: string, href?: string): RouterBuilder {
     return RouterUtil.builder(href).hostName(name);
   },
+  /**
+   * 搜索参数总字符串
+   * @param value 需要进行匹配的内容
+   * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
+   * @example
+   * .search("?a=1&b=2")
+   */
   search(value: string, href?: string) {
     return RouterUtil.builder(href).search(value);
   },
@@ -684,6 +726,11 @@ const RouterUtil = {
   protocol(protocol: string, href?: string): RouterBuilder {
     return RouterUtil.builder(href).protocol(protocol);
   },
+  /**
+   * 创建一个新的Router实例用于内部匹配处理
+   * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
+   * @returns 
+   */
   builder(href?: string) {
     return new RouterBuilder(href);
   },
