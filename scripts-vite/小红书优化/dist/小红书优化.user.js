@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.25.18
+// @version      2026.9.25.19
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -5912,7 +5912,7 @@
   };
   var XHSSearch = {
     init() {
-      Panel.execMenuOnce("xhs-search-redirectToNonAISearchResultPage", () => {
+      Panel.execMenu("xhs-search-redirectToNonAISearchResultPage", () => {
         return this.redirectToNonAISearchResultPage();
       });
       if (XHSRouter.isAISearch())
@@ -5921,8 +5921,10 @@
         });
     },
     redirectToNonAISearchResultPage() {
-      log.info(`重定向至非AI搜索结果页面`);
-      if (XHSRouter.isAISearch()) window.location.pathname = "/search_result";
+      if (XHSRouter.isAISearch()) {
+        log.info(`重定向至非AI搜索结果页面`);
+        window.location.pathname = "/search_result";
+      }
     },
     blockRightAIPanel() {
       log.info(`【屏蔽】右侧AI面板`);

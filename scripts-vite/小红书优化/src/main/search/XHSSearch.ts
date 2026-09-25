@@ -5,7 +5,7 @@ import { Panel } from "@components/setting/panel";
 
 export const XHSSearch = {
   init() {
-    Panel.execMenuOnce("xhs-search-redirectToNonAISearchResultPage", () => {
+    Panel.execMenu("xhs-search-redirectToNonAISearchResultPage", () => {
       return this.redirectToNonAISearchResultPage();
     });
     if (XHSRouter.isAISearch()) {
@@ -18,8 +18,8 @@ export const XHSSearch = {
    * 重定向至非AI搜索结果页面
    */
   redirectToNonAISearchResultPage() {
-    log.info(`重定向至非AI搜索结果页面`);
     if (XHSRouter.isAISearch()) {
+      log.info(`重定向至非AI搜索结果页面`);
       window.location.pathname = "/search_result";
     }
   },

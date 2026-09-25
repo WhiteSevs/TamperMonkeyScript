@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.25.18
+// @version      2026.9.25.19
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -658,7 +658,7 @@
 			#noteContainer{
 				height: 100%;
 			}
-			`)]}},He={init(){H.execMenuOnce(`xhs-search-redirectToNonAISearchResultPage`,()=>this.redirectToNonAISearchResultPage()),W.isAISearch()&&H.execMenuOnce(`xhs-search-blockRightAIPanel`,()=>this.blockRightAIPanel())},redirectToNonAISearchResultPage(){E.info(`重定向至非AI搜索结果页面`),W.isAISearch()&&(window.location.pathname=`/search_result`)},blockRightAIPanel(){return E.info(`【屏蔽】右侧AI面板`),[ue(`.ai-feeds-page .ai-chat-section-divider`,`.ai-feeds-page .ai-chat-section`),A(`
+			`)]}},He={init(){H.execMenu(`xhs-search-redirectToNonAISearchResultPage`,()=>this.redirectToNonAISearchResultPage()),W.isAISearch()&&H.execMenuOnce(`xhs-search-blockRightAIPanel`,()=>this.blockRightAIPanel())},redirectToNonAISearchResultPage(){W.isAISearch()&&(E.info(`重定向至非AI搜索结果页面`),window.location.pathname=`/search_result`)},blockRightAIPanel(){return E.info(`【屏蔽】右侧AI面板`),[ue(`.ai-feeds-page .ai-chat-section-divider`,`.ai-feeds-page .ai-chat-section`),A(`
         .ai-feeds-page .search-layout-wrapper{
             padding-right: 0px !important;
         }
