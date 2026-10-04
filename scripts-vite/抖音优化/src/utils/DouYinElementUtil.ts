@@ -13,7 +13,7 @@ export const DouYinElementUtil = {
         "#slidelist",
         // 搜索页面的↓搜索结果列表
         '#search-content-area ul[data-e2e="scroll-list"]',
-      ]).then(($ele) => {
+      ]).then((_$ele) => {
         log.info(`启用观察器观察加载的视频`);
         const lockFn = new utils.LockFunction((observer) => {
           $os = $os || this.selectorRootOSNode();

@@ -22,6 +22,7 @@ import { DouYinVideoFilter } from "../filter/DouYinVideoFilter";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
+import type { VideoQualityMap } from "@/main/live/DouYinLive";
 
 /**
  * 视频播放器的播放速度
@@ -395,72 +396,154 @@ export const DouYinVideoPlayer = {
   },
   /**
    * 选择视频清晰度
+   *
+   * "Win32", "Windows" 限制hardwareConcurrency > 8 才有超清2k、4k的视频
+   *
+   * "Mac68K", "MacPPC", "Macintosh", "MacIntel" 限制hardwareConcurrency >= 8 才有超清2k、4k的视频
+   *
    * @param [mode=0] 视频播放模式
    */
   chooseQuality(mode = 0) {
     log.info("选择视频清晰度: " + mode);
     const QualitySessionKey = "MANUAL_SWITCH";
-    // const clarityReal = [
-    //   "normal_720_0",
-    //   "normal_1080_0",
-    //   "normal_540_0",
-    //   "low_720_0",
-    //   "low_540_0",
-    //   "adapt_lowest_1440_1",
-    //   "lower_540_0",
-    //   "adapt_low_540_0",
-    //   "adapt_lowest_1080_1",
-    //   "adapt_lowest_720_1",
-    //   "adapt_540_1",
-    //   "adapt_lower_540_1",
-    //   "adapt_lowest_1440_1",
-    //   "adapt_lowest_720_1",
-    //   "adapt_540_1",
-    //   "adapt_lower_540_1",
-    //   "adapt_lowest_4_1",
-    //   "adapt_lowest_hdr_4_1",
-    // ];
 
     const definition = [
       {
-        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "20",
+        qualityType: 72,
         gearName: "超清 4K",
         gearType: -2,
-        qualityType: 72,
+        clarityReal: [
+          "adapt_lowest_4_1",
+          "normal_1080_0",
+          "adapt_lowest_1440_1",
+          "low_720_0",
+          "normal_720_0",
+          "low_540_0",
+          "normal_540_0",
+          "adapt_lowest_1080_1",
+          "lower_540_0",
+          "adapt_low_540_0",
+          "720_2_1",
+          "540_2_1",
+          "540_3_1",
+        ],
       },
       {
-        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "10",
+        qualityType: 7,
         gearName: "超清 2K",
         gearType: -1,
-        qualityType: 7,
+        clarityReal: [
+          "adapt_lowest_4_1",
+          "normal_1080_0",
+          "adapt_lowest_1440_1",
+          "low_720_0",
+          "normal_720_0",
+          "low_540_0",
+          "normal_540_0",
+          "adapt_lowest_1080_1",
+          "lower_540_0",
+          "adapt_low_540_0",
+          "720_2_1",
+          "540_2_1",
+          "540_3_1",
+        ],
       },
       {
-        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "5",
         gearName: "高清 1080P",
         gearType: 1,
-        qualityType: 2,
+        clarityReal: [
+          "normal_1080_0",
+          "normal_1080_0",
+          "normal_720_0",
+          "low_720_0",
+          "normal_540_0",
+          "low_720_0",
+          "low_540_0",
+          "low_540_0",
+          "lower_540_0",
+          "adapt_low_540_0",
+          "adapt_low_540_0",
+          "adapt_lowest_1080_1",
+          "720_2_1",
+          "720_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_4_1",
+          "720_4_1",
+          "540_3_1",
+          "540_3_1",
+        ],
+        qualityType: 1,
       },
       {
-        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "4",
         gearName: "高清 720P",
         gearType: 2,
-        qualityType: 15,
+        clarityReal: [
+          "normal_1080_0",
+          "normal_1080_0",
+          "normal_720_0",
+          "low_720_0",
+          "normal_540_0",
+          "low_720_0",
+          "low_540_0",
+          "low_540_0",
+          "lower_540_0",
+          "adapt_low_540_0",
+          "adapt_low_540_0",
+          "adapt_lowest_1080_1",
+          "720_2_1",
+          "720_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_4_1",
+          "720_4_1",
+          "540_3_1",
+          "540_3_1",
+        ],
+        qualityType: 10,
       },
       {
-        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "3",
         gearName: "标清 540P",
         gearType: 3,
-        qualityType: 21,
+        clarityReal: [
+          "normal_1080_0",
+          "normal_1080_0",
+          "normal_720_0",
+          "low_720_0",
+          "normal_540_0",
+          "low_720_0",
+          "low_540_0",
+          "low_540_0",
+          "lower_540_0",
+          "adapt_low_540_0",
+          "adapt_low_540_0",
+          "adapt_lowest_1080_1",
+          "720_2_1",
+          "720_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_4_1",
+          "720_4_1",
+          "540_3_1",
+          "540_3_1",
+        ],
+        qualityType: 20,
       },
       {
         // clarityReal: clarityReal,
@@ -471,11 +554,34 @@ export const DouYinVideoPlayer = {
         qualityType: 21,
       },
       {
-        // clarityReal: clarityReal,
         done: 1,
         gearClarity: "0",
         gearName: "智能",
         gearType: 0,
+        clarityReal: [
+          "normal_1080_0",
+          "normal_1080_0",
+          "normal_720_0",
+          "low_720_0",
+          "normal_540_0",
+          "low_720_0",
+          "low_540_0",
+          "low_540_0",
+          "lower_540_0",
+          "adapt_low_540_0",
+          "adapt_low_540_0",
+          "adapt_lowest_1080_1",
+          "720_2_1",
+          "720_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_3_1",
+          "540_2_1",
+          "720_4_1",
+          "720_4_1",
+          "540_3_1",
+          "540_3_1",
+        ],
       },
       {
         done: -999,
@@ -489,7 +595,14 @@ export const DouYinVideoPlayer = {
      * 抖音清晰度读取是来自session的
      * @param value
      */
-    const setVideoQuality = function (value: string | object) {
+    const setVideoQuality = function (value: any) {
+      const currentValue = unsafeWindow.sessionStorage.getItem(QualitySessionKey);
+      if (currentValue && typeof currentValue === "object") {
+        if (currentValue["gearName"] === value["gearName"]) {
+          // 已相同
+          return;
+        }
+      }
       unsafeWindow.sessionStorage.setItem(QualitySessionKey, typeof value === "string" ? value : JSON.stringify(value));
     };
     if (choose) {

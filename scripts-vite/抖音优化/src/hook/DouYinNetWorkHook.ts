@@ -1,4 +1,6 @@
 import { utils } from "@/env";
+import { Panel } from "@components/setting/panel";
+import { CommonUtil } from "@components/utils/CommonUtil";
 
 export const DouYinNetWorkHook = {
   __ajaxHooker: null as null | ReturnType<typeof utils.ajaxHooker>,
@@ -8,7 +10,11 @@ export const DouYinNetWorkHook = {
     }
     return this.__ajaxHooker;
   },
-  init() {},
+  init() {
+    Panel.execMenuOnce("dy-hook-higher-quality", () => {
+      return this.hookVideoQuality();
+    });
+  },
   /**
    * 篡改未登录时的响应结果
    */
@@ -48,6 +54,42 @@ export const DouYinNetWorkHook = {
         }
         response.responseText = JSON.stringify(data);
       };
+    });
+  },
+  /**
+   * 篡改显示视频清晰度，让其显示最高清晰度
+   */
+  hookVideoQuality() {
+    const origin_hardwareConcurrency = navigator.hardwareConcurrency;
+    // 伪装高配置
+    Object.defineProperty(navigator, "hardwareConcurrency", {
+      // 运行线程的逻辑处理器数量
+      get: () => 12,
+      configurable: true,
+      enumerable: true,
+    });
+    this.ajaxHooker.hook((request) => {
+      const url = CommonUtil.fixUrl(request.url);
+      const urlInst = new URL(url);
+      if (urlInst.pathname.startsWith("/service/2/abtest_config/")) {
+        // 这个是 ab test的配置
+        request.response = (response) => {
+          const data = utils.toJSON(response.responseText);
+          if (typeof data["data"] === "object" && data) {
+            // 2k
+            data["data"]["has_2k"] = {
+              val: 1,
+              vid: "",
+            };
+            // 4k 应该是
+            data["data"]["has_hdr"] = {
+              val: 1,
+              vid: "",
+            };
+          }
+          response.responseText = JSON.stringify(data);
+        };
+      }
     });
   },
 };

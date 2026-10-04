@@ -10,7 +10,7 @@ export const DouYinAccount = {
    */
   disguiseLogin() {
     log.info("伪装登录");
-    let result: any[] = [
+    const result: any[] = [
       addBlockCSS(
         // 视频清晰度上面的弹出的 当前观看xxx画质，登录即可畅想xxx画质
         ".login-tooltip-slot"
@@ -108,7 +108,7 @@ export const DouYinAccount = {
       const userInfoList = [];
       const reactInstance = utils.getReactInstance($el);
       const reactFiber = reactInstance?.reactFiber;
-      const reactProps = reactInstance?.reactProps;
+      // const reactProps = reactInstance?.reactProps;
       if (reactFiber?.alternate?.return?.memoizedProps?.userInfo) {
         userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
       }
@@ -137,27 +137,28 @@ export const DouYinAccount = {
       });
     };
     DouYinElementUtil.watchFeedVideoListChange(setLogin);
-    DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME)
-      .then(() => {
-        const lockFn = new utils.LockFunction(() => {
-          const $os = DouYinElementUtil.selectorRootOSNode();
-          if (!$os) {
-            return;
-          }
-          setLogin($os);
-        }, 70);
-        const observer = utils.mutationObserver(document.body, {
-          config: {
-            subtree: true,
-            childList: true,
-          },
-          immediate: true,
-          callback: () => {
-            lockFn.run();
-          },
-        });
-      })
-      .catch((err) => {});
+    DOMUtils.waitNode<HTMLDivElement>("#root div[class*='-os']", WAIT_TIME).then(() => {
+      const lockFn = new utils.LockFunction(() => {
+        const $os = DouYinElementUtil.selectorRootOSNode();
+        if (!$os) {
+          return;
+        }
+        setLogin($os);
+      }, 70);
+      const observer = utils.mutationObserver(document.body, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      result.push(() => {
+        observer.disconnect();
+      });
+    });
     /* 直播的顶部live */
     if (DouYinRouter.isLive()) {
       log.info("伪装登录：live");
@@ -182,7 +183,7 @@ export const DouYinAccount = {
       function setUserInfoBySearch($ele: HTMLElement) {
         /* 搜索页面的用户信息 */
         const $react = utils.getReactInstance($ele);
-        const reactFiber = $react?.reactFiber;
+        // const reactFiber = $react?.reactFiber;
         const reactProps = $react?.reactProps;
         if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean") {
           Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
@@ -213,9 +214,9 @@ export const DouYinAccount = {
     }
     if (!Panel.getValue("watchLoginDialogToClose")) {
       // 避免重复
-      result = result.concat(this.watchLoginDialogToClose());
+      result.push(...this.watchLoginDialogToClose());
     }
-    result = result.concat(this.watchCommentDialogToClose());
+    result.push(...this.watchCommentDialogToClose());
 
     // 清除localStorage的key
     window.localStorage.removeItem("UNLOGIN_CLARITY_NEW");

@@ -1,11 +1,13 @@
-import { DOMUtils, log } from "@/env";
+import { DOMUtils, log, utils } from "@/env";
+import { DouYinShortCut } from "@/main/DouYinShortCut";
+import { UIDialogCode } from "@components/setting/components/ui-dialog-code";
+import { UIOwn } from "@components/setting/components/ui-own";
 import { UISelect } from "@components/setting/components/ui-select";
 import { UISwitch } from "@components/setting/components/ui-switch";
+import { UIButton, UIButtonShortCut } from "@components/setting/panel-components";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
+import Qmsg from "qmsg";
 import { AutoOpenOrClose } from "../all-open-or-close";
-import { UIOwn } from "@components/setting/components/ui-own";
-import { UIButtonShortCut } from "@components/setting/panel-components";
-import { DouYinShortCut } from "@/main/DouYinShortCut";
 
 /**
  * 获取渲染的显卡信息，可能是核显，也可能是独显
@@ -16,7 +18,7 @@ function queryGPUInfo() {
   const gl = ($canvas.getContext("webgl") || $canvas.getContext("experimental-webgl")) as WebGLRenderingContext;
   const debugRenderInfo = isFirefox ? null : gl.getExtension("WEBGL_debug_renderer_info");
   const info: string = gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER);
-  return info;
+  return info + "&nbsp;&nbsp;hardwareConcurrency=" + navigator.hardwareConcurrency;
 }
 export const PanelGeneralConfig: PopsPanelContentConfig = {
   id: "panel-general-config",
@@ -138,7 +140,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
               log.error(error);
               gpuInfo = error.toString();
             }
-            DOMUtils.text($leftDesc, gpuInfo);
+            DOMUtils.html($leftDesc, gpuInfo);
             DOMUtils.append($li, $left);
             return $li;
           },
@@ -147,6 +149,29 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
             text: "WebGL",
           }
         ),
+        UIButton("abTestConfig", "测试配置", "查看", void 0, false, false, "primary", () => {
+          // localStorage遍历
+          const $loading = Qmsg.loading("获取中...");
+          const keys = Object.keys(window.localStorage);
+          let abTestConfigText;
+          let abTestConfigKey = keys.find((it) => {
+            return it.startsWith("__tea_sdk_ab_version_");
+          });
+          if (typeof abTestConfigKey === "string") {
+            abTestConfigText = JSON.stringify(utils.toJSON(window.localStorage.getItem(abTestConfigKey)), null, 2);
+          }
+          $loading.close();
+          if (typeof abTestConfigText === "string") {
+            UIDialogCode({
+              getConfigData() {
+                return abTestConfigText;
+              },
+              titleText: "abTestConfig",
+            });
+          } else {
+            Qmsg.error("未获取到abTestConfig数据");
+          }
+        }),
         {
           text: "功能",
           type: "deepMenu",

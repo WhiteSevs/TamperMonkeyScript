@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.17.17
+// @version      2026.10.4
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -298,6 +298,7 @@
       }
     },
     toStr(data, space = 2) {
+      if (typeof data === "string" || data == null) return data;
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       return JSON.stringify(
         data,
@@ -2113,7 +2114,11 @@
       if (this.__ajaxHooker == null) this.__ajaxHooker = utils$1.ajaxHooker();
       return this.__ajaxHooker;
     },
-    init() {},
+    init() {
+      Panel.execMenuOnce("dy-hook-higher-quality", () => {
+        return this.hookVideoQuality();
+      });
+    },
     hookUserNoLoginResponse() {
       this.ajaxHooker.hook((request) => {
         const originResponse = request.response;
@@ -2134,6 +2139,32 @@
           }
           response.responseText = JSON.stringify(data);
         };
+      });
+    },
+    hookVideoQuality() {
+      navigator.hardwareConcurrency;
+      Object.defineProperty(navigator, "hardwareConcurrency", {
+        get: () => 12,
+        configurable: true,
+        enumerable: true,
+      });
+      this.ajaxHooker.hook((request) => {
+        const url = CommonUtil.fixUrl(request.url);
+        if (new URL(url).pathname.startsWith("/service/2/abtest_config/"))
+          request.response = (response) => {
+            const data = utils$1.toJSON(response.responseText);
+            if (typeof data["data"] === "object" && data) {
+              data["data"]["has_2k"] = {
+                val: 1,
+                vid: "",
+              };
+              data["data"]["has_hdr"] = {
+                val: 1,
+                vid: "",
+              };
+            }
+            response.responseText = JSON.stringify(data);
+          };
       });
     },
   };
@@ -2278,41 +2309,41 @@
       };
       return this;
     }
-    hostName(hostName) {
+    hostName(name) {
       this.__host = {
-        value: hostName,
+        value: name,
         type: "same",
         hasPort: false,
       };
       return this;
     }
-    hostNameStartsWith(hostName) {
+    hostNameStartsWith(name) {
       this.__host = {
-        value: hostName,
+        value: name,
         type: "startsWith",
         hasPort: false,
       };
       return this;
     }
-    hostNameEndsWith(hostName) {
+    hostNameEndsWith(name) {
       this.__host = {
-        value: hostName,
+        value: name,
         type: "endsWith",
         hasPort: false,
       };
       return this;
     }
-    hostNameIncludes(hostName) {
+    hostNameIncludes(name) {
       this.__host = {
-        value: hostName,
+        value: name,
         type: "includes",
         hasPort: false,
       };
       return this;
     }
-    hostNameMatch(hostName) {
+    hostNameMatch(name) {
       this.__host = {
-        value: hostName,
+        value: name,
         type: "match",
         hasPort: false,
       };
@@ -2738,7 +2769,7 @@
     watchFeedVideoListChange(callback) {
       let $os = null;
       domUtils.onReady(() => {
-        domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then(($ele) => {
+        domUtils.waitAnyNode(["#slidelist", '#search-content-area ul[data-e2e="scroll-list"]']).then((_$ele) => {
           log.info(`启用观察器观察加载的视频`);
           const lockFn = new utils$1.LockFunction((observer) => {
             $os = $os || this.selectorRootOSNode();
@@ -2847,7 +2878,7 @@
   var DouYinAccount = {
     disguiseLogin() {
       log.info("伪装登录");
-      let result = [addBlockCSS(".login-tooltip-slot")];
+      const result = [addBlockCSS(".login-tooltip-slot")];
       const WAIT_TIME = 2e4;
       const info = {
         uid: parseInt((Math.random() * 1e5).toString()),
@@ -2925,9 +2956,7 @@
       Object.freeze(info);
       const getUserInfo = function ($el) {
         const userInfoList = [];
-        const reactInstance = utils$1.getReactInstance($el);
-        const reactFiber = reactInstance?.reactFiber;
-        reactInstance?.reactProps;
+        const reactFiber = utils$1.getReactInstance($el)?.reactFiber;
         if (reactFiber?.alternate?.return?.memoizedProps?.userInfo)
           userInfoList.push(reactFiber?.alternate?.return?.memoizedProps?.userInfo);
         if (reactFiber?.alternate?.return?.memoizedProps?.userInfo?.userInfo)
@@ -2948,26 +2977,26 @@
         });
       };
       DouYinElementUtil.watchFeedVideoListChange(setLogin);
-      domUtils
-        .waitNode("#root div[class*='-os']", WAIT_TIME)
-        .then(() => {
-          const lockFn = new utils$1.LockFunction(() => {
-            const $os = DouYinElementUtil.selectorRootOSNode();
-            if (!$os) return;
-            setLogin($os);
-          }, 70);
-          utils$1.mutationObserver(document.body, {
-            config: {
-              subtree: true,
-              childList: true,
-            },
-            immediate: true,
-            callback: () => {
-              lockFn.run();
-            },
-          });
-        })
-        .catch((err) => {});
+      domUtils.waitNode("#root div[class*='-os']", WAIT_TIME).then(() => {
+        const lockFn = new utils$1.LockFunction(() => {
+          const $os = DouYinElementUtil.selectorRootOSNode();
+          if (!$os) return;
+          setLogin($os);
+        }, 70);
+        const observer = utils$1.mutationObserver(document.body, {
+          config: {
+            subtree: true,
+            childList: true,
+          },
+          immediate: true,
+          callback: () => {
+            lockFn.run();
+          },
+        });
+        result.push(() => {
+          observer.disconnect();
+        });
+      });
       if (DouYinRouter.isLive()) {
         log.info("伪装登录：live");
         domUtils.waitNode(`[id^="douyin-header"] div:has(.dy-tip-container)`, WAIT_TIME).then(() => {
@@ -2988,9 +3017,7 @@
       } else if (DouYinRouter.isSearch()) {
         log.info("伪装登录：search");
         function setUserInfoBySearch($ele) {
-          const $react = utils$1.getReactInstance($ele);
-          $react?.reactFiber;
-          const reactProps = $react?.reactProps;
+          const reactProps = utils$1.getReactInstance($ele)?.reactProps;
           if (typeof reactProps?.children?.[1]?.props?.userInfo?.isLogin === "boolean")
             Reflect.set(reactProps.children[1].props.userInfo, "isLogin", true);
           if (typeof reactProps?.children?.[1]?.props?.isClient === "boolean")
@@ -3016,8 +3043,8 @@
           });
         });
       }
-      if (!Panel.getValue("watchLoginDialogToClose")) result = result.concat(this.watchLoginDialogToClose());
-      result = result.concat(this.watchCommentDialogToClose());
+      if (!Panel.getValue("watchLoginDialogToClose")) result.push(...this.watchLoginDialogToClose());
+      result.push(...this.watchCommentDialogToClose());
       window.localStorage.removeItem("UNLOGIN_CLARITY_NEW");
       window.localStorage.setItem("HasUserLogin", "1");
       window.localStorage.setItem(
@@ -9604,37 +9631,139 @@
         {
           done: 1,
           gearClarity: "20",
+          qualityType: 72,
           gearName: "超清 4K",
           gearType: -2,
-          qualityType: 72,
+          clarityReal: [
+            "adapt_lowest_4_1",
+            "normal_1080_0",
+            "adapt_lowest_1440_1",
+            "low_720_0",
+            "normal_720_0",
+            "low_540_0",
+            "normal_540_0",
+            "adapt_lowest_1080_1",
+            "lower_540_0",
+            "adapt_low_540_0",
+            "720_2_1",
+            "540_2_1",
+            "540_3_1",
+          ],
         },
         {
           done: 1,
           gearClarity: "10",
+          qualityType: 7,
           gearName: "超清 2K",
           gearType: -1,
-          qualityType: 7,
+          clarityReal: [
+            "adapt_lowest_4_1",
+            "normal_1080_0",
+            "adapt_lowest_1440_1",
+            "low_720_0",
+            "normal_720_0",
+            "low_540_0",
+            "normal_540_0",
+            "adapt_lowest_1080_1",
+            "lower_540_0",
+            "adapt_low_540_0",
+            "720_2_1",
+            "540_2_1",
+            "540_3_1",
+          ],
         },
         {
           done: 1,
           gearClarity: "5",
           gearName: "高清 1080P",
           gearType: 1,
-          qualityType: 2,
+          clarityReal: [
+            "normal_1080_0",
+            "normal_1080_0",
+            "normal_720_0",
+            "low_720_0",
+            "normal_540_0",
+            "low_720_0",
+            "low_540_0",
+            "low_540_0",
+            "lower_540_0",
+            "adapt_low_540_0",
+            "adapt_low_540_0",
+            "adapt_lowest_1080_1",
+            "720_2_1",
+            "720_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_4_1",
+            "720_4_1",
+            "540_3_1",
+            "540_3_1",
+          ],
+          qualityType: 1,
         },
         {
           done: 1,
           gearClarity: "4",
           gearName: "高清 720P",
           gearType: 2,
-          qualityType: 15,
+          clarityReal: [
+            "normal_1080_0",
+            "normal_1080_0",
+            "normal_720_0",
+            "low_720_0",
+            "normal_540_0",
+            "low_720_0",
+            "low_540_0",
+            "low_540_0",
+            "lower_540_0",
+            "adapt_low_540_0",
+            "adapt_low_540_0",
+            "adapt_lowest_1080_1",
+            "720_2_1",
+            "720_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_4_1",
+            "720_4_1",
+            "540_3_1",
+            "540_3_1",
+          ],
+          qualityType: 10,
         },
         {
           done: 1,
           gearClarity: "3",
           gearName: "标清 540P",
           gearType: 3,
-          qualityType: 21,
+          clarityReal: [
+            "normal_1080_0",
+            "normal_1080_0",
+            "normal_720_0",
+            "low_720_0",
+            "normal_540_0",
+            "low_720_0",
+            "low_540_0",
+            "low_540_0",
+            "lower_540_0",
+            "adapt_low_540_0",
+            "adapt_low_540_0",
+            "adapt_lowest_1080_1",
+            "720_2_1",
+            "720_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_4_1",
+            "720_4_1",
+            "540_3_1",
+            "540_3_1",
+          ],
+          qualityType: 20,
         },
         {
           done: 1,
@@ -9648,6 +9777,30 @@
           gearClarity: "0",
           gearName: "智能",
           gearType: 0,
+          clarityReal: [
+            "normal_1080_0",
+            "normal_1080_0",
+            "normal_720_0",
+            "low_720_0",
+            "normal_540_0",
+            "low_720_0",
+            "low_540_0",
+            "low_540_0",
+            "lower_540_0",
+            "adapt_low_540_0",
+            "adapt_low_540_0",
+            "adapt_lowest_1080_1",
+            "720_2_1",
+            "720_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_3_1",
+            "540_2_1",
+            "720_4_1",
+            "720_4_1",
+            "540_3_1",
+            "540_3_1",
+          ],
         },
         {
           done: -999,
@@ -9657,6 +9810,10 @@
         },
       ].find((item) => item.gearType === mode);
       const setVideoQuality = function (value) {
+        const currentValue = _unsafeWindow.sessionStorage.getItem(QualitySessionKey);
+        if (currentValue && typeof currentValue === "object") {
+          if (currentValue["gearName"] === value["gearName"]) return;
+        }
         _unsafeWindow.sessionStorage.setItem(
           QualitySessionKey,
           typeof value === "string" ? value : JSON.stringify(value)
@@ -13426,6 +13583,166 @@
       } else log.error("未知M-router: " + window.location.hostname);
     },
   };
+  var UIDialogCode = (config) => {
+    const translateCallback = (text, translateMap) => {
+      if (config && typeof config.translateCallback === "function") return config.translateCallback(text, translateMap);
+      else {
+        if (typeof translateMap === "object" && translateMap)
+          for (const key in translateMap) text = text.replaceAll(`{{${key}}}`, translateMap[key]);
+        return text;
+      }
+    };
+    const exportConfig = (
+      fileName = `${SCRIPT_NAME}_data-${utils$1.formatTime(Date.now(), "yyyy_MM_dd_HH_mm_ss")}.json`,
+      fileData
+    ) => {
+      const exportToFile = (fileName, fileData) => {
+        if (typeof fileData !== "string") fileData = CommonUtil.toStr(fileData);
+        const blob = new Blob([fileData]);
+        const blobUrl = globalThis.URL.createObjectURL(blob);
+        domUtils
+          .createElement("a", {
+            href: blobUrl,
+            download: fileName,
+          })
+          .click();
+        utils$1.workerSetTimeout(() => {
+          globalThis.URL.revokeObjectURL(blobUrl);
+        }, 500);
+      };
+      const $alert = __pops__.alert({
+        title: {
+          text: translateCallback("请选择导出方式"),
+          position: "center",
+        },
+        content: {
+          text: `
+            <div class="btn-control" data-mode="export-to-file">${translateCallback("导出至文件")}</div>
+            <div class="btn-control" data-mode="export-to-clipboard">${translateCallback("导出至剪贴板")}</div>
+            `,
+          html: true,
+        },
+        btn: {
+          ok: { enable: false },
+          close: {
+            enable: true,
+            callback(details) {
+              details.close();
+            },
+          },
+        },
+        drag: true,
+        mask: { enable: true },
+        width: PanelUISize.info.width,
+        height: PanelUISize.info.height,
+        style: `
+          .pops{
+            max-height: 90dvh;
+          }
+          .btn-control{
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+          .btn-control:hover{
+            color: #409eff;
+            border-color: #c6e2ff;
+            background-color: #ecf5ff;
+          }`,
+      });
+      const $exportToFile = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-file']");
+      const $exportToClipboard = $alert.$shadowRoot.querySelector(".btn-control[data-mode='export-to-clipboard']");
+      domUtils.on($exportToFile, "click", async (event) => {
+        domUtils.preventEvent(event);
+        try {
+          if (typeof config?.exportFileName === "function") fileName = await config.exportFileName();
+          else if (typeof config?.exportFileName === "string") fileName = config.exportFileName;
+          exportToFile(fileName, fileData);
+          $alert.close();
+        } catch (error) {
+          qmsg.default.error(error.toString(), { consoleLogContent: true });
+        }
+      });
+      domUtils.on($exportToClipboard, "click", async () => {
+        if (await utils$1.copy(fileData)) {
+          qmsg.default.success(translateCallback("复制成功"));
+          $alert.close();
+        } else qmsg.default.error(translateCallback("复制失败"));
+      });
+    };
+    const $textarea = __pops__
+      .confirm({
+        title: {
+          text: translateCallback(config?.titleText ?? "配置"),
+          position: "center",
+        },
+        content: {
+          text: `<textarea name="config-value" id="config" readonly></textarea>`,
+          html: true,
+        },
+        btn: {
+          ok: {
+            enable: config?.isEnableImport ?? false,
+            type: "primary",
+            text: translateCallback("导入"),
+            callback() {
+              config?.importCallback?.();
+            },
+          },
+          cancel: {
+            enable: config?.isEnableExport ?? true,
+            text: translateCallback("导出"),
+            callback() {
+              exportConfig(void 0, config?.getConfigData());
+            },
+          },
+        },
+        width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
+        height: "auto",
+        style: `
+    .pops{
+        max-height: 90dvh;
+    }
+    .pops-content textarea {
+        --textarea-bd-color: #dcdfe6;
+        display: inline-block;
+        resize: vertical;
+        padding: 5px 15px;
+        margin: 0;
+        line-height: normal;
+        box-sizing: border-box;
+        color: #606266;
+        border: 0;
+        border-radius: 0;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background: none;
+        width: 100%;
+        height: 100%;
+        appearance: none;
+        resize: none;
+    }
+    .pops-content textarea{
+        height: 500px;
+    }
+    .pops-content textarea:focus {
+        --textarea-bd-color: #3677f0;
+    }
+    .pops-content textarea:hover {
+        --textarea-bd-color: #c0c4cc;
+    }
+    `,
+      })
+      .$shadowRoot.querySelector("textarea");
+    const data = config?.getConfigShowData ? config.getConfigShowData() : config?.getConfigData();
+    $textarea.value = CommonUtil.toStr(data);
+    return { $textarea };
+  };
   var afterEnterDeepMenuCallBack = (formConfig, container) => {
     const $oneClickOpen = container.$sectionBodyContainer.querySelector(".keyboard-oneClickOpen");
     const $oneClickClose = container.$sectionBodyContainer.querySelector(".keyboard-oneClickClose");
@@ -13471,7 +13788,11 @@
     const $canvas = domUtils.createElement("canvas");
     const gl = $canvas.getContext("webgl") || $canvas.getContext("experimental-webgl");
     const debugRenderInfo = isFirefox ? null : gl.getExtension("WEBGL_debug_renderer_info");
-    return gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER);
+    return (
+      gl.getParameter(debugRenderInfo?.UNMASKED_RENDERER_WEBGL ?? gl?.RENDERER) +
+      "&nbsp;&nbsp;hardwareConcurrency=" +
+      navigator.hardwareConcurrency
+    );
   }
   var PanelGeneralConfig = {
     id: "panel-general-config",
@@ -13593,13 +13914,32 @@
                 log.error(error);
                 gpuInfo = error.toString();
               }
-              domUtils.text($leftDesc, gpuInfo);
+              domUtils.html($leftDesc, gpuInfo);
               domUtils.append($li, $left);
               return $li;
             },
             void 0,
             { text: "WebGL" }
           ),
+          UIButton("abTestConfig", "测试配置", "查看", void 0, false, false, "primary", () => {
+            const $loading = qmsg.default.loading("获取中...");
+            const keys = Object.keys(window.localStorage);
+            let abTestConfigText;
+            let abTestConfigKey = keys.find((it) => {
+              return it.startsWith("__tea_sdk_ab_version_");
+            });
+            if (typeof abTestConfigKey === "string")
+              abTestConfigText = JSON.stringify(utils$1.toJSON(window.localStorage.getItem(abTestConfigKey)), null, 2);
+            $loading.close();
+            if (typeof abTestConfigText === "string")
+              UIDialogCode({
+                getConfigData() {
+                  return abTestConfigText;
+                },
+                titleText: "abTestConfig",
+              });
+            else qmsg.default.error("未获取到abTestConfig数据");
+          }),
           {
             text: "功能",
             type: "deepMenu",
@@ -13944,6 +14284,13 @@
                     void 0,
                     "自行选择清晰度"
                   ),
+                  UISwitch(
+                    "解锁更高画质",
+                    "dy-hook-higher-quality",
+                    true,
+                    void 0,
+                    "开启后将强制显示超清2k、超清4k的画质选项"
+                  ),
                   UISelect(
                     "沉浸模式",
                     "fullScreen",
@@ -13970,7 +14317,13 @@
                     "隐藏右侧工具栏、底部信息栏等"
                   ),
                   UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
-                  UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
+                  UISwitch(
+                    "评论区移到中间",
+                    "changeCommentToBottom",
+                    true,
+                    void 0,
+                    "[移动端专用]修改评论区为中间弹出而非右侧区域"
+                  ),
                   UISwitch(
                     "修复进度条",
                     "repairProgressBar",

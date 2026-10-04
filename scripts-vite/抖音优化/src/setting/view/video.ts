@@ -70,6 +70,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "自行选择清晰度"
                 ),
+                UISwitch(
+                  "解锁更高画质",
+                  "dy-hook-higher-quality",
+                  true,
+                  void 0,
+                  "开启后将强制显示超清2k、超清4k的画质选项"
+                ),
                 UISelect(
                   "沉浸模式",
                   "fullScreen",
@@ -96,7 +103,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "隐藏右侧工具栏、底部信息栏等"
                 ),
                 UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
-                UISwitch("评论区移到中间", "changeCommentToBottom", true, void 0, "修改评论区为中间弹出而非右侧区域"),
+                UISwitch(
+                  "评论区移到中间",
+                  "changeCommentToBottom",
+                  true,
+                  void 0,
+                  "[移动端专用]修改评论区为中间弹出而非右侧区域"
+                ),
                 UISwitch(
                   "修复进度条",
                   "repairProgressBar",
