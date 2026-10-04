@@ -69,8 +69,8 @@ const CommonUtil = {
         selectorList.push(selector);
       }
     });
-    selectorList = selectorList.map(it=> it.trim()).filter((it) => it !== "");
-    if(selectorList.length){
+    selectorList = selectorList.map((it) => it.trim()).filter((it) => it !== "");
+    if (selectorList.length) {
       return addStyle(`${selectorList.join(",\n")}{display: none !important;}`);
     }
   },
@@ -82,9 +82,9 @@ const CommonUtil = {
    * addBlockCSS("","")
    * addBlockCSS(["",""])
    */
-  addBlockCSSWithEnd(...args: (string | string[])[]){
+  addBlockCSSWithEnd(...args: (string | string[])[]) {
     const $css = CommonUtil.addBlockCSS(...args);
-    if($css){
+    if ($css) {
       document.documentElement.appendChild($css);
     }
     return $css;
@@ -414,6 +414,9 @@ const CommonUtil = {
    * @param space 缩进空格数（默认：2）
    */
   toStr(data: any, space: number = 2): string {
+    if (typeof data === "string" || data == null) {
+      return data;
+    }
     const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
     const dataStr = JSON.stringify(
       data,
