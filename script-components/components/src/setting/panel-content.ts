@@ -289,11 +289,11 @@ const PanelContent = {
             },
             width: PanelUISize.info.width,
             height: "auto",
-            style: /*css*/`
+            style: /*css*/ `
             .pops{
               max-height: 90dvh;
             }
-            `
+            `,
           });
           const $promptInput = $prompt.$shadowRoot.querySelector<HTMLInputElement>("input")!;
           const $promptOk = $prompt.$shadowRoot.querySelector<HTMLElement>(".pops-prompt-btn-ok")!;
@@ -539,3 +539,4 @@ const PanelContent = {
 };
 
 export { PanelContent };
+
