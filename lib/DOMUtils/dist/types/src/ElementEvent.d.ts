@@ -528,6 +528,19 @@ declare class ElementEvent extends ElementAnimate {
         /** 移除监听事件 */
         off(): void;
     };
+    /**
+     * 模拟鼠标/手指点击元素
+     * @param target 目标DOM元素
+     * @param options （可选）事件配置（如坐标、按键等）
+     */
+    simulateClick(target: Element, options?: PointerEventInit & MouseEventInit): void;
+    /**
+     * 触摸屏模拟手指点击元素
+     * @param target 目标DOM元素
+     * @param clientX （可选）点击位置X
+     * @param clientY （可选）点击位置Y
+     */
+    simulateTouchClick(target: Element, clientX?: number, clientY?: number): void;
 }
 declare const elementEvent: ElementEvent;
 export { elementEvent, ElementEvent };

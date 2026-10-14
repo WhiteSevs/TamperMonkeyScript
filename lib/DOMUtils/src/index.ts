@@ -1849,13 +1849,17 @@ class DOMUtils extends ElementHandler {
   /**
    * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
    * @param cssText css字符串
-   * @returns 返回添加的CSS标签
+   * @param element 目标元素，留空则默认为document.head
+   * @returns 返回添加的CSS标签元素
    * @example
    * DOMUtils.addStyle("html{}");
    * > <style type="text/css">html{}</style>
+   * @example
+   * DOMUtils.addStyle("html{}", document.body);
+   * > <style type="text/css">html{}</style>
    */
-  addStyle(cssText: string): HTMLStyleElement;
-  addStyle(cssText: string): HTMLStyleElement {
+  addStyle(cssText: string, element?: Element | Node): HTMLStyleElement;
+  addStyle(cssText: string, element?: Element | Node): HTMLStyleElement {
     if (typeof cssText !== "string") {
       throw new Error("DOMUtils.addStyle 参数cssText 必须为String类型");
     }
@@ -1863,14 +1867,17 @@ class DOMUtils extends ElementHandler {
       type: "text/css",
       innerHTML: cssText,
     });
-    if (this.windowApi.document.head) {
-      /* 插入head最后 */
+    if (element) {
+      // 插入到目标元素中
+      element.appendChild($css);
+    } else if (this.windowApi.document.head) {
+      // 插入head最后
       this.windowApi.document.head.appendChild($css);
     } else if (this.windowApi.document.documentElement.childNodes.length === 0) {
-      /* 插入#html后 */
+      // 插入#html后
       this.windowApi.document.documentElement.appendChild($css);
     } else {
-      /* 插入#html第一个元素前 */
+      // 插入#html第一个元素前
       this.windowApi.document.documentElement.insertBefore($css, this.windowApi.document.documentElement.childNodes[0]);
     }
     return $css;

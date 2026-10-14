@@ -598,12 +598,16 @@ declare class DOMUtils extends ElementHandler {
     /**
      * 在页面中增加style元素，如果html节点存在子节点，添加子节点第一个，反之，添加到html节点的子节点最后一个
      * @param cssText css字符串
-     * @returns 返回添加的CSS标签
+     * @param element 目标元素，留空则默认为document.head
+     * @returns 返回添加的CSS标签元素
      * @example
      * DOMUtils.addStyle("html{}");
      * > <style type="text/css">html{}</style>
+     * @example
+     * DOMUtils.addStyle("html{}", document.body);
+     * > <style type="text/css">html{}</style>
      */
-    addStyle(cssText: string): HTMLStyleElement;
+    addStyle(cssText: string, element?: Element | Node): HTMLStyleElement;
     /**
      * 检测点击的地方是否在该元素区域内
      * @param $el 需要检测的元素
