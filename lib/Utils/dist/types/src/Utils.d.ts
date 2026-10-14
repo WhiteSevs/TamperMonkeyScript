@@ -242,6 +242,16 @@ declare class Utils {
      **/
     formatTime(text?: string | number | Date, formatType?: "yyyy-MM-dd HH:mm:ss" | "yyyy/MM/dd HH:mm:ss" | "yyyy_MM_dd_HH_mm_ss" | "yyyy年MM月dd日 HH时mm分ss秒" | "yyyy年MM月dd日 hh:mm:ss" | "yyyy年MM月dd日 HH:mm:ss" | "yyyy-MM-dd" | "yyyyMMdd" | "HH:mm:ss" | "yyyy" | "MM" | "dd" | "HH" | "mm" | "ss"): string;
     /**
+     * 判断该时间是否为今天
+     * @param time 需要比较的时间
+     * @returns
+     * @example
+     * Utils.isToday("2000-01-01 00:00:00");
+     * @example
+     * Utils.isToday(1668960000000);
+     */
+    isToday(time: string | Date | number): boolean;
+    /**
      * 字符串格式的时间转时间戳
      * @param text	字符串格式的时间，例如：
      * + 2022-11-21 00:00:00

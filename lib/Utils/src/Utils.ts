@@ -554,6 +554,19 @@ class Utils {
     return formatType;
   }
   /**
+   * 判断该时间是否为今天
+   * @param time 需要比较的时间
+   * @returns
+   * @example
+   * Utils.isToday("2000-01-01 00:00:00");
+   * @example
+   * Utils.isToday(1668960000000);
+   */
+  isToday(time: string | Date | number): boolean {
+    const today = Date.now();
+    return utils.formatTime(time, "yyyyMMdd") === utils.formatTime(today, "yyyyMMdd");
+  }
+  /**
    * 字符串格式的时间转时间戳
    * @param text	字符串格式的时间，例如：
    * + 2022-11-21 00:00:00
