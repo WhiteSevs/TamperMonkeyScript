@@ -24,6 +24,7 @@ import { DouYinVideoPlayer } from "./video/player/DouYinVideoPlayer";
 import { DouYinUrlHandler } from "@/router/DouYinUrlHandler";
 import { DouYinRouterChangeData } from "./DouYinRouterChangeData";
 import { DouYinShortCut } from "./DouYinShortCut";
+import { DyChat } from "./chat/DyChat";
 
 export const DouYin = {
   init() {
@@ -68,6 +69,9 @@ export const DouYin = {
       return this.navSearchClickToNewTab();
     });
 
+    Panel.execMenuOnce("dy-chat-autoKeepTheSparkAlive", () => {
+      return DyChat.autoKeepTheSparkAlive();
+    });
     if (DouYinRouter.isLive()) {
       log.info("Router: 直播");
       DouYinLive.init();
@@ -98,6 +102,9 @@ export const DouYin = {
       } else if (DouYinRouter.isHot()) {
         log.info(`Router: 热点榜`);
         DouYinHot.init();
+      } else if (DouYinRouter.isChat()) {
+        log.info(`Router: 聊天页面`);
+        DyChat.init();
       } else {
         log.warn("子router: " + window.location.href);
       }

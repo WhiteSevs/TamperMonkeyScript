@@ -103,13 +103,13 @@ export const DouYinLiveBlock_ChatRoom = {
    */
   shieldMessage() {
     log.info("【屏蔽】信息播报");
-    // 暂时失效
     return [
       addBlockCSS(
         "#chatroom .webcast-chatroom___bottom-message",
         // 上面的滚动播报，xxx进入/加入了直播间
-        `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`,
-        '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
+        `#chatroom > div > div> pace-island:has([style*="new_grade_enter"])`,
+        '#chatroom > div > div> div:has([style*="new_grade_enter"])',
+        '#chatroom > div > div> div:has([style*="/enter"])'
       ),
     ];
   },

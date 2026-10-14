@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.4
+// @version      2026.10.14
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -2142,18 +2142,44 @@
       });
     },
     hookVideoQuality() {
+      log.info(`篡改显示视频清晰度，让其显示最高清晰度`);
       navigator.hardwareConcurrency;
       Object.defineProperty(navigator, "hardwareConcurrency", {
-        get: () => 12,
+        get: () => 16,
         configurable: true,
-        enumerable: true,
       });
+      Object.defineProperty(navigator, "deviceMemory", {
+        get: () => 64,
+        configurable: true,
+      });
+      const localAbTestKey = Object.keys(_unsafeWindow.localStorage).find((it) => {
+        return it.startsWith("__tea_sdk_ab_version_");
+      });
+      if (localAbTestKey) {
+        const abTestDataStr = _unsafeWindow.localStorage.getItem(localAbTestKey);
+        const abTestData = utils$1.toJSON(abTestDataStr);
+        if (abTestData["data"]) {
+          abTestData["data"]["exposure_defination"] = {
+            val: 1,
+            vid: "",
+          };
+          abTestData["data"]["has_2k"] = {
+            val: 1,
+            vid: "",
+          };
+          abTestData["data"]["has_hdr"] = {
+            val: 1,
+            vid: "",
+          };
+          _unsafeWindow.localStorage.setItem(localAbTestKey, JSON.stringify(abTestData));
+        }
+      }
       this.ajaxHooker.hook((request) => {
         const url = CommonUtil.fixUrl(request.url);
         if (new URL(url).pathname.startsWith("/service/2/abtest_config/"))
           request.response = (response) => {
             const data = utils$1.toJSON(response.responseText);
-            if (typeof data["data"] === "object" && data) {
+            if (data["data"]) {
               data["data"]["has_2k"] = {
                 val: 1,
                 vid: "",
@@ -2763,6 +2789,98 @@
       )
         return true;
       return false;
+    },
+    simulateClick(target, options = {}) {
+      const { clientX = 0, clientY = 0, ...restOptions } = options;
+      target.dispatchEvent(
+        new PointerEvent("pointerdown", {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+          ...restOptions,
+        })
+      );
+      target.dispatchEvent(
+        new PointerEvent("pointerup", {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+          ...restOptions,
+        })
+      );
+      target.dispatchEvent(
+        new MouseEvent("mousedown", {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+          ...restOptions,
+        })
+      );
+      target.dispatchEvent(
+        new MouseEvent("mouseup", {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+          ...restOptions,
+        })
+      );
+      target.dispatchEvent(
+        new MouseEvent("click", {
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+          ...restOptions,
+        })
+      );
+    },
+    simulateTouchClick(target, clientX, clientY) {
+      if (clientX == null && clientY == null) {
+        const rect = target.getBoundingClientRect();
+        clientX = rect.left + rect.width / 2;
+        clientY = rect.top + rect.height / 2;
+      } else {
+        clientX = clientX ?? 0;
+        clientY = clientY ?? 0;
+      }
+      const touchOptions = {
+        touches: [
+          new Touch({
+            identifier: 0,
+            target,
+            clientX,
+            clientY,
+          }),
+        ],
+        changedTouches: [
+          new Touch({
+            identifier: 0,
+            target,
+            clientX,
+            clientY,
+          }),
+        ],
+        targetTouches: [
+          new Touch({
+            identifier: 0,
+            target,
+            clientX,
+            clientY,
+          }),
+        ],
+        bubbles: true,
+        cancelable: true,
+      };
+      target.dispatchEvent(new TouchEvent("touchstart", touchOptions));
+      target.dispatchEvent(new TouchEvent("touchend", touchOptions));
+      this.simulateClick(target, {
+        clientX,
+        clientY,
+      });
     },
   };
   var DouYinElementUtil = {
@@ -5742,7 +5860,7 @@
     },
   };
   var mobile_default$1 =
-    '/* 竖屏且高度小于550px */\n@media screen and (max-width: 550px) and (orientation: portrait) {\n  /* 右侧工具栏放大 */\n  .basePlayerContainer .positionBox {\n    bottom: 80px !important;\n    padding-right: 5px !important;\n    scale: unset !important;\n    transform: scale3d(1.12, 1.12, 1.12) !important;\n  }\n  /* 右侧工具栏的svg再放大 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(1.12, 1.12, 1.12);\n  }\n  /* 重置关注按钮的scale */\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\n    scale: unset !important;\n  }\n\n  /* 调整顶部搜索框的宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: 150px;\n    padding-right: 0;\n    max-width: unset;\n    flex: 1;\n  }\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\n    [id^="douyin-header-menu"] {\n    display: none !important;\n  }\n  /* 搜索框获取焦点时自动放大宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\n    width: 100vw;\n    width: 100dvw;\n  }\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\n  #search-content-area > div,\n  #search-content-area > div div:has(+ #search-result-container),\n  #search-content-area > div #search-result-container {\n    width: 100%;\n    width: -webkit-fill-available;\n    width: -moz-available;\n  }\n  /* 搜索页面 视频右侧的工具栏缩小 */\n  #search-content-area .basePlayerContainer .positionBox {\n    bottom: 28px !important;\n    transform: scale3d(0.6, 0.6, 0.6) !important;\n  }\n  /* 搜索页面 搜索出的用户信息换行 */\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\n    flex-wrap: wrap;\n  }\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\n    overflow: auto;\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) {\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\n  #search-content-area div:has(> div > span[data-key="general"]) {\n    position: unset !important;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) > * {\n    white-space: nowrap !important;\n    width: auto !important;\n    width: fit-content !important;\n    margin-left: 0px !important;\n    margin-right: 0px !important;\n  }\n  /* 去除设置min-width超出浏览器宽度的问题 */\n  body {\n    min-width: 100% !important;\n  }\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\n  #douyin-right-container #douyin-header {\n    width: 100%;\n  }\n  /* 去除设置 */\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\n    min-width: 100%;\n  }\n\n  /* /video/xxx页面 */\n  /* 点赞、评论、分享偏移 */\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\n    padding-right: 30px !important;\n  }\n  /* 底部工具栏右侧的按钮 */\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\n    margin-right: 35px !important;\n  }\n  /* 评论区全屏 */\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\n    width: 100dvw !important;\n  }\n\n  /* 设置视频区域的高度 */\n  #slidelist {\n    width: 100%;\n    height: calc(100dvh - var(--header-height)) !important;\n  }\n  /* 修正网页全屏下的视频高度 */\n  #slidelist[class*="isCssFullScreen"] {\n    height: round(nearest, 100dvh, 1px) !important;\n  }\n  /* 去除视频区域右侧偏移 */\n  .is-mobile-pc div[data-e2e="slideList"] {\n    padding-right: 0px !important;\n  }\n  /* 推荐视频的高度适配 */\n  #slidelist .page-recommend-container {\n    margin-top: 8px !important;\n    margin-bottom: 4px !important;\n  }\n  /* 网页全屏下的推荐视频的高度适配 */\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\n    margin: 0px !important;\n  }\n  /* 底部工具栏右侧的按钮不换行显示 */\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\n    flex-wrap: nowrap;\n    white-space: nowrap;\n    overflow: auto;\n    align-items: start;\n    justify-content: start;\n    margin: 0px;\n  }\n}\n\n/* 横屏且高度小于550px */\n@media screen and (max-height: 550px) and (orientation: landscape) {\n  /* 右侧工具栏缩小 */\n  .basePlayerContainer .positionBox {\n    transform: scale(0.95) !important;\n    bottom: 42px !important;\n    padding-right: 10px !important;\n  }\n  /* 右侧工具栏的svg再缩小 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(0.95, 0.95, 0.95);\n  }\n  /* 修复全屏下不显示视频底部的控制栏 */\n  .isCssFullScreen [data-e2e="slideList"] {\n    min-height: auto !important;\n  }\n}\n';
+    '/* 竖屏且高度小于550px */\n@media screen and (max-width: 550px) and (orientation: portrait) {\n  /* 右侧工具栏放大 */\n  .basePlayerContainer .positionBox {\n    bottom: 80px !important;\n    padding-right: 5px !important;\n    scale: unset !important;\n    transform: scale3d(1.12, 1.12, 1.12) !important;\n  }\n  /* 右侧工具栏的svg再放大 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(1.12, 1.12, 1.12);\n  }\n  /* 重置关注按钮的scale */\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\n    scale: unset !important;\n  }\n\n  /* 调整顶部搜索框的宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]) {\n    width: 150px;\n    padding-right: 0;\n    max-width: unset;\n    flex: 1;\n  }\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\n    [id^="douyin-header-menu"] {\n    display: none !important;\n  }\n  /* 搜索框获取焦点时自动放大宽度 */\n  #douyin-header\n    div[data-click="doubleClick"]\n    > div[data-click="doubleClick"]\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\n    width: 100vw;\n    width: 100dvw;\n  }\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\n  #search-content-area > div,\n  #search-content-area > div div:has(+ #search-result-container),\n  #search-content-area > div #search-result-container {\n    width: 100%;\n    width: -webkit-fill-available;\n    width: -moz-available;\n  }\n  /* 搜索页面 视频右侧的工具栏缩小 */\n  #search-content-area .basePlayerContainer .positionBox {\n    bottom: 28px !important;\n    transform: scale3d(0.6, 0.6, 0.6) !important;\n  }\n  /* 搜索页面 搜索出的用户信息换行 */\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\n    flex-wrap: wrap;\n  }\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\n    overflow: auto;\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) {\n    gap: 10px;\n  }\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\n  #search-content-area div:has(> div > span[data-key="general"]) {\n    position: unset !important;\n  }\n  /* 搜索页面 搜索结果筛选选项 */\n  #search-content-area div:has(> span[data-key="general"]) > * {\n    white-space: nowrap !important;\n    width: auto !important;\n    width: fit-content !important;\n    margin-left: 0px !important;\n    margin-right: 0px !important;\n  }\n  /* 去除设置min-width超出浏览器宽度的问题 */\n  body {\n    min-width: 100% !important;\n  }\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\n  #douyin-right-container #douyin-header {\n    width: 100%;\n  }\n  /* 去除设置 */\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\n    min-width: 100%;\n  }\n\n  /* /video/xxx页面 */\n  /* 点赞、评论、分享偏移 */\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\n    padding-right: 30px !important;\n  }\n  /* 底部工具栏右侧的按钮 */\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\n    margin-right: 35px !important;\n  }\n  /* 评论区全屏 */\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\n    width: calc(100dvw - 20px) !important;\n  }\n\n  /* 设置视频区域的高度 */\n  #slidelist {\n    width: 100%;\n    height: calc(100dvh - var(--header-height)) !important;\n  }\n  /* 修正网页全屏下的视频高度 */\n  #slidelist[class*="isCssFullScreen"] {\n    height: round(nearest, 100dvh, 1px) !important;\n  }\n  /* 去除视频区域右侧偏移 */\n  .is-mobile-pc div[data-e2e="slideList"] {\n    padding-right: 0px !important;\n  }\n  /* 推荐视频的高度适配 */\n  #slidelist .page-recommend-container {\n    margin-top: 8px !important;\n    margin-bottom: 4px !important;\n  }\n  /* 网页全屏下的推荐视频的高度适配 */\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\n    margin: 0px !important;\n  }\n  /* 底部工具栏右侧的按钮不换行显示 */\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\n    flex-wrap: nowrap;\n    white-space: nowrap;\n    overflow: auto;\n    align-items: start;\n    justify-content: start;\n    margin: 0px;\n  }\n}\n\n/* 横屏且高度小于550px */\n@media screen and (max-height: 550px) and (orientation: landscape) {\n  /* 右侧工具栏缩小 */\n  .basePlayerContainer .positionBox {\n    transform: scale(0.95) !important;\n    bottom: 42px !important;\n    padding-right: 10px !important;\n  }\n  /* 右侧工具栏的svg再缩小 */\n  .basePlayerContainer .positionBox svg {\n    transform: scale3d(0.95, 0.95, 0.95);\n  }\n  /* 修复全屏下不显示视频底部的控制栏 */\n  .isCssFullScreen [data-e2e="slideList"] {\n    min-height: auto !important;\n  }\n}\n';
   var DouYinVideoElementAutoHideInjectAttr = "data-is-inject-mouse-hide";
   var DouYinVideoElementAutoHide = (delayTimeKey, selectors, opacityIsImportant = true) => {
     const opacityShowAttrName = "data-opacity-show";
@@ -10242,7 +10360,9 @@
           return domUtils.createElement("xg-icon", {
             className: downloadButtonClassName,
             innerHTML: `
-        <div class="xgplayer-icon">
+        <div class="xgplayer-icon" style="
+    display: flex;
+">
           <span role="img" class="semi-icon semi-icon-default">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" style="font-size: 1.2em;">
               <path fill="currentColor" d="M28,22v6H4v-6H2v8h28V22H28z M17,19.33L17,5h-2v14.33L11.59,15.91l-1.41,1.41l6,6 l6-6l-1.41-1.41L17,19.33z"/>
@@ -10516,6 +10636,22 @@
       Panel.onceExec("repairProgressBar", () => {
         result.push(...this.repairVideoProgressBar());
       });
+      if (DouYinRouter.isVideo())
+        result.push(
+          addStyle(`
+        #douyin-right-container .parent-route-container [data-e2e="video-detail"]{
+          min-width: unset !important;
+          padding: 0 10px;
+
+          & .basePlayerContainer{
+             min-width: unset !important;
+          }
+          & [data-e2e="detail-video-info"] > div{
+            flex-flow: wrap;
+          }
+        }
+      `)
+        );
       return result;
     },
     repairVideoProgressBar() {
@@ -10861,9 +10997,13 @@
         const walker = document.createTreeWalker($comment, NodeFilter.SHOW_TEXT, {
           acceptNode: (node) => {
             const text = node.textContent || "";
-            return timePatterns.some((pattern) => pattern.test(text))
+            const result = timePatterns.some((pattern) => pattern.test(text))
               ? NodeFilter.FILTER_ACCEPT
               : NodeFilter.FILTER_REJECT;
+            if (result === NodeFilter.FILTER_ACCEPT) {
+              if (node.parentElement?.closest("[data-click-from='title']")) return NodeFilter.FILTER_REJECT;
+            }
+            return result;
           },
         });
         const textNodes = [];
@@ -10878,7 +11018,7 @@
               const timestamp = transformTime(match);
               if (typeof timestamp === "number" && !isNaN(timestamp)) {
                 hasTimeMatch = true;
-                return `<span class="dy-comment-time" data-time="${timestamp}">${match}</span>`;
+                return `<span class="dy-comment-time" data-time="${timestamp}" data-type="gm-script">${match}</span>`;
               }
               return match;
             });
@@ -10946,8 +11086,9 @@
         addStyle(`
         .dy-comment-time{
           cursor: pointer;
-          color: #48a4ff;
+          color: #48a4ff !important;
           text-decoration: none;
+          margin-right: .2em;
         }
       `),
         () => {
@@ -11140,8 +11281,9 @@
       return [
         addBlockCSS(
           "#chatroom .webcast-chatroom___bottom-message",
-          `#chatroom > div > div> pace-island:has(div[style*="new_grade_enter"])`,
-          '#chatroom > div > div> div:has(div[style*="new_grade_enter"])'
+          `#chatroom > div > div> pace-island:has([style*="new_grade_enter"])`,
+          '#chatroom > div > div> div:has([style*="new_grade_enter"])',
+          '#chatroom > div > div> div:has([style*="/enter"])'
         ),
       ];
     },
@@ -13005,6 +13147,206 @@
       };
     },
   };
+  var DyChat = {
+    init() {},
+    async autoKeepTheSparkAlive() {
+      if (!CommonUtil.isTopWindow()) return;
+      const execTimeKey = "dy-chat-autoKeepTheSparkAlive-latestRunTimeStamp";
+      const latestRunTime = Panel.getValue(execTimeKey);
+      if (
+        latestRunTime &&
+        utils$1.formatTime(latestRunTime, "yyyy-MM-dd") === utils$1.formatTime(Date.now(), "yyyy-MM-dd")
+      ) {
+        log.info("自动续火花：今天已经运行过了。执行时间：" + utils$1.formatTime(latestRunTime));
+        return;
+      }
+      if (!DouYinRouter.isChat()) {
+        window.open("https://www.douyin.com/chat", "_blank");
+        return;
+      }
+      const needRunUserList = Panel.getValue("dy-chat-autoKeepTheSparkAlive-userList", "")
+        .split("\n")
+        .map((it) => {
+          it = it.trim();
+          if (it === "") return;
+          if (isNaN(parseInt(it))) return;
+          return it;
+        })
+        .filter((it) => it != null);
+      if (needRunUserList.length !== 0) {
+        await domUtils.onReady();
+        const getFireTip = (text) => {
+          const message = `
+            <div style="text-align: center;">「续火花」</div>
+            ${
+              text.trim().startsWith("<") || text.trim().endsWith(">")
+                ? text
+                : `
+                <p style="text-align: left;">${text}</p>
+            `
+            }
+        `;
+          log.info(message);
+          return message;
+        };
+        const $loading = qmsg.default.loading(getFireTip("正在获取消息列表中，请稍后..."), {
+          onClose() {
+            Panel.setValue(execTimeKey, Date.now());
+          },
+        });
+        await domUtils.waitNode('.conversationConversationListwrapper [data-e2e="conversation-item"]', 6e4);
+        log.info(`自动续火花`);
+        const chatUserList = [];
+        $$('[data-e2e="conversation-item"]').forEach(($item) => {
+          const reactFiber = utils$1.getReactInstance($item).reactFiber;
+          if (!reactFiber) return;
+          const conversation = reactFiber?.return?.memoizedProps?.conversation;
+          if (!conversation) return;
+          const uid = conversation?.toParticipantUserId;
+          const userId = conversation?.toParticipantSecUserId;
+          const latestChatTime =
+            conversation?.myLastVisibleMessage?.createdAt || conversation?.myLastMessage?.createdAt;
+          chatUserList.push({
+            $el: $item,
+            itemInfo: conversation,
+            userInfo: {
+              uid,
+              userId,
+              latestChatTime,
+              latestChatTimeStr: utils$1.formatTime(latestChatTime),
+            },
+          });
+        });
+        if (!chatUserList.length) {
+          $loading.close();
+          qmsg.default.error("获取消息列表失败");
+          return;
+        }
+        const sendText = Panel.getValue("dy-chat-autoKeepTheSparkAlive-sendText", "续火花");
+        let isRunCount = 0;
+        let successCount = 0;
+        let failCount = 0;
+        for (const runUserItem of needRunUserList) {
+          isRunCount++;
+          const userItem = chatUserList.find((it) => it.userInfo.uid.toString() === runUserItem.toString());
+          if (!userItem) {
+            failCount++;
+            $loading.setHTML(
+              getFireTip(`
+          <div style="text-align: left;">
+            <p>进度：${isRunCount}/${needRunUserList.length}</p>
+            <p>成功：${successCount} 失败：${failCount}</p>
+            <p>用户id：${runUserItem}</p>
+            <p>日志：未找到该用户，3s后执行下一个</p>
+          </div>
+        `)
+            );
+            log.error(`消息列表中未找到用户id为${runUserItem}的用户`);
+            await utils$1.sleep(3e3);
+            continue;
+          }
+          if (
+            utils$1.formatTime(userItem.userInfo.latestChatTime, "yyyy-MM-dd") ===
+            utils$1.formatTime(new Date(), "yyyy-MM-dd")
+          ) {
+            successCount++;
+            $loading.setHTML(
+              getFireTip(`
+          <div style="text-align: left;">
+            <p>进度：${isRunCount}/${needRunUserList.length}</p>
+            <p>成功：${successCount} 失败：${failCount}</p>
+            <p>用户id：${runUserItem}</p>
+            <p>日志：该用户今日已发送消息，3s后执行下一个</p>
+          </div>
+        `)
+            );
+            await utils$1.sleep(3e3);
+            continue;
+          }
+          $loading.setHTML(
+            getFireTip(`
+          <div style="text-align: left;">
+            <p>进度：${isRunCount}/${needRunUserList.length}</p>
+            <p>成功：${successCount} 失败：${failCount}</p>
+            <p>用户id：${userItem.userInfo.uid}</p>
+            <p>最后聊天时间：${userItem.userInfo.latestChatTimeStr}</p>
+            <p>日志：正在等待进入聊天窗口，请稍后...</p>
+          </div>
+        `)
+          );
+          DouYinUtils.simulateClick(userItem.$el);
+          if (!$(".componentsRightPanelwrapper")) {
+            qmsg.default.error("获取聊天窗口失败");
+            $loading.close();
+            return;
+          }
+          await utils$1.sleep(3e3);
+          $loading.setHTML(
+            getFireTip(`
+          <div style="text-align: left;">
+            <p>进度：${isRunCount}/${needRunUserList.length}</p>
+            <p>成功：${successCount} 失败：${failCount}</p>
+            <p>用户id：${userItem.userInfo.uid}</p>
+            <p>最后聊天时间：${userItem.userInfo.latestChatTimeStr}</p>
+            <p>日志：发送消息中，请稍后...</p>
+          </div>
+        `)
+          );
+          const $editor = $(".editor-kit-container");
+          if (!$editor) {
+            qmsg.default.error("获取editor元素失败");
+            $loading.close();
+            return;
+          }
+          const editor = utils$1.getReactInstance($editor).reactFiber?.return?.memoizedProps?.editor;
+          if (!editor) {
+            qmsg.default.error("获取editor实例失败");
+            $loading.close();
+            return;
+          }
+          if (typeof editor?.setHTML !== "function") {
+            qmsg.default.error("获取editor实例的setHTML函数失败");
+            $loading.close();
+            return;
+          }
+          editor?.setHTML(sendText);
+          const $sendBtn = $(".messageMsgInputpublishBtn");
+          if (!$sendBtn) {
+            qmsg.default.error("获取发送按钮失败");
+            $loading.close();
+            return;
+          }
+          await utils$1.sleep(1e3);
+          DouYinUtils.simulateClick($sendBtn);
+          successCount++;
+          $loading.setHTML(
+            getFireTip(`
+          <div style="text-align: left;">
+            <p>进度：${isRunCount}/${needRunUserList.length}</p>
+            <p>成功：${successCount} 失败：${failCount}</p>
+            <p>用户id：${userItem.userInfo.uid}</p>
+            <p>最后聊天时间：${userItem.userInfo.latestChatTimeStr}</p>
+            <p>日志：已发送消息，3s后执行下一个</p>
+          </div>
+        `)
+          );
+          await utils$1.sleep(3e3);
+        }
+        qmsg.default.info("续火花执行完毕");
+        $loading.setHTML(
+          getFireTip(`
+          <div style="text-align: left;">
+            <p>进度：${isRunCount}/${needRunUserList.length}</p>
+            <p>成功：${successCount} 失败：${failCount}</p>
+            <p>日志：已全部执行完毕，5s后自动关闭该消息提示</p>
+          </div>
+        `)
+        );
+        await utils$1.sleep(5e3);
+        $loading.close();
+      }
+    },
+  };
   var DouYin = {
     init() {
       if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
@@ -13044,6 +13386,9 @@
       Panel.execMenuOnce("dy-search-click-to-new-tab", () => {
         return this.navSearchClickToNewTab();
       });
+      Panel.execMenuOnce("dy-chat-autoKeepTheSparkAlive", () => {
+        return DyChat.autoKeepTheSparkAlive();
+      });
       if (DouYinRouter.isLive()) {
         log.info("Router: 直播");
         DouYinLive.init();
@@ -13073,6 +13418,9 @@
         } else if (DouYinRouter.isHot()) {
           log.info(`Router: 热点榜`);
           DouYinHot.init();
+        } else if (DouYinRouter.isChat()) {
+          log.info(`Router: 聊天页面`);
+          DyChat.init();
         } else log.warn("子router: " + window.location.href);
       } else if (window.location.hostname.startsWith("lf-zt.douyin.com")) {
       } else log.error("未适配router: " + window.location.href);
@@ -14289,7 +14637,7 @@
                     "dy-hook-higher-quality",
                     true,
                     void 0,
-                    "开启后将强制显示超清2k、超清4k的画质选项"
+                    "(仅非登录时生效)开启后将强制显示超清2k、超清4k的画质选项"
                   ),
                   UISelect(
                     "沉浸模式",
@@ -15966,6 +16314,56 @@
       },
     ],
   };
+  var PanelChatConfig = {
+    id: "panel-config-chat",
+    title: "聊天",
+    views: [
+      {
+        type: "container",
+        text: "续火花",
+        views: [
+          UISwitch("启用", "dy-chat-autoKeepTheSparkAlive", false),
+          UIButton(
+            "最后执行时间",
+            "自动执行续火花的时间，可点击按钮进行时间重置",
+            () => {
+              const timeStamp = Panel.getValue("dy-chat-autoKeepTheSparkAlive-latestRunTimeStamp");
+              if (timeStamp) return utils$1.formatTime(timeStamp);
+              return "无";
+            },
+            void 0,
+            false,
+            false,
+            "primary",
+            () => {
+              if (confirm("是否要重置最后执行时间？")) {
+                Panel.deleteValue("dy-chat-autoKeepTheSparkAlive-latestRunTimeStamp");
+                qmsg.default.success("重置成功");
+              }
+            }
+          ),
+          UIInput(
+            "",
+            "dy-chat-autoKeepTheSparkAlive-sendText",
+            "续火花",
+            "用于发送消息的内容",
+            void 0,
+            "请输入发送消息的内容"
+          ),
+          UITextArea("用户列表", "dy-chat-autoKeepTheSparkAlive-userList", "", "用户uid，每行一个（注意：不是抖音号）"),
+        ],
+        afterAddToUListCallBack(viewConfig, container) {
+          const $style = document.createElement("style");
+          $style.textContent = `
+            [data-key="dy-chat-autoKeepTheSparkAlive-userList"] .pops-panel-textarea textarea{
+                height: 150px;
+            }
+          `;
+          container.target?.appendChild($style);
+        },
+      },
+    ],
+  };
   PanelContent.addContentConfig([
     PanelGeneralConfig,
     PanelVideoConfig,
@@ -15974,6 +16372,7 @@
     PanelLiveConfig,
     PanelFollowrConfig,
     PanelUserConfig,
+    PanelChatConfig,
     PanelHotConfig,
   ]);
   PanelContent.addContentConfig([

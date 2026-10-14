@@ -17,6 +17,7 @@ import { PanelMenu } from "@components/setting/panel-menu";
 import { PanelRecommendConfig } from "./setting/view/recommend";
 import { PanelFollowrConfig } from "./setting/view/follow";
 import { PanelHotConfig } from "./setting/view/hot";
+import { PanelChatConfig } from "./setting/view/chat";
 
 // pc
 PanelContent.addContentConfig([
@@ -27,6 +28,7 @@ PanelContent.addContentConfig([
   PanelLiveConfig,
   PanelFollowrConfig,
   PanelUserConfig,
+  PanelChatConfig,
   PanelHotConfig,
 ]);
 // mobile

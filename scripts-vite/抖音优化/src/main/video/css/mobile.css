@@ -104,7 +104,7 @@
   /* 评论区全屏 */
   div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),
   div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {
-    width: 100dvw !important;
+    width: calc(100dvw - 20px) !important;
   }
 
   /* 设置视频区域的高度 */

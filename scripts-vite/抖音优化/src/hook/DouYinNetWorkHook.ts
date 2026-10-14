@@ -1,6 +1,7 @@
-import { utils } from "@/env";
+import { log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
+import { unsafeWindow } from "ViteGM";
 
 export const DouYinNetWorkHook = {
   __ajaxHooker: null as null | ReturnType<typeof utils.ajaxHooker>,
@@ -58,16 +59,43 @@ export const DouYinNetWorkHook = {
   },
   /**
    * 篡改显示视频清晰度，让其显示最高清晰度
+   *
+   * (仅非登录时生效)
    */
   hookVideoQuality() {
+    log.info(`篡改显示视频清晰度，让其显示最高清晰度`);
     const origin_hardwareConcurrency = navigator.hardwareConcurrency;
     // 伪装高配置
     Object.defineProperty(navigator, "hardwareConcurrency", {
-      // 运行线程的逻辑处理器数量
-      get: () => 12,
+      get: () => 16,
       configurable: true,
-      enumerable: true,
     });
+    Object.defineProperty(navigator, "deviceMemory", {
+      get: () => 64,
+      configurable: true,
+    });
+    const localAbTestKey = Object.keys(unsafeWindow.localStorage).find((it) => {
+      return it.startsWith("__tea_sdk_ab_version_");
+    });
+    if (localAbTestKey) {
+      const abTestDataStr = unsafeWindow.localStorage.getItem(localAbTestKey);
+      const abTestData = utils.toJSON(abTestDataStr);
+      if (abTestData["data"]) {
+        abTestData["data"]["exposure_defination"] = {
+          val: 1,
+          vid: "",
+        };
+        abTestData["data"]["has_2k"] = {
+          val: 1,
+          vid: "",
+        };
+        abTestData["data"]["has_hdr"] = {
+          val: 1,
+          vid: "",
+        };
+        unsafeWindow.localStorage.setItem(localAbTestKey, JSON.stringify(abTestData));
+      }
+    }
     this.ajaxHooker.hook((request) => {
       const url = CommonUtil.fixUrl(request.url);
       const urlInst = new URL(url);
@@ -75,7 +103,7 @@ export const DouYinNetWorkHook = {
         // 这个是 ab test的配置
         request.response = (response) => {
           const data = utils.toJSON(response.responseText);
-          if (typeof data["data"] === "object" && data) {
+          if (data["data"]) {
             // 2k
             data["data"]["has_2k"] = {
               val: 1,

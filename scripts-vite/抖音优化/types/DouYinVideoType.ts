@@ -748,6 +748,7 @@ export type DouYinVideoAwemeInfoWithNetWork = {
             data_size: number;
             url_list: string[];
           };
+          video_extra?: string;
         }[];
     /** 视频封面 */
     cover: {
@@ -765,6 +766,9 @@ export type DouYinVideoAwemeInfoWithNetWork = {
       uri: string;
       url_list: string[];
     };
+    is_h265: 0 | 1;
+    is_long_video: 1;
+    is_source_HDR: 0;
   };
   /** 视频标签 */
   video_tag:
@@ -814,6 +818,22 @@ export type DouYinVideoAwemeInfoWithNetWork = {
    * }
    */
   web_raw_data?: string;
+};
+export type DouYinVideoAwemeInfoVideoExtraWithNetWork = {
+  PktOffsetMap: string;
+  format: string;
+  definition: string;
+  quality: string;
+  file_id: string;
+  applog_map: {
+    feature_id: string;
+    manual_only: 0 | 1;
+  };
+  manual_only: 0 | 1;
+  audio_channels: string;
+  audio_sample_rate: string;
+  audio_metrics: null;
+  audio_score: null;
 };
 /** 抖音视频的api接口的awemeInfo对象信息 */
 export type DouYinVideoNetWorkAwemeInfo = {

@@ -1233,7 +1233,9 @@ export const DouYinVideoPlayer = {
         const $btn = DOMUtils.createElement("xg-icon", {
           className: downloadButtonClassName,
           innerHTML: /*html*/ `
-        <div class="xgplayer-icon">
+        <div class="xgplayer-icon" style="
+    display: flex;
+">
           <span role="img" class="semi-icon semi-icon-default">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" style="font-size: 1.2em;">
               <path fill="currentColor" d="M28,22v6H4v-6H2v8h28V22H28z M17,19.33L17,5h-2v14.33L11.59,15.91l-1.41,1.41l6,6 l6-6l-1.41-1.41L17,19.33z"/>
@@ -1550,6 +1552,23 @@ export const DouYinVideoPlayer = {
     Panel.onceExec("repairProgressBar", () => {
       result.push(...this.repairVideoProgressBar());
     });
+    if (DouYinRouter.isVideo()) {
+      result.push(
+        addStyle(/*css*/ `
+        #douyin-right-container .parent-route-container [data-e2e="video-detail"]{
+          min-width: unset !important;
+          padding: 0 10px;
+
+          & .basePlayerContainer{
+             min-width: unset !important;
+          }
+          & [data-e2e="detail-video-info"] > div{
+            flex-flow: wrap;
+          }
+        }
+      `)
+      );
+    }
     return result;
   },
   /**
@@ -1998,9 +2017,16 @@ export const DouYinVideoPlayer = {
       const walker = document.createTreeWalker($comment, NodeFilter.SHOW_TEXT, {
         acceptNode: (node) => {
           const text = node.textContent || "";
-          return timePatterns.some((pattern) => pattern.test(text))
+          const result = timePatterns.some((pattern) => pattern.test(text))
             ? NodeFilter.FILTER_ACCEPT
             : NodeFilter.FILTER_REJECT;
+          if (result === NodeFilter.FILTER_ACCEPT) {
+            if (node.parentElement?.closest("[data-click-from='title']")) {
+              // 忽略用户名里包含的时间
+              return NodeFilter.FILTER_REJECT;
+            }
+          }
+          return result;
         },
       });
 
@@ -2022,7 +2048,7 @@ export const DouYinVideoPlayer = {
             const timestamp = transformTime(match);
             if (typeof timestamp === "number" && !isNaN(timestamp)) {
               hasTimeMatch = true;
-              return `<span class="dy-comment-time" data-time="${timestamp}">${match}</span>`;
+              return /*html*/ `<span class="dy-comment-time" data-time="${timestamp}" data-type="gm-script">${match}</span>`;
             }
             return match;
           });
@@ -2103,8 +2129,9 @@ export const DouYinVideoPlayer = {
       addStyle(/*css*/ `
         .dy-comment-time{
           cursor: pointer;
-          color: #48a4ff;
+          color: #48a4ff !important;
           text-decoration: none;
+          margin-right: .2em;
         }
       `),
       () => {
