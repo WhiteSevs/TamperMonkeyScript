@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.27
+// @version      2026.10.15
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,14 +11,14 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.14.0/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.12.0/styles/github-dark.min.css
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.min.css
 // @connect      *
 // @connect      helloimg.com
 // @connect      z4a.net
@@ -343,6 +343,7 @@
       }
     },
     toStr(data, space = 2) {
+      if (typeof data === "string" || data == null) return data;
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       return JSON.stringify(
         data,
@@ -5844,6 +5845,9 @@
               let setLocationUrl = `${urlObj.pathname}${urlObj.search}`;
               window.history.pushState("forward", "", setLocationUrl);
             }
+          });
+          $nextPage_kqide.querySelectorAll("span.popup[href]:not([onclick])").forEach(($el) => {
+            $el.setAttribute("onclick", 'popup.open($(this.getAttribute("href")));return false;');
           });
           domUtils.append($kqide, $nextPage_kqide);
           MTForumPost.init();

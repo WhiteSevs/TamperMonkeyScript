@@ -251,6 +251,10 @@ export const MTForumPost = {
             window.history.pushState("forward", "", setLocationUrl);
           }
         });
+        // 修复点击评论最右上角的按钮无反应
+        $nextPage_kqide.querySelectorAll("span.popup[href]:not([onclick])").forEach(($el) => {
+          $el.setAttribute("onclick", 'popup.open($(this.getAttribute("href")));return false;');
+        });
         DOMUtils.append($kqide, $nextPage_kqide);
 
         // 重载帖子的功能
