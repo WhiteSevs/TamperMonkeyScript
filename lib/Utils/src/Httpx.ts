@@ -13,6 +13,23 @@ import type {
 } from "./types/Httpx";
 import { GenerateUUID } from "./UtilsCommon";
 
+/**
+ * 判断状态码是否属于成功的状态码
+ */
+const isStatusSuccess = (statusCode: number | string): boolean => {
+  if (typeof statusCode === "string") {
+    statusCode = parseInt(statusCode);
+    if (isNaN(statusCode)) {
+      return false;
+    }
+    if (statusCode.toString().length !== 3) {
+      // 必须是3位的状态码
+      return false;
+    }
+  }
+  return Math.floor(statusCode / 100) === 2;
+};
+
 export class Httpx {
   private GM_Api = {
     xmlHttpRequest: null as ((...args: any[]) => any) | null,
@@ -463,7 +480,7 @@ export class Httpx {
 
       // 转换data类型
       try {
-        // * 是否对数据进行处理
+        // 是否对数据进行处理
         const processData = userRequestOption.processData ?? true;
         if (requestOption.data != null && processData) {
           const method = requestOption.method;
@@ -582,14 +599,15 @@ export class Httpx {
       const signal = abortController.signal;
       signal.onabort = () => {
         option.onabort({
+          error: "aborted",
           isFetch: true,
+          isSuccess: false,
           responseText: "",
           response: null,
           readyState: 4,
           responseHeaders: "",
           status: 0,
           statusText: "",
-          error: "aborted",
         });
       };
       // 设置请求
@@ -655,10 +673,10 @@ export class Httpx {
       }
       resolve({
         data: response,
+        isSuccess: false,
         requestOption,
         msg: "请求被取消",
         status: false,
-        isSuccess: false,
         statusCode: -1,
         type: "onabort",
       });
@@ -702,10 +720,10 @@ export class Httpx {
       }
       resolve({
         data: response,
+        isSuccess: false,
         requestOption: requestOption,
         msg: "请求超时",
         status: false,
-        isSuccess: false,
         statusCode: 0,
         type: "ontimeout",
       });
@@ -747,10 +765,10 @@ export class Httpx {
       }
       resolve({
         data: response,
+        isSuccess: false,
         requestOption: requestOption,
         msg: "请求失败",
         status: false,
-        isSuccess: false,
         statusCode: response["status"],
         type: "onerror",
       });
@@ -788,7 +806,7 @@ export class Httpx {
         typeof originResponse["responseText"] === "string" &&
         originResponse["responseText"].trim() !== ""
       ) {
-        // * 原始的请求text
+        // 原始的请求text
         const httpxResponseText = originResponse.responseText;
         // 自定义个新的response
         let httpxResponse: any = httpxResponseText;
@@ -833,17 +851,17 @@ export class Httpx {
       }
 
       //  状态码2xx都是成功的
-      if (Math.floor(originResponse.status / 100) === 2) {
+      if (isStatusSuccess(originResponse.status)) {
         if ((await this.context.HttpxResponseHook.successResponseCallBack(originResponse, requestOption)) == null) {
           // reject(new Error("response is intercept with onloada"));
           return;
         }
         resolve({
           data: originResponse,
+          isSuccess: true,
           requestOption: requestOption,
           msg: "请求成功",
           status: true,
-          isSuccess: false,
           statusCode: originResponse.status,
           type: "onload",
         });
@@ -945,9 +963,10 @@ export class Httpx {
     fetch(option: Required<HttpxRequestOption>, fetchRequestOption: RequestInit, abortController: AbortController) {
       fetch(option.url, fetchRequestOption)
         .then(async (fetchResponse) => {
-          // * 自定义的response
+          // 返回自定义的response
           const httpxResponse: HttpxResponseData<HttpxRequestOption> = {
             isFetch: true,
+            isSuccess: isStatusSuccess(fetchResponse.status),
             finalUrl: fetchResponse.url,
             readyState: 4,
             status: fetchResponse.status,
@@ -966,7 +985,7 @@ export class Httpx {
             httpxResponse.responseHeaders += `${key}: ${value}\n`;
           });
 
-          // * 请求返回的类型
+          // 请求返回的类型
           const fetchResponseType = fetchResponse.headers.get("Content-Type");
 
           //  如果需要stream，且获取到的是stream，那直接返回
@@ -983,16 +1002,16 @@ export class Httpx {
             return;
           }
 
-          // * 响应
+          // 响应
           let response: any = "";
-          // * 响应字符串
+          // 响应字符串
           let responseText: string = "";
-          // * 响应xml文档
+          // 响应xml文档
           let responseXML: XMLDocument | string = "";
-          // * 先获取二进制数据
+          // 先获取二进制数据
           const arrayBuffer = await fetchResponse.arrayBuffer();
 
-          // * 数据编码
+          // 数据编码
           let encoding = "utf-8";
           if (fetchResponse.headers.has("Content-Type")) {
             const charsetMatched = fetchResponse.headers.get("Content-Type")?.match(/charset=(.+)/);
@@ -1042,18 +1061,20 @@ export class Httpx {
             return;
           }
           option.onerror({
-            isFetch: true,
+            error: error,
             finalUrl: option.url,
+            isFetch: true,
+            isSuccess: false,
             readyState: 4,
-            status: 0,
-            statusText: "",
             responseHeaders: "",
             responseText: "",
-            error: error,
+            status: 0,
+            statusText: "",
           });
         });
       option.onloadstart({
         isFetch: true,
+        isSuccess: false,
         finalUrl: option.url,
         readyState: 1,
         responseHeaders: "",

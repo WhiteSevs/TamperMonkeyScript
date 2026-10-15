@@ -1229,6 +1229,12 @@ export declare interface HttpxResponseData<T extends HttpxRequestOption> {
    */
   status: HttpxStatus | number;
   /**
+   * 是否请求成功
+   *
+   * 状态码在`200-300`之间为`true`，否则为`false`
+   */
+  isSuccess: boolean;
+  /**
    * 对`status`的解释
    */
   statusText: "OK" | "" | string;
@@ -1270,8 +1276,8 @@ export declare interface HttpxResponse<T extends HttpxRequestOption> {
   /**
    * 是否请求成功
    *
-   * @deprecated
    * 状态码在`200-300`之间为`true`，否则为`false`
+   * @deprecated 使用`isSuccess`代替
    */
   status: boolean;
   /**
