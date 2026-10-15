@@ -22,7 +22,7 @@ export const NetDiskParse_Lanzou_Config = {
  * 删除注释的代码
  */
 const deleteAnnotationCode = (text: string) => {
-  text = text.replace(/\/\/.+/gi, "");
+  // text = text.replace(/\/\/.+/gi, "");
   text = text.replace(/\/\*[\s\S\n]+\*\//gi, "");
   return text;
 };
@@ -113,6 +113,9 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       if (pathName.startsWith("/")) {
         pathName = pathName.replace(/^\//, "");
       }
+      if (pathName.startsWith("http")) {
+        return pathName;
+      }
       return `https://${NetDiskParse_Lanzou_Config.hostname}/${pathName}`;
     },
     /**
@@ -183,7 +186,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
      * 蓝奏设置了密码的单文件请求需要的sign值
      */
     sign: {
-      match: /var[\s]*(posign|postsign|vidksek|skdklds)[\s]*=[\s]*'(.+?)';/,
+      match: /var[\s]+(posign|postsign|vidksek|skdklds|isngis)[\s]+=[\s]*'(.+)';/,
     },
     /**
      * 蓝奏文件名
@@ -402,6 +405,11 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     const $pageIframe =
       $pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="ifr"]') ||
       $pageDoc.querySelector<HTMLIFrameElement>('iframe[class^="n_downlink"]');
+
+    if (pageText.includes("文件地址错误，请注意ID大小写")) {
+      Qmsg.error("文件地址错误，请注意ID大小写");
+      return;
+    }
     if ($pageIframe) {
       // 该链接需要重新通过iframe地址访问获取信息
       const iframeUrl = $pageIframe.getAttribute("src")!;
@@ -470,9 +478,7 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       const fileUploadTimeMatch =
         pageText.match(this.regexp.uploadTime.match) || pageText.match(/<span class="n_file_infos">(.+?)<\/span>/i);
       const fileUploadTime = fileUploadTimeMatch ? fileUploadTimeMatch[fileUploadTimeMatch.length - 1].trim() : "";
-      const fileIdMatch =
-        pageText.match(/[\s]+url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i) ||
-        pageText.match(/\/\/url[\s]+:[\s]+'\/ajaxm.php\?file=([0-9]+)',/i);
+      const fileIdMatch = pageText.match(/url[\s]*:[\s]*'\/ajaxm.php\?file=([0-9]+)'/i);
       const fileId = fileIdMatch ? fileIdMatch[fileIdMatch.length - 1] : "1";
       if (sign) {
         postData_sign = sign[sign.length - 1];
@@ -484,9 +490,12 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
           log.info("传入参数=>无密码");
         }
         const kd = await this.getKNDS();
-        const ajaxmResponse = await httpx.post({
-          url: this.router.root("ajaxm.php?file=" + fileId),
-          responseType: "json",
+
+        const urlMatch = responseData.responseText.match(/url[\s]*:[\s]*'(.+)'/i);
+
+        const url = urlMatch ? urlMatch[urlMatch.length - 1] : this.router.root("ajaxm.php?file=" + fileId);
+        const ajaxmResponse = await httpx.post(url, {
+          data: `action=downprocess&sign=${postData_sign}&p=${postData_p}&kd=${kd}`,
           headers: {
             accept: "application/json, text/javascript, */*",
             "Content-Type": "application/x-www-form-urlencoded",
@@ -494,7 +503,6 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
             Origin: "https://" + NetDiskParse_Lanzou_Config.hostname,
             Referer: this.router.root(shareCode),
           },
-          data: `action=downprocess&sign=${postData_sign}&p=${postData_p}&kd=${kd}`,
         });
         if (!ajaxmResponse.status) {
           return;
@@ -567,24 +575,26 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
       } else {
         let loadDownHost = pageText.match(this.regexp.loadDownHost.match);
         let loadDown = pageText.match(this.regexp.loadDown.match);
-        const appleDownMatch = pageText.match(this.regexp.appleDown.match)!;
-        let appleDown = appleDownMatch[appleDownMatch.length - 1];
+        const appleDownMatch = pageText.match(this.regexp.appleDown.match);
+        let appleDown;
         if (utils.isNull(loadDown)) {
           loadDown = pageText.match(/var[\s]*(cppat)[\s]*=[\s]*'(.+?)'/i);
         }
-        if (utils.isNull(loadDownHost) && appleDown) {
-          appleDown = appleDown[appleDown.length - 1];
+        if (utils.isNull(loadDownHost) && appleDownMatch) {
+          appleDown = appleDownMatch[appleDownMatch.length - 1];
           loadDownHost = [appleDown];
           loadDown = [""];
           log.success("多文件-当前链接猜测为苹果的文件", appleDown);
         }
         if (utils.isNull(loadDownHost)) {
+          log.error(responseData);
           Qmsg.error("蓝奏云直链：获取sign的域名失败，请反馈开发者", {
             timeout: 3500,
           });
           return;
         }
         if (utils.isNull(loadDown)) {
+          log.error(responseData);
           Qmsg.error("蓝奏云直链：获取sign失败，请反馈开发者", {
             timeout: 3500,
           });
@@ -888,7 +898,9 @@ export class NetDiskParse_Lanzou extends ParseFileCore {
     let signsMatch = pageText.match(/var[\s]*ajaxdata[\s]*=[\s]*'(.+)';/i);
     let signMatch = pageText.match(/'sign':[\s]*'(.+)',/i) || pageText.match(/var[\s]*wp_sign[\s]*=[\s]*'(.*)';/i);
     let ajaxUrlMatch =
-      pageText.match(/[^//]url[\s]*:[\s]*'(.+?)'[\s]*,/i) || pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/);
+      pageText.match(/[^//]url[\s]*:[\s]*'(.+?)'[\s]*,/i) ||
+      pageText.match(/url[\s]*:[\s]*'(.+?)'[\s]*,/) ||
+      pageText.match(/var[\s]+domain[\d]{1}[\s]+=[\s]+'(.+)';/i);
     let ajaxUrl = "ajaxm.php";
     let websignkey = "";
     let websign = "";

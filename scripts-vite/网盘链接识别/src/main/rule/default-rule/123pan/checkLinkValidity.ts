@@ -13,7 +13,7 @@ export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceIn
         {
           data: {
             shareKey: shareCode,
-            SharePwd: accessCode,
+            SharePwd: accessCode || "",
             OrderId: "",
           },
           headers: {
@@ -33,6 +33,13 @@ export const NetDiskCheckLinkValidity_123pan: NetDiskCheckLinkValidityEntranceIn
         };
       }
       const data = utils.toJSON(response.data.responseText);
+      if (data.code == 5103 && utils.isNull(accessCode)) {
+        // 提取码错误
+        return {
+          ...NetDiskCheckLinkValidityStatus.needAccessCode,
+          data: data,
+        };
+      }
       if (data.code !== 0) {
         const message = data.message || "未知错误";
         return {

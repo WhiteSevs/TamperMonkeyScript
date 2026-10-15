@@ -8,35 +8,91 @@ import Qmsg from "qmsg";
 import { NetDiskAuthorization_123pan_Authorization } from "./authorization";
 import { NetDiskCheckLinkValidity_123pan } from "./checkLinkValidity";
 
+// https://github.com/qaiu/netdisk-fast-download
+// AI: 豆包 2.1 Lite
+const API_BASE = "https://api.123278.com";
+const GET_SHARE_INFO_URL =
+  API_BASE +
+  "/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc" +
+  "&shareKey={shareKey}&SharePwd={pwd}&ParentFileId={ParentFileId}&Page=1";
+const DOWNLOAD_API_V2_PATH = "/b/api/v2/share/download/info";
+const CHAR_MAP = "adefghlmyijnopkqrstubcvwsz";
+
+/* ============================================================
+ * 工具函数
+ * ========================================================== */
+
+// CRC32（与 Java java.util.zip.CRC32 对 ASCII 输入结果一致）
+function crc32(str: string) {
+  let crc = 0xffffffff;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i);
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    }
+  }
+  crc = (crc ^ 0xffffffff) >>> 0;
+  return crc.toString(16).padStart(8, "0");
+}
+
+// 移植自 Ye2Tool.encode123
+// url: 接口路径，如 /b/api/v2/share/download/info
+// way: android / web
+// version: 客户端版本号
+function encode123(url: string, way: string, version: string, timestamp: string) {
+  const randomInt = Math.floor(Math.random() * 10000000) + 1; // 1..10000000
+  const a = Math.floor((10000000 * randomInt) / 10000); // Java 整数除法
+  const timeLong = Math.floor(parseInt(timestamp, 10) / 1000);
+
+  const dt = new Date(timeLong * 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const timeStr =
+    "" + dt.getFullYear() + pad(dt.getMonth() + 1) + pad(dt.getDate()) + pad(dt.getHours()) + pad(dt.getMinutes());
+
+  let g = "";
+  for (const c of timeStr) {
+    const digit = c.charCodeAt(0) - 48; // '0' -> 0
+    if (digit === 0) {
+      g += CHAR_MAP.charAt(0);
+    } else {
+      g += CHAR_MAP.charAt(digit - 1);
+    }
+  }
+
+  const y = parseInt(crc32(g), 16).toString(10);
+  const finalCrcInput = `${timeLong}|${a}|${url}|${way}|${version}|${y}`;
+  const finalCrc = parseInt(crc32(finalCrcInput), 16).toString(10);
+
+  return `?${y}=${timeLong}-${a}-${finalCrc}`;
+}
+
+// 获取 token
+function getToken() {
+  const manual = NetDiskAuthorization_123pan_Authorization.get()?.trim();
+  if (utils.isNull(manual)) {
+    Qmsg.error("请先前往123云盘官网进行登录，用于获取token", { timeout: 5000 });
+    throw new Error("请先前往123云盘官网进行登录，用于获取token");
+  }
+  return manual.replace(/^Bearer\s+/i, "");
+}
+// 构造 Origin / Referer（对齐 Java resolveYeShareOrigin + buildShareReferer）
+function buildShareHeaders(shareKey: string, pwd: string, extra = {}) {
+  const origin = location.origin;
+  const referer = `${origin}/123pan/${shareKey}` + (pwd ? `?pwd=${encodeURIComponent(pwd)}` : "");
+  return Object.assign(
+    {
+      Origin: origin,
+      Referer: referer,
+    },
+    extra
+  );
+}
+
 export class NetDiskParse_123pan extends ParseFileCore {
-  panelList = [];
-  Authorization = "";
-  code = {
-    5113: "您今日下载流量已超出10GB限制，购买VIP会员即可体验无限流量下载",
-    5103: "分享码错误或者分享地址错误",
-    5104: "分享已过期",
-    "-1000": "获取出错",
-    "-2000": "请求异常",
-    "-3000": "请求意外中止",
-    "-4000": "请求超时",
-    104: "文件已失效",
-  };
-  Headers = {
-    "user-agent": "123pan/v2.4.0(Android_7.1.2;Xiaomi)",
-    platform: "android",
-    "app-version": "61",
-    "x-app-version": "2.4.0",
-  };
+  /** 新版123盘API基础地址 */
+  newApiBaseUrl = "https://api.123pan.com";
   async init(netDiskInfo: ParseFileInitConfig) {
     super.init(netDiskInfo);
-    if (netDiskInfo.ruleIndex === 1) {
-      // https://github.com/qaiu/netdisk-fast-download/blob/main/parser/src/main/java/cn/qaiu/parser/impl/Ye2Tool.java
-      // 有空再研究，不过123云盘现在需要登录账号才能下载了，而且每个月还限制流量
-      Qmsg.error("暂不支持新版链接的解析");
-      return;
-    }
-    this.panelList.length = 0;
-    this.Authorization = NetDiskAuthorization_123pan_Authorization.get();
     const $loading = Qmsg.loading("正在解析，请稍后...");
     const checkLinkValidityStatus = await NetDiskCheckLinkValidity_123pan.init(netDiskInfo);
     if (
@@ -47,109 +103,50 @@ export class NetDiskParse_123pan extends ParseFileCore {
       Qmsg.error(checkLinkValidityStatus.msg);
       return;
     }
-    // 成功
-    // 需要密码
-    const infoList = await this.getFiles();
-    if (!infoList) {
-      $loading.close();
-      return;
-    }
-    if (infoList.length === 1 && infoList[0]["Type"] == 0) {
-      // 单文件
-      const fileInfo = infoList[0];
-      if (fileInfo["Status"] == 104) {
-        $loading.close();
-        Qmsg.error("文件已失效");
-        return;
-      }
-      let downloadUrl = fileInfo["DownloadUrl"];
-      let fileSize = "";
-      if (downloadUrl === "" || true) {
-        $loading.setText("正在获取下载链接...");
-        const downloadInfo = await this.getFileDownloadInfo(
-          fileInfo["Etag"],
-          fileInfo["FileId"],
-          fileInfo["S3KeyFlag"],
-          this.shareCode,
-          fileInfo["Size"]
-        );
-        if (downloadInfo && downloadInfo.code === 0 && downloadInfo.data.DownloadURL) {
-          downloadUrl = downloadInfo.data.DownloadURL;
-          if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-            downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
-          }
-          fileSize = String(utils.formatByteToSize(fileInfo["Size"]));
-        } else if (downloadInfo && downloadInfo.code === 401) {
-          downloadUrl = "javascript:;";
-          fileSize = "请登录后下载";
-        } else {
-          downloadUrl = "javascript:;";
-          fileSize = "获取下载链接失败";
-        }
-      } else {
-        if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
-          downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
-        }
-
-        fileSize = utils.formatByteToSize(fileInfo["Size"]).toString();
-      }
-      let fileUploadTime = new Date(fileInfo["CreateAt"]).getTime();
-      let fileLatestTime = new Date(fileInfo["UpdateAt"]).getTime();
-      // @ts-expect-error
-      fileUploadTime = utils.formatTime(fileUploadTime);
-      // @ts-expect-error
-      fileLatestTime = utils.formatTime(fileLatestTime);
-      NetDiskView.$inst.linearChainDialogView.oneFile({
-        title: "123盘单文件直链",
-        fileName: fileInfo["FileName"],
-        fileSize: fileSize,
-        downloadUrl: downloadUrl,
-        fileUploadTime: fileUploadTime,
-        fileLatestTime: fileLatestTime,
-      });
-    } else {
-      $loading.setText("正在解析多文件...");
-      const folderInfoList = this.getFolderInfo(infoList, 0);
-      log.info("解析完毕");
-      NetDiskView.$inst.linearChainDialogView.moreFile("123盘文件解析", folderInfoList);
-    }
+    // 获取分享信息
+    const shareInfo = await this.getShareInfo(netDiskInfo.shareCode, netDiskInfo.accessCode);
     $loading.close();
+    if (!shareInfo) return;
+    log.info("获取分享信息成功", shareInfo);
+    const folderInfoList = this.getFolderInfo(shareInfo, 0);
+    log.info("解析完毕");
+    NetDiskView.$inst.linearChainDialogView.moreFile("123盘文件解析", folderInfoList);
   }
   /**
-   * 获取文件
-   * @param parentFileId 父级文件ID
+   * 获取分享目录信息
+   * @param shareKey
+   * @param pwd
+   * @param parentFileId
+   * @returns
    */
-  async getFiles(parentFileId = 0) {
-    const queryParamData = {
-      limit: 100,
-      next: 1,
-      orderBy: "share_id",
-      orderDirection: "desc",
-      shareKey: this.shareCode,
-      SharePwd: this.accessCode,
-      ParentFileId: parentFileId,
-      Page: 1,
-    };
-    const url = `https://www.123pan.com/b/api/share/get?${utils.toSearchParamsStr(queryParamData)}`;
-    const response = await httpx.get({
-      url: url,
-      headers: {
-        Accept: "*/*",
-        Referer: `https://www.123pan.com/s/${this.shareCode}`,
-        ...this.Headers,
-      },
+  async getShareInfo(shareKey: string, pwd: string, parentFileId: number | string = "0") {
+    const url = GET_SHARE_INFO_URL.replace("{shareKey}", encodeURIComponent(shareKey))
+      .replace("{pwd}", encodeURIComponent(pwd || ""))
+      .replace("{ParentFileId}", encodeURIComponent(parentFileId));
+
+    const token = getToken();
+    const headers = buildShareHeaders(shareKey, pwd, {
+      Accept: "application/json, text/plain, */*",
+      "User-Agent": navigator.userAgent,
     });
-    log.info(response);
-    if (!response.status) {
+    if (token) {
+      headers["Authorization" as keyof typeof headers] = "Bearer " + token;
+    }
+
+    const response = await httpx.get(url, { headers });
+    if (!response.isSuccess) {
       return;
     }
+
     const data = utils.toJSON<{
       code: number;
       message?: string;
       data: {
+        Expired: boolean;
         InfoList: {
           Category: number;
           ContentType: string;
+          // "2026-10-13T21:08:00+08:00"
           CreateAt: number;
           DownloadUrl: string;
           Etag: string;
@@ -164,12 +161,19 @@ export class NetDiskParse_123pan extends ParseFileCore {
           Type: 0 | 1;
           UpdateAt: string;
         }[];
+        IsFirst: boolean;
+        IsPaidPreview: boolean;
+        // 1
+        Len: number;
+        // "-1"
+        Next: string;
       };
     }>(response.data.responseText);
     if (data.code === 0) {
       const infoList = data.data.InfoList;
       return infoList;
     } else if (data.code === 5103) {
+      // 需要正确的访问码
       NetDiskView.$inst.newAccessCodeView(
         void 0,
         "_123pan",
@@ -184,56 +188,136 @@ export class NetDiskParse_123pan extends ParseFileCore {
           });
         }
       );
-    } else if (this.code[data.code as keyof typeof this.code]) {
-      Qmsg.error(this.code[data.code as keyof typeof this.code]);
     } else if (typeof data.message === "string") {
       Qmsg.error(data.message);
     } else {
-      Qmsg.error("123盘：未知的JSON格式");
+      log.error(data);
+      Qmsg.error("解析失败，未知的JSON格式");
     }
   }
   /**
-   * 递归算法使用的请求
-   * @param parentFileId
+   * 旧版 android 下载接口（v2 失败时回退）
+   * @param shareKey
+   * @param pwd
+   * @param fileInfo
+   * @returns
    */
-  async getFilesByRec(parentFileId: string) {
-    const response = await httpx.get({
-      url: `https://www.123pan.com/b/api/share/get?limit=100&next=1&orderBy=share_id&orderDirection=desc&shareKey=${this.shareCode}&SharePwd=${this.accessCode}&ParentFileId=${parentFileId}&Page=1`,
-      headers: {
-        Accept: "*/*",
-        Referer: `https://www.123pan.com/s/${this.shareCode}`,
-        ...this.Headers,
-      },
+  async legacyDownload(
+    shareKey: string,
+    pwd: string,
+    fileInfo: NonNullable<Awaited<ReturnType<NetDiskParse_123pan["getShareInfo"]>>>["0"]
+  ) {
+    const timestamp = String(Date.now());
+    const signed = encode123("/b/api/file/download_info", "android", "55", timestamp);
+    const url = API_BASE + "/b/api/file/download_info" + signed;
+
+    const token = getToken();
+    const headers = buildShareHeaders(shareKey, pwd, {
+      platform: "android",
+      "App-Version": "55",
+      "Content-Type": "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Mobile Safari/537.36",
     });
-    if (!response.status) {
-      return;
-    }
-    const data = utils.toJSON<{
-      code: number;
-      message?: string;
-      data: {
-        InfoList: {
-          Category: number;
-          ContentType: string;
-          CreateAt: number;
-          DownloadUrl: string;
-          Etag: string;
-          FileId: number;
-          FileName: string;
-          ParentFileId: number;
-          PunishFlag: number;
-          S3KeyFlag: number;
-          Size: number;
-          Status: number;
-          StorageNode: string;
-          Type: 0 | 1;
-          UpdateAt: string;
-        }[];
-      };
-    }>(response.data.responseText);
-    log.info(data);
+    if (token) headers["Authorization" as keyof typeof headers] = "Bearer " + token;
+
+    const body = {
+      driveId: 0,
+      etag: fileInfo.Etag,
+      fileId: fileInfo.FileId,
+      fileName: fileInfo.FileName,
+      s3keyFlag: fileInfo.S3KeyFlag,
+      size: fileInfo.Size,
+      type: 0,
+    };
+
+    const response = await httpx.post(url, { headers, data: body });
+
+    if (!response.isSuccess) return;
+    const data = utils.toJSON(response.data.responseText);
     if (data.code == 0) {
-      return data.data.InfoList;
+      let downURL = (data.data && (data.data.DownloadUrl || data.data.DownloadURL)) || "";
+      if (!downURL) {
+        Qmsg.error("旧下载接口未返回 DownloadUrl");
+        return;
+      }
+
+      // DownloadUrl 里可能带 ?params=<base64>，解码后才是真正的 CDN 地址
+      try {
+        const u = new URL(downURL);
+        const params = u.searchParams.get("params");
+        if (params) {
+          // base64url -> base64
+          let b64 = params.replace(/-/g, "+").replace(/_/g, "/");
+          while (b64.length % 4) b64 += "=";
+          const decoded = decodeURIComponent(
+            atob(b64)
+              .split("")
+              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+              .join("")
+          );
+          return decoded;
+        }
+      } catch {
+        /* 解析失败就直接返回原 URL */
+      }
+      return downURL;
+    } else if (typeof data.message === "string") {
+      Qmsg.error(data.message);
+    } else {
+      Qmsg.error("解析失败，未知的JSON格式");
+    }
+  }
+  /**
+   *  v2 分享下载接口（优先路径）
+   * @param shareKey
+   * @param pwd
+   * @param fileInfo
+   * @returns
+   */
+  async v2Download(
+    shareKey: string,
+    pwd: string,
+    fileInfo: NonNullable<Awaited<ReturnType<NetDiskParse_123pan["getShareInfo"]>>>["0"]
+  ) {
+    const timestamp = String(Date.now());
+    const signed = encode123(DOWNLOAD_API_V2_PATH, "web", "3", timestamp);
+    const url = API_BASE + DOWNLOAD_API_V2_PATH + signed;
+
+    const token = getToken();
+    const headers = buildShareHeaders(shareKey, pwd, {
+      Accept: "*/*",
+      "App-Version": "3",
+      platform: "web",
+      "Content-Type": "application/json;charset=UTF-8",
+      "User-Agent": navigator.userAgent,
+    });
+    if (token) headers["Authorization" as keyof typeof headers] = "Bearer " + token;
+
+    const body = {
+      ShareKey: shareKey,
+      FileID: fileInfo.FileId,
+      S3keyFlag: fileInfo.S3KeyFlag,
+      Size: fileInfo.Size,
+      Etag: fileInfo.Etag,
+    };
+
+    const response = await httpx.post(url, { headers, data: body });
+    if (!response.isSuccess) return;
+    const data = utils.toJSON(response.data.responseText);
+    if (data.code == 0) {
+      const downloadPath = data.downloadPath;
+      if (!downloadPath) return "";
+      let prefix = "";
+      if (Array.isArray(data.dispatchList) && data.dispatchList.length > 0) {
+        prefix = data.dispatchList[0].prefix || "";
+      }
+      let final = prefix;
+      if (final && !final.endsWith("/")) final = final.slice(0, -1);
+      final += downloadPath.startsWith("/") ? downloadPath : "/" + downloadPath;
+      return final;
+    } else if (typeof data.message === "string") {
+      log.error("[123pan] v2 " + data.message);
     }
   }
   /**
@@ -273,9 +357,9 @@ export class NetDiskParse_123pan extends ParseFileCore {
           isFolder: true,
           index: index,
           clickEvent: async () => {
-            const __infoList = await this.getFilesByRec(item["FileId"].toString());
-            if (__infoList) {
-              return this.getFolderInfo(__infoList, index + 1);
+            const childFolderInfoList = await this.getShareInfo(this.shareCode, this.accessCode, item["FileId"]);
+            if (childFolderInfoList) {
+              return this.getFolderInfo(childFolderInfoList, index + 1);
             } else {
               return [];
             }
@@ -294,26 +378,17 @@ export class NetDiskParse_123pan extends ParseFileCore {
           clickEvent: async () => {
             if (item.Status == 104) {
               Qmsg.error("文件已失效");
-            } else if (utils.isNotNull(item.DownloadUrl)) {
-              const downloadInfo = await this.getFileDownloadInfo(
-                item["Etag"],
-                item["FileId"],
-                item["S3KeyFlag"],
-                this.shareCode,
-                item["Size"]
-              );
-              if (downloadInfo && downloadInfo.code === 0 && downloadInfo.data.DownloadURL) {
-                return {
-                  mode: "aBlank",
-                  url: downloadInfo.data.DownloadURL,
-                };
-              } else if (downloadInfo && downloadInfo.code === 401) {
-                Qmsg.error("请登录后下载");
-              } else {
-                Qmsg.error(downloadInfo?.message || "获取下载链接失败");
+            } else if (utils.isNull(item.DownloadUrl)) {
+              const $loading = Qmsg.loading("正在获取下载链接");
+              let downloadUrl = await this.v2Download(this.shareCode, this.accessCode, item);
+              if (!downloadUrl) {
+                log.error("[123pan] v2 接口失败，回退旧接口");
+                downloadUrl = await this.legacyDownload(this.shareCode, this.accessCode, item);
               }
-            } else {
-              let downloadUrl = item.DownloadUrl as string;
+              $loading.close();
+              if (!downloadUrl) {
+                return;
+              }
               if (NetDiskFilterScheme.isForwardDownloadLink("_123pan")) {
                 downloadUrl = NetDiskFilterScheme.parseDataToSchemeUri("_123pan", downloadUrl);
               }
@@ -321,229 +396,16 @@ export class NetDiskParse_123pan extends ParseFileCore {
                 mode: "aBlank",
                 url: downloadUrl,
               };
+            } else {
+              return {
+                mode: "aBlank",
+                url: item.DownloadUrl,
+              };
             }
           },
         });
       }
     });
     return folderInfoList;
-  }
-  /**
-   * 获取单文件下载链接
-   * 123云盘新增了下载验证
-   * @param Etag
-   * @param FileID
-   * @param S3keyFlag
-   * @param ShareKey
-   * @param Size
-   */
-  async getFileDownloadInfo(
-    Etag: string,
-    FileID: string | number,
-    S3keyFlag: string | number,
-    ShareKey: string,
-    Size: string | number
-  ) {
-    const authK_V = this.getFileDownloadAuth();
-    const headers = {
-      // "App-Version": "3",
-      // Platform: "web",
-      "Content-Type": "application/json;charset=UTF-8",
-      Host: "www.123pan.com",
-      Accept: "*/*",
-      Referer: "https://www.123pan.com/s/" + ShareKey,
-      Origin: "https://www.123pan.com",
-      ...this.Headers,
-    };
-    if (this.Authorization) {
-      Reflect.set(headers, "Authorization", "Bearer " + this.Authorization);
-    }
-    log.success("获取下载链接加密参数：" + authK_V);
-    const v1ApiUrl = `https://www.123pan.com/a/api/share/download/info?${authK_V[0]}=${authK_V[1]}`;
-    const v2ApiUrl = `https://www.123pan.com/b/api/v2/share/download/info?${authK_V[0]}=${authK_V[1]}`;
-    const response = await httpx.post(v1ApiUrl, {
-      data: JSON.stringify({
-        Etag: Etag,
-        FileID: FileID,
-        S3keyFlag: S3keyFlag,
-        ShareKey: ShareKey,
-        Size: Size,
-      }),
-      responseType: "json",
-      headers: headers,
-    });
-    if (!response.status) {
-      return;
-    }
-    const data = utils.toJSON<{
-      code: number;
-      data: {
-        DownloadURL?: string;
-        dispatchList?: {
-          /**
-           * 下载路线一
-           *
-           * 下载路线二
-           */
-          isp: string;
-          /**
-           * cdn前缀域名
-           *
-           * https://xxx.xxx.xxx
-           */
-          prefix: string;
-        }[];
-        downloadPath?: string;
-        // fileId?: number;
-      };
-      message: string;
-    }>(response.data.responseText);
-    log.info(data);
-    if (data.code == 0) {
-      if (utils.isNull(data.data.DownloadURL)) {
-        if (Array.isArray(data.data.dispatchList) && typeof data.data.downloadPath === "string") {
-          const findValue = data.data.dispatchList.find((it) => it?.prefix?.startsWith?.("http"));
-          if (findValue) {
-            const DownloadURL = findValue.prefix + data.data.downloadPath;
-            return {
-              code: data.code,
-              message: data.message,
-              data: {
-                DownloadURL: DownloadURL,
-              },
-            };
-          }
-        }
-      } else {
-        const DownloadURL = this.decodeDownloadUrl(data.data.DownloadURL);
-        return {
-          code: data.code,
-          message: data.message,
-          data: {
-            DownloadURL: DownloadURL,
-          },
-        };
-      }
-    }
-    return {
-      code: data.code,
-      message: data.message,
-      data: {
-        DownloadURL: void 0,
-      },
-    };
-  }
-  /**
-   * 获取单文件下载链接的加密参数
-   * 感谢：https://github.com/qaiu/netdisk-fast-download/
-   */
-  getFileDownloadAuth() {
-    function encry_time(param: any) {
-      var param_time,
-        param_other = arguments["length"] > 0x2 && void 0x0 !== arguments[0x2] ? arguments[0x2] : 0x8;
-      if (0x0 === arguments["length"]) return void 0;
-      // oxlint-disable-next-line no-unused-expressions
-      "object" === typeof param
-        ? (param_time = param)
-        : (0xa === ("" + param)["length"] && (param = 0x3e8 * parseInt(param)), (param_time = new Date(param)));
-      var param_timezoneoffset = param + 0xea60 * new Date(param)["getTimezoneOffset"](),
-        param_time_n = param_timezoneoffset + 0x36ee80 * param_other;
-      return (
-        (param_time = new Date(param_time_n)),
-        {
-          y: param_time["getFullYear"](),
-          m:
-            param_time["getMonth"]() + 0x1 < 0xa
-              ? "0" + (param_time["getMonth"]() + 0x1)
-              : param_time["getMonth"]() + 0x1,
-          d: param_time["getDate"]() < 0xa ? "0" + param_time["getDate"]() : param_time["getDate"](),
-          h: param_time["getHours"]() < 0xa ? "0" + param_time["getHours"]() : param_time["getHours"](),
-          f: param_time["getMinutes"]() < 0xa ? "0" + param_time["getMinutes"]() : param_time["getMinutes"](),
-        }
-      );
-    }
-
-    function encry_join(param: any) {
-      for (
-        var a = arguments["length"] > 0x1 && void 0x0 !== arguments[0x1] ? arguments[0x1] : 0xa,
-          funcRun = function () {
-            for (var b, c = [], d = 0x0; d < 0x100; d++) {
-              b = d;
-              for (var index = 0x0; index < 0x8; index++) b = 0x1 & b ? 0xedb88320 ^ (b >>> 0x1) : b >>> 0x1;
-              c[d] = b;
-            }
-            return c;
-          },
-          _funcRun_ = funcRun(),
-          _param = param,
-          _param_1 = -0x1,
-          _param_0 = 0x0;
-        _param_0 < _param["length"];
-        _param_0++
-      )
-        _param_1 = (_param_1 >>> 0x8) ^ _funcRun_[0xff & (_param_1 ^ _param.charCodeAt(_param_0))];
-      return ((_param_1 = (-0x1 ^ _param_1) >>> 0x0), _param_1.toString(a));
-    }
-
-    function getSign(urlPath: any) {
-      var param_web = "web";
-      var param_type = 3;
-      var param_time = Math.round(
-        (new Date().getTime() + 0x3c * new Date().getTimezoneOffset() * 0x3e8 + 28800000) / 0x3e8
-      ).toString();
-      var key = "a,d,e,f,g,h,l,m,y,i,j,n,o,p,k,q,r,s,t,u,b,c,v,w,s,z";
-      var randomRoundNum = Math["round"](0x989680 * Math["random"]());
-
-      var number_split;
-      var time_a = {} as any;
-      var time_y;
-      var time_m;
-      var time_d;
-      var time_h;
-      var time_f;
-      var time_array;
-      var time_push: any[];
-      // @ts-expect-error
-      for (var number_item in ((number_split = key.split(",")),
-      (time_a = encry_time(param_time)),
-      (time_y = time_a["y"]),
-      (time_m = time_a["m"]),
-      (time_d = time_a["d"]),
-      (time_h = time_a["h"]),
-      (time_f = time_a["f"]),
-      (time_array = [time_y, time_m, time_d, time_h, time_f].join("")),
-      (time_push = []),
-      time_array))
-        time_push["push"](number_split[Number(time_array[number_item])]);
-      var param_no;
-      var param_join_s;
-      return (
-        (param_no = encry_join(time_push["join"](""))),
-        (param_join_s = encry_join(
-          ""
-            ["concat"](param_time, "|")
-            ["concat"](String(randomRoundNum), "|")
-            ["concat"](urlPath, "|")
-            ["concat"](param_web, "|")
-            ["concat"](String(param_type), "|")
-            ["concat"](param_no)
-        )),
-        [param_no, ""["concat"](param_time, "-")["concat"](String(randomRoundNum), "-")["concat"](param_join_s)]
-      );
-    }
-    return getSign("/a/api/share/download/info");
-  }
-  /**
-   * 将直链的param参数解析成真正的直链
-   * @param url
-   */
-  decodeDownloadUrl(url: string) {
-    if (url === "") {
-      return "";
-    }
-    return url;
-    let new_url_no_redirect = url + "&auto_redirect=0";
-    let base64data = btoa(new_url_no_redirect);
-    return "https://web-pro2.123952.com/download-v2/?params=" + base64data + "&is_s3=0";
   }
 }

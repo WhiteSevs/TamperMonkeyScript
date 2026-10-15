@@ -136,10 +136,27 @@ export const NetDiskWorker = {
   /**
    * 检测页面中是否存在Worker的CSP策略
    */
-  testWorkerConnect() {
+  testWorkerConnect(isFocus?: boolean) {
     const startTime = Date.now();
     const timeout = 2000;
     const maxTimeout = timeout * 2;
+    if (isFocus == null) {
+      isFocus = document.hasFocus();
+    }
+    if (!isFocus) {
+      DOMUtils.on(
+        window,
+        "focus",
+        () => {
+          this.testWorkerConnect(true);
+        },
+        {
+          capture: true,
+          once: true,
+        }
+      );
+      return;
+    }
     utils.hasWorkerCSP(timeout).then((isCSP) => {
       const endTime = Date.now();
       const calcTime = endTime - startTime;

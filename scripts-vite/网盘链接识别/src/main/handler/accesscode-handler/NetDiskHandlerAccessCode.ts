@@ -1,3 +1,4 @@
+import { NetDiskAccessCodeHandler_123pan } from "@/main/rule/default-rule/123pan/accessCodeHandler";
 import { NetDiskAccessCodeHandler_baidu } from "@/main/rule/default-rule/baidu/accessCodeHandler";
 import { NetDiskAccessCodeHandler_uc } from "@/main/rule/default-rule/uc/accessCodeHandler";
 
@@ -16,6 +17,10 @@ export const NetDiskHandlerAccessCodeRule: Record<
    * UC网盘
    */
   uc: NetDiskAccessCodeHandler_uc,
+  /**
+   * 123网盘
+   */
+  _123pan: NetDiskAccessCodeHandler_123pan,
 };
 
 /**

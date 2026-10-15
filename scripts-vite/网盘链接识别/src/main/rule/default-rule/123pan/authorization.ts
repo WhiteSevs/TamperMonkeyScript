@@ -13,10 +13,11 @@ export const NetDiskAuthorization_123pan_Authorization = {
   },
 };
 export const NetDiskAuthorization_123pan = function () {
-  if (window.location.hostname !== "www.123pan.com") {
+  if (window.location.hostname !== "www.123pan.com" && !window.location.hostname.endsWith("share.123pan.cn")) {
     return;
   }
   // 没在设置中开启直链获取就不获取鉴权信息
+  // 开启的话就自动获取鉴权信息
   if (NetDiskRuleData.function.linkClickMode(NetDiskRule_123pan.setting.key) !== "parseFile") {
     return;
   }
@@ -25,7 +26,7 @@ export const NetDiskAuthorization_123pan = function () {
     return;
   }
   // 去除左右的引号
-  authorToken = authorToken.replace(/^\"/, "").replace(/\"$/, "");
+  authorToken = authorToken.replace(/^"/, "").replace(/"$/, "");
   log.success("获取123网盘已登录用户的authorToken值👇");
   log.success(authorToken);
   NetDiskAuthorization_123pan_Authorization.set(authorToken);
