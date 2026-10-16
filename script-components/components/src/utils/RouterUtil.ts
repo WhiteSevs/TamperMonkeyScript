@@ -37,6 +37,10 @@ class RouterBuilder {
       type?: MatchType;
     }>(),
   };
+  private __hash = {
+    value: void 0 as string | RegExp | undefined,
+    type: "same" as MatchType,
+  };
   /**
    * 其它实例的结果
    *
@@ -133,7 +137,7 @@ class RouterBuilder {
   }
   /**
    * 主机（可带端口）
-   * 
+   *
    * 字符串完全相同才行
    * @example
    * host("www.baidu.com")
@@ -182,7 +186,7 @@ class RouterBuilder {
   }
   /**
    * 主机名
-   * 
+   *
    * 字符串完全相同才行
    * @param name 需要匹配的主机名
    * @example
@@ -281,7 +285,7 @@ class RouterBuilder {
   /**
    * 搜索参数总字符串
    * @param value 需要进行匹配的内容
-   * 
+   *
    * @example
    * .search("?a=1&b=2")
    */
@@ -326,6 +330,45 @@ class RouterBuilder {
     return this;
   }
   /**
+   * hash
+   * @param hash
+   * @returns
+   */
+  hash(hash: string) {
+    this.__hash = {
+      value: hash,
+      type: "same",
+    };
+    return this;
+  }
+  hashStartsWith(hash: string) {
+    this.__hash = {
+      value: hash,
+      type: "startsWith",
+    };
+    return this;
+  }
+  hashEndsWith(hash: string) {
+    this.__hash = {
+      value: hash,
+      type: "endsWith",
+    };
+    return this;
+  }
+  hashIncludes(hash: string) {
+    this.__hash = {
+      value: hash,
+      type: "includes",
+    };
+  }
+  hashMatch(hash: RegExp) {
+    this.__hash = {
+      value: hash,
+      type: "match",
+    };
+    return this;
+  }
+  /**
    * 生成url
    */
   build(): string {
@@ -335,7 +378,7 @@ class RouterBuilder {
     const protocol = this.__protocol.value || "https";
     const host = this.__host.value;
     const pathname = this.__pathname.value || "/";
-    let url = `${protocol}://${host}${pathname}`;
+    let url = `${protocol}://${host}${pathname}`.trim();
 
     if (this.__searchParams.value.size > 0) {
       const searhList: string[] = [];
@@ -348,11 +391,22 @@ class RouterBuilder {
           searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
         }
       });
+      // 补充
+      if (!url.endsWith("?")) {
+        url += "?";
+      }
       if (searhList.length) {
-        url += `?${searhList.join("&")}`;
+        url += searhList.join("&");
       }
     }
-
+    // hash
+    if (typeof this.__hash.value === "string") {
+      const hash = this.__hash.value.trim();
+      if (!url.endsWith("#") && !hash.startsWith("#")) {
+        url += "#";
+      }
+      url += hash;
+    }
     return url;
   }
   /**
@@ -375,176 +429,82 @@ class RouterBuilder {
       return this.otherInstResultWithOr;
     }
     const urlInst = new URL(this.__href);
+
+    const check = (
+      name: keyof typeof urlInst,
+      dataFn: IFunction<{
+        value: string | RegExp | undefined;
+        type: MatchType;
+      }>
+    ) => {
+      const data = typeof dataFn === "function" ? dataFn() : dataFn;
+      if (data.value) {
+        // 值
+        const urlInstValue = urlInst[name];
+        if (typeof urlInstValue !== "string") {
+          return false;
+        }
+
+        if (data.type === "same") {
+          if (typeof data.value === "string") {
+            return urlInstValue === data.value.toString();
+          } else {
+            throw new TypeError(`${name} value should be string by type ${data.type}`);
+          }
+        } else if (data.type === "startsWith") {
+          if (typeof data.value === "string") {
+            return urlInstValue.startsWith(data.value.toString());
+          } else {
+            throw new TypeError(`${name} value should be string by type ${data.type}`);
+          }
+        } else if (data.type === "endsWith") {
+          if (typeof data.value === "string") {
+            return urlInstValue.endsWith(data.value.toString());
+          } else {
+            throw new TypeError(`${name} value should be string by type ${data.type}`);
+          }
+        } else if (data.type === "includes") {
+          if (typeof data.value === "string") {
+            return urlInstValue.includes(data.value.toString());
+          } else {
+            throw new TypeError(`${name} value should be string by type ${data.type}`);
+          }
+        } else if (data.type === "match") {
+          if (data.value instanceof RegExp) {
+            return data.value.test(urlInstValue);
+          } else if (
+            typeof data.value === "string" ||
+            typeof data.value === "number" ||
+            typeof data.value === "boolean"
+          ) {
+            return urlInstValue.match(data.value.toString());
+          } else {
+            throw new TypeError(`${name} value should be RegExp or string by type ${data.type}`);
+          }
+        } else {
+          throw new TypeError(`${name} type should be same,startsWith,endsWith,includes,match`);
+        }
+      } else {
+        return true;
+      }
+    };
     const flag = [
       // origin
       () => {
-        if (this.__origin.value) {
-          if (this.__origin.type === "same") {
-            if (typeof this.__origin.value === "string") {
-              return urlInst.origin === this.__origin.value;
-            } else {
-              throw new TypeError("origin value should be string by type " + this.__origin.type);
-            }
-          } else if (this.__origin.type === "startsWith") {
-            if (typeof this.__origin.value === "string") {
-              return urlInst.origin.startsWith(this.__origin.value);
-            } else {
-              throw new TypeError("origin value should be string by type " + this.__origin.type);
-            }
-          } else if (this.__origin.type === "endsWith") {
-            if (typeof this.__origin.value === "string") {
-              return urlInst.origin.endsWith(this.__origin.value);
-            } else {
-              throw new TypeError("origin value should be string by type " + this.__origin.type);
-            }
-          } else if (this.__origin.type === "includes") {
-            if (typeof this.__origin.value === "string") {
-              return urlInst.origin.includes(this.__origin.value);
-            } else {
-              throw new TypeError("origin value should be string by type " + this.__origin.type);
-            }
-          } else if (this.__origin.type === "match") {
-            if (this.__origin.value instanceof RegExp) {
-              return this.__origin.value.test(urlInst.origin);
-            } else if (typeof this.__origin.value === "string") {
-              return urlInst.origin.match(this.__origin.value);
-            } else {
-              throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-            }
-          } else {
-            throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-          }
-        } else {
-          return true;
-        }
+        return check("origin", this.__origin);
       },
       // protocol
       () => {
-        if (this.__protocol.value) {
-          if (this.__protocol.type === "same") {
-            if (typeof this.__protocol.value === "string") {
-              return urlInst.protocol === this.__protocol.value;
-            } else {
-              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            }
-          } else if (this.__protocol.type === "startsWith") {
-            if (typeof this.__protocol.value === "string") {
-              return urlInst.protocol.startsWith(this.__protocol.value);
-            } else {
-              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            }
-          } else if (this.__protocol.type === "endsWith") {
-            if (typeof this.__protocol.value === "string") {
-              return urlInst.protocol.endsWith(this.__protocol.value);
-            } else {
-              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            }
-          } else if (this.__protocol.type === "includes") {
-            if (typeof this.__protocol.value === "string") {
-              return urlInst.protocol.includes(this.__protocol.value);
-            } else {
-              throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            }
-          } else if (this.__protocol.type === "match") {
-            if (this.__protocol.value instanceof RegExp) {
-              return this.__protocol.value.test(urlInst.protocol);
-            } else if (typeof this.__protocol.value === "string") {
-              return urlInst.protocol.match(this.__protocol.value);
-            } else {
-              throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-            }
-          } else {
-            throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-          }
-        } else {
-          return true;
-        }
+        return check("protocol", this.__protocol);
       },
       // host
       // hostName
       () => {
-        if (this.__host.value) {
-          const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-          if (this.__host.type === "same") {
-            if (typeof this.__host.value === "string") {
-              return this.__host.value === host;
-            } else {
-              throw new TypeError("host value should be string by type " + this.__host.type);
-            }
-          } else if (this.__host.type === "startsWith") {
-            if (typeof this.__host.value === "string") {
-              return host.startsWith(this.__host.value);
-            } else {
-              throw new TypeError("host value should be string by type " + this.__host.type);
-            }
-          } else if (this.__host.type === "endsWith") {
-            if (typeof this.__host.value === "string") {
-              return host.endsWith(this.__host.value);
-            } else {
-              throw new TypeError("host value should be string by type " + this.__host.type);
-            }
-          } else if (this.__host.type === "includes") {
-            if (typeof this.__host.value === "string") {
-              return host.includes(this.__host.value);
-            } else {
-              throw new TypeError("host value should be string by type " + this.__host.type);
-            }
-          } else if (this.__host.type === "match") {
-            if (this.__host.value instanceof RegExp) {
-              return this.__host.value.test(host);
-            } else if (typeof this.__host.value === "string") {
-              return host.match(this.__host.value);
-            } else {
-              throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-            }
-          } else {
-            throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
-          }
-        } else {
-          return true;
-        }
+        return check(this.__host.hasPort ? "host" : "hostname", this.__host);
       },
       // pathname
       () => {
-        if (this.__pathname.value) {
-          if (this.__pathname.type === "same") {
-            if (typeof this.__pathname.value === "string") {
-              return urlInst.pathname === this.__pathname.value;
-            } else {
-              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            }
-          } else if (this.__pathname.type === "startsWith") {
-            if (typeof this.__pathname.value === "string") {
-              return urlInst.pathname.startsWith(this.__pathname.value);
-            } else {
-              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            }
-          } else if (this.__pathname.type === "endsWith") {
-            if (typeof this.__pathname.value === "string") {
-              return urlInst.pathname.endsWith(this.__pathname.value);
-            } else {
-              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            }
-          } else if (this.__pathname.type === "includes") {
-            if (typeof this.__pathname.value === "string") {
-              return urlInst.pathname.includes(this.__pathname.value);
-            } else {
-              throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            }
-          } else if (this.__pathname.type === "match") {
-            if (this.__pathname.value instanceof RegExp) {
-              return this.__pathname.value.test(urlInst.pathname);
-            } else if (typeof this.__pathname.value === "string") {
-              return urlInst.pathname.match(this.__pathname.value);
-            } else {
-              throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-            }
-          } else {
-            throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-          }
-        } else {
-          return true;
-        }
+        return check("pathname", this.__pathname);
       },
       // search
       // searchParams
@@ -675,6 +635,10 @@ class RouterBuilder {
         }
         return flag;
       },
+      // hash
+      () => {
+        return check("hash", this.__hash);
+      },
     ].every((it) => it());
     return flag;
   }
@@ -683,7 +647,7 @@ class RouterBuilder {
 const RouterUtil = {
   /**
    * 主机（可带端口）
-   * 
+   *
    * 字符串完全相同才行
    * @param host 主机（可带端口）
    * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
@@ -697,7 +661,7 @@ const RouterUtil = {
   },
   /**
    * 主机名
-   * 
+   *
    * 字符串完全相同才行
    * @param name 需要匹配的主机名
    * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
@@ -726,10 +690,13 @@ const RouterUtil = {
   protocol(protocol: string, href?: string): RouterBuilder {
     return RouterUtil.builder(href).protocol(protocol);
   },
+  hash(hash: string, href?: string): RouterBuilder {
+    return RouterUtil.builder(href).hash(hash);
+  },
   /**
    * 创建一个新的Router实例用于内部匹配处理
    * @param href （可选）该字符串会代替内部的匹配主体，如果为空则使用当前页面地址
-   * @returns 
+   * @returns
    */
   builder(href?: string) {
     return new RouterBuilder(href);
