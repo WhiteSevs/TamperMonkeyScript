@@ -1899,12 +1899,17 @@ class DOMUtils extends ElementHandler {
     }
     const clickEvent = that.windowApi.window.event as PointerEvent;
     const touchEvent = that.windowApi.window.event as TouchEvent;
-    const $click = clickEvent?.composedPath()?.[0] as HTMLElement;
+    const $click = clickEvent?.composedPath()?.[0];
 
     // 点击的x坐标
-    const clickPosX = clickEvent?.clientX != null ? clickEvent.clientX : touchEvent.touches[0].clientX;
+    const clickPosX = clickEvent?.clientX ?? touchEvent?.touches?.[0]?.clientX;
     // 点击的y坐标
-    const clickPosY = clickEvent?.clientY != null ? clickEvent.clientY : touchEvent.touches[0].clientY;
+    const clickPosY = clickEvent?.clientY ?? touchEvent?.touches?.[0]?.clientY;
+
+    if (clickPosX == null || clickPosY == null || !($click instanceof Element)) {
+      return false;
+    }
+
     const {
       /* 要检测的元素的相对屏幕的横坐标最左边 */
       left: elementPosXLeft,
@@ -1915,6 +1920,7 @@ class DOMUtils extends ElementHandler {
       /* 要检测的元素的相对屏幕的纵坐标最下边 */
       bottom: elementPosYBottom,
     } = (<HTMLElement>$el).getBoundingClientRect();
+
     if (
       clickPosX >= elementPosXLeft &&
       clickPosX <= elementPosXRight &&
