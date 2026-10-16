@@ -37,11 +37,11 @@ export const MTForumPost = {
       Panel.execMenuOnce("mt-forum-post-editorOptimizationNormal", () => {
         MTEditorOptimizationNormal.init();
       });
-      Panel.execMenu("mt-forum-post-optimizationImagePreview", () => {
-        this.optimizationImagePreview();
+      Panel.execMenuOnce("mt-forum-post-optimizationImagePreview", () => {
+        return this.optimizationImagePreview();
       });
       Panel.execMenuOnce("mt-forum-post-setAttachmentsClickTip", () => {
-        this.setAttachmentsClickTip();
+        return this.setAttachmentsClickTip();
       });
     });
   },
@@ -544,15 +544,15 @@ export const MTForumPost = {
      * @param imgList
      * @param index
      */
-    function viewIMG(imgList: string[] = [], index = 0) {
+    const viewIMG = function (imgList: string[] = [], index = 0) {
       let viewerULNodeHTML = "";
       imgList.forEach((item) => {
         viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
       });
-      let viewerULNode = DOMUtils.createElement("ul", {
+      const $viewerContainer = DOMUtils.createElement("ul", {
         innerHTML: viewerULNodeHTML,
       });
-      let viewer = new Viewer(viewerULNode, {
+      const viewer = new Viewer($viewerContainer, {
         inline: false,
         url: "data-src",
         zIndex: utils.getMaxZIndex() + 100,
@@ -560,80 +560,84 @@ export const MTForumPost = {
           viewer.destroy();
         },
       });
-      log.info("查看的图片的下标", index);
+      log.info("查看图片", { imgList, index });
       viewer.view(index);
       viewer.zoomTo(1);
       viewer.show();
-    }
-    let blackListNoViewIMG = [
+    };
+    // 图片黑名单
+    const blackListNoViewIMG = [
       {
         hostName: "avatar-bbs.mt2.cn",
         pathName: "*",
       },
       {
         hostName: "cdn-bbs.mt2.cn",
-        pathName: "^(/static(/|//)image|/template)",
+        pathName: "^(/static(/|//)image|/template|/uc_server)",
       },
       {
         hostName: "cdn.binmt.cc",
-        pathName: "^(/static(/|//)image|/template)",
+        pathName: "^(/static(/|//)image|/template|/uc_server)",
       },
       {
         hostName: window.location.hostname,
-        pathName: "^(/static(/|//)image|/template)",
+        pathName: "^(/static(/|//)image|/template|/uc_server)",
       },
       {
         hostName: window.location.hostname,
         pathName: "/uc_server/avatar.php",
       },
     ];
-    DOMUtils.waitNodeList("div.comiis_postlist.kqide .comiis_postli:not([data-isHandlingViewIMG])").then((nodeList) => {
-      nodeList.forEach((item) => {
-        item.setAttribute("data-isHandlingViewIMG", "true");
-        /* 点击显示的图片组 */
-        let clickShowIMGList: string[] = [];
-        item.querySelectorAll("img").forEach(($img) => {
-          /* 图片链接 */
-          let IMG_URL = $img.src;
-          /* 主机名 */
-          let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
-          /* 路径 */
-          let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
-          /* img标签的父元素 */
-          let imgParentNode = $img.parentElement!;
-          if (imgParentNode.nodeName.toLowerCase() === "span") {
-            imgParentNode.removeAttribute("onclick");
-          }
-          if (imgParentNode.nodeName.toLowerCase() === "a" && imgParentNode.getAttribute("href") === IMG_URL) {
-            imgParentNode.setAttribute("href", "javascript:;");
-            imgParentNode.removeAttribute("target");
-          }
-          let isMatching = false;
-          /* 图片黑名单 */
-          for (let item of blackListNoViewIMG) {
-            if (IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 && IMG_URL_PATHNAME.match(item["pathName"])) {
-              isMatching = true;
-              break;
-            }
-          }
-          if (isMatching) {
-            return;
-          }
-          clickShowIMGList = [...clickShowIMGList, IMG_URL];
-
-          DOMUtils.on($img, "click", function () {
-            log.info("点击图片", $img);
-            let _index_ = clickShowIMGList.findIndex((_img_) => {
-              return _img_ == IMG_URL;
-            });
-            viewIMG(clickShowIMGList, _index_);
-          });
-        });
-        if (clickShowIMGList.length) {
-          log.info("处理的图片", clickShowIMGList);
+    const listener = DOMUtils.on(
+      document,
+      "click",
+      ".comiis_postlist.kqide .comiis_postli img",
+      (e, selectorTarget) => {
+        const $img = selectorTarget as any as HTMLImageElement;
+        const showImgList: string[] = [];
+        /* 图片链接 */
+        const IMG_URL = $img.src;
+        /* 主机名 */
+        const IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
+        /* 路径 */
+        const IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
+        /* img标签的父元素 */
+        const $imgParent = $img.parentElement!;
+        if ($imgParent.nodeName.toLowerCase() === "span") {
+          $imgParent.removeAttribute("onclick");
         }
-      });
-    });
+        if ($imgParent.nodeName.toLowerCase() === "a" && $imgParent.getAttribute("href") === IMG_URL) {
+          $imgParent.setAttribute("href", "javascript:;");
+          $imgParent.removeAttribute("target");
+        }
+        let isMatching = false;
+        /* 图片黑名单 */
+        for (let item of blackListNoViewIMG) {
+          if (IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 && IMG_URL_PATHNAME.match(item["pathName"])) {
+            isMatching = true;
+            break;
+          }
+        }
+        if (isMatching) {
+          return;
+        }
+        DOMUtils.preventEvent(e);
+        showImgList.push(IMG_URL);
+
+        log.info("点击图片", $img);
+        const viewIndex = showImgList.findIndex((it) => {
+          return it == IMG_URL;
+        });
+        viewIMG(showImgList, viewIndex);
+      },
+      {
+        capture: true,
+      }
+    );
+
+    return () => {
+      listener.off();
+    };
   },
   /**
    * 附件点击提醒

@@ -1,4 +1,4 @@
-import { $, $$, DOMUtils, pops, utils } from "@/env";
+import { $, $$, DOMUtils, log, pops, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import Qmsg from "qmsg";
 import { GM_getValue, GM_setValue } from "ViteGM";
@@ -135,7 +135,7 @@ export class MTEditorImageBed<T> {
               Array.from($file.files).map(async (item, index) => {
                 if (item.type === "image/gif") {
                   /* 不支持对GIF添加水印 */
-                  let image_base64 = await utils.parseFileToBase64(item);
+                  const image_base64 = await utils.parseFileToBase64(item);
                   needUploadImageArray.push(image_base64);
                   needUploadImageFileArray.push(item);
                 } else {
@@ -339,12 +339,15 @@ export class MTEditorImageBed<T> {
       let result = await this.option.delImageEvent(event, data);
       if (result) {
         // 成功删除
-        let deleteStorageStatus = this.deleteImage(this.option.id, data);
+        let deleteStorageStatus = this.deleteImageStoreRecord(this.option.id, data);
         if (deleteStorageStatus) {
           DOMUtils.remove($ele);
+        } else {
+          log.error("从存储中删除记录失败");
         }
       } else {
         // 删除失败
+        log.error("删除失败");
       }
     });
   }
@@ -361,12 +364,15 @@ export class MTEditorImageBed<T> {
       let result = await findValue.callback(event, data.data);
       if (result) {
         // 成功删除
-        let deleteStorageStatus = this.deleteImage(data.id, data.data);
+        let deleteStorageStatus = this.deleteImageStoreRecord(data.id, data.data);
         if (deleteStorageStatus) {
           DOMUtils.remove($ele);
+        } else {
+          log.error("从存储中删除记录失败");
         }
       } else {
         // 删除失败
+        log.error("删除失败");
       }
     });
   }
@@ -374,7 +380,7 @@ export class MTEditorImageBed<T> {
    * 存储历史记录图片
    */
   addImage(info: ImageBedUploadImageReusltInfo<T>) {
-    let allData = GM_getValue<StorageOption<T>[]>(this.$data.STORAGE_KEY, []);
+    const allData = GM_getValue<StorageOption<T>[]>(this.$data.STORAGE_KEY, []);
     allData.push({
       id: this.option.id,
       name: this.option.name,
@@ -387,15 +393,15 @@ export class MTEditorImageBed<T> {
    * 查询所有上传的历史图片
    */
   getAllImage() {
-    let allData = GM_getValue<StorageOption<T>[]>(this.$data.STORAGE_KEY, []);
+    const allData = GM_getValue<StorageOption<T>[]>(this.$data.STORAGE_KEY, []);
     return allData;
   }
   /**
    * 删除历史记录图片
    */
-  deleteImage(id: string, data: ImageBedUploadImageReusltInfo<T>) {
-    let allData = this.getAllImage();
-    let findIndex = allData.findIndex((item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data));
+  deleteImageStoreRecord(id: string, data: ImageBedUploadImageReusltInfo<T>) {
+    const allData = this.getAllImage();
+    let findIndex = allData.findIndex((item) => item.id === id && utils.isSame(item.data, data));
     if (findIndex != -1) {
       allData.splice(findIndex, 1);
       GM_setValue(this.$data.STORAGE_KEY, allData);

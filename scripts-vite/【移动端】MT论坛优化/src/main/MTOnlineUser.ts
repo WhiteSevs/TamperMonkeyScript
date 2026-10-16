@@ -117,15 +117,15 @@ export const MTOnlineUser = {
    * 获取在线用户名单信息
    */
   async getOnlineUserListInfo() {
-    let searchParamsData = {
+    const searchParamsData = {
       showoldetails: "yes",
     };
-    let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+    const response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
       },
     });
-    if (!response.status) {
+    if (!response.isSuccess) {
       return;
     }
     let pageHTML = utils.parseFromString(response.data.responseText, "text/html");

@@ -216,7 +216,7 @@ export const MTSmallWindow = {
 
     DOMUtils.on($imageIcon, "click", (event) => {
       DOMUtils.preventEvent(event);
-      log.info(`查看图片`, imagesList);
+      log.info(`[小窗] 查看图片`, imagesList);
       var viewerULNodeHTML = "";
       imagesList.forEach((item) => {
         viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
@@ -272,17 +272,9 @@ export const MTSmallWindow = {
       title = title.trim();
       /* 帖子地址 */
       let url = $forum.querySelector<HTMLAnchorElement>(".mmlist_li_box a")!.href;
-      /* 帖子内图片列表 */
-      var imagesList: string[] = [];
       $forum.setAttribute("data-injection-small-window", "true");
       $forum.setAttribute("data-injection-small-window-url", url);
       $forum.setAttribute("data-injection-small-window-title", title);
-      $forum.querySelectorAll<HTMLImageElement>(".comiis_pyqlist_img img").forEach(($img) => {
-        imagesList.push($img.getAttribute("src")!);
-      });
-      $forum.querySelectorAll<HTMLImageElement>(".comiis_pyqlist_imgs img").forEach(($img) => {
-        imagesList.push($img.getAttribute("src")!);
-      });
       $forum.querySelectorAll<HTMLAnchorElement>(".mmlist_li_box a").forEach(($anchor) => {
         $anchor.removeAttribute("href");
         $anchor.setAttribute("data-href", url);
@@ -294,6 +286,21 @@ export const MTSmallWindow = {
         if (document.body.offsetWidth / 2 > mouseClickPosX) {
           window.location.href = url;
         } else {
+          /* 帖子内图片列表 */
+          const imagesList: string[] = [];
+          [
+            ...$forum.querySelectorAll<HTMLImageElement>(".comiis_pyqlist_img img"),
+            ...$forum.querySelectorAll<HTMLImageElement>(".comiis_pyqlist_imgs img"),
+          ].forEach(($img) => {
+            let url;
+            url = $img.getAttribute("comiis_loadimages");
+            if (url == null) {
+              url = $img.src;
+            }
+            if (utils.isNotNull(url) && !url.endsWith("/template/comiis_app/pic/none.png")) {
+              imagesList.push(url);
+            }
+          });
           MTSmallWindow.showSmallWindow(title, url, imagesList);
         }
       });

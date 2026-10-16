@@ -33,6 +33,17 @@ httpx.interceptors.request.use((data) => {
   return data;
 });
 
+httpx.interceptors.response.use((data, resolveOption) => {
+  try {
+    const urlInst = new URL(CommonUtil.fixUrl(data.finalUrl));
+    if (urlInst.hostname.endsWith(location.hostname) && data.responseText.includes("acw_sc__v2=")) {
+      Qmsg.error("检测到触发反爬虫，请刷新页面后再试");
+      resolveOption.isSuccess = false;
+    }
+  } catch {}
+  return data;
+});
+
 pops.GlobalConfig.setGlobalConfig({
   mask: {
     enable: true,

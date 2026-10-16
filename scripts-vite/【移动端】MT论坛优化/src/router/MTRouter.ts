@@ -11,9 +11,14 @@ export const MTRouter = {
    * 帖子
    */
   isPost() {
+    // https: //bbs.binmt.cc/forum.php?mod=viewthread&tid=174811&aid=379413&from=album&page=1
+    // https: //bbs.binmt.cc/forum.php?mod=viewthread&tid=174811&mobile=2#comiis_allreplies
     return (
       RouterUtil.builder().pathnameStartsWith("/thread-").r() ||
-      RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "viewthread").r()
+      (RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "viewthread").r() &&
+        // 非通过点击图片进入的预览模式
+        !RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("from", "album").r() &&
+        window.location.hash == "")
     );
   },
   /**

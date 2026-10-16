@@ -784,7 +784,7 @@ export const MTEditorOptimizationNormal = {
         DOMUtils.focus("#needmessage");
       } else if (window.event && !DOMUtils.checkUserClickInNode($("#comiis_foot_menu_beautify_big")!)) {
         /* 当前点击的不在底部编辑框区域内 */
-        log.info(`点击的其它区域，隐藏大编辑器，显示小编辑器`);
+        // log.info(`点击的其它区域，隐藏大编辑器，显示小编辑器`);
         DOMUtils.show("#comiis_foot_menu_beautify", false);
         DOMUtils.hide("#comiis_foot_menu_beautify_big", false);
         if (DOMUtils.attr("#comiis_foot_menu_beautify_big", "data-model") == "reply") {

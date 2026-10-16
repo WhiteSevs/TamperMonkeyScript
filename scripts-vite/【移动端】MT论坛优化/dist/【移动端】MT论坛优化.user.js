@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.15
+// @version      2026.10.16
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -10,9 +10,9 @@
 // @match        *://bbs.binmt.cc/*
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@79fb4d854f1e2cdf606339b0dac18d50104e2ebe/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.3/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.9/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@5698a8673fcd8ba11bdf710d96d00b9d887a52d4/lib/js-watermark/index.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.js
@@ -2196,6 +2196,18 @@
     httpxCookieManager.handle(data);
     return data;
   });
+  httpx.interceptors.response.use((data, resolveOption) => {
+    try {
+      if (
+        new URL(CommonUtil.fixUrl(data.finalUrl)).hostname.endsWith(location.hostname) &&
+        data.responseText.includes("acw_sc__v2=")
+      ) {
+        qmsg.default.error("检测到触发反爬虫，请刷新页面后再试");
+        resolveOption.isSuccess = false;
+      }
+    } catch {}
+    return data;
+  });
   __pops__.GlobalConfig.setGlobalConfig({
     mask: { enable: true },
     drag: true,
@@ -2419,18 +2431,19 @@
       this.$data.cid = nextBlackListInfo.next_cid;
     },
     async getBlackListInfo(cid = "") {
-      let searchParamsData = {
+      const searchParamsData = {
         mod: "misc",
         action: "showdarkroom",
         cid,
         ajaxdata: "json",
       };
-      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+      const response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
         headers: { "User-Agent": utils.getRandomPCUA() },
         responseType: "json",
       });
-      if (!response.status) return;
-      let data = utils.toJSON(response.data.responseText);
+      console.log(response);
+      if (!response.isSuccess) return;
+      const data = utils.toJSON(response.data.responseText);
       let cidSplit = data["message"].split("|");
       let next_cid = cidSplit[cidSplit.length - 1];
       let blackListData = utils.parseObjectToArray(data["data"]);
@@ -2634,10 +2647,10 @@
       );
     },
     async getOnlineUserListInfo() {
-      let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr({ showoldetails: "yes" })}`, {
+      const response = await httpx.get(`/forum.php?${utils.toSearchParamsStr({ showoldetails: "yes" })}`, {
         headers: { "User-Agent": utils.getRandomPCUA() },
       });
-      if (!response.status) return;
+      if (!response.isSuccess) return;
       let pageHTML = utils.parseFromString(response.data.responseText, "text/html");
       let result = {
         data: [],
@@ -3105,6 +3118,10 @@
       type: "same",
     };
     __searchParams = { value: new Set() };
+    __hash = {
+      value: void 0,
+      type: "same",
+    };
     otherInstResultWithOr = false;
     constructor(href) {
       if (typeof href === "string") this.href(href);
@@ -3345,9 +3362,43 @@
       });
       return this;
     }
+    hash(hash) {
+      this.__hash = {
+        value: hash,
+        type: "same",
+      };
+      return this;
+    }
+    hashStartsWith(hash) {
+      this.__hash = {
+        value: hash,
+        type: "startsWith",
+      };
+      return this;
+    }
+    hashEndsWith(hash) {
+      this.__hash = {
+        value: hash,
+        type: "endsWith",
+      };
+      return this;
+    }
+    hashIncludes(hash) {
+      this.__hash = {
+        value: hash,
+        type: "includes",
+      };
+    }
+    hashMatch(hash) {
+      this.__hash = {
+        value: hash,
+        type: "match",
+      };
+      return this;
+    }
     build() {
       if (!this.__host.value) throw new TypeError("host or hostName should be required");
-      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`;
+      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`.trim();
       if (this.__searchParams.value.size > 0) {
         const searhList = [];
         this.__searchParams.value.forEach((it) => {
@@ -3358,7 +3409,13 @@
             searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
           }
         });
-        if (searhList.length) url += `?${searhList.join("&")}`;
+        if (!url.endsWith("?")) url += "?";
+        if (searhList.length) url += searhList.join("&");
+      }
+      if (typeof this.__hash.value === "string") {
+        const hash = this.__hash.value.trim();
+        if (!url.endsWith("#") && !hash.startsWith("#")) url += "#";
+        url += hash;
       }
       return url;
     }
@@ -3371,91 +3428,47 @@
     r() {
       if (this.otherInstResultWithOr) return this.otherInstResultWithOr;
       const urlInst = new URL(this.__href);
+      const check = (name, dataFn) => {
+        const data = typeof dataFn === "function" ? dataFn() : dataFn;
+        if (data.value) {
+          const urlInstValue = urlInst[name];
+          if (typeof urlInstValue !== "string") return false;
+          if (data.type === "same") {
+            if (typeof data.value === "string") return urlInstValue === data.value.toString();
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "startsWith") {
+            if (typeof data.value === "string") return urlInstValue.startsWith(data.value.toString());
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "endsWith") {
+            if (typeof data.value === "string") return urlInstValue.endsWith(data.value.toString());
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "includes") {
+            if (typeof data.value === "string") return urlInstValue.includes(data.value.toString());
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "match") {
+            if (data.value instanceof RegExp) return data.value.test(urlInstValue);
+            else if (
+              typeof data.value === "string" ||
+              typeof data.value === "number" ||
+              typeof data.value === "boolean"
+            )
+              return urlInstValue.match(data.value.toString());
+            else throw new TypeError(`${name} value should be RegExp or string by type ${data.type}`);
+          } else throw new TypeError(`${name} type should be same,startsWith,endsWith,includes,match`);
+        } else return true;
+      };
       return [
         () => {
-          if (this.__origin.value) {
-            if (this.__origin.type === "same") {
-              if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "startsWith") {
-              if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "endsWith") {
-              if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "includes") {
-              if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "match") {
-              if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
-              else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
-              else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-            } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-          } else return true;
+          return check("origin", this.__origin);
         },
         () => {
-          if (this.__protocol.value) {
-            if (this.__protocol.type === "same") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "startsWith") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "endsWith") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "includes") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "match") {
-              if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
-              else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
-              else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-            } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-          } else return true;
+          return check("protocol", this.__protocol);
         },
         () => {
-          if (this.__host.value) {
-            const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same") {
-              if (typeof this.__host.value === "string") return this.__host.value === host;
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "startsWith") {
-              if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "endsWith") {
-              if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "includes") {
-              if (typeof this.__host.value === "string") return host.includes(this.__host.value);
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "match") {
-              if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
-              else if (typeof this.__host.value === "string") return host.match(this.__host.value);
-              else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-            } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
-          } else return true;
+          return check(this.__host.hasPort ? "host" : "hostname", this.__host);
         },
         () => {
-          if (this.__pathname.value) {
-            if (this.__pathname.type === "same") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "startsWith") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "endsWith") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "includes") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "match") {
-              if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
-              else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
-              else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-            } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-          } else return true;
+          return check("pathname", this.__pathname);
         },
         () => {
           let flag = true;
@@ -3554,6 +3567,9 @@
           }
           return flag;
         },
+        () => {
+          return check("hash", this.__hash);
+        },
       ].every((it) => it());
     }
   };
@@ -3576,6 +3592,9 @@
     protocol(protocol, href) {
       return RouterUtil.builder(href).protocol(protocol);
     },
+    hash(hash, href) {
+      return RouterUtil.builder(href).hash(hash);
+    },
     builder(href) {
       return new RouterBuilder(href);
     },
@@ -3587,7 +3606,9 @@
     isPost() {
       return (
         RouterUtil.builder().pathnameStartsWith("/thread-").r() ||
-        RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "viewthread").r()
+        (RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("mod", "viewthread").r() &&
+          !RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("from", "album").r() &&
+          window.location.hash == "")
       );
     },
     isPage() {
@@ -3711,7 +3732,7 @@
               await Promise.all(
                 Array.from($file.files).map(async (item, index) => {
                   if (item.type === "image/gif") {
-                    let image_base64 = await utils.parseFileToBase64(item);
+                    const image_base64 = await utils.parseFileToBase64(item);
                     needUploadImageArray.push(image_base64);
                     needUploadImageFileArray.push(item);
                   } else {
@@ -3886,8 +3907,9 @@
       let $delImg = $ele.querySelector(".delImg");
       domUtils.on($delImg, "click", async (event) => {
         if (await this.option.delImageEvent(event, data)) {
-          if (this.deleteImage(this.option.id, data)) domUtils.remove($ele);
-        }
+          if (this.deleteImageStoreRecord(this.option.id, data)) domUtils.remove($ele);
+          else log.error("从存储中删除记录失败");
+        } else log.error("删除失败");
       });
     }
     setHistoryImageBtnDeleteEvent($ele, data) {
@@ -3896,12 +3918,13 @@
         let findValue = GlobalImageDelete.find((item) => item.id === data.id);
         if (!findValue) return;
         if (await findValue.callback(event, data.data)) {
-          if (this.deleteImage(data.id, data.data)) domUtils.remove($ele);
-        }
+          if (this.deleteImageStoreRecord(data.id, data.data)) domUtils.remove($ele);
+          else log.error("从存储中删除记录失败");
+        } else log.error("删除失败");
       });
     }
     addImage(info) {
-      let allData = _GM_getValue(this.$data.STORAGE_KEY, []);
+      const allData = _GM_getValue(this.$data.STORAGE_KEY, []);
       allData.push({
         id: this.option.id,
         name: this.option.name,
@@ -3913,9 +3936,9 @@
     getAllImage() {
       return _GM_getValue(this.$data.STORAGE_KEY, []);
     }
-    deleteImage(id, data) {
-      let allData = this.getAllImage();
-      let findIndex = allData.findIndex((item) => item.id === id && JSON.stringify(item.data) === JSON.stringify(data));
+    deleteImageStoreRecord(id, data) {
+      const allData = this.getAllImage();
+      let findIndex = allData.findIndex((item) => item.id === id && utils.isSame(item.data, data));
       if (findIndex != -1) {
         allData.splice(findIndex, 1);
         _GM_setValue(this.$data.STORAGE_KEY, allData);
@@ -5436,7 +5459,6 @@
           domUtils.show("#comiis_foot_menu_beautify_big", false);
           domUtils.focus("#needmessage");
         } else if (window.event && !domUtils.checkUserClickInNode($("#comiis_foot_menu_beautify_big"))) {
-          log.info(`点击的其它区域，隐藏大编辑器，显示小编辑器`);
           domUtils.show("#comiis_foot_menu_beautify", false);
           domUtils.hide("#comiis_foot_menu_beautify_big", false);
           if (domUtils.attr("#comiis_foot_menu_beautify_big", "data-model") == "reply") {
@@ -5688,11 +5710,11 @@
         Panel.execMenuOnce("mt-forum-post-editorOptimizationNormal", () => {
           MTEditorOptimizationNormal.init();
         });
-        Panel.execMenu("mt-forum-post-optimizationImagePreview", () => {
-          this.optimizationImagePreview();
+        Panel.execMenuOnce("mt-forum-post-optimizationImagePreview", () => {
+          return this.optimizationImagePreview();
         });
         Panel.execMenuOnce("mt-forum-post-setAttachmentsClickTip", () => {
-          this.setAttachmentsClickTip();
+          return this.setAttachmentsClickTip();
         });
       });
     },
@@ -6102,13 +6124,13 @@
     },
     optimizationImagePreview() {
       log.info(`图片查看优化`);
-      function viewIMG(imgList = [], index = 0) {
+      const viewIMG = function (imgList = [], index = 0) {
         let viewerULNodeHTML = "";
         imgList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
         });
-        let viewerULNode = domUtils.createElement("ul", { innerHTML: viewerULNodeHTML });
-        let viewer = new viewerjs.default(viewerULNode, {
+        const $viewerContainer = domUtils.createElement("ul", { innerHTML: viewerULNodeHTML });
+        const viewer = new viewerjs.default($viewerContainer, {
           inline: false,
           url: "data-src",
           zIndex: utils.getMaxZIndex() + 100,
@@ -6116,68 +6138,72 @@
             viewer.destroy();
           },
         });
-        log.info("查看的图片的下标", index);
+        log.info("查看图片", {
+          imgList,
+          index,
+        });
         viewer.view(index);
         viewer.zoomTo(1);
         viewer.show();
-      }
-      let blackListNoViewIMG = [
+      };
+      const blackListNoViewIMG = [
         {
           hostName: "avatar-bbs.mt2.cn",
           pathName: "*",
         },
         {
           hostName: "cdn-bbs.mt2.cn",
-          pathName: "^(/static(/|//)image|/template)",
+          pathName: "^(/static(/|//)image|/template|/uc_server)",
         },
         {
           hostName: "cdn.binmt.cc",
-          pathName: "^(/static(/|//)image|/template)",
+          pathName: "^(/static(/|//)image|/template|/uc_server)",
         },
         {
           hostName: window.location.hostname,
-          pathName: "^(/static(/|//)image|/template)",
+          pathName: "^(/static(/|//)image|/template|/uc_server)",
         },
         {
           hostName: window.location.hostname,
           pathName: "/uc_server/avatar.php",
         },
       ];
-      domUtils
-        .waitNodeList("div.comiis_postlist.kqide .comiis_postli:not([data-isHandlingViewIMG])")
-        .then((nodeList) => {
-          nodeList.forEach((item) => {
-            item.setAttribute("data-isHandlingViewIMG", "true");
-            let clickShowIMGList = [];
-            item.querySelectorAll("img").forEach(($img) => {
-              let IMG_URL = $img.src;
-              let IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
-              let IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
-              let imgParentNode = $img.parentElement;
-              if (imgParentNode.nodeName.toLowerCase() === "span") imgParentNode.removeAttribute("onclick");
-              if (imgParentNode.nodeName.toLowerCase() === "a" && imgParentNode.getAttribute("href") === IMG_URL) {
-                imgParentNode.setAttribute("href", "javascript:;");
-                imgParentNode.removeAttribute("target");
-              }
-              let isMatching = false;
-              for (let item of blackListNoViewIMG)
-                if (IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 && IMG_URL_PATHNAME.match(item["pathName"])) {
-                  isMatching = true;
-                  break;
-                }
-              if (isMatching) return;
-              clickShowIMGList = [...clickShowIMGList, IMG_URL];
-              domUtils.on($img, "click", function () {
-                log.info("点击图片", $img);
-                let _index_ = clickShowIMGList.findIndex((_img_) => {
-                  return _img_ == IMG_URL;
-                });
-                viewIMG(clickShowIMGList, _index_);
-              });
-            });
-            if (clickShowIMGList.length) log.info("处理的图片", clickShowIMGList);
+      const listener = domUtils.on(
+        document,
+        "click",
+        ".comiis_postlist.kqide .comiis_postli img",
+        (e, selectorTarget) => {
+          const $img = selectorTarget;
+          const showImgList = [];
+          const IMG_URL = $img.src;
+          const IMG_URL_HOSTNAME = new URL(IMG_URL).hostname;
+          const IMG_URL_PATHNAME = new URL(IMG_URL).pathname;
+          const $imgParent = $img.parentElement;
+          if ($imgParent.nodeName.toLowerCase() === "span") $imgParent.removeAttribute("onclick");
+          if ($imgParent.nodeName.toLowerCase() === "a" && $imgParent.getAttribute("href") === IMG_URL) {
+            $imgParent.setAttribute("href", "javascript:;");
+            $imgParent.removeAttribute("target");
+          }
+          let isMatching = false;
+          for (let item of blackListNoViewIMG)
+            if (IMG_URL_HOSTNAME.indexOf(item["hostName"]) != -1 && IMG_URL_PATHNAME.match(item["pathName"])) {
+              isMatching = true;
+              break;
+            }
+          if (isMatching) return;
+          domUtils.preventEvent(e);
+          showImgList.push(IMG_URL);
+          log.info("点击图片", $img);
+          const viewIndex = showImgList.findIndex((it) => {
+            return it == IMG_URL;
           });
-        });
+          viewIMG(showImgList, viewIndex);
+        },
+        { capture: true }
+      );
+      return () => {
+        listener.off();
+      };
     },
     setAttachmentsClickTip() {
       log.info(`附件点击提醒`);
@@ -7259,7 +7285,7 @@
       });
       domUtils.on($imageIcon, "click", (event) => {
         domUtils.preventEvent(event);
-        log.info(`查看图片`, imagesList);
+        log.info(`[小窗] 查看图片`, imagesList);
         var viewerULNodeHTML = "";
         imagesList.forEach((item) => {
           viewerULNodeHTML += `<li><img data-src="${item}"></li>`;
@@ -7300,16 +7326,9 @@
         if (title == "" || title == null) title = domUtils.text($forum.querySelector(".mmlist_li_box a"));
         title = title.trim();
         let url = $forum.querySelector(".mmlist_li_box a").href;
-        var imagesList = [];
         $forum.setAttribute("data-injection-small-window", "true");
         $forum.setAttribute("data-injection-small-window-url", url);
         $forum.setAttribute("data-injection-small-window-title", title);
-        $forum.querySelectorAll(".comiis_pyqlist_img img").forEach(($img) => {
-          imagesList.push($img.getAttribute("src"));
-        });
-        $forum.querySelectorAll(".comiis_pyqlist_imgs img").forEach(($img) => {
-          imagesList.push($img.getAttribute("src"));
-        });
         $forum.querySelectorAll(".mmlist_li_box a").forEach(($anchor) => {
           $anchor.removeAttribute("href");
           $anchor.setAttribute("data-href", url);
@@ -7318,7 +7337,19 @@
         domUtils.on($mmlist_li_box, "click", function (event) {
           var mouseClickPosX = Number(event.clientX);
           if (document.body.offsetWidth / 2 > mouseClickPosX) window.location.href = url;
-          else MTSmallWindow.showSmallWindow(title, url, imagesList);
+          else {
+            const imagesList = [];
+            [
+              ...$forum.querySelectorAll(".comiis_pyqlist_img img"),
+              ...$forum.querySelectorAll(".comiis_pyqlist_imgs img"),
+            ].forEach(($img) => {
+              let url;
+              url = $img.getAttribute("comiis_loadimages");
+              if (url == null) url = $img.src;
+              if (utils.isNotNull(url) && !url.endsWith("/template/comiis_app/pic/none.png")) imagesList.push(url);
+            });
+            MTSmallWindow.showSmallWindow(title, url, imagesList);
+          }
         });
       });
     },

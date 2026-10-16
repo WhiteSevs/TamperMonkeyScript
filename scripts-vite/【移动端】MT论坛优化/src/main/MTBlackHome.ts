@@ -155,22 +155,23 @@ export const MTBlackHome = {
    * 获取小黑屋名单信息
    */
   async getBlackListInfo(cid = "") {
-    let searchParamsData = {
+    const searchParamsData = {
       mod: "misc",
       action: "showdarkroom",
       cid: cid,
       ajaxdata: "json",
     };
-    let response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
+    const response = await httpx.get(`/forum.php?${utils.toSearchParamsStr(searchParamsData)}`, {
       headers: {
         "User-Agent": utils.getRandomPCUA(),
       },
       responseType: "json",
     });
-    if (!response.status) {
+    console.log(response);
+    if (!response.isSuccess) {
       return;
     }
-    let data = utils.toJSON(response.data.responseText) as {
+    const data = utils.toJSON(response.data.responseText) as {
       message: string;
       data: {
         [key: string]: Omit<BlackUserInfo, "time">;
