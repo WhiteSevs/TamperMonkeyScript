@@ -874,10 +874,10 @@ export class Httpx {
         // 拦截器
         const responseOption: HttpxResponse<HttpxRequestOption> = {
           data: originResponse,
-          isSuccess: originResponse.isSuccess,
+          isSuccess: true,
           requestOption: requestOption,
           msg: "请求成功",
-          status: originResponse.isSuccess,
+          status: true,
           statusCode: originResponse.status,
           type: "onload",
         };
