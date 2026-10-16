@@ -129,8 +129,11 @@ export class Httpx {
       configList: <
         {
           id: string;
-          successFn?: (...args: any[]) => any | Promise<(...args: any[]) => any>;
-          errorFn?: (...args: any[]) => any | Promise<(...args: any[]) => any>;
+          successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(
+            response: T,
+            resolveOption: HttpxResponse<HttpxRequestOption>
+          ) => IPromise<void | T>;
+          errorFn?: <T extends HttpxHookErrorData>(data: T) => IPromise<void | T>;
         }[]
       >[],
     },
@@ -139,10 +142,14 @@ export class Httpx {
      * @param response 响应
      * @param requestOption 请求的配置
      */
-    async successResponseCallBack(response: HttpxResponseData<HttpxRequestOption>, requestOption: HttpxRequestOption) {
+    async successResponseCallBack(
+      response: HttpxResponseData<HttpxRequestOption>,
+      resolveOption: HttpxResponse<HttpxRequestOption>
+    ) {
+      const requestOption = resolveOption.requestOption;
       if (typeof requestOption.allowInterceptConfig === "boolean") {
         if (!requestOption.allowInterceptConfig) {
-          // 不允许拦截
+          // 不允许拦截器拦截请求
           return requestOption;
         }
       } else {
@@ -164,7 +171,7 @@ export class Httpx {
       for (let index = 0; index < this.$config.configList.length; index++) {
         const item = this.$config.configList[index];
         if (typeof item.successFn === "function") {
-          const result = await item.successFn(response, requestOption);
+          const result = await item.successFn(response, resolveOption);
           if (result == null) {
             return;
           }
@@ -179,18 +186,19 @@ export class Httpx {
      * 返回null|undefined就是拦截掉了
      */
     async errorResponseCallBack<T extends HttpxHookErrorData>(data: T) {
-      if (typeof data.requestOption.allowInterceptConfig === "boolean") {
-        if (!data.requestOption.allowInterceptConfig) {
+      const requestOption = data.resolveOption.requestOption;
+      if (typeof requestOption.allowInterceptConfig === "boolean") {
+        if (!requestOption.allowInterceptConfig) {
           // 不允许拦截
           return data;
         }
       } else {
-        if (data.requestOption.allowInterceptConfig != null) {
+        if (requestOption.allowInterceptConfig != null) {
           // 配置存在
           // 细分处理是否拦截
           if (
-            typeof data.requestOption.allowInterceptConfig.afterResponseError === "boolean" &&
-            !data.requestOption.allowInterceptConfig.afterResponseError
+            typeof requestOption.allowInterceptConfig.afterResponseError === "boolean" &&
+            !requestOption.allowInterceptConfig.afterResponseError
           ) {
             // 设置了禁止拦截
             return data;
@@ -214,7 +222,13 @@ export class Httpx {
     /**
      * 添加请求前的回调处理配置
      */
-    add(successFn?: (...args: any[]) => any, errorFn?: (...args: any[]) => any) {
+    add(
+      successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(
+        response: T,
+        resolveOption: HttpxResponse<HttpxRequestOption>
+      ) => IPromise<void | T>,
+      errorFn?: <T extends HttpxHookErrorData>(data: T) => IPromise<void | T>
+    ) {
       const id = GenerateUUID();
       this.$config.configList.push({
         id: id,
@@ -660,18 +674,8 @@ export class Httpx {
       if (response.length) {
         response = response[0];
       }
-      if (
-        (await this.context.HttpxResponseHook.errorResponseCallBack({
-          type: "onabort",
-          error: new Error("request cancel"),
-          response: null,
-          requestOption: requestOption,
-        })) == null
-      ) {
-        // reject(new Error("response is intercept with onabort"));
-        return;
-      }
-      resolve({
+      // 拦截器
+      const resolveOption: HttpxResponse<HttpxRequestOption> = {
         data: response,
         isSuccess: false,
         requestOption,
@@ -679,7 +683,19 @@ export class Httpx {
         status: false,
         statusCode: -1,
         type: "onabort",
-      });
+      };
+      if (
+        (await this.context.HttpxResponseHook.errorResponseCallBack({
+          type: "onabort",
+          error: new Error("request cancel"),
+          response: null,
+          resolveOption,
+        })) == null
+      ) {
+        // reject(new Error("response is intercept with onabort"));
+        return;
+      }
+      resolve(resolveOption);
     },
     /**
      * ontimeout请求超时-触发
@@ -706,27 +722,28 @@ export class Httpx {
       if (response.length) {
         response = response[0];
       }
-      // 执行错误回调的钩子
+      // 拦截器
+      const resolveOption: HttpxResponse<HttpxRequestOption> = {
+        data: response,
+        isSuccess: response.isSuccess ?? false,
+        requestOption: requestOption,
+        msg: "请求超时",
+        status: response.isSuccess ?? false,
+        statusCode: 0,
+        type: "ontimeout",
+      };
       if (
         (await this.context.HttpxResponseHook.errorResponseCallBack({
           type: "ontimeout",
           error: new Error("request timeout in " + requestOption.timeout + "ms"),
           response: response,
-          requestOption: requestOption,
+          resolveOption,
         })) == null
       ) {
         // reject(new Error("response is intercept with ontimeout"));
         return;
       }
-      resolve({
-        data: response,
-        isSuccess: false,
-        requestOption: requestOption,
-        msg: "请求超时",
-        status: false,
-        statusCode: 0,
-        type: "ontimeout",
-      });
+      resolve(resolveOption);
     },
     /**
      * onerror 请求失败-触发
@@ -752,26 +769,28 @@ export class Httpx {
       if (response.length) {
         response = response[0];
       }
+      // 拦截器
+      const resolveOption: HttpxResponse<HttpxRequestOption> = {
+        data: response,
+        isSuccess: response.isSuccess ?? false,
+        requestOption: requestOption,
+        msg: "请求失败",
+        status: response.isSuccess ?? false,
+        statusCode: response.status,
+        type: "onerror",
+      };
       if (
         (await this.context.HttpxResponseHook.errorResponseCallBack({
           type: "onerror",
           error: new Error(reason ?? "request error"),
           response: response,
-          requestOption: requestOption,
+          resolveOption,
         })) == null
       ) {
         // reject(new Error("response is intercept with onerror"));
         return;
       }
-      resolve({
-        data: response,
-        isSuccess: false,
-        requestOption: requestOption,
-        msg: "请求失败",
-        status: false,
-        statusCode: response["status"],
-        type: "onerror",
-      });
+      resolve(resolveOption);
     },
     /**
      * onload加载完毕-触发
@@ -852,19 +871,21 @@ export class Httpx {
 
       //  状态码2xx都是成功的
       if (isStatusSuccess(originResponse.status)) {
-        if ((await this.context.HttpxResponseHook.successResponseCallBack(originResponse, requestOption)) == null) {
+        // 拦截器
+        const responseOption: HttpxResponse<HttpxRequestOption> = {
+          data: originResponse,
+          isSuccess: originResponse.isSuccess,
+          requestOption: requestOption,
+          msg: "请求成功",
+          status: originResponse.isSuccess,
+          statusCode: originResponse.status,
+          type: "onload",
+        };
+        if ((await this.context.HttpxResponseHook.successResponseCallBack(originResponse, responseOption)) == null) {
           // reject(new Error("response is intercept with onloada"));
           return;
         }
-        resolve({
-          data: originResponse,
-          isSuccess: true,
-          requestOption: requestOption,
-          msg: "请求成功",
-          status: true,
-          statusCode: originResponse.status,
-          type: "onload",
-        });
+        resolve(responseOption);
       } else {
         // 请求失败
         this.context.HttpxResponseCallBack.onError(
@@ -1207,9 +1228,9 @@ export class Httpx {
       use(
         successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(
           response: T,
-          requestOption: HttpxRequestOption
-        ) => void | T,
-        errorFn?: <T extends HttpxHookErrorData>(data: T) => void | T | Promise<void | T>
+          resolveOption: HttpxResponse<HttpxRequestOption>
+        ) => IPromise<void | T>,
+        errorFn?: <T extends HttpxHookErrorData>(data: T) => IPromise<void | T>
       ) {
         if (typeof successFn !== "function" && typeof errorFn !== "function") {
           console.warn("[Httpx-interceptors-response] 必须传入一个拦截器函数");

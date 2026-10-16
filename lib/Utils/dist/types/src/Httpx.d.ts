@@ -53,7 +53,7 @@ export declare class Httpx {
              * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
              * + 超出 2xx 范围的状态码都会触发该函数
              */
-            use(successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(response: T, requestOption: HttpxRequestOption) => void | T, errorFn?: <T extends HttpxHookErrorData>(data: T) => void | T | Promise<void | T>): string | undefined;
+            use(successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(response: T, resolveOption: HttpxResponse<HttpxRequestOption>) => IPromise<void | T>, errorFn?: <T extends HttpxHookErrorData>(data: T) => IPromise<void | T>): string | undefined;
             /**
              * 移除拦截器
              * @param id 通过use返回的id

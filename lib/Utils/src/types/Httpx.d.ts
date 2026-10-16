@@ -1324,9 +1324,9 @@ export declare interface HttpxHookErrorData {
    */
   response: any;
   /**
-   * 请求的配置
+   * 触发回调的配置数据
    */
-  requestOption: HttpxRequestOption;
+  resolveOption: HttpxResponse<HttpxRequestOption>;
 }
 
 /**
