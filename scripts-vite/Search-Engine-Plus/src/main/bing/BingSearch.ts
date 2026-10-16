@@ -67,6 +67,9 @@ export const BingSearch = {
         });
       }
     );
+    Panel.execMenuOnce("bing-search-removeResultYouMayLikeSearch", () => {
+      return this.removeResultYouMayLikeSearch();
+    });
   },
   /**
    * 移除广告
@@ -143,6 +146,13 @@ export const BingSearch = {
     );
   },
   /**
+   * 移除「你可能喜欢的搜索」
+   */
+  removeResultYouMayLikeSearch() {
+    log.info(`移除「你可能喜欢的搜索」`);
+    return addBlockCSSWithEnd(".b_ans:has(#brsv3)");
+  },
+  /**
    * 移除底部悬浮的工具栏
    */
   removeBottomFloatingToolbar() {
@@ -196,7 +206,7 @@ export const BingSearch = {
     return addBlockCSSWithEnd("#b_footer");
   },
   /**
-   * 搜索结果显示优化
+   * 显示模式优化
    */
   searchResultShowOptimization(mode: SearchResultShowType) {
     const result: any[] = [
@@ -206,6 +216,12 @@ export const BingSearch = {
             background: rgba(248, 248, 248, 0.4) !important;
             border-bottom: none !important;
             backdrop-filter: blur(10px);
+            top: 0px !important;
+        }
+        /* auto是在顶部，0是滚动到下面 */
+        body:not([class*="b_pinhead"]) header#b_header[style*="top"][role="banner"]{
+            position: relative;
+            z-index: 50;
         }
       `),
     ];

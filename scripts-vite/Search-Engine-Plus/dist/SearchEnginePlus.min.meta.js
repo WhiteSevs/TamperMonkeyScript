@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.12
+// @version      2026.10.16
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -17,8 +17,8 @@
 // @match        *://www.bing.com/search*
 // @match        *://cn.bing.com/search*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.min.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.0/dist/index.umd.min.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.11/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.min.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.min.js
 // @connect      www.baidu.com

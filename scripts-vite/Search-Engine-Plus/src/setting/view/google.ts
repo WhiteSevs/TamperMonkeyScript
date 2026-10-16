@@ -15,8 +15,8 @@ export const Component_Google: PopsPanelContentConfig = {
         UISwitch("移除广告", "google-search-removeAds", true),
         UISwitch("移除AI概览", "google-search-removeAIOverview", false),
         UISwitch("移除右侧栏", "google-search-removeRightPanel", true),
-        UISwitch("移除用户还搜索了", "google-search-removeRelatedSearch", true),
-        UISwitch("移除相关问题", "google-search-removeQuestions", true),
+        UISwitch("移除「用户还搜索了」", "google-search-removeRelatedSearch", true),
+        UISwitch("移除「相关问题」", "google-search-removeQuestions", true),
       ],
     },
     {
@@ -52,7 +52,7 @@ export const Component_Google: PopsPanelContentConfig = {
       type: "container",
       text: "自定义背景图",
       views: [
-        UISwitch("启用", "google-search-ownBackgroundImage-enable", true),
+        UISwitch("启用", "google-search-ownBackgroundImage-enable", false),
         UIInput("图片地址", "google-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
         UISlider(
           "图片透明度",

@@ -23,13 +23,14 @@ export const Component_Bing: PopsPanelContentConfig = {
         UISwitch("移除左上角 国内版/国际版", "bing-search-removeTopLeftAreaSwtich"),
         UISwitch("移除右上角 帐户奖励和偏好设置", "bing-search-removeTopRightAccountSetting"),
         UISwitch(
-          "移除约xxx个结果",
+          "移除「约xxx个结果」",
           "bing-search-removeAboutAnyResultsTip",
           false,
           void 0,
           "搜索结果最上面的提示文字和图标"
         ),
-        UISwitch("移除底部 部分搜索结果未予显示", "bing-search-removeBottomPartOfSearchResultTip"),
+        UISwitch("移除「你可能喜欢的搜索」", "bing-search-removeResultYouMayLikeSearch"),
+        UISwitch("移除底部「部分搜索结果未予显示」", "bing-search-removeBottomPartOfSearchResultTip"),
         UISwitch("移除底部右下角 备案信息", "bing-search-removeBottomRightCopyright"),
       ],
     },
@@ -66,7 +67,7 @@ export const Component_Bing: PopsPanelContentConfig = {
       type: "container",
       text: "自定义背景图",
       views: [
-        UISwitch("启用", "bing-search-ownBackgroundImage-enable", true),
+        UISwitch("启用", "bing-search-ownBackgroundImage-enable", false),
         UIInput("图片地址", "bing-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
         UISlider(
           "图片透明度",

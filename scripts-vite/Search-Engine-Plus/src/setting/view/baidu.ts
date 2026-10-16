@@ -15,7 +15,7 @@ export const Component_Baidu: PopsPanelContentConfig = {
         UISwitch("移除广告", "baidu-search-removeAds", true),
         UISwitch("移除右侧栏", "baidu-search-removeRightPanel", true),
         UISwitch("移除大家都在搜", "baidu-search-removeEveryOneSearch", true),
-        UISwitch("移除相关搜索", "baidu-search-removeRelatedSearch", true),
+        UISwitch("移除「相关搜索」", "baidu-search-removeRelatedSearch", true),
         UISwitch("移除选中文本弹窗", "baidu-search-removeSelectTextDialog", true),
       ],
     },
@@ -52,7 +52,7 @@ export const Component_Baidu: PopsPanelContentConfig = {
       type: "container",
       text: "自定义背景图",
       views: [
-        UISwitch("启用", "baidu-search-ownBackgroundImage-enable", true),
+        UISwitch("启用", "baidu-search-ownBackgroundImage-enable", false),
         UIInput("图片地址", "baidu-search-ownBackgroundImage-url", BACKGROUND_URL, "url地址或base64图片"),
         UISlider(
           "图片透明度",
