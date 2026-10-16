@@ -1796,6 +1796,34 @@ declare class Utils {
         x: number | string;
         y: number | string;
     }): number;
+    /**
+     * 比较两个值是否相等。
+     * - 基本类型：Object.is 语义（NaN === NaN，+0 !== -0）
+     * - 对象/数组：深度比较，并支持循环引用
+     * - 内部通过「排序键后 JSON.stringify」做二次校验 / 兜底
+     *
+     *
+     * - const ok = (cond, msg) => console[cond ? 'log' : 'error'](cond ? '✅' : '❌', msg);
+     * -
+     * - ok(isSame(1, 1), '基本类型相等');
+     * - ok(isSame(NaN, NaN), 'NaN === NaN');
+     * - ok(!isSame(0, -0), '+0 !== -0');
+     * - ok(!isSame(1, '1'), '类型不同');
+     * -
+     * - ok(isSame({ a: 1, b: 2 }, { b: 2, a: 1 }), '对象键序不同但内容相同');
+     * - ok(isSame({ a: [1, { x: 3, y: 4 }] }, { a: [1, { y: 4, x: 3 }] }), '嵌套对象键序不同');
+     * - ok(!isSame({ a: 1 }, { a: 1, b: 2 }), 'key 数量不同');
+     * - ok(!isSame({ a: 1 }, { a: 2 }), '值不同');
+     * -
+     * - ok(isSame([1, 2, 3], [1, 2, 3]), '数组顺序敏感');
+     * - ok(!isSame([1, 2, 3], [3, 2, 1]), '数组不会重排（只排对象键）');
+     * -
+     * - ok(isSame(new Date('2026-01-01'), new Date('2026-01-01')), 'Date');
+     * - ok(isSame(/abc/gi, /abc/ig), 'RegExp');
+     * - ok(isSame(new Map([['a', 1]]), new Map([['a', 1]])), 'Map');
+     * - ok(isSame(new Set([1, 2]), new Set([2, 1])), 'Set');
+     */
+    isSame(target1: any, target2: any): boolean;
 }
 declare const utils: Utils;
 export { utils as Utils };
