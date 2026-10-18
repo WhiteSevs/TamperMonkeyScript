@@ -55,7 +55,6 @@ const userConfig = await GenerateUserConfig({
         "xunlei.com",
         "115.com",
         "quark.cn",
-        "jianguoyun.com",
         "uc.cn",
         "ctfile.com",
         "sharepoint.com",

@@ -1,4 +1,4 @@
-import { log } from "@/env";
+import { log, pops, utils } from "@/env";
 import { NetDiskGlobalData } from "@/main/data/NetDiskGlobalData";
 import { NetDiskRuleData } from "@/main/data/NetDiskRuleData";
 import { NetDiskLinkClickMode, NetDiskLinkClickModeUtils } from "@/main/link-click-mode/NetDiskLinkClickMode";
@@ -183,6 +183,25 @@ export const NetDiskLinkViewEvent = {
       only: true,
       chileMenuLeftOrRightDistance: -3,
       childMenuTopOrBottomDistance: -5,
+      zIndex() {
+        // 只需要比目标元素和已创建的右键菜单元素大即可
+        const deviation = 100;
+        const popsZIndex = pops.fn.InstanceUtils.getPopsMaxZIndex()?.zIndex ?? 0;
+        let pointZIndex = deviation;
+        if (target instanceof Element) {
+          // 获取目标元素
+          let checkTarget = target;
+          if (typeof selector === "string") {
+            const $target = target.querySelector<HTMLElement>(selector);
+            if ($target) {
+              checkTarget = $target;
+            }
+          }
+          pointZIndex = utils.getMaxZIndexNodeInfoFromPoint(checkTarget)?.[0]?.zIndex ?? 0;
+        }
+        const maxZIndex = Math.max(deviation, popsZIndex, pointZIndex);
+        return maxZIndex;
+      },
     };
     NetDiskPops.rightClickMenu(config);
   },
