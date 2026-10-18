@@ -994,6 +994,12 @@ const GenerateUserConfig = async (option: {
       }
     }
   }
+
+  // 去除@connect中重复的
+  if (Array.isArray(defaultMonkeyOption.userscript?.connect)) {
+    defaultMonkeyOption.userscript.connect = Array.from(new Set(defaultMonkeyOption.userscript.connect));
+  }
+
   plugins.push([ScriptManagerTransformPlugin, SuperMonkeyPlugin]);
   plugins.push(monkey(defaultMonkeyOption));
 
@@ -1002,4 +1008,3 @@ const GenerateUserConfig = async (option: {
 };
 
 export { rootUtils as baseUtils, GenerateUserConfig };
-
