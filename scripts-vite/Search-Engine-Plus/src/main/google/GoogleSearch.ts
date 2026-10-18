@@ -149,7 +149,9 @@ export const GoogleSearch = {
         justify-items: center;
 
         >div{
-            justify-content: unset;
+            justify-content: center;
+            /* logo的偏移↓ */
+            margin-left: calc(160px + 92px + 24px + 44px);
         }
 
         textarea{
@@ -165,6 +167,9 @@ export const GoogleSearch = {
         display: block !important;
     }
     [data-st-tgt="fb"] > div:not(:empty) [role="navigation"]{
+        justify-self: center;
+    }
+    [role="navigation"] [style*="overflow-x: auto"]{
         justify-self: center;
     }
     /* 小提示： 限制此搜索仅展示xxx搜索结果。 详细了解如何按语言过滤搜索结果 */
