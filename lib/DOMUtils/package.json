@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@whitesev/domutils",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "适合在浏览器中操作DOM的常用工具类",
   "keywords": [
     "typescript",
@@ -50,6 +50,7 @@
     "oxlint": "1.88.0",
     "rollup": "^4.64.6",
     "rollup-plugin-clear": "^2.0.7",
+    "tslib": "^2.8.1",
     "typescript": "^6.0.3"
   }
 }

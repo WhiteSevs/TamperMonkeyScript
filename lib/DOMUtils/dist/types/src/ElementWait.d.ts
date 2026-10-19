@@ -204,19 +204,19 @@ declare class ElementWait extends ElementSelector {
      * @param parent （可选）监听的父元素
      * @example
      * DOMUtils.waitNodeList(["div"]).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
+     *  console.log($result); // $result => [NodeListOf<HTMLDivElement>[]]
      * })
      * DOMUtils.waitNodeList(["div"], document).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[]
+     *  console.log($result); // $result => [NodeListOf<HTMLDivElement>[]]
      * })
      */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[K]>[]>;
-    waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T>;
+    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent?: Node | Element | Document | HTMLElement): Promise<NodeListOf<HTMLElementTagNameMap[K]>[][]>;
+    waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(selectorList: string[], parent?: Node | Element | Document | HTMLElement): Promise<T[]>;
     /**
      * 等待元素数组出现
      * @param selector CSS选择器
      * @param parent 监听的父元素
-     * @param timeout 超时时间，默认0
+     * @param timeout 超时时间
      * @example
      * DOMUtils.waitNodeList("div", document, 10000).then( $result =>{
      *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
@@ -228,29 +228,40 @@ declare class ElementWait extends ElementSelector {
      * 等待元素数组出现
      * @param selectorList CSS选择器数组
      * @param parent 监听的父元素
-     * @param timeout 超时时间，默认0
+     * @param timeout 超时时间
      * @example
      * DOMUtils.waitNodeList(["div"], document, 10000).then( $result =>{
      *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
      * })
      */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
+    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[][] | null>;
     waitNodeList<T extends NodeListOf<Element>[] = NodeListOf<HTMLElement>[]>(selectorList: string[], parent: Node | Element | Document | HTMLElement, timeout: number): Promise<T | null>;
     /**
      * 等待元素数组出现
-     * @param selector CSS选择器数组
-     * @param timeout 超时时间，默认0
+     * @param selector CSS选择器
+     * @param timeout 超时时间
      * @example
      * DOMUtils.waitNodeList("div", 10000).then( $result =>{
-     *  console.log($result); // $result => NodeListOf<HTMLDivElement> | null
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
      * })
      */
-    waitNodeList<K extends keyof HTMLElementTagNameMap>(selector: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
-    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selector: string[], timeout: number): Promise<T | null>;
+    waitNodeList<K extends keyof HTMLElementTagNameMap>(selector: string, timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]> | null>;
+    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selector: string, timeout: number): Promise<T | null>;
     /**
      * 等待元素数组出现
      * @param selectorList CSS选择器数组
-     * @param timeout 超时时间，默认0
+     * @param timeout 超时时间
+     * @example
+     * DOMUtils.waitNodeList(["div"], 10000).then( $result =>{
+     *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
+     * })
+     */
+    waitNodeList<K extends keyof HTMLElementTagNameMap>(selectorList: K[], timeout: number): Promise<NodeListOf<HTMLElementTagNameMap[K]>[] | null>;
+    waitNodeList<T extends NodeListOf<Element> = NodeListOf<HTMLElement>>(selector: string[], timeout: number): Promise<T[] | null>;
+    /**
+     * 等待元素数组出现
+     * @param selectorList CSS选择器数组
+     * @param timeout 超时时间
      * @example
      * DOMUtils.waitNodeList(["div"], 10000).then( $result =>{
      *  console.log($result); // $result => NodeListOf<HTMLDivElement>[] | null
