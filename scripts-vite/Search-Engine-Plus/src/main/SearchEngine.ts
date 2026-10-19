@@ -6,9 +6,19 @@ import { Google } from "./google/Google";
 
 export const SearchEngine = {
   init() {
-    DOMUtils.on(window, "urlchange", () => {
-      this.run();
-    }).emit();
+    let isInit = false;
+    DOMUtils.on(
+      window,
+      "urlchange",
+      () => {
+        if (isInit) {
+          log.info("url change => reload!!!");
+        }
+        isInit = true;
+        this.run();
+      },
+      { capture: true }
+    ).emit();
   },
   run() {
     if (SearchEngineRouter.isBaidu()) {

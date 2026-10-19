@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.19
+// @version      2026.10.19.18
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -37,6 +37,7 @@
 // @grant        GM_unregisterMenuCommand
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
+// @grant        window.onurlchange
 // @run-at       document-start
 // ==/UserScript==
 
@@ -4005,10 +4006,18 @@
   };
   var SearchEngine = {
     init() {
+      let isInit = false;
       domUtils
-        .on(window, "urlchange", () => {
-          this.run();
-        })
+        .on(
+          window,
+          "urlchange",
+          () => {
+            if (isInit) log.info("url change => reload!!!");
+            isInit = true;
+            this.run();
+          },
+          { capture: true }
+        )
         .emit();
     },
     run() {

@@ -36,6 +36,7 @@ const userConfig = await GenerateUserConfig({
       resource: {
         // ViewerCSS: `https://fastly.jsdelivr.net/npm/viewerjs@${pkg.dependencies["viewerjs"]}/dist/viewer.min.css`,
       },
+      grant: ["window.onurlchange"],
     },
     build: {
       // import库的文件映射
