@@ -1,20 +1,25 @@
+import { DOMUtils, log } from "@/env";
 import { SearchEngineRouter } from "@/router/SearchEngineRouter";
-import { BaiduSearch } from "./baidu/BaiduSearch";
-import { GoogleSearch } from "./google/GoogleSearch";
-import { BingSearch } from "./bing/BingSearch";
-import { log } from "@/env";
+import { Baidu } from "./baidu/Baidu";
+import { Bing } from "./bing/Bing";
+import { Google } from "./google/Google";
 
 export const SearchEngine = {
   init() {
-    if (SearchEngineRouter.isBaiduSearch()) {
-      log.info(`Baidu - 启动`);
-      BaiduSearch.init();
-    } else if (SearchEngineRouter.isGoogleSearch()) {
-      log.info(`Google - 启动`);
-      GoogleSearch.init();
-    } else if (SearchEngineRouter.isBingSearch()) {
-      log.info(`Bing - 启动`);
-      BingSearch.init();
+    DOMUtils.on(window, "urlchange", () => {
+      this.run();
+    }).emit();
+  },
+  run() {
+    if (SearchEngineRouter.isBaidu()) {
+      log.info(`Baidu`);
+      Baidu.init();
+    } else if (SearchEngineRouter.isGoogle()) {
+      log.info(`Google`);
+      Google.init();
+    } else if (SearchEngineRouter.isBing()) {
+      log.info(`Bing`);
+      Bing.init();
     }
   },
 };

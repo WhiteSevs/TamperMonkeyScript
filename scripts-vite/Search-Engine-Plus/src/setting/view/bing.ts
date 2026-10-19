@@ -6,22 +6,23 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 export const Component_Bing: PopsPanelContentConfig = {
   id: "bing",
   title: "Bing搜索",
-  isDefault: SearchEngineRouter.isBingSearch(),
+  isDefault: SearchEngineRouter.isBing(),
   views: [
     {
-      text: "通用",
+      text: "屏蔽",
       type: "container",
       views: [
         UISwitch("移除广告", "bing-search-removeAds", true),
+        UISwitch("移除选中文本的弹窗", "bing-search-removeSelectTextDialog", true),
         UISwitch("移除输入预测", "bing-search-removeInputPrediction"),
         UISwitch("移除输入历史记录", "bing-search-removeInputHistory"),
-        UISwitch("移除输入历史记录 - 与最近的搜索相关", "bing-search-removeInputHistory-relatedToRecentSearches"),
+        UISwitch("移除输入历史记录「与最近的搜索相关」", "bing-search-removeInputHistory-relatedToRecentSearches"),
         UISwitch("移除右侧更多搜索结果", "bing-search-removeRightMoreSearchResult", true),
-        UISwitch("移除Copilot Search", "bing-search-removeCopilotSearch"),
+        UISwitch("移除「Copilot Search」", "bing-search-removeCopilotSearch"),
         UISwitch("移除底部悬浮的工具栏", "bing-search-removeBottomFloatingToolbar", true),
-        UISwitch("移除其它用户还搜索过/其他用户还问了以下问题", "bing-search-removeOtherUserSearch", true),
-        UISwitch("移除左上角 国内版/国际版", "bing-search-removeTopLeftAreaSwtich"),
-        UISwitch("移除右上角 帐户奖励和偏好设置", "bing-search-removeTopRightAccountSetting"),
+        UISwitch("移除「其它用户还搜索过/其他用户还问了以下问题」", "bing-search-removeOtherUserSearch", true),
+        UISwitch("移除左上角「国内版/国际版」", "bing-search-removeTopLeftAreaSwtich"),
+        UISwitch("移除右上角「帐户奖励和偏好设置」", "bing-search-removeTopRightAccountSetting"),
         UISwitch(
           "移除「约xxx个结果」",
           "bing-search-removeAboutAnyResultsTip",
@@ -29,6 +30,7 @@ export const Component_Bing: PopsPanelContentConfig = {
           void 0,
           "搜索结果最上面的提示文字和图标"
         ),
+        UISwitch("移除「相关搜索」", "bing-search-removeResultRelatedSearch"),
         UISwitch("移除「你可能喜欢的搜索」", "bing-search-removeResultYouMayLikeSearch"),
         UISwitch("移除底部「部分搜索结果未予显示」", "bing-search-removeBottomPartOfSearchResultTip"),
         UISwitch("移除底部右下角 备案信息", "bing-search-removeBottomRightCopyright"),

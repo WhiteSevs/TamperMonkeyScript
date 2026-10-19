@@ -6,17 +6,22 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 export const Component_Baidu: PopsPanelContentConfig = {
   id: "baidu",
   title: "百度搜索",
-  isDefault: SearchEngineRouter.isBaiduSearch(),
+  isDefault: SearchEngineRouter.isBaidu(),
   views: [
     {
-      text: "通用",
+      type: "container",
+      text: "功能",
+      views: [UISwitch("精简首页", "baidu-search-home-simplifyTheHomepage", true)],
+    },
+    {
+      text: "屏蔽",
       type: "container",
       views: [
         UISwitch("移除广告", "baidu-search-removeAds", true),
         UISwitch("移除右侧栏", "baidu-search-removeRightPanel", true),
-        UISwitch("移除大家都在搜", "baidu-search-removeEveryOneSearch", true),
+        UISwitch("移除选中文本的弹窗", "baidu-search-removeSelectTextDialog", true),
+        UISwitch("移除「大家都在搜」", "baidu-search-removeEveryOneSearch", true),
         UISwitch("移除「相关搜索」", "baidu-search-removeRelatedSearch", true),
-        UISwitch("移除选中文本弹窗", "baidu-search-removeSelectTextDialog", true),
       ],
     },
     {
@@ -72,7 +77,6 @@ export const Component_Baidu: PopsPanelContentConfig = {
       text: "搜索结果优化",
       views: [
         UISwitch("启用", "baidu-search-optimizationResult-enable", true, void 0, "开启后下面的功能才会生效"),
-        UISwitch("移除广告", "baidu-search-optimizationResult-removeAds", true),
         UISwitch("链接重定向", "baidu-search-optimizationResult-redirect", true),
         UISwitch("添加favicon", "baidu-search-optimizationResult-addFavicon", true),
         UISwitch("标识非安全的链接", "baidu-search-optimizationResult-markUnsafeLink", true),

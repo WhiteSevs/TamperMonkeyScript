@@ -8,16 +8,20 @@ export const BaiduSearchResult = {
     Panel.execMenuOnce(
       [
         "baidu-search-optimizationResult-enable",
-        "baidu-search-optimizationResult-removeAds",
         "baidu-search-optimizationResult-redirect",
         "baidu-search-optimizationResult-addFavicon",
         "baidu-search-optimizationResult-markUnsafeLink",
       ],
       (config) => {
-        const [enable, removeAds, redirect, addFavicon, markUnsafeLink] = config.value;
+        const [enable, redirect, addFavicon, markUnsafeLink] = config.value;
         if (!enable) return;
-        if (!removeAds && !redirect && !addFavicon && !markUnsafeLink) return;
-        return this.searchResultOptimization({ removeAds, redirect, addFavicon, markUnsafeLink });
+        if (!redirect && !addFavicon && !markUnsafeLink) return;
+        return this.searchResultOptimization({
+          removeAds: !!Panel.getValue("baidu-search-removeAds"),
+          redirect,
+          addFavicon,
+          markUnsafeLink,
+        });
       }
     );
   },

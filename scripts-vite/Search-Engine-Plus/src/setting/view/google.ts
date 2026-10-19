@@ -6,11 +6,16 @@ import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/compo
 export const Component_Google: PopsPanelContentConfig = {
   id: "google",
   title: "Google搜索",
-  isDefault: SearchEngineRouter.isGoogleSearch(),
+  isDefault: SearchEngineRouter.isGoogle(),
   views: [
     {
-      text: "通用",
+      text: "功能",
       type: "container",
+      views: [UISwitch("伪装百度", "google-search-imitateBaidu", false)],
+    },
+    {
+      type: "container",
+      text: "屏蔽",
       views: [
         UISwitch("移除广告", "google-search-removeAds", true),
         UISwitch("移除AI概览", "google-search-removeAIOverview", false),

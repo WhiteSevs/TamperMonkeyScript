@@ -7,6 +7,9 @@ export const BingSearch = {
     Panel.execMenuOnce("bing-search-removeAds", () => {
       return this.removeAds();
     });
+    Panel.execMenuOnce("bing-search-removeSelectTextDialog", () => {
+      return this.removeSelectTextDialog();
+    });
     Panel.execMenuOnce("bing-search-removeInputPrediction", () => {
       return this.removeInputPrediction();
     });
@@ -70,6 +73,9 @@ export const BingSearch = {
     Panel.execMenuOnce("bing-search-removeResultYouMayLikeSearch", () => {
       return this.removeResultYouMayLikeSearch();
     });
+    Panel.execMenuOnce("bing-search-removeResultRelatedSearch", () => {
+      return this.removeResultRelatedSearch();
+    });
   },
   /**
    * 移除广告
@@ -88,6 +94,13 @@ export const BingSearch = {
       // 搜索结果 - Microsoft推广  分享微软积分商城，即可在每次好友使用必应搜索时赚取 1 个积分!
       "#b_results .b_mop:has(.b_mrwu_c)"
     );
+  },
+  /**
+   * 移除选中文本的弹窗
+   */
+  removeSelectTextDialog() {
+    log.info(`移除选中文本的弹窗`);
+    return addBlockCSSWithEnd('#qs_searchBoxOuter[role="dialog"]');
   },
   /**
    * 移除输入预测
@@ -119,7 +132,11 @@ export const BingSearch = {
    */
   removeInputHistory() {
     log.info(`移除输入历史记录`);
-    return addBlockCSSWithEnd("#b_header #sa_ul #sa_hs_block");
+    return addBlockCSSWithEnd(
+      "#b_header #sa_ul #sa_hs_block",
+      // 仅有搜索历史没有搜索建议
+      "#sw_as #sa_ul:has(#sa_hs_block):not(:has(#sa_sug_block))"
+    );
   },
   /**
    * 移除输入历史记录 - 与最近的搜索相关
@@ -144,6 +161,13 @@ export const BingSearch = {
       "#b_content .b_ans:has(.cht_container)",
       '#b_content .b_ans:has(.answer_container[aria-label*="Copilot 搜索"])'
     );
+  },
+  /**
+   * 移除「你可能喜欢的相关搜索」
+   */
+  removeResultRelatedSearch() {
+    log.info(`移除「相关搜索」`);
+    return addBlockCSSWithEnd('.b_inline_ajax_rs.b_ans:has([aria-label*="相关搜索"])');
   },
   /**
    * 移除「你可能喜欢的搜索」
