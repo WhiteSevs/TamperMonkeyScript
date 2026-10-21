@@ -14,6 +14,10 @@ type GestureBackConfig = {
   beforeHistoryBackCallBack?: (isUrlChange: boolean) => void;
   /** 调用退出手势模式后执行的回调函数 @default null */
   afterHistoryBackCallBack?: (isUrlChange: boolean) => void;
+  /** 进入后调用 */
+  onEnter?(): void;
+  /** 退出后调用 */
+  onQuite?(): void;
 };
 /**
  * 手势返回
@@ -73,6 +77,10 @@ class GestureBack {
     DOMUtils.on(this.config.win, "popstate", this.popStateEvent, {
       capture: true,
     });
+
+    if (typeof this.config.onEnter == "function") {
+      this.config.onEnter();
+    }
   }
   /**
    * 退出手势模式
@@ -105,6 +113,9 @@ class GestureBack {
     this.isBacking = false;
     if (typeof this.config.afterHistoryBackCallBack === "function") {
       this.config.afterHistoryBackCallBack(isUrlChange);
+    }
+    if (typeof this.config.onEnter == "function") {
+      this.config.onQuite();
     }
   }
 }
