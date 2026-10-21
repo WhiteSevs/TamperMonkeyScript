@@ -1,4 +1,4 @@
-import type { WindowApiOption } from "./types/WindowApi";
+import type { WindowApiOption } from "./../types/WindowApi";
 
 export class WindowApi {
   /** 默认的配置 */

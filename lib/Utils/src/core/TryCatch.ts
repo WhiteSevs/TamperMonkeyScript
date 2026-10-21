@@ -1,4 +1,4 @@
-import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./types/TryCatch";
+import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./../types/TryCatch";
 
 export const TryCatch = function (...args: any) {
   /* 定义变量和函数 */

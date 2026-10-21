@@ -1,4 +1,4 @@
-import type { WindowApiOption } from "./types/WindowApi";
+import type { WindowApiOption } from "./../types/WindowApi";
 import { WindowApi } from "./WindowApi";
 
 class DOMUtils {

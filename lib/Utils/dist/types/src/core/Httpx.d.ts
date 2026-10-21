@@ -1,10 +1,26 @@
-import type { HttpxHookErrorData, HttpxInitOption, HttpxPromise, HttpxRequestOption, HttpxResponse, HttpxResponseData } from "./types/Httpx";
+import type { HttpxHookErrorData, HttpxInitOption, HttpxPromise, HttpxRequestOption, HttpxResponse, HttpxResponseData } from "./../types/Httpx";
+type HttpxHookConfigDataType = {
+    successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(response: T, resolveOption: HttpxResponse<HttpxRequestOption>) => IPromise<void | T>;
+    errorFn?: <T extends HttpxHookErrorData>(data: T) => IPromise<void | T>;
+};
 export declare class Httpx {
     #private;
     private GM_Api;
-    private HttpxRequestHook;
-    private HttpxResponseHook;
+    /**
+     * 请求拦截器
+     */
+    private HttpxInterceptRequest;
+    /**
+     * 响应拦截器
+     */
+    private HttpxInterceptResponse;
+    /**
+     * 处理请求配置
+     */
     private HttpxRequestOption;
+    /**
+     * 处理响应回调
+     */
     private HttpxResponseCallBack;
     private HttpxRequest;
     /**
@@ -48,12 +64,12 @@ export declare class Httpx {
             context: Httpx;
             /**
              * 添加拦截器
-             * @param successFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+             * @param successFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果需要阻止响应，则设置`isIntercept=true`
              * + 2xx 范围内的状态码都会触发该函数
-             * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果返回null|undefined，则阻止响应
+             * @param errorFn 设置的响应后回调函数，如果返回响应，则使用返回的响应，如果需要阻止响应，则设置`isIntercept=true`
              * + 超出 2xx 范围的状态码都会触发该函数
              */
-            use(successFn?: <T extends HttpxResponseData<HttpxRequestOption>>(response: T, resolveOption: HttpxResponse<HttpxRequestOption>) => IPromise<void | T>, errorFn?: <T extends HttpxHookErrorData>(data: T) => IPromise<void | T>): string | undefined;
+            use(successFn?: HttpxHookConfigDataType["successFn"], errorFn?: HttpxHookConfigDataType["errorFn"]): string | undefined;
             /**
              * 移除拦截器
              * @param id 通过use返回的id
@@ -173,3 +189,4 @@ export declare class Httpx {
      */
     request<T extends HttpxRequestOption>(requestOption: T, beforeRequestOption?: (option: Required<T | HttpxRequestOption>) => void): HttpxPromise<HttpxResponse<T>>;
 }
+export {};

@@ -1,4 +1,4 @@
-import { CommonUtil } from "../CommonUtil";
+import { CommonUtil } from "../core/CommonUtil";
 import type {
   UtilsDocuementCookieHandlerListOptions,
   UtilsDocumentCookieHandlerDeleteOptions,

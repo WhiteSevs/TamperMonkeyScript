@@ -1,4 +1,4 @@
-import type { UtilsLogOptions } from "./types/Log";
+import type { UtilsLogOptions } from "./../types/Log";
 
 export class Log {
   /** 是否禁用输出的flag */

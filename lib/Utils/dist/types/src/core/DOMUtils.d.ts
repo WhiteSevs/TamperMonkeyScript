@@ -1,4 +1,4 @@
-import type { WindowApiOption } from "./types/WindowApi";
+import type { WindowApiOption } from "./../types/WindowApi";
 declare class DOMUtils {
     private windowApi;
     constructor(option?: WindowApiOption);

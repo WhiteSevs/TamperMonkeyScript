@@ -1,5 +1,5 @@
 import { CommonUtil } from "./CommonUtil";
-import type { ProgressParamConfig } from "./types/Progress";
+import type { ProgressParamConfig } from "./../types/Progress";
 
 export class Progress {
   #config: ProgressParamConfig = {

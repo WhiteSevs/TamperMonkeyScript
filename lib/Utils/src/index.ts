@@ -4,32 +4,32 @@ import {
   setInterval as WorkerSetInterval,
   setTimeout as WorkerSetTimeout,
 } from "worker-timers";
-import { version } from "./../package.json";
+import { version } from "../package.json";
 import { ajaxHooker } from "./ajaxHooker/ajaxHooker.js";
 import { AjaxHooker1_2_4 } from "./ajaxHooker/ajaxHooker1.2.4";
-import { ColorConversion } from "./ColorConversion";
-import { CommonUtil } from "./CommonUtil";
-import { UtilsDictionary } from "./Dictionary";
-import { domUtils } from "./DOMUtils";
-import { GBKEncoder } from "./GBKEncoder";
-import { Hooks } from "./Hooks";
-import { Httpx } from "./Httpx";
-import { indexedDB } from "./indexedDB";
-import { LockFunction } from "./LockFunction";
-import { Log } from "./Log";
-import { ModuleRaid } from "./ModuleRaid";
-import { Progress } from "./Progress";
-import { TryCatch } from "./TryCatch";
+import { CookieManagerService } from "./cookie/CookieManagerService";
+import { DocumentCookieHandler } from "./cookie/DocumentCookieHandler";
+import { ColorConversion } from "./core/ColorConversion";
+import { CommonUtil } from "./core/CommonUtil";
+import { UtilsDictionary } from "./core/Dictionary";
+import { domUtils } from "./core/DOMUtils";
+import { GBKEncoder } from "./core/GBKEncoder";
+import { Hooks } from "./core/Hooks";
+import { Httpx } from "./core/Httpx";
+import { indexedDB } from "./core/indexedDB";
+import { LockFunction } from "./core/LockFunction";
+import { Log } from "./core/Log";
+import { ModuleRaid } from "./core/ModuleRaid";
+import { Progress } from "./core/Progress";
+import { TryCatch } from "./core/TryCatch";
+import { GenerateUUID } from "./core/UtilsCommon";
+import { GMMenu } from "./core/UtilsGMMenu";
+import { Vue } from "./core/Vue";
+import { WindowApi } from "./core/WindowApi";
 import type { UtilsAjaxHookResult } from "./types/ajaxHooker";
 import { type ArgsType, type JSTypeNames, type UtilsOwnObject } from "./types/global";
 import type { ReactInstance } from "./types/React";
 import type { WindowApiOption } from "./types/WindowApi";
-import { GenerateUUID } from "./UtilsCommon";
-import { DocumentCookieHandler } from "./cookie/DocumentCookieHandler";
-import { GMMenu } from "./UtilsGMMenu";
-import { Vue } from "./Vue";
-import { WindowApi } from "./WindowApi";
-import { CookieManagerService } from "./cookie/CookieManagerService";
 
 class Utils {
   private windowApi: typeof WindowApi.prototype;

@@ -1,4 +1,4 @@
-import type { ProgressParamConfig } from "./types/Progress";
+import type { ProgressParamConfig } from "./../types/Progress";
 export declare class Progress {
     #private;
     /**

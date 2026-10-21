@@ -1,4 +1,4 @@
-import type { UtilsLogOptions } from "./types/Log";
+import type { UtilsLogOptions } from "./../types/Log";
 export declare class Log {
     #private;
     /** 前面的TAG标志 */

@@ -1,4 +1,4 @@
-import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./types/TryCatch";
+import type { UtilsTryCatchConfig, UtilsTryCatchType } from "./../types/TryCatch";
 export declare const TryCatch: (...args: any) => {
     /**
      *

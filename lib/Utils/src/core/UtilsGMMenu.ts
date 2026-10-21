@@ -1,5 +1,5 @@
+import type { UtilsGMMenuConstructorOptions, UtilsGMMenuOption, UtilsGMMenuOptionData } from "./../types/UtilsGMMenu";
 import { CommonUtil } from "./CommonUtil";
-import type { UtilsGMMenuConstructorOptions, UtilsGMMenuOption, UtilsGMMenuOptionData } from "./types/UtilsGMMenu";
 
 export class GMMenu {
   private GM_Api = {

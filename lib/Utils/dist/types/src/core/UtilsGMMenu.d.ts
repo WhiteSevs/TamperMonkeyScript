@@ -1,4 +1,4 @@
-import type { UtilsGMMenuConstructorOptions, UtilsGMMenuOption } from "./types/UtilsGMMenu";
+import type { UtilsGMMenuConstructorOptions, UtilsGMMenuOption } from "./../types/UtilsGMMenu";
 export declare class GMMenu {
     private GM_Api;
     private MenuHandle;
@@ -75,7 +75,7 @@ export declare class GMMenu {
      * 根据键值获取callback函数
      * @param menuKey 菜单-键key
      */
-    getCallBack(menuKey: string): ((data: import("./types/UtilsGMMenu").UtilsGMMenuClickCallBackData) => void) | undefined;
+    getCallBack(menuKey: string): ((data: import("./../types/UtilsGMMenu").UtilsGMMenuClickCallBackData) => void) | undefined;
     /**
      * 获取当enable为true时默认显示在菜单中前面的emoji图标
      */

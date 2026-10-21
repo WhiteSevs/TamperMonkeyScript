@@ -1160,6 +1160,15 @@ export declare interface HttpxRequestOption {
    */
   password?: string;
   /**
+   * （可选）最大请求重试次数
+   * @default 0
+   */
+  maxRetryCount?: number;
+  /**
+   * 当前请求重试的次数
+   */
+  readonly __retryCount?: number;
+  /**
    * （可选）当请求被取消或中断，触发该回调
    */
   onabort?: (response?: any) => void;
@@ -1265,6 +1274,12 @@ export declare interface HttpxResponseData<T extends HttpxRequestOption> {
    */
   responseXML?: XMLDocument;
 }
+export declare interface HttpxInterceptConfig {
+  /**
+   * 是否重新发送请求
+   */
+  isRetry: boolean;
+}
 /**
  * 响应的数据
  */
@@ -1305,6 +1320,10 @@ export declare interface HttpxResponse<T extends HttpxRequestOption> {
    * 请求的`成功`/`失败`的信息文本
    */
   msg: string;
+  /**
+   * 通过`interceptors`hook返回的数据
+   */
+  InterceptConfig: HttpxInterceptConfig;
 }
 
 /**
