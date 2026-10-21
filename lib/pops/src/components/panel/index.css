@@ -446,6 +446,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   --pops-slider-button-size: 20px;
   --pops-slider-button-wrapper-size: 36px;
   --pops-slider-button-wrapper-offset: -15px;
+  --pops-slider-value-text-gap: 10px;
 }
 
 .pops-slider {
@@ -464,6 +465,9 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   margin-left: 10px;
 }
 
+.pops-slider:has(.pops-slider__value_text:not(:empty)) {
+  gap: var(--pops-slider-value-text-gap);
+}
 .pops-slider__runway {
   flex: 1;
   height: var(--pops-slider-height);

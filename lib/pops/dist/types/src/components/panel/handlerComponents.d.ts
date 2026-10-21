@@ -251,6 +251,7 @@ export declare const PanelHandlerComponents: () => {
                 itemLeftTextContainer: HTMLElement | null;
                 slider: HTMLElement;
                 runAway: HTMLElement;
+                valueText: HTMLElement | null;
                 bar: HTMLElement;
                 buttonWrapper: HTMLElement;
                 button: HTMLElement;
@@ -271,6 +272,10 @@ export declare const PanelHandlerComponents: () => {
              * 把数据添加到元素上
              */
             initEleData(): void;
+            /**
+             * 初始化显示滑块的值的元素
+             */
+            initSliderValueText(): void;
             /**
              * 初始化滑块的总长度的数据(px)
              */
@@ -310,7 +315,7 @@ export declare const PanelHandlerComponents: () => {
                 percent: number;
             } | undefined;
             /**
-             * 获取滑块的当前脱拖拽占据的百分比
+             * 获取滑块的当前拖拽占据的百分比
              * @param dragWidth
              */
             getSliderPositonPercent(dragWidth: number): number;
@@ -359,6 +364,10 @@ export declare const PanelHandlerComponents: () => {
              * 拖拽结束的回调
              */
             dragEndCallBack(dragX: number): void;
+            /**
+             * 更新滑块值元素显示的文字
+             */
+            updateValueText(): void;
             /**
              * 设置点击拖拽事件
              */

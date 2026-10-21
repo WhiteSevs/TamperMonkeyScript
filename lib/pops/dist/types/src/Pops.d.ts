@@ -358,6 +358,7 @@ declare class Pops {
                         itemLeftTextContainer: HTMLElement | null;
                         slider: HTMLElement;
                         runAway: HTMLElement;
+                        valueText: HTMLElement | null;
                         bar: HTMLElement;
                         buttonWrapper: HTMLElement;
                         button: HTMLElement;
@@ -369,6 +370,7 @@ declare class Pops {
                     init(): void;
                     intervalInit(checkStepTime?: number, maxTime?: number): void;
                     initEleData(): void;
+                    initSliderValueText(): void;
                     initTotalWidth(): void;
                     initStepMap(): void;
                     initFloatStepMap(): void;
@@ -393,6 +395,7 @@ declare class Pops {
                     dragStartCallBack(): boolean;
                     dragMoveCallBack(event: any, dragX: number, oldValue: number): void;
                     dragEndCallBack(dragX: number): void;
+                    updateValueText(): void;
                     setPanEvent(): void;
                     showToolTip(): void;
                     closeToolTip(): void;

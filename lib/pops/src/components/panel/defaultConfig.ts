@@ -714,8 +714,10 @@ export const PopsPanelDefaultConfig = (): DeepRequired<PopsPanelConfig> => {
                         callback(event, value) {
                           console.log("滑块当前数值：", value);
                         },
-                        min: 1,
-                        max: 100,
+                        valueTextPosition: "right",
+                        min: 1000,
+                        max: 10000,
+                        step: 1000,
                       },
                       {
                         className: "panel-button",

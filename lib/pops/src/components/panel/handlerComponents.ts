@@ -576,6 +576,7 @@ export const PanelHandlerComponents = () => {
           itemLeftTextContainer: $li.querySelector<HTMLElement>(".pops-panel-item-left-text"),
           slider: $li.querySelector<HTMLElement>(".pops-slider")!,
           runAway: $li.querySelector<HTMLElement>(".pops-slider__runway")!,
+          valueText: null as HTMLElement | null,
           bar: $li.querySelector<HTMLElement>(".pops-slider__bar")!,
           buttonWrapper: $li.querySelector<HTMLElement>(".pops-slider__button-wrapper")!,
           button: $li.querySelector<HTMLElement>(".pops-slider__button")!,
@@ -586,6 +587,7 @@ export const PanelHandlerComponents = () => {
         $tooltip: null as any as ReturnType<typeof popsUtils.AnyTouch>["prototype"],
         init() {
           this.initEleData();
+          this.initSliderValueText();
           this.setToolTipEvent();
           this.setPanEvent();
           this.onRunAwayClick();
@@ -646,6 +648,38 @@ export const PanelHandlerComponents = () => {
           Reflect.set(this.$ele.slider, "data-max", this.max);
           Reflect.set(this.$ele.slider, "data-value", this.value);
           Reflect.set(this.$ele.slider, "data-step", this.step);
+        },
+        /**
+         * 初始化显示滑块的值的元素
+         */
+        initSliderValueText() {
+          const isShowValueText =
+            typeof viewConfig.isShowValueText === "function"
+              ? viewConfig.isShowValueText()
+              : (viewConfig.isShowValueText ?? false);
+          if (!isShowValueText) return;
+          const showText =
+            typeof viewConfig.getShowValueText == "function"
+              ? viewConfig.getShowValueText(this.value)
+              : this.value.toString();
+          const valueTextWidth =
+            typeof viewConfig.valueTextWidth === "function"
+              ? viewConfig.valueTextWidth(this.value)
+              : (viewConfig.valueTextWidth ?? "2em");
+          const $value = popsDOMUtils.createElement("div", {
+            className: "pops-slider__value_text",
+            textContent: showText,
+          });
+          popsDOMUtils.css($value, "width", valueTextWidth);
+          const position = viewConfig.valueTextPosition ?? "left";
+          if (position == "left") {
+            popsDOMUtils.before(this.$ele.runAway, $value);
+          } else if (position == "right") {
+            popsDOMUtils.after(this.$ele.runAway, $value);
+          } else {
+            throw new Error("valueTextPosition is not support");
+          }
+          this.$ele.valueText = $value;
         },
         /**
          * 初始化滑块的总长度的数据(px)
@@ -790,7 +824,7 @@ export const PanelHandlerComponents = () => {
           return result;
         },
         /**
-         * 获取滑块的当前脱拖拽占据的百分比
+         * 获取滑块的当前拖拽占据的百分比
          * @param dragWidth
          */
         getSliderPositonPercent(dragWidth: number) {
@@ -921,6 +955,7 @@ export const PanelHandlerComponents = () => {
           this.$data.dragPercent = dragPercent;
           this.setSliderPosition(this.$data.dragPercent);
           this.showToolTip();
+          this.updateValueText();
           if (oldValue !== this.value) {
             this.valueChangeCallBack(event, this.value);
           }
@@ -938,6 +973,17 @@ export const PanelHandlerComponents = () => {
             this.$data.dragWidth = dragX;
           }
           this.closeToolTip();
+        },
+        /**
+         * 更新滑块值元素显示的文字
+         */
+        updateValueText() {
+          if (!this.$ele.valueText) return;
+          const valueText =
+            typeof viewConfig.getShowValueText === "function"
+              ? viewConfig.getShowValueText(this.value)
+              : this.value.toString();
+          this.$ele.valueText.textContent = valueText;
         },
         /**
          * 设置点击拖拽事件

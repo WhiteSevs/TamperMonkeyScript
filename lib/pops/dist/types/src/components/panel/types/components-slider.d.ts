@@ -27,6 +27,30 @@ export interface PopsPanelSliderConfig extends PopsPanelGeneralConfig<PopsPanelS
      */
     isShowHoverTip?: boolean | (() => boolean);
     /**
+     * 是否显示滑块的值的文本
+     * @default false
+     */
+    isShowValueText?: boolean | (() => boolean);
+    /**
+     * 滑块值的显示文本的所在位置
+     * @default "left"
+     */
+    valueTextPosition?: "left" | "right";
+    /**
+     * 滑块值的显示文本的宽度
+     *
+     * 如果显示的文字宽度超过，那么会造成滑块计算的宽度抖动，所以需要设置一个固定的宽度
+     *
+     * 请给它设置一个可能会显示的最长文字的宽度
+     * @default "2em"
+     */
+    valueTextWidth?: string | ((value: number) => string);
+    /**
+     * 获取显示在左边|右边的文字
+     * @param value 滑块的值
+     */
+    getShowValueText?(value: number): string;
+    /**
      * 获取该项的值的回调函数
      */
     getValue(): number;
