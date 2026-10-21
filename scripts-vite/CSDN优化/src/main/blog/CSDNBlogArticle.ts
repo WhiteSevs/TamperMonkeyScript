@@ -83,6 +83,10 @@ export const CSDNBlogArticle = {
       left: unset !important;
       right: 150px !important;
     }
+    #gitcode-blog-box .t2-card-container[style*="left:"]{
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+    }
     `)
     );
     return result;
