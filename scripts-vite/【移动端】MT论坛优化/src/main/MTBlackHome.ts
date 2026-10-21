@@ -292,7 +292,7 @@ export const MTBlackHome = {
                         <p>${userInfo["operator"]}</p>
                     </div>
                     <div class="blackhome-operator-user-info">
-                    ${userInfo["reason"]}
+                    ${userInfo["reason"] ?? "无"}
                     </div>
                     </div>
                 </div>

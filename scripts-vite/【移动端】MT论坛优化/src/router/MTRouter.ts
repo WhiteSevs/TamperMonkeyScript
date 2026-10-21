@@ -73,6 +73,12 @@ export const MTRouter = {
     return RouterUtil.builder().pathnameStartsWith("/space-uid-").r();
   },
   /**
+   * 个人空间页的帖子列表
+   */
+  isSpaceThread() {
+    return this.isSpace() && RouterUtil.seachParams("do", "thread").r();
+  },
+  /**
    * 社区列表
    */
   isForumList() {

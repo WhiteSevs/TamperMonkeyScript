@@ -11,9 +11,11 @@ export const MTSpace = {
       this.repairEnterSpace();
     });
     DOMUtils.onReady(() => {
-      Panel.execMenuOnce("mt-space-showCommentContent", () => {
-        this.showCommentContent();
-      });
+      if (MTRouter.isSpaceThread()) {
+        Panel.execMenuOnce("mt-space-showCommentContent", () => {
+          this.showCommentContent();
+        });
+      }
     });
   },
   /**
@@ -48,13 +50,13 @@ export const MTSpace = {
      * 获取PC端的回复内容
      */
     async function getPCReply() {
-      let response = await httpx.get(window.location.href, {
+      const response = await httpx.get(window.location.href, {
         headers: {
           "User-Agent": utils.getRandomPCUA(),
         },
       });
 
-      if (!response.status) {
+      if (!response.isSuccess) {
         return;
       }
 
@@ -64,8 +66,9 @@ export const MTSpace = {
         let replyData: string[] = [];
         let tagTDNode = item.querySelector("td")!;
         let tagTDValue = DOMUtils.html(tagTDNode).replace(/^&nbsp;/, "");
-        replyData.push(tagTDValue);
-
+        if (tagTDValue !== "") {
+          replyData.push(tagTDValue);
+        }
         let nextHTML = DOMUtils.next(item);
         /* bw0_all是每个帖子的标志位 */
         let $tr = doc.querySelectorAll<HTMLElement>("#delform tr");
@@ -75,7 +78,9 @@ export const MTSpace = {
           }
           let nextTdHTML = nextHTML.querySelector<HTMLEmbedElement>("td")!;
           let nextValue = DOMUtils.html(nextTdHTML).replace(/^&nbsp;/, "");
-          replyData = replyData.concat(nextValue);
+          if (nextValue != "") {
+            replyData.push(nextValue);
+          }
           nextHTML = DOMUtils.next(nextHTML);
         }
         resultList.push(...replyData);
@@ -99,12 +104,15 @@ export const MTSpace = {
     function formatPCReply(dataList: string[]) {
       let resultJSON = {} as any;
       dataList.forEach((item) => {
-        let divItem = DOMUtils.createElement("div", {
+        const $div = DOMUtils.createElement("div", {
           innerHTML: item,
         });
-        let url = divItem.querySelector("a")?.getAttribute("href")!;
-        let paramPtidMatch = url.match(MTRegExp.ptid);
-        let paramPidMatch = url.match(MTRegExp.pid);
+        const url = $div.querySelector("a")?.getAttribute("href");
+        if (!url) {
+          return;
+        }
+        const paramPtidMatch = url.match(MTRegExp.ptid);
+        const paramPidMatch = url.match(MTRegExp.pid);
         if (!paramPtidMatch) {
           Qmsg.error("获取ptid失败");
           return;
@@ -113,8 +121,8 @@ export const MTSpace = {
           Qmsg.error("获取pid失败");
           return;
         }
-        let paramPtid = paramPtidMatch[paramPtidMatch.length - 1];
-        let paramPid = paramPidMatch[paramPidMatch.length - 1];
+        const paramPtid = paramPtidMatch[paramPtidMatch.length - 1];
+        const paramPid = paramPidMatch[paramPidMatch.length - 1];
         if (resultJSON[paramPtid]) {
           resultJSON[paramPtid]["data"].push(item);
         } else {
@@ -127,26 +135,31 @@ export const MTSpace = {
       });
       return resultJSON;
     }
-    var pcReplyArray = await getPCReply();
-    if (pcReplyArray == null) {
+    const forumList = getForumList();
+    if (forumList.length == 0) {
+      log.error("获取帖子列表失败");
       return;
     }
-    var pcReplyJSON = formatPCReply(pcReplyArray);
-    let forumList = getForumList();
-    forumList.forEach((forumListItem, forumListItemIndex) => {
+    const pcReplyArray = await getPCReply();
+    if (pcReplyArray == null || pcReplyArray.length == 0) {
+      log.error("获取PC端帖子回复内容为空");
+      return;
+    }
+    const pcReplyJSON = formatPCReply(pcReplyArray);
+    forumList.forEach(($forumListItem) => {
       /* 点赞按钮 */
-      let praiseNode = forumListItem.querySelector<HTMLAnchorElement>(".comiis_xznalist_bottom a")!;
+      let praiseNode = $forumListItem.querySelector<HTMLAnchorElement>(".comiis_xznalist_bottom a")!;
       let forumTid = praiseNode.getAttribute("tid");
       if (!forumTid) {
         Qmsg.error("获取帖子tid失败");
-        log.error(forumListItem);
+        log.error($forumListItem);
         return;
       }
       if (!pcReplyJSON[forumTid]) {
         return;
       }
       pcReplyJSON[forumTid]["data"].forEach((forumListReplyHTMLItem: any) => {
-        DOMUtils.append(forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
+        DOMUtils.append($forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
       });
     });
   },

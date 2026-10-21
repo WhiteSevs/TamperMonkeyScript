@@ -36,13 +36,13 @@ export const MT = {
       MTRouter.isSpace()
     ) {
       Panel.execMenuOnce("mt-show-user-uid", () => {
-        this.showUserUID();
+        return this.showUserUID();
       });
     }
 
     if (MTRouter.isSearch() || MTRouter.isGuide() || MTRouter.isSpace() || MTRouter.isPlate()) {
       Panel.execMenuOnce("mt-small-window", () => {
-        MTSmallWindow.init();
+        return MTSmallWindow.init();
       });
     }
 
@@ -70,36 +70,36 @@ export const MT = {
 
     DOMUtils.onReady(() => {
       Panel.execMenuOnce("mt-black-home", () => {
-        MTBlackHome.init();
+        return MTBlackHome.init();
       });
       Panel.execMenuOnce("mt-online-user", () => {
-        MTOnlineUser.init();
+        return MTOnlineUser.init();
       });
       Panel.execMenuOnce("mt-post-paidThemePost", () => {
-        MTPaidThemePost.init();
+        return MTPaidThemePost.init();
       });
       Panel.execMenuOnce("mt-ownBlock", () => {
-        MTOwnBlock.init();
+        return MTOwnBlock.init();
       });
       Panel.execMenuOnce("mt-post-comment-filter", () => {
-        MTCommentFilter.init();
+        return MTCommentFilter.init();
       });
       Panel.execMenuOnce("mt-productListingReminder", () => {
-        MTProductListingReminder.init();
+        return MTProductListingReminder.init();
       });
       Panel.execMenuOnce("mt-customizeUserLabels", () => {
-        MTCustomizeUserLabels.init();
+        return MTCustomizeUserLabels.init();
       });
       Panel.execMenu("mt-auto-sign", () => {
-        MTAutoSignIn.init();
+        return MTAutoSignIn.init();
       });
       Panel.execMenu("mt-extend-cookie-expire", () => {
-        this.extendCookieExpire();
+        return this.extendCookieExpire();
       });
       if (!MTRouter.isPostPublish_edit()) {
         // 不在帖子编辑页面执行链接识别
         Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-          MTIdentifyLinks();
+          return MTIdentifyLinks();
         });
       }
     });
@@ -175,6 +175,7 @@ export const MT = {
         lockFn.run();
       },
     });
+    return () => mutation.disconnect();
   },
   /**
    * 延长cookie有效期
