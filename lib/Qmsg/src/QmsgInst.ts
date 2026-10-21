@@ -143,18 +143,23 @@ export class QmsgMsg {
         limitWidthNum = limitWidthNum.toString() + "px";
       }
       $content.style.maxWidth = limitWidthNum;
-      $content.style.width = limitWidthNum;
       // 设置换行信息
       $content.setAttribute("data-limitWidthWrap", this.setting.limitWidthWrap);
     } else {
       $content.setAttribute("data-limitWidthWrap", "no-wrap" as NonNullable<QmsgConfig["limitWidthWrap"]>);
+    }
+    if (this.setting.isTextWrap) {
+      // 文本换行
+      $content.setAttribute("data-overflowWrap", "true");
+    } else {
+      $content.removeAttribute("data-overflowWrap");
     }
     QmsgUtils.setSafeHTML(
       this.$el.$item,
       /*html*/ `
 			<div class="qmsg-content-wrapper">
 				<div class="${contentClassName}">
-				${this.setting.showIcon ? `<i class="qmsg-icon">${$svg}</i>` : ""}
+				${this.setting.showIcon ? /*html*/ `<i class="qmsg-icon">${$svg}</i>` : ""}
 					${$content.outerHTML}
 					${$closeIcon}
 				</div>

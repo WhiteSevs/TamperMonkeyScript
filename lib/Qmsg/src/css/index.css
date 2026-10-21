@@ -100,6 +100,10 @@
 .qmsg .qmsg-content-wrapper .qmsg-content-text[data-limitWidthWrap="wrap"] {
   white-space: normal;
 }
+.qmsg .qmsg-content-wrapper .qmsg-content-text[data-overflowWrap] {
+  white-space: unset;
+  overflow-wrap: anywhere;
+}
 .qmsg .qmsg-content-wrapper [class^="qmsg-content-"]:not(.qmsg-content-text) {
   display: flex;
   align-items: center;

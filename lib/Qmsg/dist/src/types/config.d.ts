@@ -140,6 +140,13 @@ export interface QmsgConfig {
      */
     limitWidthWrap?: "no-wrap" | "wrap" | "ellipsis";
     /**
+     * 是否使用文本换行`overflow-wrap: anywhere;`
+     *
+     * 可直接代替上面的`isLimitWidth`
+     * @default false
+     */
+    isTextWrap: boolean;
+    /**
      * 是否在控制台打印content信息
      *
      * 如果为函数，返回`boolean`类型，当为`true`时，通过`console.log`输出`content`，当为`false`时，不输出content信息
