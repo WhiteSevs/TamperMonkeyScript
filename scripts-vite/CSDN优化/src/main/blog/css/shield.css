@@ -42,6 +42,8 @@ body > .ins-code-runner-btn ,
 /* 顶部工具栏最右边的 登录最高领取xx算力币 */
 #csdn-toolbar .csdn-new-user-gift-bubble-anchor,
 /* 会员积分下载推广 */
-#mainBox .simple-ad-slot {
+#mainBox .simple-ad-slot,
+/* 文章右侧 */
+.simple-ad-slot {
   display: none !important;
 }
