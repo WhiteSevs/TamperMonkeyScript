@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.19.18
+// @version      2026.10.21
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -17,10 +17,10 @@
 // @match        *://www.bing.com/**
 // @match        *://cn.bing.com/**
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.0/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
 // @connect      www.baidu.com
 // @connect      cn.bing.com
 // @connect      www.bing.com
@@ -2016,6 +2016,7 @@
     isHTML: true,
     autoClose: true,
     showClose: false,
+    isTextWrap: true,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") return false;
@@ -3354,10 +3355,10 @@
       Panel.execMenuOnce("bing-search-removeInputPrediction", () => {
         return this.removeInputPrediction();
       });
-      Panel.execMenuOnce("bing-search-bing-search-removeInputHistory", () => {
+      Panel.execMenuOnce("bing-search-removeInputHistory", () => {
         return this.removeInputHistory();
       });
-      Panel.execMenuOnce("bing-search-bing-search-removeInputHistory-relatedToRecentSearches", () => {
+      Panel.execMenuOnce("bing-search-removeInputHistory-relatedToRecentSearches", () => {
         return this.removeInputHistoryAndRelatedToRecentSearches();
       });
       Panel.execMenuOnce("bing-search-removeRightMoreSearchResult", () => {
@@ -3425,7 +3426,8 @@
         "#b_results .b_ad",
         "#b_results .b_algo:has(.jrwmcyhr)",
         ".b_vfly_c",
-        "#b_results .b_mop:has(.b_mrwu_c)"
+        "#b_results .b_mop:has(.b_mrwu_c)",
+        "#b_content #b_pole"
       );
     },
     removeSelectTextDialog() {
@@ -3478,7 +3480,7 @@
     },
     removeResultRelatedSearch() {
       log.info(`移除「相关搜索」`);
-      return addBlockCSSWithEnd('.b_inline_ajax_rs.b_ans:has([aria-label*="相关搜索"])');
+      return addBlockCSSWithEnd('.b_inline_ajax_rs:has([aria-label*="相关搜索"])');
     },
     removeResultYouMayLikeSearch() {
       log.info(`移除「你可能喜欢的搜索」`);

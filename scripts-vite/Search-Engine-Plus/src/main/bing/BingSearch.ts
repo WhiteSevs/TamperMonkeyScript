@@ -13,10 +13,10 @@ export const BingSearch = {
     Panel.execMenuOnce("bing-search-removeInputPrediction", () => {
       return this.removeInputPrediction();
     });
-    Panel.execMenuOnce("bing-search-bing-search-removeInputHistory", () => {
+    Panel.execMenuOnce("bing-search-removeInputHistory", () => {
       return this.removeInputHistory();
     });
-    Panel.execMenuOnce("bing-search-bing-search-removeInputHistory-relatedToRecentSearches", () => {
+    Panel.execMenuOnce("bing-search-removeInputHistory-relatedToRecentSearches", () => {
       return this.removeInputHistoryAndRelatedToRecentSearches();
     });
     Panel.execMenuOnce("bing-search-removeRightMoreSearchResult", () => {
@@ -92,7 +92,9 @@ export const BingSearch = {
       // 扫描二维码下载微软必应app，立即开始搜索并赚取积分奖励！
       ".b_vfly_c",
       // 搜索结果 - Microsoft推广  分享微软积分商城，即可在每次好友使用必应搜索时赚取 1 个积分!
-      "#b_results .b_mop:has(.b_mrwu_c)"
+      "#b_results .b_mop:has(.b_mrwu_c)",
+      // 由 Microsoft 推广
+      "#b_content #b_pole"
     );
   },
   /**
@@ -167,7 +169,7 @@ export const BingSearch = {
    */
   removeResultRelatedSearch() {
     log.info(`移除「相关搜索」`);
-    return addBlockCSSWithEnd('.b_inline_ajax_rs.b_ans:has([aria-label*="相关搜索"])');
+    return addBlockCSSWithEnd('.b_inline_ajax_rs:has([aria-label*="相关搜索"])');
   },
   /**
    * 移除「你可能喜欢的搜索」
