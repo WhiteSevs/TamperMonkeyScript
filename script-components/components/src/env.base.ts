@@ -61,6 +61,7 @@ Qmsg.config({
   isHTML: true,
   autoClose: true,
   showClose: false,
+  isTextWrap: true,
   consoleLogContent(qmsgInst) {
     const qmsgType = qmsgInst.setting.type;
     if (qmsgType === "loading") {
@@ -188,8 +189,8 @@ const addStyle = domUtils.addStyle.bind(domUtils);
 /**
  * 添加样式（到文档末尾）
  */
-const addStyleWithEnd = (cssText:string)=>{
-  const $css =  addStyle(cssText)
+const addStyleWithEnd = (cssText: string) => {
+  const $css = addStyle(cssText);
   document.documentElement.appendChild($css);
   return $css;
 };
@@ -282,7 +283,7 @@ const documentCookieManager = new utils.DocumentCookieHandler();
 
 // dev使用
 if (import.meta.env.DEV) {
-  const registerObject = { httpx, cookieManager };
+  const registerObject = { httpx, cookieManager, Qmsg, pops, log };
   Object.keys(registerObject).forEach((key) => {
     Reflect.set(unsafeWindow, key, registerObject[key as keyof typeof registerObject]);
   });
