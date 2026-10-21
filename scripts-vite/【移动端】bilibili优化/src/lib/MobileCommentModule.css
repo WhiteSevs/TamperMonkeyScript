@@ -345,6 +345,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  justify-content: space-between;
 }
 
 .reply-header .reply-navigation .nav-bar .nav-title {

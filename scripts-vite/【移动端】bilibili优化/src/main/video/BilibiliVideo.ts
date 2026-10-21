@@ -796,8 +796,8 @@ export const BilibiliVideo = {
 					left: 0;
 					z-index: 2000;
 					display: none;
-					width: 100vw;
-					height: 100vh;
+					width: 100dvw;
+					height: 100dvh;
 					background-color: #fff;
 					overflow-x: hidden;
 				}
@@ -828,8 +828,19 @@ export const BilibiliVideo = {
 					background-color: var(--bili-color);
 				}
 			`);
+      addStyle(/*css*/ `
+        .m-video-info:has(+#comment-module-wrapper){
+          
+        }
+        .m-video-info + #comment-module-wrapper{
+          position: unset;
+        }
+        .artplayer-container + #comment-module-wrapper{
+          position: relative;
+        }
+      `);
     }
-    DOMUtils.waitNode<HTMLElement>(".m-video-info", 10000).then(($videoInfo) => {
+    DOMUtils.waitNode<HTMLElement>(".m-video-info", 10000).then(async ($videoInfo) => {
       if (!$videoInfo) {
         log.error(`获取视频信息元素失败`);
         return;
@@ -841,7 +852,7 @@ export const BilibiliVideo = {
 
       const history_hash = "comment-module";
       // 手势模式
-      let gestureBack = new GestureBack({
+      const gestureBack = new GestureBack({
         hash: history_hash,
         useUrl: true,
         beforeHistoryBackCallBack(isUrlChange) {
@@ -854,35 +865,56 @@ export const BilibiliVideo = {
             $closeCommentModuleBtn.click();
           }
         },
+        onEnter() {
+          DOMUtils.css(document.body, { overflow: "hidden" });
+        },
+        onQuite() {
+          DOMUtils.css(document.body, { overflow: "" });
+        },
       });
-      let $commentModuleShowBtn = DOMUtils.createElement("div", {
+      const $commentModuleShowBtn = DOMUtils.createElement("div", {
         className: "comment-module-show-btn",
         innerHTML: `查看评论`,
       });
-      let $closeCommentModuleBtn = DOMUtils.createElement("span", {
+      const $closeCommentModuleBtn = DOMUtils.createElement("span", {
         className: "close-comment-module-btn",
         innerHTML: "×",
       });
-      // 显示评论模块
+      // 显示评论模块 隐藏视频简介
       DOMUtils.on($commentModuleShowBtn, "click", (event) => {
         DOMUtils.preventEvent(event);
         DOMUtils.css($commentModuleWrapper, { display: "block" });
         DOMUtils.css($closeCommentModuleBtn, { display: "flex" });
+        DOMUtils.hide($videoInfo, false);
         gestureBack.enterGestureBackMode();
       });
-      // 隐藏评论模块
+      // 隐藏评论模块 显示视频简介
       DOMUtils.on($closeCommentModuleBtn, "click", (event) => {
         DOMUtils.preventEvent(event);
         DOMUtils.css($commentModuleWrapper, { display: "" });
         DOMUtils.css($closeCommentModuleBtn, { display: "" });
+        DOMUtils.show($videoInfo, false);
         gestureBack.quitGestureBackMode(false);
       });
 
       DOMUtils.append($videoInfo, $commentModuleShowBtn);
-      let $commentModuleWrapper = DOMUtils.createElement("div", {
+      const $commentModuleWrapper = DOMUtils.createElement("div", {
         id: "comment-module-wrapper",
       });
-      DOMUtils.append(document.body, $commentModuleWrapper);
+      // 方案1，直接全屏插入body最后
+      // DOMUtils.append(document.body, $commentModuleWrapper);
+      // 方案2，插入视频之后
+      const $artplayerContainer = await DOMUtils.waitNode(".artplayer-container", 10000);
+      if (!$artplayerContainer) {
+        log.error(`获取artplayer-container失败，无法插入评论元素`);
+        return;
+      }
+      const artPlayerHeight = DOMUtils.height($artplayerContainer);
+      if (artPlayerHeight > 100) {
+        DOMUtils.css($commentModuleWrapper, { height: `calc(100dvh - ${artPlayerHeight}px - 11.73333vmin)` });
+      }
+      DOMUtils.after($artplayerContainer, $commentModuleWrapper);
+      // 添加关闭按钮
       DOMUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
       // 初始化评论模块
       MobileCommentModule.init($commentModuleWrapper);
