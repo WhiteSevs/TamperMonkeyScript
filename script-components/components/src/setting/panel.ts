@@ -5,7 +5,7 @@ import type {
   PopsPanelContentConfig,
   PopsPanelViewConfig,
 } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
-import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/Dictionary.js";
+import type { UtilsDictionary } from "@whitesev/utils/dist/types/src/core/Dictionary.js";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 import { DOMUtils, log, pops, SCRIPT_NAME, utils } from "../env.base";

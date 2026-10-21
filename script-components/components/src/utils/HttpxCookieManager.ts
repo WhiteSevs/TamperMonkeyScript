@@ -8,6 +8,8 @@ type HttpxCookieManagerRule = {
   key: string;
   /** 匹配url的hostname的正则或字符串 */
   hostname: RegExp | string;
+  /** 获取cookie的值，如果为空则默认为通过Panel.getValue(key)来获取 */
+  getCookie?(): string | undefined | null;
 };
 
 class HttpxCookieManager {
@@ -100,21 +102,21 @@ class HttpxCookieManager {
     if (url.startsWith("//")) {
       url = window.location.protocol + url;
     }
-    let urlObj = new URL(url);
+    let urlInst = new URL(url);
     if (
       this.$data.useDocumentCookie &&
-      urlObj.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))
+      urlInst.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))
     ) {
       // 通过document.cookie获取添加
       ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
     }
     for (let index = 0; index < this.$data.cookieRule.length; index++) {
-      let rule = this.$data.cookieRule[index];
-      if (urlObj.hostname.match(rule.hostname)) {
+      const rule = this.$data.cookieRule[index];
+      if (urlInst.hostname.match(rule.hostname)) {
         // 域名匹配成功
-        let cookie = Panel.getValue(rule.key) as string;
+        const cookie = typeof rule.getCookie == "function" ? rule.getCookie() : (Panel.getValue(rule.key) as string);
         if (utils.isNull(cookie)) {
-          break;
+          continue;
         }
         ownCookie = this.concatCookie(ownCookie, cookie);
       }
