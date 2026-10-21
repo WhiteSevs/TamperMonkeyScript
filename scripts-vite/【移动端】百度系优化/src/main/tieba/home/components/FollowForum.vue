@@ -8,10 +8,7 @@
         v-for="(item, index) in followForum"
         :key="index"
         @click="handleForumItemClick(item)">
-        <el-avatar
-          class="follow-forum-avatar"
-          :size="35"
-          :src="'//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png'" />
+        <el-avatar class="follow-forum-avatar" :src="avatarSrc" :size="35" />
         <div class="follow-forum-item-right-container">
           <div class="follow-forum-item-name">{{ item.forumName }}</div>
           <el-text class="follow-forum-item-info" type="info" size="small" truncated>{{ item.intro }}</el-text>
@@ -43,6 +40,8 @@
   let followForum = ref<UserConcernInfo[]>([]);
   let isEmpty = ref(false);
 
+  const avatarSrc =
+    "'//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png'";
   let colorConversion = new utils.ColorConversion();
   let colorLightLevel = 0.7;
   let levelColor = ref("#ffffff");

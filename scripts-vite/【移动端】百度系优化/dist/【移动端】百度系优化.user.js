@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】百度系优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.13
+// @version      2026.10.21
 // @author       WhiteSevs
 // @description  用于【移动端】的百度系列产品优化，包括【百度搜索】、【百家号】、【百度贴吧】、【百度文库】、【百度经验】、【百度百科】、【百度知道】、【百度翻译】、【百度图片】、【百度地图】、【百度好看视频】、【百度爱企查】、【百度问题】、【百度识图】等
 // @license      GPL-3.0-only
@@ -13,18 +13,18 @@
 // @match        *://uf9kyh.smartapps.cn/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/showdown/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.13.0/dist/viewer.js
-// @require      https://fastly.jsdelivr.net/npm/vue@3.5.42/dist/vue.global.prod.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.js
+// @require      https://fastly.jsdelivr.net/npm/vue@3.5.44/dist/vue.global.prod.js
 // @require      https://fastly.jsdelivr.net/npm/pinia@3.0.4/dist/pinia.iife.prod.js
-// @require      https://fastly.jsdelivr.net/npm/vue-router@5.3.1/dist/vue-router.global.js
+// @require      https://fastly.jsdelivr.net/npm/vue-router@5.4.0/dist/vue-router.global.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@708b6e6331972b4229a4422f031fe87952b7fca3/lib/Element-Plus/index.full.js
 // @require      https://fastly.jsdelivr.net/npm/@element-plus/icons-vue@2.3.2/dist/index.iife.min.js
 // @resource     ElementPlusResourceCSS  https://fastly.jsdelivr.net/npm/element-plus@2.14.4/dist/index.min.css
-// @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
+// @resource     ViewerCSS               https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.min.css
 // @connect      *
 // @connect      www.baidu.com
 // @connect      m.baidu.com
@@ -65,12 +65,12 @@
   pinia
 ) {
   "use strict";
-  var __create = Object.create;
-  var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getProtoOf = Object.getPrototypeOf;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __create$1 = Object.create;
+  var __defProp$1 = Object.defineProperty;
+  var __getOwnPropDesc$1 = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames$1 = Object.getOwnPropertyNames;
+  var __getProtoOf$1 = Object.getPrototypeOf;
+  var __hasOwnProp$1 = Object.prototype.hasOwnProperty;
   var __esmMin = (fn, res, err) => () => {
     if (err) throw err[0];
     try {
@@ -79,24 +79,27 @@
       throw ((err = [e]), e);
     }
   };
-  var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), (cb = null)), mod.exports);
-  var __copyProps = (to, from, except, desc) => {
+  var __commonJSMin$1 = (cb, mod) => () => (
+    mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), (cb = null)),
+    mod.exports
+  );
+  var __copyProps$1 = (to, from, except, desc) => {
     if ((from && typeof from === "object") || typeof from === "function")
-      for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+      for (var keys = __getOwnPropNames$1(from), i = 0, n = keys.length, key; i < n; i++) {
         key = keys[i];
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, {
+        if (!__hasOwnProp$1.call(to, key) && key !== except)
+          __defProp$1(to, key, {
             get: ((k) => from[k]).bind(null, key),
-            enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+            enumerable: !(desc = __getOwnPropDesc$1(from, key)) || desc.enumerable,
           });
       }
     return to;
   };
-  var __toESM = (mod, isNodeMode, target) => (
-    (target = mod != null ? __create(__getProtoOf(mod)) : {}),
-    __copyProps(
-      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default")
-        ? __defProp(target, "default", {
+  var __toESM$1 = (mod, isNodeMode, target) => (
+    (target = mod != null ? __create$1(__getProtoOf$1(mod)) : {}),
+    __copyProps$1(
+      isNodeMode || !mod || !mod.__esModule || !__hasOwnProp$1.call(mod, "default")
+        ? __defProp$1(target, "default", {
             value: mod,
             enumerable: true,
           })
@@ -104,12 +107,12 @@
       mod
     )
   );
-  qmsg = __toESM(qmsg);
-  _whitesev_domutils = __toESM(_whitesev_domutils);
-  _whitesev_pops = __toESM(_whitesev_pops);
-  _whitesev_utils = __toESM(_whitesev_utils);
-  element_plus = __toESM(element_plus);
-  viewerjs = __toESM(viewerjs);
+  qmsg = __toESM$1(qmsg);
+  _whitesev_domutils = __toESM$1(_whitesev_domutils);
+  _whitesev_pops = __toESM$1(_whitesev_pops);
+  _whitesev_utils = __toESM$1(_whitesev_utils);
+  element_plus = __toESM$1(element_plus);
+  viewerjs = __toESM$1(viewerjs);
   var s, _css;
   var init__virtual_monkey_css = __esmMin(() => {
     s = new Set();
@@ -136,9 +139,9 @@
   });
   init__virtual_monkey_css();
   _css(
-    ' .follow-forum-container[data-v-d50718f2]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-d50718f2]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-d50718f2]{align-items:flex-start;width:50%;max-width:50%;margin:10px 0;display:flex}.follow-forum-avatar[data-v-d50718f2]{border-radius:12px}.follow-forum-item-right-container[data-v-d50718f2]{width:inherit;flex-direction:column;margin:0 10px;display:flex}.follow-forum-item-name[data-v-d50718f2]{width:-webkit-fill-available;align-items:center;width:-moz-available;display:flex}.follow-forum-item-level[data-level][data-v-d50718f2]{text-align:center;background:var(--v7d2e2d7b);color:var(--v30f37a00);border-radius:3px;margin:5px;padding:2px;font-size:.6rem;font-weight:700;line-height:.6rem}.follow-forum-item-level[data-level="0"][data-v-d50718f2],.follow-forum-item-level[data-level="1"][data-v-d50718f2],.follow-forum-item-level[data-level="2"][data-v-d50718f2],.follow-forum-item-level[data-level="3"][data-v-d50718f2]{background:var(--v7da305e4)}.follow-forum-item-level[data-level="4"][data-v-d50718f2],.follow-forum-item-level[data-level="5"][data-v-d50718f2],.follow-forum-item-level[data-level="6"][data-v-d50718f2],.follow-forum-item-level[data-level="7"][data-v-d50718f2],.follow-forum-item-level[data-level="8"][data-v-d50718f2],.follow-forum-item-level[data-level="9"][data-v-d50718f2]{background:var(--v7da314ee)}.follow-forum-item-level[data-level="10"][data-v-d50718f2],.follow-forum-item-level[data-level="11"][data-v-d50718f2],.follow-forum-item-level[data-level="12"][data-v-d50718f2],.follow-forum-item-level[data-level="13"][data-v-d50718f2],.follow-forum-item-level[data-level="14"][data-v-d50718f2],.follow-forum-item-level[data-level="15"][data-v-d50718f2]{background:var(--be1afb78)}.follow-forum-item-level[data-level="16"][data-v-d50718f2],.follow-forum-item-level[data-level="17"][data-v-d50718f2],.follow-forum-item-level[data-level="18"][data-v-d50718f2]{background:var(--be1586fe)}.follow-forum-item-info[data-v-d50718f2]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{justify-content:center;align-items:center;gap:0 6px;display:flex}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-f3a04c2a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-f3a04c2a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-f3a04c2a]{font-weight:700}.posts-item-title[data-v-f3a04c2a],.posts-item-content[data-v-f3a04c2a],.posts-item-media-container[data-v-f3a04c2a]{margin:10px 0}.posts-item-footer[data-v-f3a04c2a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-f3a04c2a]{text-align:center}.posts-item-footer-icon-container[data-v-f3a04c2a]{justify-content:center;align-items:center;gap:0 6px;display:flex}.posts-item-right-user-info[data-v-f3a04c2a]{padding:0 10px}#main[data-v-d96b1de2]{z-index:1000;width:100%;height:100%}.big-text[data-v-d96b1de2]{font-weight:700}.top-container[data-v-d96b1de2]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-d96b1de2]{width:100%;height:100px}.user-info-bg-main[data-v-d96b1de2]{background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg) 0 0/100% no-repeat;width:100%;height:160px;position:absolute}.user-avatar-top-background[data-v-d96b1de2]{background:#fff;border-top-left-radius:12px;border-top-right-radius:12px;width:100%;height:40%;margin:0;padding:0;position:absolute;transform:translateY(100%)}.user-info-container[data-v-d96b1de2]{padding:0 10px}.nav-left-arrow-icon[data-v-ac59e7b9]{align-content:center;padding-left:0!important}.nav-title[data-v-ac59e7b9]{text-align:center;padding:10px;font-weight:700}.user-avatar[data-v-ac59e7b9]{text-align:center;padding-bottom:20px}.user-info-item[data-v-ac59e7b9]{flex-wrap:wrap;padding:10px;display:flex}.user-desc-key[data-v-ac59e7b9]{width:60px;display:block}.user-end-text[data-v-ac59e7b9]{padding:0 20px}.user-top[data-v-05856134]{width:100%;height:40px;position:relative}.top-left-arrow-icon[data-v-05856134]{align-content:center;padding-left:0!important}.top-title-name[data-v-05856134]{text-align:center;padding:10px}.user-main[data-v-05856134]{width:100%;height:calc(100% - 40px);padding:0;position:absolute;inset:40px 0 0}.user-container[data-v-05856134]{padding:0 10px}.user-container .el-scrollbar__view[data-v-05856134]{height:100%}.user-item[data-v-05856134]{margin:10px 0}.user-item-row[data-v-05856134]{justify-content:space-between;align-items:center;display:flex}.user-item-row-center[data-v-05856134]{padding:0 10px}.user-name[data-v-05856134],.user-sign-text[data-v-05856134]{text-align:left}.user-sign-text[data-v-05856134]{color:#a2a2a2}.user-follow-btn[data-v-05856134]{float:right}.user-info[data-v-05856134]{display:grid}.user-item-row-left[data-v-05856134]{display:flex}.user-item-row-right[data-v-05856134]{float:right}.user-top[data-v-2aa9c171]{width:100%;height:40px;position:relative}.top-left-arrow-icon[data-v-2aa9c171]{align-content:center;padding-left:0!important}.top-title-name[data-v-2aa9c171]{text-align:center;padding:10px}.user-main[data-v-2aa9c171]{width:100%;height:calc(100% - 40px);padding:0;position:absolute;inset:40px 0 0}.user-container[data-v-2aa9c171]{padding:0 10px}.user-container .el-scrollbar__view[data-v-2aa9c171]{height:100%}.user-item[data-v-2aa9c171]{margin:10px 0}.user-item-row[data-v-2aa9c171]{justify-content:space-between;align-items:center;display:flex}.user-item-row-center[data-v-2aa9c171]{align-content:center;padding:0 10px}.user-name[data-v-2aa9c171],.user-sign-text[data-v-2aa9c171]{text-align:left}.user-sign-text[data-v-2aa9c171]{color:#a2a2a2}.user-follow-btn[data-v-2aa9c171]{float:right}.user-info[data-v-2aa9c171]{display:grid}.user-item-row-left[data-v-2aa9c171]{display:flex}.user-item-row-right[data-v-2aa9c171]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{align-items:center;gap:10px;padding:10px 0;display:flex}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-449d5239]{--forum-icon-size:56px;border-bottom:5px solid #efefef;flex-direction:column;gap:10px;padding:10px 15px;display:flex}.post-list-item[data-v-449d5239]:last-child{border-bottom:0}.user-info[data-v-449d5239]{align-items:center;gap:5px;display:flex}.user-time[data-v-449d5239]{color:#999;font-size:.8em}.user-avatar img[data-v-449d5239]{border-radius:50%;width:35px;height:35px}.reply-content[data-v-449d5239]{color:#4a4a4a;font-size:.9em}.post-info[data-v-449d5239]{color:#434343;background-color:#efefef;border-radius:6px;align-items:center;display:flex}.post-info__inner[data-v-449d5239]{align-items:center;width:100%;padding:8px;display:flex}.post-content[data-v-449d5239]{line-clamp:2;-webkit-line-clamp:2;color:#545454;-webkit-box-orient:vertical;margin-left:5px;display:-webkit-box;overflow:hidden}.post-image[data-v-449d5239]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-449d5239]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449d5239]{color:#999}.bottom-msg[data-v-449d5239]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-449d5239]{color:#848691;font-size:14px;font-style:normal;font-weight:400;overflow:hidden}.post-list-item[data-v-ca89eb7d]{--forum-icon-size:56px;border-bottom:5px solid #efefef;flex-direction:column;gap:10px;padding:10px 15px;display:flex}.post-list-item .biao[data-v-ca89eb7d]{vertical-align:-10%;background:#eee;border-radius:4px;-ms-flex-negative:0;-webkit-flex-shrink:0;width:4px;height:16px;margin-right:5px;display:inline-block}.post-list-item[data-v-ca89eb7d]:last-child{border-bottom:0}.user-info[data-v-ca89eb7d]{align-items:center;gap:5px;display:flex}.user-time[data-v-ca89eb7d]{color:#999;font-size:.8em}.user-avatar img[data-v-ca89eb7d]{border-radius:50%;width:35px;height:35px}.reply-content p[data-v-ca89eb7d]{font-size:.9em}.reply-content .quote-user[data-v-ca89eb7d]{color:#848691;margin-top:2px;padding-left:4px}.post-info[data-v-ca89eb7d]{color:#434343;background-color:#efefef;border-radius:6px;align-items:center;display:flex}.post-info__inner[data-v-ca89eb7d]{align-items:center;width:100%;padding:8px;display:flex}.post-content[data-v-ca89eb7d]{line-clamp:2;-webkit-line-clamp:2;color:#545454;-webkit-box-orient:vertical;margin-left:5px;display:-webkit-box;overflow:hidden}.post-image[data-v-ca89eb7d]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-ca89eb7d]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ca89eb7d]{color:#999}.bottom-msg[data-v-ca89eb7d]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-ca89eb7d]{color:#848691;font-size:14px;font-style:normal;font-weight:400;overflow:hidden}.bottom-msg[data-v-47090b9c]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height:40px;background:#fff;align-items:center;display:flex;position:fixed;top:0;left:0;right:0}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{margin:40px 0 0;padding:0}#small-toolbar[data-v-6db624a6]{z-index:1000;background:#fff;align-items:center;width:100%;height:.56rem;display:flex;position:fixed;bottom:0}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;align-items:center;width:100%;margin:10px 15px;font-size:.16rem;line-height:.16rem;display:flex;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{cursor:default;background:#e9e9e9;border:0;border-radius:.06rem;outline:none;width:100%;padding:.06rem;font-size:.14rem;line-height:.14rem}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;align-items:safe center;display:flex}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{flex-direction:column;align-items:center;padding:8px;display:flex}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;font-size:.16rem;outline:0!important}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{background-color:#e5e5e5;border-radius:5px;height:100%;padding:.06rem;overflow:auto}.icon-active[data-v-e3390787]{fill:#7557ff}#full-toolbar[data-v-e3390787]{z-index:100099;background:#fff;flex-flow:column;align-items:center;width:100%;display:flex;position:fixed;bottom:0}#full-toolbar .full-toolbar-top-reply-user[data-v-e3390787]{text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-top:.06rem;padding-left:.2rem;overflow:hidden}#full-toolbar .full-toolbar-top-container[data-v-e3390787]{width:-moz-available;align-items:end;width:-webkit-fill-available;height:.6rem;padding:.06rem .1rem;display:flex}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-e3390787]{flex-direction:column;flex:1;height:100%;margin:0 .1rem;display:flex;overflow:hidden}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-e3390787]{flex-direction:column;flex:0 auto;justify-content:space-between;align-items:center;height:100%;display:flex}#full-toolbar .full-toolbar-bottom-container[data-v-e3390787]{margin:.06rem auto .06rem 0;padding:0 0 .06rem}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-e3390787],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-e3390787]{flex-direction:column;align-items:center;margin:0 20px;display:flex}#full-toolbar .emoji-panel[data-v-e3390787]{background-color:#efefef;width:100%;height:30vh;overflow:auto}.emoji-panel-huaji[data-v-e3390787]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-e3390787]{margin:16px}#full-toolbar[data-v-e3390787]:has(.full-toolbar-top-container[data-full=true]){height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-e3390787]{height:100%;height:-webkit-fill-available}:is(#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-e3390787],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-e3390787]){display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-e3390787]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-e3390787]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-e3390787]{width:-webkit-fill-available;justify-content:space-between;align-items:center;width:-moz-available;padding:.16rem;display:flex}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}\n/*$vite$:1*/ '
+    ' .follow-forum-container[data-v-25425ef4]{background:#f2f2f4;padding:10px}.follow-forum-list-container[data-v-25425ef4]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.follow-forum-item[data-v-25425ef4]{align-items:flex-start;width:50%;max-width:50%;margin:10px 0;display:flex}.follow-forum-avatar[data-v-25425ef4]{border-radius:12px}.follow-forum-item-right-container[data-v-25425ef4]{width:inherit;flex-direction:column;margin:0 10px;display:flex}.follow-forum-item-name[data-v-25425ef4]{width:-webkit-fill-available;align-items:center;width:-moz-available;display:flex}.follow-forum-item-level[data-level][data-v-25425ef4]{text-align:center;background:var(--v25309962);color:var(--v2fbc64d4);border-radius:3px;margin:5px;padding:2px;font-size:.6rem;font-weight:700;line-height:.6rem}.follow-forum-item-level[data-level="0"][data-v-25425ef4],.follow-forum-item-level[data-level="1"][data-v-25425ef4],.follow-forum-item-level[data-level="2"][data-v-25425ef4],.follow-forum-item-level[data-level="3"][data-v-25425ef4]{background:var(--v149a3a90)}.follow-forum-item-level[data-level="4"][data-v-25425ef4],.follow-forum-item-level[data-level="5"][data-v-25425ef4],.follow-forum-item-level[data-level="6"][data-v-25425ef4],.follow-forum-item-level[data-level="7"][data-v-25425ef4],.follow-forum-item-level[data-level="8"][data-v-25425ef4],.follow-forum-item-level[data-level="9"][data-v-25425ef4]{background:var(--v149a499a)}.follow-forum-item-level[data-level="10"][data-v-25425ef4],.follow-forum-item-level[data-level="11"][data-v-25425ef4],.follow-forum-item-level[data-level="12"][data-v-25425ef4],.follow-forum-item-level[data-level="13"][data-v-25425ef4],.follow-forum-item-level[data-level="14"][data-v-25425ef4],.follow-forum-item-level[data-level="15"][data-v-25425ef4]{background:var(--v56ef3bf0)}.follow-forum-item-level[data-level="16"][data-v-25425ef4],.follow-forum-item-level[data-level="17"][data-v-25425ef4],.follow-forum-item-level[data-level="18"][data-v-25425ef4]{background:var(--v56f1f62d)}.follow-forum-item-info[data-v-25425ef4]{word-wrap:break-word}.posts-container-item[data-v-df752779]{width:-webkit-fill-available;width:-moz-available}.posts-item-title[data-v-df752779]{font-weight:700}.posts-item-title[data-v-df752779],.posts-item-content[data-v-df752779],.posts-item-media-container[data-v-df752779]{margin:10px 0}.posts-item-footer[data-v-df752779]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-df752779]{text-align:center}.posts-item-footer-icon-container[data-v-df752779]{justify-content:center;align-items:center;gap:0 6px;display:flex}.posts-item-right-user-info[data-v-df752779]{padding:0 10px}.posts-container[data-v-f3a04c2a]{background:#f2f2f4;padding:10px}.posts-container-item[data-v-f3a04c2a]{background:#fff;border-radius:12px;margin:10px 0;padding:10px}.posts-item-title[data-v-f3a04c2a]{font-weight:700}.posts-item-title[data-v-f3a04c2a],.posts-item-content[data-v-f3a04c2a],.posts-item-media-container[data-v-f3a04c2a]{margin:10px 0}.posts-item-footer[data-v-f3a04c2a]{margin:15px 0 5px}.posts-item-footer .el-col[data-v-f3a04c2a]{text-align:center}.posts-item-footer-icon-container[data-v-f3a04c2a]{justify-content:center;align-items:center;gap:0 6px;display:flex}.posts-item-right-user-info[data-v-f3a04c2a]{padding:0 10px}#main[data-v-d96b1de2]{z-index:1000;width:100%;height:100%}.big-text[data-v-d96b1de2]{font-weight:700}.top-container[data-v-d96b1de2]{width:-webkit-fill-available;width:-moz-available;padding:15px 15px 0}.user-info-bg[data-v-d96b1de2]{width:100%;height:100px}.user-info-bg-main[data-v-d96b1de2]{background:url(https://tb2.bdstatic.com/tb/mobile/suser/img/home_card_back_6cdfca5.jpg) 0 0/100% no-repeat;width:100%;height:160px;position:absolute}.user-avatar-top-background[data-v-d96b1de2]{background:#fff;border-top-left-radius:12px;border-top-right-radius:12px;width:100%;height:40%;margin:0;padding:0;position:absolute;transform:translateY(100%)}.user-info-container[data-v-d96b1de2]{padding:0 10px}.nav-left-arrow-icon[data-v-ac59e7b9]{align-content:center;padding-left:0!important}.nav-title[data-v-ac59e7b9]{text-align:center;padding:10px;font-weight:700}.user-avatar[data-v-ac59e7b9]{text-align:center;padding-bottom:20px}.user-info-item[data-v-ac59e7b9]{flex-wrap:wrap;padding:10px;display:flex}.user-desc-key[data-v-ac59e7b9]{width:60px;display:block}.user-end-text[data-v-ac59e7b9]{padding:0 20px}.user-top[data-v-05856134]{width:100%;height:40px;position:relative}.top-left-arrow-icon[data-v-05856134]{align-content:center;padding-left:0!important}.top-title-name[data-v-05856134]{text-align:center;padding:10px}.user-main[data-v-05856134]{width:100%;height:calc(100% - 40px);padding:0;position:absolute;inset:40px 0 0}.user-container[data-v-05856134]{padding:0 10px}.user-container .el-scrollbar__view[data-v-05856134]{height:100%}.user-item[data-v-05856134]{margin:10px 0}.user-item-row[data-v-05856134]{justify-content:space-between;align-items:center;display:flex}.user-item-row-center[data-v-05856134]{padding:0 10px}.user-name[data-v-05856134],.user-sign-text[data-v-05856134]{text-align:left}.user-sign-text[data-v-05856134]{color:#a2a2a2}.user-follow-btn[data-v-05856134]{float:right}.user-info[data-v-05856134]{display:grid}.user-item-row-left[data-v-05856134]{display:flex}.user-item-row-right[data-v-05856134]{float:right}.user-top[data-v-2aa9c171]{width:100%;height:40px;position:relative}.top-left-arrow-icon[data-v-2aa9c171]{align-content:center;padding-left:0!important}.top-title-name[data-v-2aa9c171]{text-align:center;padding:10px}.user-main[data-v-2aa9c171]{width:100%;height:calc(100% - 40px);padding:0;position:absolute;inset:40px 0 0}.user-container[data-v-2aa9c171]{padding:0 10px}.user-container .el-scrollbar__view[data-v-2aa9c171]{height:100%}.user-item[data-v-2aa9c171]{margin:10px 0}.user-item-row[data-v-2aa9c171]{justify-content:space-between;align-items:center;display:flex}.user-item-row-center[data-v-2aa9c171]{align-content:center;padding:0 10px}.user-name[data-v-2aa9c171],.user-sign-text[data-v-2aa9c171]{text-align:left}.user-sign-text[data-v-2aa9c171]{color:#a2a2a2}.user-follow-btn[data-v-2aa9c171]{float:right}.user-info[data-v-2aa9c171]{display:grid}.user-item-row-left[data-v-2aa9c171]{display:flex}.user-item-row-right[data-v-2aa9c171]{float:right}.router-view-container[data-v-29990e55]{padding:20px}.router-view-container .layout-item[data-v-29990e55]{align-items:center;gap:10px;padding:10px 0;display:flex}.router-view-container .layout-icon img[data-v-29990e55]{width:100%;height:100%}.router-view-container .layout-text[data-v-29990e55]{flex:1}.post-list-item[data-v-449d5239]{--forum-icon-size:56px;border-bottom:5px solid #efefef;flex-direction:column;gap:10px;padding:10px 15px;display:flex}.post-list-item[data-v-449d5239]:last-child{border-bottom:0}.user-info[data-v-449d5239]{align-items:center;gap:5px;display:flex}.user-time[data-v-449d5239]{color:#999;font-size:.8em}.user-avatar img[data-v-449d5239]{border-radius:50%;width:35px;height:35px}.reply-content[data-v-449d5239]{color:#4a4a4a;font-size:.9em}.post-info[data-v-449d5239]{color:#434343;background-color:#efefef;border-radius:6px;align-items:center;display:flex}.post-info__inner[data-v-449d5239]{align-items:center;width:100%;padding:8px;display:flex}.post-content[data-v-449d5239]{line-clamp:2;-webkit-line-clamp:2;color:#545454;-webkit-box-orient:vertical;margin-left:5px;display:-webkit-box;overflow:hidden}.post-image[data-v-449d5239]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-449d5239]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-449d5239]{color:#999}.bottom-msg[data-v-449d5239]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-449d5239]{color:#848691;font-size:14px;font-style:normal;font-weight:400;overflow:hidden}.post-list-item[data-v-ca89eb7d]{--forum-icon-size:56px;border-bottom:5px solid #efefef;flex-direction:column;gap:10px;padding:10px 15px;display:flex}.post-list-item .biao[data-v-ca89eb7d]{vertical-align:-10%;background:#eee;border-radius:4px;-ms-flex-negative:0;-webkit-flex-shrink:0;width:4px;height:16px;margin-right:5px;display:inline-block}.post-list-item[data-v-ca89eb7d]:last-child{border-bottom:0}.user-info[data-v-ca89eb7d]{align-items:center;gap:5px;display:flex}.user-time[data-v-ca89eb7d]{color:#999;font-size:.8em}.user-avatar img[data-v-ca89eb7d]{border-radius:50%;width:35px;height:35px}.reply-content p[data-v-ca89eb7d]{font-size:.9em}.reply-content .quote-user[data-v-ca89eb7d]{color:#848691;margin-top:2px;padding-left:4px}.post-info[data-v-ca89eb7d]{color:#434343;background-color:#efefef;border-radius:6px;align-items:center;display:flex}.post-info__inner[data-v-ca89eb7d]{align-items:center;width:100%;padding:8px;display:flex}.post-content[data-v-ca89eb7d]{line-clamp:2;-webkit-line-clamp:2;color:#545454;-webkit-box-orient:vertical;margin-left:5px;display:-webkit-box;overflow:hidden}.post-image[data-v-ca89eb7d]{width:var(--forum-icon-size);height:var(--forum-icon-size)}.post-image img[data-v-ca89eb7d]{width:inherit;height:inherit;border-radius:6px}.fname-text[data-v-ca89eb7d]{color:#999}.bottom-msg[data-v-ca89eb7d]{text-align:center;color:#999;padding:10px 0}.forum-name[data-v-ca89eb7d]{color:#848691;font-size:14px;font-style:normal;font-weight:400;overflow:hidden}.bottom-msg[data-v-47090b9c]{text-align:center;color:#999;padding:10px 0}.user-top[data-v-306ab0b3]{--el-header-height:40px;background:#fff;align-items:center;display:flex;position:fixed;top:0;left:0;right:0}.top-nav-container[data-v-306ab0b3]{align-items:center;width:100%}.top-title-name[data-v-306ab0b3]{text-align:center;position:absolute;left:50%;transform:translate(-50%)}.main[data-v-306ab0b3]{margin:40px 0 0;padding:0}#small-toolbar[data-v-6db624a6]{z-index:1000;background:#fff;align-items:center;width:100%;height:.56rem;display:flex;position:fixed;bottom:0}#small-toolbar .icon[data-v-6db624a6]{width:.2rem;height:.2rem}#small-toolbar #reply-editor[data-v-6db624a6]{flex:1}#small-toolbar .small-editor-toolbar[data-v-6db624a6]{flex:1;align-items:center;width:100%;margin:10px 15px;font-size:.16rem;line-height:.16rem;display:flex;position:relative}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]{cursor:default;background:#e9e9e9;border:0;border-radius:.06rem;outline:none;width:100%;padding:.06rem;font-size:.14rem;line-height:.14rem}#small-toolbar .small-editor-toolbar .small-editor-toolbar-emoji-btn[data-v-6db624a6]{position:absolute;top:50%;right:.06rem;transform:translateY(-50%)}#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:visited,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-within,#small-toolbar .small-editor-toolbar .small-editor-toolbar-input[data-v-6db624a6]:focus-visible{border:0;outline:none}#small-toolbar .gm-reply-other-toolbar[data-v-6db624a6]{flex:0 auto;align-items:safe center;display:flex}#small-toolbar .gm-reply-other-toolbar .reply-comment-count[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count[data-v-6db624a6]{flex-direction:column;align-items:center;padding:8px;display:flex}#small-toolbar .gm-reply-other-toolbar .reply-comment-count p.text[data-v-6db624a6],#small-toolbar .gm-reply-other-toolbar .reply-good-count p.text[data-v-6db624a6]{font-size:.1rem}.tiptap p.is-editor-empty:first-child:before{content:attr(data-placeholder);float:left;color:#adb5bd;pointer-events:none;height:0}#reply-editor .tiptap{width:100%;height:100%;font-size:.16rem;outline:0!important}.tiptap-input-image{width:.18rem;height:.18rem}#reply-editor[data-v-5c00d425]{background-color:#e5e5e5;border-radius:5px;height:100%;padding:.06rem;overflow:auto}.icon-active[data-v-0bd4838e]{fill:#7557ff}#full-toolbar[data-v-0bd4838e]{z-index:100099;background:#fff;flex-flow:column;align-items:center;width:100%;display:flex;position:fixed;bottom:0}#full-toolbar .full-toolbar-top-reply-user[data-v-0bd4838e]{text-overflow:ellipsis;white-space:nowrap;color:#adb5bd;width:-webkit-fill-available;width:-moz-available;padding-top:.06rem;padding-left:.2rem;overflow:hidden}#full-toolbar .full-toolbar-top-container[data-v-0bd4838e]{width:-moz-available;align-items:end;width:-webkit-fill-available;height:.6rem;padding:.06rem .1rem;display:flex}#full-toolbar .full-toolbar-top-container .full-toolbar-top-left-container[data-v-0bd4838e]{flex-direction:column;flex:1;height:100%;margin:0 .1rem;display:flex;overflow:hidden}#full-toolbar .full-toolbar-top-container .full-toolbar-top-right-container[data-v-0bd4838e]{flex-direction:column;flex:0 auto;justify-content:space-between;align-items:center;height:100%;display:flex}#full-toolbar .full-toolbar-bottom-container[data-v-0bd4838e]{margin:.06rem auto .06rem 0;padding:0 0 .06rem}#full-toolbar .full-toolbar-bottom-container .full-toolbar-emoji-btn[data-v-0bd4838e],#full-toolbar .full-toolbar-bottom-container .full-toolbar-panel-at-btn[data-v-0bd4838e]{flex-direction:column;align-items:center;margin:0 20px;display:flex}#full-toolbar .emoji-panel[data-v-0bd4838e]{background-color:#efefef;width:100%;height:30vh;overflow:auto}.emoji-panel-huaji[data-v-0bd4838e]{padding:.03rem;overflow-y:auto}.emoji-panel-huaji .el-avatar[data-v-0bd4838e]{margin:16px}#full-toolbar[data-v-0bd4838e]:has(.full-toolbar-top-container[data-full=true]){height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-0bd4838e]{height:100%;height:-webkit-fill-available}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) #reply-editor[data-v-0bd4838e]{height:100%;height:-webkit-fill-available}:is(#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-reply-user[data-v-0bd4838e],#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-right-container[data-v-0bd4838e]){display:none}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-container[data-v-0bd4838e]{flex-direction:column}#full-toolbar:has(.full-toolbar-top-container[data-full=true]) .full-toolbar-top-left-container[data-v-0bd4838e]{width:-webkit-fill-available;width:-moz-available}.full-toolbar-top-nav-container[data-v-0bd4838e]{width:-webkit-fill-available;justify-content:space-between;align-items:center;width:-moz-available;padding:.16rem;display:flex}#full-toolbar .full-toolbar-top-container{max-height:calc(100vh - .12rem - 40px)}#full-toolbar[data-show-bottom-panel=true] .full-toolbar-top-container{max-height:calc(70vh - .12rem - 40px)}\n/*$vite$:1*/ '
   );
-  __commonJSMin((exports, module) => {
+  __commonJSMin$1((exports, module) => {
     init__virtual_monkey_css();
     var __create = Object.create;
     var __defProp = Object.defineProperty;
@@ -147,7 +150,7 @@
     var __getProtoOf = Object.getPrototypeOf;
     var __hasOwnProp = Object.prototype.hasOwnProperty;
     var __commonJSMin = (cb, mod) => () => (
-      mod || (cb((mod = { exports: {} }).exports, mod), (cb = null)),
+      mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), (cb = null)),
       mod.exports
     );
     var __copyProps = (to, from, except, desc) => {
@@ -437,6 +440,7 @@
         }
       },
       toStr(data, space = 2) {
+        if (typeof data === "string" || data == null) return data;
         const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
         return JSON.stringify(
           data,
@@ -526,6 +530,7 @@
       isHTML: true,
       autoClose: true,
       showClose: false,
+      isTextWrap: true,
       consoleLogContent(qmsgInst) {
         const qmsgType = qmsgInst.setting.type;
         if (qmsgType === "loading") return false;
@@ -766,6 +771,9 @@
               width: PanelUISize.info.width,
               height: PanelUISize.info.height,
               style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -875,6 +883,11 @@
                 mask: { enable: true },
                 width: PanelUISize.info.width,
                 height: "auto",
+                style: `
+            .pops{
+              max-height: 90dvh;
+            }
+            `,
               });
               const $promptInput = $prompt.$shadowRoot.querySelector("input");
               const $promptOk = $prompt.$shadowRoot.querySelector(".pops-prompt-btn-ok");
@@ -930,6 +943,9 @@
               width: PanelUISize.info.width,
               height: PanelUISize.info.height,
               style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .btn-control{
             display: inline-block;
             margin: 10px;
@@ -994,6 +1010,9 @@
               width: PanelSizeUtil.width < 450 ? "90vw" : "450px",
               height: "auto",
               style: `
+          .pops{
+            max-height: 90dvh;
+          }
           .pops-content textarea {
             --textarea-bd-color: #dcdfe6;
             display: inline-block;
@@ -2440,6 +2459,10 @@
         type: "same",
       };
       __searchParams = { value: new Set() };
+      __hash = {
+        value: void 0,
+        type: "same",
+      };
       otherInstResultWithOr = false;
       constructor(href) {
         if (typeof href === "string") this.href(href);
@@ -2558,41 +2581,41 @@
         };
         return this;
       }
-      hostName(hostName) {
+      hostName(name) {
         this.__host = {
-          value: hostName,
+          value: name,
           type: "same",
           hasPort: false,
         };
         return this;
       }
-      hostNameStartsWith(hostName) {
+      hostNameStartsWith(name) {
         this.__host = {
-          value: hostName,
+          value: name,
           type: "startsWith",
           hasPort: false,
         };
         return this;
       }
-      hostNameEndsWith(hostName) {
+      hostNameEndsWith(name) {
         this.__host = {
-          value: hostName,
+          value: name,
           type: "endsWith",
           hasPort: false,
         };
         return this;
       }
-      hostNameIncludes(hostName) {
+      hostNameIncludes(name) {
         this.__host = {
-          value: hostName,
+          value: name,
           type: "includes",
           hasPort: false,
         };
         return this;
       }
-      hostNameMatch(hostName) {
+      hostNameMatch(name) {
         this.__host = {
-          value: hostName,
+          value: name,
           type: "match",
           hasPort: false,
         };
@@ -2680,9 +2703,43 @@
         });
         return this;
       }
+      hash(hash) {
+        this.__hash = {
+          value: hash,
+          type: "same",
+        };
+        return this;
+      }
+      hashStartsWith(hash) {
+        this.__hash = {
+          value: hash,
+          type: "startsWith",
+        };
+        return this;
+      }
+      hashEndsWith(hash) {
+        this.__hash = {
+          value: hash,
+          type: "endsWith",
+        };
+        return this;
+      }
+      hashIncludes(hash) {
+        this.__hash = {
+          value: hash,
+          type: "includes",
+        };
+      }
+      hashMatch(hash) {
+        this.__hash = {
+          value: hash,
+          type: "match",
+        };
+        return this;
+      }
       build() {
         if (!this.__host.value) throw new TypeError("host or hostName should be required");
-        let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`;
+        let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`.trim();
         if (this.__searchParams.value.size > 0) {
           const searhList = [];
           this.__searchParams.value.forEach((it) => {
@@ -2693,7 +2750,13 @@
               searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
             }
           });
-          if (searhList.length) url += `?${searhList.join("&")}`;
+          if (!url.endsWith("?")) url += "?";
+          if (searhList.length) url += searhList.join("&");
+        }
+        if (typeof this.__hash.value === "string") {
+          const hash = this.__hash.value.trim();
+          if (!url.endsWith("#") && !hash.startsWith("#")) url += "#";
+          url += hash;
         }
         return url;
       }
@@ -2706,95 +2769,47 @@
       r() {
         if (this.otherInstResultWithOr) return this.otherInstResultWithOr;
         const urlInst = new URL(this.__href);
+        const check = (name, dataFn) => {
+          const data = typeof dataFn === "function" ? dataFn() : dataFn;
+          if (data.value) {
+            const urlInstValue = urlInst[name];
+            if (typeof urlInstValue !== "string") return false;
+            if (data.type === "same") {
+              if (typeof data.value === "string") return urlInstValue === data.value.toString();
+              else throw new TypeError(`${name} value should be string by type ${data.type}`);
+            } else if (data.type === "startsWith") {
+              if (typeof data.value === "string") return urlInstValue.startsWith(data.value.toString());
+              else throw new TypeError(`${name} value should be string by type ${data.type}`);
+            } else if (data.type === "endsWith") {
+              if (typeof data.value === "string") return urlInstValue.endsWith(data.value.toString());
+              else throw new TypeError(`${name} value should be string by type ${data.type}`);
+            } else if (data.type === "includes") {
+              if (typeof data.value === "string") return urlInstValue.includes(data.value.toString());
+              else throw new TypeError(`${name} value should be string by type ${data.type}`);
+            } else if (data.type === "match") {
+              if (data.value instanceof RegExp) return data.value.test(urlInstValue);
+              else if (
+                typeof data.value === "string" ||
+                typeof data.value === "number" ||
+                typeof data.value === "boolean"
+              )
+                return urlInstValue.match(data.value.toString());
+              else throw new TypeError(`${name} value should be RegExp or string by type ${data.type}`);
+            } else throw new TypeError(`${name} type should be same,startsWith,endsWith,includes,match`);
+          } else return true;
+        };
         return [
           () => {
-            if (this.__origin.value) {
-              if (this.__origin.type === "same") {
-                if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
-                else throw new TypeError("origin value should be string by type " + this.__origin.type);
-              } else if (this.__origin.type === "startsWith") {
-                if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
-                else throw new TypeError("origin value should be string by type " + this.__origin.type);
-              } else if (this.__origin.type === "endsWith") {
-                if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
-                else throw new TypeError("origin value should be string by type " + this.__origin.type);
-              } else if (this.__origin.type === "includes") {
-                if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
-                else throw new TypeError("origin value should be string by type " + this.__origin.type);
-              } else if (this.__origin.type === "match") {
-                if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
-                else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
-                else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-              } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-            } else return true;
+            return check("origin", this.__origin);
           },
           () => {
-            if (this.__protocol.value) {
-              if (this.__protocol.type === "same") {
-                if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
-                else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              } else if (this.__protocol.type === "startsWith") {
-                if (typeof this.__protocol.value === "string")
-                  return urlInst.protocol.startsWith(this.__protocol.value);
-                else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              } else if (this.__protocol.type === "endsWith") {
-                if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
-                else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              } else if (this.__protocol.type === "includes") {
-                if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
-                else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-              } else if (this.__protocol.type === "match") {
-                if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
-                else if (typeof this.__protocol.value === "string")
-                  return urlInst.protocol.match(this.__protocol.value);
-                else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-              } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-            } else return true;
+            return check("protocol", this.__protocol);
           },
           () => {
-            if (this.__host.value) {
-              const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-              if (this.__host.type === "same") {
-                if (typeof this.__host.value === "string") return this.__host.value === host;
-                else throw new TypeError("host value should be string by type " + this.__host.type);
-              } else if (this.__host.type === "startsWith") {
-                if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
-                else throw new TypeError("host value should be string by type " + this.__host.type);
-              } else if (this.__host.type === "endsWith") {
-                if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
-                else throw new TypeError("host value should be string by type " + this.__host.type);
-              } else if (this.__host.type === "includes") {
-                if (typeof this.__host.value === "string") return host.includes(this.__host.value);
-                else throw new TypeError("host value should be string by type " + this.__host.type);
-              } else if (this.__host.type === "match") {
-                if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
-                else if (typeof this.__host.value === "string") return host.match(this.__host.value);
-                else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-              } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
-            } else return true;
+            return check(this.__host.hasPort ? "host" : "hostname", this.__host);
           },
           () => {
-            if (this.__pathname.value) {
-              if (this.__pathname.type === "same") {
-                if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
-                else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              } else if (this.__pathname.type === "startsWith") {
-                if (typeof this.__pathname.value === "string")
-                  return urlInst.pathname.startsWith(this.__pathname.value);
-                else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              } else if (this.__pathname.type === "endsWith") {
-                if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
-                else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              } else if (this.__pathname.type === "includes") {
-                if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
-                else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-              } else if (this.__pathname.type === "match") {
-                if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
-                else if (typeof this.__pathname.value === "string")
-                  return urlInst.pathname.match(this.__pathname.value);
-                else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-              } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-            } else return true;
+            return check("pathname", this.__pathname);
           },
           () => {
             let flag = true;
@@ -2912,6 +2927,9 @@
             }
             return flag;
           },
+          () => {
+            return check("hash", this.__hash);
+          },
         ].every((it) => it());
       }
     };
@@ -2933,6 +2951,9 @@
       },
       protocol(protocol, href) {
         return RouterUtil.builder(href).protocol(protocol);
+      },
+      hash(hash, href) {
+        return RouterUtil.builder(href).hash(hash);
       },
       builder(href) {
         return new RouterBuilder(href);
@@ -3610,7 +3631,7 @@
       },
     };
     var shield_default$19 =
-      ".layer-wrap,\n.openImg,\n.oPadding,\n.bottomTTSStruct,\n.undefined,\n.headDeflectorContainer,\n.followSuper,\n#searchwordSdk,\ndiv#commentModule > div > div > span:nth-child(2),\n/* 顶部打开APP横幅 */\n#headDeflectorContainer,\n/* 展开全文 */\n.foldMaskWrapper {\n  display: none !important;\n}\nbody.scrollHide {\n  overflow: auto !important;\n}\n.mainContent,\n#mainContentContainer {\n  height: auto !important;\n}\n";
+      ".layer-wrap,\n.openImg,\n.oPadding,\n.bottomTTSStruct,\n.undefined,\n.headDeflectorContainer,\n.followSuper,\n#searchwordSdk,\ndiv#commentModule > div > div > span:nth-child(2),\n/* 顶部打开APP横幅 */\n#headDeflectorContainer,\n/* 展开全文 */\n.foldMaskWrapper {\n  display: none !important;\n}\n/* 内容后面的all in */\n#content_wrapper {\n  margin-bottom: 0.5rem;\n\n  & ~ * {\n    display: none !important;\n  }\n}\nbody.scrollHide {\n  overflow: auto !important;\n}\n.mainContent,\n#mainContentContainer {\n  height: auto !important;\n}\n";
     var BaiduBaiJiaHao = {
       init() {
         addStyle$1(shield_default$19);
@@ -4488,7 +4509,7 @@
       },
     };
     var shield_default$9 =
-      'div.headDeflectorContainer,\n#bdrainrwDragButton,\n#page_wrapper .other div[class*="undefined"],\n#page_wrapper .other > div[class=""],\n/* 底部按钮-百度APP内播放 */ div.common-wrap.single-pd,\n/* 顶部横幅-APP内播放 */ div#app div.guid-new,\n/* 顶部横幅-APP内阅读 */ #headDeflectorContainer,\n/* 底部 打开百度APP，阅读体验更佳 */ #page_wrapper div[class^="foldMaskWrapper-"],\n/* 打开百度APP，阅读完整内容 */ #content_wrapper .foldMaskWrapper,\n/* 影响定位元素的遮罩层 */ #page_wrapper .bdboxshare > div:first-child,\n/* 来百度APP畅享高清图片 */ .contentMedia .openImg,\n/* 精彩推荐右边的 打开APP看更多精彩推荐 */ div[class*="relateTitle"] span[class*="subTitle"],\n/* 会自动在上面弹出的【百度热榜】 */ #page_wrapper div:has(> div[class*="leftbox"]),\n/* dtlandingwise 右上角 App内打开 */ .fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\n/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\n  .fusionWrapper\n  [class^="recoConatainer_"]\n  > [class^="titleBar_"]\n  [class^="right_"]\n  > span:first-child,\n/* landingsuper 文章内容的展开的蒙板 */ #mainContentContainer .oPadding,\n/* 底部的广告 */ [class^="adsContainer-"],\n/* 弹窗 打开百度App弹窗 */ [class^="alertModalContainer-"],\n/* 视频下面的广告推荐 */ #hcgContainer > div:has([data-log-view*=\'"isAds":true\']) {\n  display: none !important;\n}\n/* 展开阅读 */\n#page_wrapper #dynamicItem,\n/* 手机版-展开阅读 */\n#mainContentContainer {\n  height: auto !important;\n}\n';
+      'div.headDeflectorContainer,\n#bdrainrwDragButton,\n#page_wrapper .other div[class*="undefined"],\n#page_wrapper .other > div[class=""],\n/* 底部按钮-百度APP内播放 */ \ndiv.common-wrap.single-pd,\n/* 顶部横幅-APP内播放 */ \ndiv#app div.guid-new,\n/* 顶部横幅-APP内阅读 */ \n#headDeflectorContainer,\n/* 底部 打开百度APP，阅读体验更佳 */ \n#page_wrapper div[class^="foldMaskWrapper-"],\n/* 打开百度APP，阅读完整内容 */ \n#content_wrapper .foldMaskWrapper,\n/* 影响定位元素的遮罩层 */ \n#page_wrapper .bdboxshare > div:first-child,\n/* 来百度APP畅享高清图片 */ \n.contentMedia .openImg,\n/* 精彩推荐右边的 打开APP看更多精彩推荐 */ \ndiv[class*="relateTitle"] span[class*="subTitle"],\n/* 会自动在上面弹出的【百度热榜】 */ \n#page_wrapper div:has(> div[class*="leftbox"]),\n/* dtlandingwise 右上角 App内打开 */ \n.fusionWrapper > [class^="fusionTopGuid_"] > [class^="button_"],\n/* dtlandingwise 底部 精彩推荐 右边的 打开APP看更多精彩推荐 */\n.fusionWrapper\n  [class^="recoConatainer_"]\n  > [class^="titleBar_"]\n  [class^="right_"]\n  > span:first-child,\n/* landingsuper 文章内容的展开的蒙板 */ \n#mainContentContainer .oPadding,\n/* 底部的广告 */ \n[class^="adsContainer-"],\n/* 弹窗 打开百度App弹窗 */ \n[class^="alertModalContainer-"],\n/* 视频下面的广告推荐 */ \n#hcgContainer > div:has([data-log-view*=\'"isAds":true\']),\n/* 遮罩层mask */\n.fusionWrapper [class*="globalMaskWrap_"],\n.main > div:has(>#globalMask),\n/* 顶部的百度搜索 */\n[class*="fusionTopGuid_"],\n/* 底部的百度热搜 */\n[class*="wrapper_"]:has(>[class*=\'scrollContainer_\']),\n/* 精彩推荐 */\n#doubleListWrap {\n  display: none !important;\n}\n\n/* 内容后面的all in */\n#content_wrapper {\n  margin-bottom: 0.5rem;\n\n  & ~ * {\n    display: none !important;\n  }\n}\n/* 展开阅读 */\n#page_wrapper #dynamicItem,\n/* 手机版-展开阅读 */\n#mainContentContainer {\n  height: auto !important;\n}\n';
     var BaiduMbdHook = {
       init() {
         Panel.execMenu("baidu_mbd_camouflage_lite_baiduboxapp", () => {
@@ -6189,6 +6210,7 @@ match-attr##srcid##med_wenzhen_san
         this.config.win.history.pushState({}, "", pushUrl);
         log.success("监听popstate事件");
         domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        if (typeof this.config.onEnter == "function") this.config.onEnter();
       }
       async quitGestureBackMode(isUrlChange = false) {
         this.isBacking = true;
@@ -6212,6 +6234,7 @@ match-attr##srcid##med_wenzhen_san
         this.isBacking = false;
         if (typeof this.config.afterHistoryBackCallBack === "function")
           this.config.afterHistoryBackCallBack(isUrlChange);
+        if (typeof this.config.onEnter == "function") this.config.onQuite();
       }
     };
     var search_toolbar_default =
@@ -6405,7 +6428,7 @@ match-attr##srcid##med_wenzhen_san
                   );
               });
             }
-          }, 50)
+          }, 100)
         );
       },
       setInputText(text, emitEvent = true) {
@@ -7043,7 +7066,7 @@ match-attr##srcid##med_wenzhen_san
       O(O({}, e), { sign: w(n, "", "") })).sign;
       return e;
     };
-    var require_crypt = __commonJSMin((exports$1, module$1) => {
+    var require_crypt = __commonJSMin((exports, module) => {
       (function () {
         var base64map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",
           crypt = {
@@ -7105,10 +7128,10 @@ match-attr##srcid##med_wenzhen_san
               return bytes;
             },
           };
-        module$1.exports = crypt;
+        module.exports = crypt;
       })();
     });
-    var require_charenc = __commonJSMin((exports$2, module$2) => {
+    var require_charenc = __commonJSMin((exports, module) => {
       var charenc = {
         utf8: {
           stringToBytes: function (str) {
@@ -7129,10 +7152,10 @@ match-attr##srcid##med_wenzhen_san
           },
         },
       };
-      module$2.exports = charenc;
+      module.exports = charenc;
     });
-    var require_is_buffer = __commonJSMin((exports$3, module$3) => {
-      module$3.exports = function (obj) {
+    var require_is_buffer = __commonJSMin((exports, module) => {
+      module.exports = function (obj) {
         return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer);
       };
       function isBuffer(obj) {
@@ -7143,7 +7166,7 @@ match-attr##srcid##med_wenzhen_san
       }
     });
     var import_md5 = __toESM(
-      __commonJSMin((exports$4, module$4) => {
+      __commonJSMin((exports, module) => {
         (function () {
           var crypt = require_crypt(),
             utf8 = require_charenc().utf8,
@@ -7263,7 +7286,7 @@ match-attr##srcid##med_wenzhen_san
           };
           md5._blocksize = 16;
           md5._digestsize = 16;
-          module$4.exports = function (message, options) {
+          module.exports = function (message, options) {
             if (message === void 0 || message === null) throw new Error("Illegal argument " + message);
             var digestbytes = crypt.wordsToBytes(md5(message, options));
             return options && options.asBytes
@@ -8231,575 +8254,26 @@ match-attr##srcid##med_wenzhen_san
     };
     var UPDATE_MODEL_EVENT = "update:modelValue";
     var componentSizes = ["", "default", "small", "large"];
-    function computedEager(fn, options) {
-      var _options$flush;
-      const result = (0, vue.shallowRef)();
-      (0, vue.watchEffect)(
-        () => {
-          result.value = fn();
-        },
-        {
-          ...options,
-          flush:
-            (_options$flush = options === null || options === void 0 ? void 0 : options.flush) !== null &&
-            _options$flush !== void 0
-              ? _options$flush
-              : "sync",
-        }
-      );
-      return (0, vue.readonly)(result);
-    }
-    function tryOnScopeDispose(fn, failSilently) {
-      if ((0, vue.getCurrentScope)()) {
-        (0, vue.onScopeDispose)(fn, failSilently);
-        return true;
-      }
-      return false;
-    }
-    var isClient = typeof window !== "undefined" && typeof document !== "undefined";
-    typeof WorkerGlobalScope !== "undefined" && globalThis instanceof WorkerGlobalScope;
-    var notNullish = (val) => val != null;
-    var toString$1 = Object.prototype.toString;
-    var isObject$2 = (val) => toString$1.call(val) === "[object Object]";
-    var clamp$1 = (n, min, max) => Math.min(max, Math.max(min, n));
-    var noop = () => {};
-    var isIOS = getIsIOS();
-    function getIsIOS() {
-      var _window, _window2, _window3;
-      return (
-        isClient &&
-        !!((_window = window) === null ||
-        _window === void 0 ||
-        (_window = _window.navigator) === null ||
-        _window === void 0
-          ? void 0
-          : _window.userAgent) &&
-        (/iP(?:ad|hone|od)/.test(window.navigator.userAgent) ||
-          (((_window2 = window) === null ||
-          _window2 === void 0 ||
-          (_window2 = _window2.navigator) === null ||
-          _window2 === void 0
-            ? void 0
-            : _window2.maxTouchPoints) > 2 &&
-            /iPad|Macintosh/.test(
-              (_window3 = window) === null || _window3 === void 0 ? void 0 : _window3.navigator.userAgent
-            )))
-      );
-    }
-    function createFilterWrapper(filter, fn) {
-      function wrapper(...args) {
-        return new Promise((resolve, reject) => {
-          Promise.resolve(
-            filter(() => fn.apply(this, args), {
-              fn,
-              thisArg: this,
-              args,
-            })
-          )
-            .then(resolve)
-            .catch(reject);
-        });
-      }
-      if ("cancel" in filter)
-        Object.assign(wrapper, {
-          cancel: filter.cancel,
-          flush: filter.flush,
-          isPending: filter.isPending,
-        });
-      return wrapper;
-    }
-    function throttleFilter(...args) {
-      let lastExec = 0;
-      let timer;
-      let isLeading = true;
-      let lastRejector = noop;
-      let lastValue;
-      let ms;
-      let trailing;
-      let leading;
-      let rejectOnCancel;
-      if (!(0, vue.isRef)(args[0]) && typeof args[0] === "object")
-        ({ delay: ms, trailing = true, leading = true, rejectOnCancel = false } = args[0]);
-      else [ms, trailing = true, leading = true, rejectOnCancel = false] = args;
-      const clear = () => {
-        if (timer) {
-          clearTimeout(timer);
-          timer = void 0;
-          lastRejector();
-          lastRejector = noop;
-        }
-      };
-      const filter = (_invoke) => {
-        const duration = (0, vue.toValue)(ms);
-        const elapsed = Date.now() - lastExec;
-        const invoke = () => {
-          return (lastValue = _invoke());
-        };
-        clear();
-        if (duration <= 0) {
-          lastExec = Date.now();
-          return invoke();
-        }
-        if (elapsed > duration) {
-          lastExec = Date.now();
-          if (leading || !isLeading) invoke();
-        } else if (trailing)
-          lastValue = new Promise((resolve, reject) => {
-            lastRejector = rejectOnCancel ? reject : resolve;
-            timer = setTimeout(
-              () => {
-                lastExec = Date.now();
-                isLeading = true;
-                resolve(invoke());
-                clear();
-              },
-              Math.max(0, duration - elapsed)
-            );
-          });
-        if (!leading && !timer) timer = setTimeout(() => (isLeading = true), duration);
-        isLeading = false;
-        return lastValue;
-      };
-      return filter;
-    }
-    function toArray(value) {
-      return Array.isArray(value) ? value : [value];
-    }
-    function getLifeCycleTarget(target) {
-      return target || (0, vue.getCurrentInstance)();
-    }
-    function useThrottleFn(fn, ms = 200, trailing = false, leading = true, rejectOnCancel = false) {
-      return createFilterWrapper(throttleFilter(ms, trailing, leading, rejectOnCancel), fn);
-    }
-    function tryOnMounted(fn, sync = true, target) {
-      if (getLifeCycleTarget(target)) (0, vue.onMounted)(fn, target);
-      else if (sync) fn();
-      else (0, vue.nextTick)(fn);
-    }
-    function watchImmediate(source, cb, options) {
-      return (0, vue.watch)(source, cb, {
-        ...options,
-        immediate: true,
-      });
-    }
-    var defaultWindow = isClient ? window : void 0;
-    var defaultDocument = isClient ? window.document : void 0;
-    isClient && window.navigator;
-    isClient && window.location;
-    function unrefElement(elRef) {
-      var _$el;
-      const plain = (0, vue.toValue)(elRef);
-      return (_$el = plain === null || plain === void 0 ? void 0 : plain.$el) !== null && _$el !== void 0
-        ? _$el
-        : plain;
-    }
-    function useEventListener(...args) {
-      const register = (el, event, listener, options) => {
-        el.addEventListener(event, listener, options);
-        return () => el.removeEventListener(event, listener, options);
-      };
-      const firstParamTargets = (0, vue.computed)(() => {
-        const test = toArray((0, vue.toValue)(args[0])).filter((e) => e != null);
-        return test.every((e) => typeof e !== "string") ? test : void 0;
-      });
-      return watchImmediate(
-        () => {
-          var _firstParamTargets$va, _firstParamTargets$va2;
-          return [
-            (_firstParamTargets$va =
-              (_firstParamTargets$va2 = firstParamTargets.value) === null || _firstParamTargets$va2 === void 0
-                ? void 0
-                : _firstParamTargets$va2.map((e) => unrefElement(e))) !== null && _firstParamTargets$va !== void 0
-              ? _firstParamTargets$va
-              : [defaultWindow].filter((e) => e != null),
-            toArray((0, vue.toValue)(firstParamTargets.value ? args[1] : args[0])),
-            toArray((0, vue.unref)(firstParamTargets.value ? args[2] : args[1])),
-            (0, vue.toValue)(firstParamTargets.value ? args[3] : args[2]),
-          ];
-        },
-        ([raw_targets, raw_events, raw_listeners, raw_options], _, onCleanup) => {
-          if (
-            !(raw_targets === null || raw_targets === void 0 ? void 0 : raw_targets.length) ||
-            !(raw_events === null || raw_events === void 0 ? void 0 : raw_events.length) ||
-            !(raw_listeners === null || raw_listeners === void 0 ? void 0 : raw_listeners.length)
-          )
-            return;
-          const optionsClone = isObject$2(raw_options) ? { ...raw_options } : raw_options;
-          const cleanups = raw_targets.flatMap((el) =>
-            raw_events.flatMap((event) => raw_listeners.map((listener) => register(el, event, listener, optionsClone)))
-          );
-          onCleanup(() => {
-            cleanups.forEach((fn) => fn());
-          });
-        },
-        { flush: "post" }
-      );
-    }
-    var _iOSWorkaround = false;
-    function onClickOutside(target, handler, options = {}) {
-      const { window = defaultWindow, ignore = [], capture = true, detectIframe = false, controls = false } = options;
-      if (!window)
-        return controls
-          ? {
-              stop: noop,
-              cancel: noop,
-              trigger: noop,
-            }
-          : noop;
-      if (isIOS && !_iOSWorkaround) {
-        _iOSWorkaround = true;
-        const listenerOptions = { passive: true };
-        Array.from(window.document.body.children).forEach((el) => el.addEventListener("click", noop, listenerOptions));
-        window.document.documentElement.addEventListener("click", noop, listenerOptions);
-      }
-      let shouldListen = true;
-      const shouldIgnore = (event) => {
-        return (0, vue.toValue)(ignore).some((target) => {
-          if (typeof target === "string")
-            return Array.from(window.document.querySelectorAll(target)).some(
-              (el) => el === event.target || event.composedPath().includes(el)
-            );
-          else {
-            const el = unrefElement(target);
-            return el && (event.target === el || event.composedPath().includes(el));
-          }
-        });
-      };
-      function hasMultipleRoots(target) {
-        const vm = (0, vue.toValue)(target);
-        return vm && vm.$.subTree.shapeFlag === 16;
-      }
-      function checkMultipleRoots(target, event) {
-        const vm = (0, vue.toValue)(target);
-        const children = vm.$.subTree && vm.$.subTree.children;
-        if (children == null || !Array.isArray(children)) return false;
-        return children.some((child) => child.el === event.target || event.composedPath().includes(child.el));
-      }
-      const listener = (event) => {
-        const el = unrefElement(target);
-        if (event.target == null) return;
-        if (!(el instanceof Element) && hasMultipleRoots(target) && checkMultipleRoots(target, event)) return;
-        if (!el || el === event.target || event.composedPath().includes(el)) return;
-        if ("detail" in event && event.detail === 0) shouldListen = !shouldIgnore(event);
-        if (!shouldListen) {
-          shouldListen = true;
-          return;
-        }
-        handler(event);
-      };
-      let isProcessingClick = false;
-      const cleanup = [
-        useEventListener(
-          window,
-          "click",
-          (event) => {
-            if (!isProcessingClick) {
-              isProcessingClick = true;
-              setTimeout(() => {
-                isProcessingClick = false;
-              }, 0);
-              listener(event);
-            }
-          },
-          {
-            passive: true,
-            capture,
-          }
-        ),
-        useEventListener(
-          window,
-          "pointerdown",
-          (e) => {
-            const el = unrefElement(target);
-            shouldListen = !shouldIgnore(e) && !!(el && !e.composedPath().includes(el));
-          },
-          { passive: true }
-        ),
-        detectIframe &&
-          useEventListener(
-            window,
-            "blur",
-            (event) => {
-              setTimeout(() => {
-                const el = unrefElement(target);
-                let activeEl = window.document.activeElement;
-                while (activeEl === null || activeEl === void 0 ? void 0 : activeEl.shadowRoot)
-                  activeEl = activeEl.shadowRoot.activeElement;
-                if (
-                  (activeEl === null || activeEl === void 0 ? void 0 : activeEl.tagName) === "IFRAME" &&
-                  !(el === null || el === void 0 ? void 0 : el.contains(window.document.activeElement))
-                )
-                  handler(event);
-              }, 0);
-            },
-            { passive: true }
-          ),
-      ].filter(Boolean);
-      const stop = () => cleanup.forEach((fn) => fn());
-      if (controls)
-        return {
-          stop,
-          cancel: () => {
-            shouldListen = false;
-          },
-          trigger: (event) => {
-            shouldListen = true;
-            listener(event);
-            shouldListen = false;
-          },
-        };
-      return stop;
-    }
-    function useMounted() {
-      const isMounted = (0, vue.shallowRef)(false);
-      const instance = (0, vue.getCurrentInstance)();
-      if (instance)
-        (0, vue.onMounted)(() => {
-          isMounted.value = true;
-        }, instance);
-      return isMounted;
-    }
-    function useSupported(callback) {
-      const isMounted = useMounted();
-      return (0, vue.computed)(() => {
-        isMounted.value;
-        return Boolean(callback());
-      });
-    }
-    function useDocumentVisibility(options = {}) {
-      const { document = defaultDocument } = options;
-      if (!document) return (0, vue.shallowRef)("visible");
-      const visibility = (0, vue.shallowRef)(document.visibilityState);
-      useEventListener(
-        document,
-        "visibilitychange",
-        () => {
-          visibility.value = document.visibilityState;
-        },
-        { passive: true }
-      );
-      return visibility;
-    }
-    function useResizeObserver(target, callback, options = {}) {
-      const { window = defaultWindow, ...observerOptions } = options;
-      let observer;
-      const isSupported = useSupported(() => window && "ResizeObserver" in window);
-      const cleanup = () => {
-        if (observer) {
-          observer.disconnect();
-          observer = void 0;
-        }
-      };
-      const stopWatch = (0, vue.watch)(
-        (0, vue.computed)(() => {
-          const _targets = (0, vue.toValue)(target);
-          return Array.isArray(_targets) ? _targets.map((el) => unrefElement(el)) : [unrefElement(_targets)];
-        }),
-        (els) => {
-          cleanup();
-          if (isSupported.value && window) {
-            observer = new ResizeObserver(callback);
-            for (const _el of els) if (_el) observer.observe(_el, observerOptions);
-          }
-        },
-        {
-          immediate: true,
-          flush: "post",
-        }
-      );
-      const stop = () => {
-        cleanup();
-        stopWatch();
-      };
-      tryOnScopeDispose(stop);
-      return {
-        isSupported,
-        stop,
-      };
-    }
-    function useElementSize(
-      target,
-      initialSize = {
-        width: 0,
-        height: 0,
-      },
-      options = {}
-    ) {
-      const { window = defaultWindow, box = "content-box" } = options;
-      const isSVG = (0, vue.computed)(() => {
-        var _unrefElement;
-        return (_unrefElement = unrefElement(target)) === null ||
-          _unrefElement === void 0 ||
-          (_unrefElement = _unrefElement.namespaceURI) === null ||
-          _unrefElement === void 0
-          ? void 0
-          : _unrefElement.includes("svg");
-      });
-      const width = (0, vue.shallowRef)(initialSize.width);
-      const height = (0, vue.shallowRef)(initialSize.height);
-      const { stop: stop1 } = useResizeObserver(
-        target,
-        ([entry]) => {
-          const boxSize =
-            box === "border-box"
-              ? entry.borderBoxSize
-              : box === "content-box"
-                ? entry.contentBoxSize
-                : entry.devicePixelContentBoxSize;
-          if (window && isSVG.value) {
-            const $elem = unrefElement(target);
-            if ($elem) {
-              const rect = $elem.getBoundingClientRect();
-              width.value = rect.width;
-              height.value = rect.height;
-            }
-          } else if (boxSize) {
-            const formatBoxSize = toArray(boxSize);
-            width.value = formatBoxSize.reduce((acc, { inlineSize }) => acc + inlineSize, 0);
-            height.value = formatBoxSize.reduce((acc, { blockSize }) => acc + blockSize, 0);
-          } else {
-            width.value = entry.contentRect.width;
-            height.value = entry.contentRect.height;
-          }
-        },
-        options
-      );
-      tryOnMounted(() => {
-        const ele = unrefElement(target);
-        if (ele && "offsetWidth" in ele)
-          if (box === "content-box" && window) {
-            const cs = window.getComputedStyle(ele);
-            const padX = Number.parseFloat(cs.paddingLeft) + Number.parseFloat(cs.paddingRight);
-            const padY = Number.parseFloat(cs.paddingTop) + Number.parseFloat(cs.paddingBottom);
-            const bdX = Number.parseFloat(cs.borderLeftWidth) + Number.parseFloat(cs.borderRightWidth);
-            const bdY = Number.parseFloat(cs.borderTopWidth) + Number.parseFloat(cs.borderBottomWidth);
-            width.value = ele.offsetWidth - padX - bdX;
-            height.value = ele.offsetHeight - padY - bdY;
-          } else {
-            width.value = ele.offsetWidth;
-            height.value = ele.offsetHeight;
-          }
-        else if (ele) {
-          width.value = initialSize.width;
-          height.value = initialSize.height;
-        }
-      });
-      const stop2 = (0, vue.watch)(
-        () => unrefElement(target),
-        (ele) => {
-          width.value = ele ? initialSize.width : 0;
-          height.value = ele ? initialSize.height : 0;
-        }
-      );
-      function stop() {
-        stop1();
-        stop2();
-      }
-      return {
-        width,
-        height,
-        stop,
-      };
-    }
-    function useIntersectionObserver(target, callback, options = {}) {
-      const { root, rootMargin, threshold = 0, window = defaultWindow, immediate = true } = options;
-      const isSupported = useSupported(() => window && "IntersectionObserver" in window);
-      const targets = (0, vue.computed)(() => {
-        return toArray((0, vue.toValue)(target))
-          .map(unrefElement)
-          .filter(notNullish);
-      });
-      let cleanup = noop;
-      const isActive = (0, vue.shallowRef)(immediate);
-      const stopWatch = isSupported.value
-        ? (0, vue.watch)(
-            () => [targets.value, unrefElement(root), (0, vue.toValue)(rootMargin), isActive.value],
-            ([targets, root, rootMargin]) => {
-              cleanup();
-              if (!isActive.value) return;
-              if (!targets.length) return;
-              const observer = new IntersectionObserver(callback, {
-                root: unrefElement(root),
-                rootMargin,
-                threshold,
-              });
-              targets.forEach((el) => el && observer.observe(el));
-              cleanup = () => {
-                observer.disconnect();
-                cleanup = noop;
-              };
-            },
-            {
-              immediate,
-              flush: "post",
-            }
-          )
-        : noop;
-      const stop = () => {
-        cleanup();
-        stopWatch();
-        isActive.value = false;
-      };
-      tryOnScopeDispose(stop);
-      return {
-        isSupported,
-        isActive,
-        pause() {
-          cleanup();
-          isActive.value = false;
-        },
-        resume() {
-          isActive.value = true;
-        },
-        stop,
-      };
-    }
-    Number.POSITIVE_INFINITY;
-    function useWindowFocus(options = {}) {
-      const { window = defaultWindow } = options;
-      if (!window) return (0, vue.shallowRef)(false);
-      const focused = (0, vue.shallowRef)(window.document.hasFocus());
-      const listenerOptions = { passive: true };
-      useEventListener(
-        window,
-        "blur",
-        () => {
-          focused.value = false;
-        },
-        listenerOptions
-      );
-      useEventListener(
-        window,
-        "focus",
-        () => {
-          focused.value = true;
-        },
-        listenerOptions
-      );
-      return focused;
-    }
-    var isFirefox = () => isClient && /firefox/i.test(window.navigator.userAgent);
-    var isAndroid = () => isClient && /android/i.test(window.navigator.userAgent);
     var NOOP = () => {};
     var hasOwnProperty$12 = Object.prototype.hasOwnProperty;
     var hasOwn = (val, key) => hasOwnProperty$12.call(val, key);
     var isArray$1 = Array.isArray;
     var isFunction$1 = (val) => typeof val === "function";
     var isString = (val) => typeof val === "string";
-    var isObject$1 = (val) => val !== null && typeof val === "object";
-    var cacheStringFunction = (fn) => {
+    var isObject$2 = (val) => val !== null && typeof val === "object";
+    var cacheStringFunction$1 = (fn) => {
       const cache = Object.create(null);
       return (str) => {
         return cache[str] || (cache[str] = fn(str));
       };
     };
-    var camelizeRE = /-\w/g;
-    var camelize = cacheStringFunction((str) => {
-      return str.replace(camelizeRE, (c) => c.slice(1).toUpperCase());
+    var camelizeRE$1 = /-\w/g;
+    var camelize$1 = cacheStringFunction$1((str) => {
+      return str.replace(camelizeRE$1, (c) => c.slice(1).toUpperCase());
     });
-    var hyphenateRE = /\B([A-Z])/g;
-    var hyphenate = cacheStringFunction((str) => str.replace(hyphenateRE, "-$1").toLowerCase());
-    var capitalize$1 = cacheStringFunction((str) => {
+    var hyphenateRE$1 = /\B([A-Z])/g;
+    var hyphenate$1 = cacheStringFunction$1((str) => str.replace(hyphenateRE$1, "-$1").toLowerCase());
+    var capitalize$1 = cacheStringFunction$1((str) => {
       return str.charAt(0).toUpperCase() + str.slice(1);
     });
     var freeGlobal = typeof global == "object" && global && global.Object === Object && global;
@@ -8870,7 +8344,7 @@ match-attr##srcid##med_wenzhen_san
     function baseTrim(string) {
       return string ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, "") : string;
     }
-    function isObject(value) {
+    function isObject$1(value) {
       var type = typeof value;
       return value != null && (type == "object" || type == "function");
     }
@@ -8882,9 +8356,9 @@ match-attr##srcid##med_wenzhen_san
     function toNumber(value) {
       if (typeof value == "number") return value;
       if (isSymbol(value)) return NAN;
-      if (isObject(value)) {
+      if (isObject$1(value)) {
         var other = typeof value.valueOf == "function" ? value.valueOf() : value;
-        value = isObject(other) ? other + "" : other;
+        value = isObject$1(other) ? other + "" : other;
       }
       if (typeof value != "string") return value === 0 ? value : +value;
       value = baseTrim(value);
@@ -8903,7 +8377,7 @@ match-attr##srcid##med_wenzhen_san
     var genTag$1 = "[object GeneratorFunction]";
     var proxyTag = "[object Proxy]";
     function isFunction(value) {
-      if (!isObject(value)) return false;
+      if (!isObject$1(value)) return false;
       var tag = baseGetTag(value);
       return tag == funcTag$2 || tag == genTag$1 || tag == asyncTag || tag == proxyTag;
     }
@@ -8942,7 +8416,7 @@ match-attr##srcid##med_wenzhen_san
         "$"
     );
     function baseIsNative(value) {
-      if (!isObject(value) || isMasked(value)) return false;
+      if (!isObject$1(value) || isMasked(value)) return false;
       return (isFunction(value) ? reIsNative : reIsHostCtor).test(toSource(value));
     }
     function getValue(object, key) {
@@ -8957,7 +8431,7 @@ match-attr##srcid##med_wenzhen_san
     var baseCreate = (function () {
       function object() {}
       return function (proto) {
-        if (!isObject(proto)) return {};
+        if (!isObject$1(proto)) return {};
         if (objectCreate) return objectCreate(proto);
         object.prototype = proto;
         var result = new object();
@@ -9255,7 +8729,7 @@ match-attr##srcid##med_wenzhen_san
     }
     var hasOwnProperty$5 = Object.prototype.hasOwnProperty;
     function baseKeysIn(object) {
-      if (!isObject(object)) return nativeKeysIn(object);
+      if (!isObject$1(object)) return nativeKeysIn(object);
       var isProto = isPrototype(object),
         result = [];
       for (var key in object)
@@ -9456,12 +8930,12 @@ match-attr##srcid##med_wenzhen_san
       });
       return result;
     });
-    function toString(value) {
+    function toString$1(value) {
       return value == null ? "" : baseToString(value);
     }
     function castPath(value, object) {
       if (isArray(value)) return value;
-      return isKey(value, object) ? [value] : stringToPath(toString(value));
+      return isKey(value, object) ? [value] : stringToPath(toString$1(value));
     }
     var INFINITY = 1 / 0;
     function toKey(value) {
@@ -9544,7 +9018,7 @@ match-attr##srcid##med_wenzhen_san
       }
       return number;
     }
-    function clamp(number, lower, upper) {
+    function clamp$1(number, lower, upper) {
       if (upper === void 0) {
         upper = lower;
         lower = void 0;
@@ -9873,7 +9347,7 @@ match-attr##srcid##med_wenzhen_san
         isFull = bitmask & CLONE_SYMBOLS_FLAG$1;
       if (customizer) result = object ? customizer(value, key, object, stack) : customizer(value);
       if (result !== void 0) return result;
-      if (!isObject(value)) return value;
+      if (!isObject$1(value)) return value;
       var isArr = isArray(value);
       if (isArr) {
         result = initCloneArray(value);
@@ -9954,7 +9428,7 @@ match-attr##srcid##med_wenzhen_san
         trailing = true;
       if (typeof func != "function") throw new TypeError(FUNC_ERROR_TEXT$1);
       wait = toNumber(wait) || 0;
-      if (isObject(options)) {
+      if (isObject$1(options)) {
         leading = !!options.leading;
         maxing = "maxWait" in options;
         maxWait = maxing ? nativeMax(toNumber(options.maxWait) || 0, wait) : maxWait;
@@ -10088,7 +9562,7 @@ match-attr##srcid##med_wenzhen_san
       return result;
     });
     function baseSet(object, path, value, customizer) {
-      if (!isObject(object)) return object;
+      if (!isObject$1(object)) return object;
       path = castPath(path, object);
       var index = -1,
         length = path.length,
@@ -10101,7 +9575,7 @@ match-attr##srcid##med_wenzhen_san
         if (index != lastIndex) {
           var objValue = nested[key];
           newValue = customizer ? customizer(objValue, key, nested) : void 0;
-          if (newValue === void 0) newValue = isObject(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
+          if (newValue === void 0) newValue = isObject$1(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {};
         }
         assignValue(nested, key, newValue);
         nested = nested[key];
@@ -10132,7 +9606,7 @@ match-attr##srcid##med_wenzhen_san
       var leading = true,
         trailing = true;
       if (typeof func != "function") throw new TypeError(FUNC_ERROR_TEXT);
-      if (isObject(options)) {
+      if (isObject$1(options)) {
         leading = "leading" in options ? !!options.leading : leading;
         trailing = "trailing" in options ? !!options.trailing : trailing;
       }
@@ -10154,76 +9628,12 @@ match-attr##srcid##med_wenzhen_san
       return !Number.isNaN(Number(val));
     };
     var isWindow = (val) => val === window;
-    var isShadowRoot = (e) => {
-      if (typeof ShadowRoot === "undefined") return false;
-      return e instanceof ShadowRoot;
-    };
-    var isHTMLElement = (e) => {
-      if (typeof Element === "undefined") return false;
-      return e instanceof Element;
-    };
-    var isFocusable = (element) => {
-      if (element.tabIndex > 0 || (element.tabIndex === 0 && element.getAttribute("tabIndex") !== null)) return true;
-      if (element.tabIndex < 0 || element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true")
-        return false;
-      switch (element.nodeName) {
-        case "A":
-          return !!element.href && element.rel !== "ignore";
-        case "INPUT":
-          return !(element.type === "hidden" || element.type === "file");
-        case "BUTTON":
-        case "SELECT":
-        case "TEXTAREA":
-          return true;
-        default:
-          return false;
-      }
-    };
-    var focusElement = (el, options) => {
-      if (!el || !el.focus) return;
-      let cleanup = false;
-      if (isHTMLElement(el) && !isFocusable(el) && !el.getAttribute("tabindex")) {
-        el.setAttribute("tabindex", "-1");
-        cleanup = true;
-      }
-      el.focus(options);
-      if (isHTMLElement(el) && cleanup) el.removeAttribute("tabindex");
-    };
-    var composeEventHandlers = (theirsHandler, oursHandler, { checkForDefaultPrevented = true } = {}) => {
-      const handleEvent = (event) => {
-        const shouldPrevent = theirsHandler?.(event);
-        if (checkForDefaultPrevented === false || !shouldPrevent) return oursHandler?.(event);
-      };
-      return handleEvent;
-    };
-    var getEventCode = (event) => {
-      if (event.code && event.code !== "Unidentified") return event.code;
-      const key = getEventKey(event);
-      if (key) {
-        if (Object.values(EVENT_CODE).includes(key)) return key;
-        switch (key) {
-          case " ":
-            return EVENT_CODE.space;
-          default:
-            return "";
-        }
-      }
-      return "";
-    };
-    var getEventKey = (event) => {
-      let key = event.key && event.key !== "Unidentified" ? event.key : "";
-      if (!key && event.type === "keyup" && isAndroid()) {
-        const target = event.target;
-        key = target.value.charAt(target.selectionStart - 1);
-      }
-      return key;
-    };
     var keysOf = (arr) => Object.keys(arr);
     var epPropKey = "__epPropKey";
     var definePropType = (val) => val;
-    var isEpProp = (val) => isObject$1(val) && !!val["__epPropKey"];
+    var isEpProp = (val) => isObject$2(val) && !!val["__epPropKey"];
     var buildProp = (prop, key) => {
-      if (!isObject$1(prop) || isEpProp(prop)) return prop;
+      if (!isObject$2(prop) || isEpProp(prop)) return prop;
       const { values, required, default: defaultValue, type, validator } = prop;
       const epProp = {
         type,
@@ -10292,6 +9702,597 @@ match-attr##srcid##med_wenzhen_san
         )
       );
     };
+    function computedEager(fn, options) {
+      var _options$flush;
+      const result = (0, vue.shallowRef)();
+      (0, vue.watchEffect)(
+        () => {
+          result.value = fn();
+        },
+        {
+          ...options,
+          flush:
+            (_options$flush = options === null || options === void 0 ? void 0 : options.flush) !== null &&
+            _options$flush !== void 0
+              ? _options$flush
+              : "sync",
+        }
+      );
+      return (0, vue.readonly)(result);
+    }
+    function tryOnScopeDispose(fn, failSilently) {
+      if ((0, vue.getCurrentScope)()) {
+        (0, vue.onScopeDispose)(fn, failSilently);
+        return true;
+      }
+      return false;
+    }
+    var isClient = typeof window !== "undefined" && typeof document !== "undefined";
+    typeof WorkerGlobalScope !== "undefined" && globalThis instanceof WorkerGlobalScope;
+    var notNullish = (val) => val != null;
+    var toString = Object.prototype.toString;
+    var isObject = (val) => toString.call(val) === "[object Object]";
+    var clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    var noop = () => {};
+    var isIOS = getIsIOS();
+    function getIsIOS() {
+      var _window, _window2, _window3;
+      return (
+        isClient &&
+        !!((_window = window) === null ||
+        _window === void 0 ||
+        (_window = _window.navigator) === null ||
+        _window === void 0
+          ? void 0
+          : _window.userAgent) &&
+        (/iP(?:ad|hone|od)/.test(window.navigator.userAgent) ||
+          (((_window2 = window) === null ||
+          _window2 === void 0 ||
+          (_window2 = _window2.navigator) === null ||
+          _window2 === void 0
+            ? void 0
+            : _window2.maxTouchPoints) > 2 &&
+            /iPad|Macintosh/.test(
+              (_window3 = window) === null || _window3 === void 0 ? void 0 : _window3.navigator.userAgent
+            )))
+      );
+    }
+    function createFilterWrapper(filter, fn) {
+      function wrapper(...args) {
+        return new Promise((resolve, reject) => {
+          Promise.resolve(
+            filter(() => fn.apply(this, args), {
+              fn,
+              thisArg: this,
+              args,
+            })
+          )
+            .then(resolve)
+            .catch(reject);
+        });
+      }
+      if ("cancel" in filter)
+        Object.assign(wrapper, {
+          cancel: filter.cancel,
+          flush: filter.flush,
+          isPending: filter.isPending,
+        });
+      return wrapper;
+    }
+    function throttleFilter(...args) {
+      let lastExec = 0;
+      let timer;
+      let isLeading = true;
+      let lastRejector = noop;
+      let lastValue;
+      let ms;
+      let trailing;
+      let leading;
+      let rejectOnCancel;
+      if (!(0, vue.isRef)(args[0]) && typeof args[0] === "object")
+        ({ delay: ms, trailing = true, leading = true, rejectOnCancel = false } = args[0]);
+      else [ms, trailing = true, leading = true, rejectOnCancel = false] = args;
+      const clear = () => {
+        if (timer) {
+          clearTimeout(timer);
+          timer = void 0;
+          lastRejector();
+          lastRejector = noop;
+        }
+      };
+      const filter = (_invoke) => {
+        const duration = (0, vue.toValue)(ms);
+        const elapsed = Date.now() - lastExec;
+        const invoke = () => {
+          return (lastValue = _invoke());
+        };
+        clear();
+        if (duration <= 0) {
+          lastExec = Date.now();
+          return invoke();
+        }
+        if (elapsed > duration) {
+          lastExec = Date.now();
+          if (leading || !isLeading) invoke();
+        } else if (trailing)
+          lastValue = new Promise((resolve, reject) => {
+            lastRejector = rejectOnCancel ? reject : resolve;
+            timer = setTimeout(
+              () => {
+                lastExec = Date.now();
+                isLeading = true;
+                resolve(invoke());
+                clear();
+              },
+              Math.max(0, duration - elapsed)
+            );
+          });
+        if (!leading && !timer) timer = setTimeout(() => (isLeading = true), duration);
+        isLeading = false;
+        return lastValue;
+      };
+      return filter;
+    }
+    function toArray(value) {
+      return Array.isArray(value) ? value : [value];
+    }
+    function getLifeCycleTarget(target) {
+      return target || (0, vue.getCurrentInstance)();
+    }
+    function useThrottleFn(fn, ms = 200, trailing = true, leading = true, rejectOnCancel = false) {
+      return createFilterWrapper(throttleFilter(ms, trailing, leading, rejectOnCancel), fn);
+    }
+    function tryOnMounted(fn, sync = true, target) {
+      if (getLifeCycleTarget(target)) (0, vue.onMounted)(fn, target);
+      else if (sync) fn();
+      else (0, vue.nextTick)(fn);
+    }
+    function watchImmediate(source, cb, options) {
+      return (0, vue.watch)(source, cb, {
+        ...options,
+        immediate: true,
+      });
+    }
+    var defaultWindow = isClient ? window : void 0;
+    var defaultDocument = isClient ? window.document : void 0;
+    isClient && window.navigator;
+    isClient && window.location;
+    function unrefElement(elRef) {
+      var _$el;
+      const plain = (0, vue.toValue)(elRef);
+      return (_$el = plain === null || plain === void 0 ? void 0 : plain.$el) !== null && _$el !== void 0
+        ? _$el
+        : plain;
+    }
+    function useEventListener(...args) {
+      const register = (el, event, listener, options) => {
+        el.addEventListener(event, listener, options);
+        return () => el.removeEventListener(event, listener, options);
+      };
+      const firstParamTargets = (0, vue.computed)(() => {
+        const test = toArray((0, vue.toValue)(args[0])).filter((e) => e != null);
+        return test.every((e) => typeof e !== "string") ? test : void 0;
+      });
+      return watchImmediate(
+        () => {
+          var _firstParamTargets$va, _firstParamTargets$va2;
+          return [
+            (_firstParamTargets$va =
+              (_firstParamTargets$va2 = firstParamTargets.value) === null || _firstParamTargets$va2 === void 0
+                ? void 0
+                : _firstParamTargets$va2.map((e) => unrefElement(e))) !== null && _firstParamTargets$va !== void 0
+              ? _firstParamTargets$va
+              : [defaultWindow].filter((e) => e != null),
+            toArray((0, vue.toValue)(firstParamTargets.value ? args[1] : args[0])),
+            toArray((0, vue.unref)(firstParamTargets.value ? args[2] : args[1])),
+            (0, vue.toValue)(firstParamTargets.value ? args[3] : args[2]),
+          ];
+        },
+        ([raw_targets, raw_events, raw_listeners, raw_options], _, onCleanup) => {
+          if (
+            !(raw_targets === null || raw_targets === void 0 ? void 0 : raw_targets.length) ||
+            !(raw_events === null || raw_events === void 0 ? void 0 : raw_events.length) ||
+            !(raw_listeners === null || raw_listeners === void 0 ? void 0 : raw_listeners.length)
+          )
+            return;
+          const optionsClone = isObject(raw_options) ? { ...raw_options } : raw_options;
+          const cleanups = raw_targets.flatMap((el) =>
+            raw_events.flatMap((event) => raw_listeners.map((listener) => register(el, event, listener, optionsClone)))
+          );
+          onCleanup(() => {
+            cleanups.forEach((fn) => fn());
+          });
+        },
+        { flush: "post" }
+      );
+    }
+    var _iOSWorkaround = false;
+    function onClickOutside(target, handler, options = {}) {
+      const { window = defaultWindow, ignore = [], capture = true, detectIframe = false, controls = false } = options;
+      if (!window)
+        return controls
+          ? {
+              stop: noop,
+              cancel: noop,
+              trigger: noop,
+            }
+          : noop;
+      if (isIOS && !_iOSWorkaround) {
+        _iOSWorkaround = true;
+        const listenerOptions = { passive: true };
+        Array.from(window.document.body.children).forEach((el) => el.addEventListener("click", noop, listenerOptions));
+        window.document.documentElement.addEventListener("click", noop, listenerOptions);
+      }
+      let shouldListen = true;
+      const shouldIgnore = (event) => {
+        return (0, vue.toValue)(ignore).some((target) => {
+          if (typeof target === "string")
+            return Array.from(window.document.querySelectorAll(target)).some(
+              (el) => el === event.target || event.composedPath().includes(el)
+            );
+          else {
+            const el = unrefElement(target);
+            return el && (event.target === el || event.composedPath().includes(el));
+          }
+        });
+      };
+      function hasMultipleRoots(target) {
+        const vm = (0, vue.toValue)(target);
+        return vm && vm.$.subTree.shapeFlag === 16;
+      }
+      function checkMultipleRoots(target, event) {
+        const vm = (0, vue.toValue)(target);
+        const children = vm.$.subTree && vm.$.subTree.children;
+        if (children == null || !Array.isArray(children)) return false;
+        return children.some((child) => child.el === event.target || event.composedPath().includes(child.el));
+      }
+      const listener = (event) => {
+        const el = unrefElement(target);
+        if (event.target == null) return;
+        if (!(el instanceof Element) && hasMultipleRoots(target) && checkMultipleRoots(target, event)) return;
+        if (!el || el === event.target || event.composedPath().includes(el)) return;
+        if ("detail" in event && event.detail === 0) shouldListen = !shouldIgnore(event);
+        if (!shouldListen) {
+          shouldListen = true;
+          return;
+        }
+        handler(event);
+      };
+      let isProcessingClick = false;
+      const cleanup = [
+        useEventListener(
+          window,
+          "click",
+          (event) => {
+            if (!isProcessingClick) {
+              isProcessingClick = true;
+              setTimeout(() => {
+                isProcessingClick = false;
+              }, 0);
+              listener(event);
+            }
+          },
+          {
+            passive: true,
+            capture,
+          }
+        ),
+        useEventListener(
+          window,
+          "pointerdown",
+          (e) => {
+            const el = unrefElement(target);
+            shouldListen = !shouldIgnore(e) && !!(el && !e.composedPath().includes(el));
+          },
+          { passive: true }
+        ),
+        detectIframe &&
+          useEventListener(
+            window,
+            "blur",
+            (event) => {
+              setTimeout(() => {
+                const el = unrefElement(target);
+                let activeEl = window.document.activeElement;
+                while (activeEl === null || activeEl === void 0 ? void 0 : activeEl.shadowRoot)
+                  activeEl = activeEl.shadowRoot.activeElement;
+                if (
+                  (activeEl === null || activeEl === void 0 ? void 0 : activeEl.tagName) === "IFRAME" &&
+                  !(el === null || el === void 0 ? void 0 : el.contains(window.document.activeElement))
+                )
+                  handler(event);
+              }, 0);
+            },
+            { passive: true }
+          ),
+      ].filter(Boolean);
+      const stop = () => cleanup.forEach((fn) => fn());
+      if (controls)
+        return {
+          stop,
+          cancel: () => {
+            shouldListen = false;
+          },
+          trigger: (event) => {
+            shouldListen = true;
+            listener(event);
+            shouldListen = false;
+          },
+        };
+      return stop;
+    }
+    function useMounted() {
+      const isMounted = (0, vue.shallowRef)(false);
+      const instance = (0, vue.getCurrentInstance)();
+      if (instance)
+        (0, vue.onMounted)(() => {
+          isMounted.value = true;
+        }, instance);
+      return isMounted;
+    }
+    function useSupported(callback) {
+      const isMounted = useMounted();
+      return (0, vue.computed)(() => {
+        isMounted.value;
+        return Boolean(callback());
+      });
+    }
+    function useMutationObserver(target, callback, options = {}) {
+      const { window = defaultWindow, ...mutationOptions } = options;
+      let observer;
+      const isSupported = useSupported(() => window && "MutationObserver" in window);
+      const cleanup = () => {
+        if (observer) {
+          observer.disconnect();
+          observer = void 0;
+        }
+      };
+      const targets = (0, vue.computed)(() => {
+        const items = toArray((0, vue.toValue)(target))
+          .map(unrefElement)
+          .filter(notNullish);
+        return new Set(items);
+      });
+      const stopWatch = (0, vue.watch)(
+        targets,
+        (newTargets) => {
+          cleanup();
+          if (isSupported.value && newTargets.size) {
+            observer = new MutationObserver(callback);
+            newTargets.forEach((el) => observer.observe(el, mutationOptions));
+          }
+        },
+        {
+          immediate: true,
+          flush: "post",
+        }
+      );
+      const takeRecords = () => {
+        return observer === null || observer === void 0 ? void 0 : observer.takeRecords();
+      };
+      const stop = () => {
+        stopWatch();
+        cleanup();
+      };
+      tryOnScopeDispose(stop);
+      return {
+        isSupported,
+        stop,
+        takeRecords,
+      };
+    }
+    function useDocumentVisibility(options = {}) {
+      const { document = defaultDocument } = options;
+      if (!document) return (0, vue.shallowRef)("visible");
+      const visibility = (0, vue.shallowRef)(document.visibilityState);
+      useEventListener(
+        document,
+        "visibilitychange",
+        () => {
+          visibility.value = document.visibilityState;
+        },
+        { passive: true }
+      );
+      return visibility;
+    }
+    function useResizeObserver(target, callback, options = {}) {
+      const { window = defaultWindow, ...observerOptions } = options;
+      let observer;
+      const isSupported = useSupported(() => window && "ResizeObserver" in window);
+      const cleanup = () => {
+        if (observer) {
+          observer.disconnect();
+          observer = void 0;
+        }
+      };
+      const targets = (0, vue.computed)(() => {
+        const _targets = (0, vue.toValue)(target);
+        return Array.isArray(_targets) ? _targets.map((el) => unrefElement(el)) : [unrefElement(_targets)];
+      });
+      const stopWatch = (0, vue.watch)(
+        targets,
+        (els) => {
+          cleanup();
+          if (isSupported.value && window) {
+            observer = new ResizeObserver(callback);
+            for (const _el of els) if (_el instanceof Element) observer.observe(_el, observerOptions);
+          }
+        },
+        {
+          immediate: true,
+          flush: "post",
+        }
+      );
+      const stop = () => {
+        cleanup();
+        stopWatch();
+      };
+      tryOnScopeDispose(stop);
+      return {
+        isSupported,
+        stop,
+      };
+    }
+    function useElementSize(
+      target,
+      initialSize = {
+        width: 0,
+        height: 0,
+      },
+      options = {}
+    ) {
+      const { window = defaultWindow, box = "content-box" } = options;
+      const isSVG = (0, vue.computed)(() => {
+        var _unrefElement;
+        return (_unrefElement = unrefElement(target)) === null ||
+          _unrefElement === void 0 ||
+          (_unrefElement = _unrefElement.namespaceURI) === null ||
+          _unrefElement === void 0
+          ? void 0
+          : _unrefElement.includes("svg");
+      });
+      const width = (0, vue.shallowRef)(initialSize.width);
+      const height = (0, vue.shallowRef)(initialSize.height);
+      const { stop: stop1 } = useResizeObserver(
+        target,
+        ([entry]) => {
+          const boxSize =
+            box === "border-box"
+              ? entry.borderBoxSize
+              : box === "content-box"
+                ? entry.contentBoxSize
+                : entry.devicePixelContentBoxSize;
+          if (window && isSVG.value) {
+            const $elem = unrefElement(target);
+            if ($elem) {
+              const rect = $elem.getBoundingClientRect();
+              width.value = rect.width;
+              height.value = rect.height;
+            }
+          } else if (boxSize) {
+            const formatBoxSize = toArray(boxSize);
+            width.value = formatBoxSize.reduce((acc, { inlineSize }) => acc + inlineSize, 0);
+            height.value = formatBoxSize.reduce((acc, { blockSize }) => acc + blockSize, 0);
+          } else {
+            width.value = entry.contentRect.width;
+            height.value = entry.contentRect.height;
+          }
+        },
+        options
+      );
+      tryOnMounted(() => {
+        const ele = unrefElement(target);
+        if (ele && "offsetWidth" in ele) {
+          if (box === "content-box" && window) {
+            const cs = window.getComputedStyle(ele);
+            const padX = Number.parseFloat(cs.paddingLeft) + Number.parseFloat(cs.paddingRight);
+            const padY = Number.parseFloat(cs.paddingTop) + Number.parseFloat(cs.paddingBottom);
+            const bdX = Number.parseFloat(cs.borderLeftWidth) + Number.parseFloat(cs.borderRightWidth);
+            const bdY = Number.parseFloat(cs.borderTopWidth) + Number.parseFloat(cs.borderBottomWidth);
+            width.value = ele.offsetWidth - padX - bdX;
+            height.value = ele.offsetHeight - padY - bdY;
+          } else {
+            width.value = ele.offsetWidth;
+            height.value = ele.offsetHeight;
+          }
+        } else if (ele) {
+          width.value = initialSize.width;
+          height.value = initialSize.height;
+        }
+      });
+      const stop2 = (0, vue.watch)(
+        () => unrefElement(target),
+        (ele) => {
+          width.value = ele ? initialSize.width : 0;
+          height.value = ele ? initialSize.height : 0;
+        }
+      );
+      function stop() {
+        stop1();
+        stop2();
+      }
+      return {
+        width,
+        height,
+        stop,
+      };
+    }
+    function useIntersectionObserver(target, callback, options = {}) {
+      const { root, rootMargin, threshold = 0, window = defaultWindow, immediate = true } = options;
+      const isSupported = useSupported(() => window && "IntersectionObserver" in window);
+      const targets = (0, vue.computed)(() => {
+        return toArray((0, vue.toValue)(target))
+          .map(unrefElement)
+          .filter(notNullish);
+      });
+      let cleanup = noop;
+      const isActive = (0, vue.shallowRef)(immediate);
+      const stopWatch = isSupported.value
+        ? (0, vue.watch)(
+            () => [targets.value, unrefElement(root), (0, vue.toValue)(rootMargin), isActive.value],
+            ([targets, root, rootMargin]) => {
+              cleanup();
+              if (!isActive.value) return;
+              if (!targets.length) return;
+              const observer = new IntersectionObserver(callback, {
+                root: unrefElement(root),
+                rootMargin,
+                threshold,
+              });
+              targets.forEach((el) => el && observer.observe(el));
+              cleanup = () => {
+                observer.disconnect();
+                cleanup = noop;
+              };
+            },
+            {
+              immediate,
+              flush: "post",
+            }
+          )
+        : noop;
+      const stop = () => {
+        cleanup();
+        stopWatch();
+        isActive.value = false;
+      };
+      tryOnScopeDispose(stop);
+      return {
+        isSupported,
+        isActive,
+        pause() {
+          cleanup();
+          isActive.value = false;
+        },
+        resume() {
+          isActive.value = true;
+        },
+        stop,
+      };
+    }
+    function useWindowFocus(options = {}) {
+      const { window = defaultWindow } = options;
+      if (!window) return (0, vue.shallowRef)(false);
+      const focused = (0, vue.shallowRef)(window.document.hasFocus());
+      const listenerOptions = { passive: true };
+      useEventListener(
+        window,
+        "blur",
+        () => {
+          focused.value = false;
+        },
+        listenerOptions
+      );
+      useEventListener(
+        window,
+        "focus",
+        () => {
+          focused.value = true;
+        },
+        listenerOptions
+      );
+      return focused;
+    }
     var useDeprecated = ({ from, replacement, scope, version, ref, type = "API" }, condition) => {
       (0, vue.watch)(
         () => (0, vue.unref)(condition),
@@ -10307,6 +10308,43 @@ For more detail, please visit: ${ref}
         { immediate: true }
       );
     };
+    var isShadowRoot = (e) => {
+      if (typeof ShadowRoot === "undefined") return false;
+      return e instanceof ShadowRoot;
+    };
+    var isHTMLElement = (e) => {
+      if (typeof Element === "undefined") return false;
+      return e instanceof Element;
+    };
+    var isFocusable = (element) => {
+      if (element.tabIndex > 0 || (element.tabIndex === 0 && element.getAttribute("tabIndex") !== null)) return true;
+      if (element.tabIndex < 0 || element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true")
+        return false;
+      switch (element.nodeName) {
+        case "A":
+          return !!element.href && element.rel !== "ignore";
+        case "INPUT":
+          return !(element.type === "hidden" || element.type === "file");
+        case "BUTTON":
+        case "SELECT":
+        case "TEXTAREA":
+          return true;
+        default:
+          return false;
+      }
+    };
+    var focusElement = (el, options) => {
+      if (!el || !el.focus) return;
+      let cleanup = false;
+      if (isHTMLElement(el) && !isFocusable(el) && !el.getAttribute("tabindex")) {
+        el.setAttribute("tabindex", "-1");
+        cleanup = true;
+      }
+      el.focus(options);
+      if (isHTMLElement(el) && cleanup) el.removeAttribute("tabindex");
+    };
+    var isFirefox = () => isClient && /firefox/i.test(window.navigator.userAgent);
+    var isAndroid = () => isClient && /android/i.test(window.navigator.userAgent);
     var capitalize = (str) => capitalize$1(str);
     var SCOPE = "utils/dom/style";
     var classNameToArray = (cls = "") => cls.split(" ").filter((item) => !!item.trim());
@@ -10325,7 +10363,7 @@ For more detail, please visit: ${ref}
     };
     var getStyle = (element, styleName) => {
       if (!isClient || !element || !styleName || isShadowRoot(element)) return "";
-      let key = camelize(styleName);
+      let key = camelize$1(styleName);
       if (key === "float") key = "cssFloat";
       try {
         const style = element.style[key];
@@ -10684,6 +10722,35 @@ For more detail, please visit: ${ref}
       });
       (0, vue.onScopeDispose)(() => cleanup());
     };
+    var composeEventHandlers = (theirsHandler, oursHandler, { checkForDefaultPrevented = true } = {}) => {
+      const handleEvent = (event) => {
+        const shouldPrevent = theirsHandler?.(event);
+        if (checkForDefaultPrevented === false || !shouldPrevent) return oursHandler?.(event);
+      };
+      return handleEvent;
+    };
+    var getEventCode = (event) => {
+      if (event.code && event.code !== "Unidentified") return event.code;
+      const key = getEventKey(event);
+      if (key) {
+        if (Object.values(EVENT_CODE).includes(key)) return key;
+        switch (key) {
+          case " ":
+            return EVENT_CODE.space;
+          default:
+            return "";
+        }
+      }
+      return "";
+    };
+    var getEventKey = (event) => {
+      let key = event.key && event.key !== "Unidentified" ? event.key : "";
+      if (!key && event.type === "keyup" && isAndroid()) {
+        const target = event.target;
+        key = target.value.charAt(target.selectionStart - 1);
+      }
+      return key;
+    };
     var _prop = buildProp({
       type: definePropType(Boolean),
       default: null,
@@ -10738,9 +10805,10 @@ For more detail, please visit: ${ref}
           if (!isBoolean(val)) return;
           if (props.disabled && val) {
             if (hasUpdateHandler.value) emit(updateEventKey, false);
-          } else if (indicator.value !== val)
+          } else if (indicator.value !== val) {
             if (val) doShow();
             else doHide();
+          }
         };
         const toggle = () => {
           if (indicator.value) hide();
@@ -12182,7 +12250,8 @@ For more detail, please visit: ${ref}
     }
     var useThrottleRender = (loading, throttle = 0) => {
       if (throttle === 0) return loading;
-      const throttled = (0, vue.ref)(isObject$1(throttle) && Boolean(throttle.initVal));
+      const initVal = isObject$2(throttle) && Boolean(throttle.initVal);
+      const throttled = (0, vue.ref)(initVal);
       let timeoutHandle = null;
       const dispatchThrottling = (timer) => {
         if (isUndefined(timer)) {
@@ -12195,10 +12264,10 @@ For more detail, please visit: ${ref}
         }, timer);
       };
       const dispatcher = (type) => {
-        if (type === "leading")
+        if (type === "leading") {
           if (isNumber(throttle)) dispatchThrottling(throttle);
           else dispatchThrottling(throttle.leading);
-        else if (isObject$1(throttle)) dispatchThrottling(throttle.trailing);
+        } else if (isObject$2(throttle)) dispatchThrottling(throttle.trailing);
         else throttled.value = false;
       };
       (0, vue.onMounted)(() => dispatcher("leading"));
@@ -12665,7 +12734,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       const children = node;
       const len = children.filter((c) => c.type !== vue.Comment).length;
       for (const child of children) {
-        if (isObject$1(child))
+        if (isObject$2(child))
           switch (child.type) {
             case vue.Comment:
               continue;
@@ -12682,7 +12751,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       return [null, 0];
     }
     function wrapTextContent(s) {
-      return (0, vue.createVNode)("span", { class: useNamespace("only-child").e("content") }, [s]);
+      const ns = useNamespace("only-child");
+      return (0, vue.createVNode)("span", { class: ns.e("content") }, [s]);
     }
     var trigger_default$1 = (0, vue.defineComponent)({
       name: "ElPopperTrigger",
@@ -13180,9 +13250,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           }
           if (isFocusedInTrap) emit("focusin", e);
           if (focusLayer.paused) return;
-          if (props.trapped)
+          if (props.trapped) {
             if (isFocusedInTrap) lastFocusAfterTrapped = target;
             else tryFocus(lastFocusAfterTrapped, true);
+          }
         };
         const onFocusOut = (e) => {
           const trapContainer = (0, vue.unref)(forwardRef);
@@ -14662,7 +14733,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             }
           };
           function scrollTo(arg1, arg2) {
-            if (isObject$1(arg1)) wrapRef.value.scrollTo(arg1);
+            if (isObject$2(arg1)) wrapRef.value.scrollTo(arg1);
             else if (isNumber(arg1) && isNumber(arg2)) wrapRef.value.scrollTo(arg1, arg2);
           }
           const setScrollTop = (value) => {
@@ -16563,7 +16634,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         setup(__props) {
           const props = __props;
           const ns = useNamespace("row");
-          (0, vue.provide)(rowContextKey, { gutter: (0, vue.computed)(() => props.gutter) });
+          const gutter = (0, vue.computed)(() => props.gutter);
+          (0, vue.provide)(rowContextKey, { gutter });
           const style = (0, vue.computed)(() => {
             const styles = {};
             if (!props.gutter) return styles;
@@ -16621,7 +16693,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             });
             ["xs", "sm", "md", "lg", "xl"].forEach((size) => {
               if (isNumber(props[size])) classes.push(ns.b(`${size}-${props[size]}`));
-              else if (isObject$1(props[size]))
+              else if (isObject$2(props[size]))
                 Object.entries(props[size]).forEach(([prop, sizeProp]) => {
                   classes.push(prop !== "span" ? ns.b(`${size}-${prop}-${sizeProp}`) : ns.b(`${size}-${sizeProp}`));
                 });
@@ -16912,7 +16984,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$11 = ["stop-color"];
     var _hoisted_5$11 = ["id"];
     var _hoisted_6$11 = ["stop-color"];
-    var _hoisted_7$9 = ["stop-color"];
+    var _hoisted_7$10 = ["stop-color"];
     var _hoisted_8$9 = ["id"];
     var _hoisted_9$5 = {
       stroke: "none",
@@ -16920,7 +16992,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       fill: "none",
       "fill-rule": "evenodd",
     };
-    var _hoisted_10$4 = { transform: "translate(-1268.000000, -535.000000)" };
+    var _hoisted_10$3 = { transform: "translate(-1268.000000, -535.000000)" };
     var _hoisted_11$3 = { transform: "translate(1268.000000, 535.000000)" };
     var _hoisted_12$3 = ["fill"];
     var _hoisted_13$3 = ["fill"];
@@ -17010,7 +17082,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                       },
                       null,
                       8,
-                      _hoisted_7$9
+                      _hoisted_7$10
                     ),
                   ],
                   8,
@@ -17031,7 +17103,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 ),
               ]),
               (0, vue.createElementVNode)("g", _hoisted_9$5, [
-                (0, vue.createElementVNode)("g", _hoisted_10$4, [
+                (0, vue.createElementVNode)("g", _hoisted_10$3, [
                   (0, vue.createElementVNode)("g", _hoisted_11$3, [
                     (0, vue.createElementVNode)(
                       "path",
@@ -17376,7 +17448,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const scopeEventListener = (0, vue.effectScope)();
           const scaleClamped = (0, vue.computed)(() => {
             const { scale, minScale, maxScale } = props;
-            return clamp$1(scale, minScale, maxScale);
+            return clamp(scale, minScale, maxScale);
           });
           const loading = (0, vue.ref)(true);
           const loadError = (0, vue.ref)(false);
@@ -17531,7 +17603,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             const modeNames = keysOf(modes);
             const modeValues = Object.values(modes);
             const currentMode = mode.value.name;
-            mode.value = modes[modeNames[(modeValues.findIndex((i) => i.name === currentMode) + 1) % modeNames.length]];
+            const nextIndex = (modeValues.findIndex((i) => i.name === currentMode) + 1) % modeNames.length;
+            mode.value = modes[modeNames[nextIndex]];
             reset();
           }
           function setActiveItem(index) {
@@ -18851,7 +18924,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           isMainAxisTouch = mainAxisDistance > crossAxisDistance;
         }
         if (!isMainAxisTouch) return;
-        const nextOffset = clamp(touchState.startOffset + mainAxisDelta, 0, maxOffset.value);
+        const nextOffset = clamp$1(touchState.startOffset + mainAxisDelta, 0, maxOffset.value);
         if (maxOffset.value <= 0 || nextOffset === navOffset.value || !event.cancelable) return;
         event.preventDefault();
         isTouchScrolling.value = true;
@@ -18945,7 +19018,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             layout: (0, vue.computed)(() => (isHorizontal.value ? "horizontal" : "vertical")),
           },
           (offset) => {
-            navOffset.value = clamp(navOffset.value + offset, 0, navSize.value - navContainerSize.value);
+            navOffset.value = clamp$1(navOffset.value + offset, 0, navSize.value - navContainerSize.value);
           }
         );
         const handleWheel = (event) => {
@@ -18967,7 +19040,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const containerSize = navScroll$.value.getBoundingClientRect()[sizeName.value];
           const currentOffset = navOffset.value;
           if (!currentOffset) return;
-          navOffset.value = currentOffset > containerSize ? currentOffset - containerSize : 0;
+          const newOffset = currentOffset > containerSize ? currentOffset - containerSize : 0;
+          navOffset.value = newOffset;
         };
         const scrollNext = () => {
           if (!navScroll$.value || !nav$.value) return;
@@ -18975,8 +19049,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           const containerSize = navScroll$.value.getBoundingClientRect()[sizeName.value];
           const currentOffset = navOffset.value;
           if (!isGreaterThan(navSize - currentOffset, containerSize)) return;
-          navOffset.value =
+          const newOffset =
             navSize - currentOffset > containerSize * 2 ? currentOffset + containerSize : navSize - containerSize;
+          navOffset.value = newOffset;
         };
         const scrollToActiveTab = async () => {
           const nav = nav$.value;
@@ -19519,9 +19594,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         name: "ElText",
         __name: "text",
         props: textProps,
-        setup(__props) {
+        setup(__props, { expose: __expose }) {
           const props = __props;
-          const attrs = (0, vue.useAttrs)();
           const textRef = (0, vue.ref)();
           const textSize = useFormSize();
           const ns = useNamespace("text");
@@ -19532,25 +19606,40 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             ns.is("truncated", props.truncated),
             ns.is("line-clamp", !isUndefined(props.lineClamp)),
           ]);
-          const bindTitle = async () => {
-            await (0, vue.nextTick)();
-            if (attrs.title) return;
-            let shouldAddTitle = false;
-            const text = textRef.value?.textContent || "";
-            if (props.truncated) {
-              const width = textRef.value?.offsetWidth;
-              const scrollWidth = textRef.value?.scrollWidth;
-              if (width && scrollWidth && scrollWidth > width) shouldAddTitle = true;
-            } else if (!isUndefined(props.lineClamp)) {
-              const height = textRef.value?.offsetHeight;
-              const scrollHeight = textRef.value?.scrollHeight;
-              if (height && scrollHeight && scrollHeight > height) shouldAddTitle = true;
-            }
-            if (shouldAddTitle) textRef.value?.setAttribute("title", text);
-            else textRef.value?.removeAttribute("title");
+          const { width, height } = useElementSize(textRef);
+          const isTruncated = (0, vue.ref)(false);
+          let rafId;
+          const bindTitle = () => {
+            if (rafId) cAF(rafId);
+            rafId = rAF(() => {
+              rafId = void 0;
+              isTruncated.value = false;
+              if (props.truncated) {
+                const width = textRef.value?.offsetWidth;
+                const scrollWidth = textRef.value?.scrollWidth;
+                if (width && scrollWidth && scrollWidth > width) isTruncated.value = true;
+              } else if (!isUndefined(props.lineClamp)) {
+                const height = textRef.value?.offsetHeight;
+                const scrollHeight = textRef.value?.scrollHeight;
+                if (height && scrollHeight && scrollHeight > height) isTruncated.value = true;
+              }
+            });
           };
+          (0, vue.watch)(() => [width.value, height.value, props.truncated, props.lineClamp], bindTitle, {
+            flush: "post",
+          });
+          useMutationObserver(textRef, bindTitle, {
+            attributes: true,
+            attributeFilter: ["class", "style"],
+            subtree: true,
+            childList: true,
+            characterData: true,
+          });
           (0, vue.onMounted)(bindTitle);
-          (0, vue.onUpdated)(bindTitle);
+          (0, vue.onBeforeUnmount)(() => {
+            if (rafId) cAF(rafId);
+          });
+          __expose({ isTruncated });
           return (_ctx, _cache) => {
             return (
               (0, vue.openBlock)(),
@@ -19560,6 +19649,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   ref_key: "textRef",
                   ref: textRef,
                   class: (0, vue.normalizeClass)(textKls.value),
+                  title: _ctx.$attrs.title ?? (isTruncated.value ? textRef.value?.textContent : void 0),
                   style: (0, vue.normalizeStyle)({ "-webkit-line-clamp": __props.lineClamp }),
                 },
                 {
@@ -19567,7 +19657,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   _: 3,
                 },
                 8,
-                ["class", "style"]
+                ["class", "title", "style"]
               )
             );
           };
@@ -19576,6 +19666,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     );
     function createLoadingComponent(options, appContext) {
       let afterLeaveTimer;
+      let destroyed = false;
       const afterLeaveFlag = (0, vue.ref)(false);
       const data = (0, vue.reactive)({
         ...options,
@@ -19587,8 +19678,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         data.text = text;
       }
       function destroySelf() {
+        if (destroyed) return;
+        destroyed = true;
         const target = data.parent;
-        const ns = vm.ns;
+        const ns = vm.ns || vm._.exposed.ns;
         if (!target.vLoadingAddClassList) {
           let loadingNumber = target.getAttribute("loading-number");
           loadingNumber = Number.parseInt(loadingNumber) - 1;
@@ -19600,6 +19693,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         }
         removeElLoadingChild();
         loadingInstance.unmount();
+        const internalInstance = vm.$;
+        internalInstance.vnode.el = null;
+        internalInstance.subTree = null;
+        loadingInstance._container = null;
       }
       function removeElLoadingChild() {
         vm.$el?.parentNode?.removeChild(vm.$el);
@@ -19619,63 +19716,62 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         target.vLoadingAddClassList = void 0;
         destroySelf();
       }
-      const loadingInstance = (0, vue.createApp)(
-        (0, vue.defineComponent)({
-          name: "ElLoading",
-          setup(_, { expose }) {
-            const { ns, zIndex } = useGlobalComponentSettings("loading");
-            expose({
-              ns,
-              zIndex,
-            });
-            return () => {
-              const svg = data.spinner || data.svg;
-              const spinner = (0, vue.h)(
-                "svg",
-                {
-                  class: "circular",
-                  viewBox: data.svgViewBox ? data.svgViewBox : "0 0 50 50",
-                  ...(svg ? { innerHTML: svg } : {}),
-                },
-                svg
-                  ? void 0
-                  : [
-                      (0, vue.h)("circle", {
-                        class: "path",
-                        cx: "25",
-                        cy: "25",
-                        r: "20",
-                        fill: "none",
-                      }),
-                    ]
-              );
-              const spinnerText = data.text ? (0, vue.h)("p", { class: ns.b("text") }, [data.text]) : void 0;
-              return (0, vue.h)(
-                vue.Transition,
-                {
-                  name: ns.b("fade"),
-                  onAfterLeave: handleAfterLeave,
-                },
-                {
-                  default: (0, vue.withCtx)(() => [
-                    (0, vue.withDirectives)(
-                      (0, vue.createVNode)(
-                        "div",
-                        {
-                          style: { backgroundColor: data.background || "" },
-                          class: [ns.b("mask"), data.customClass, ns.is("fullscreen", data.fullscreen)],
-                        },
-                        [(0, vue.h)("div", { class: ns.b("spinner") }, [spinner, spinnerText])]
-                      ),
-                      [[vue.vShow, data.visible]]
+      const elLoadingComponent = (0, vue.defineComponent)({
+        name: "ElLoading",
+        setup(_, { expose }) {
+          const { ns, zIndex } = useGlobalComponentSettings("loading");
+          expose({
+            ns,
+            zIndex,
+          });
+          return () => {
+            const svg = data.spinner || data.svg;
+            const spinner = (0, vue.h)(
+              "svg",
+              {
+                class: "circular",
+                viewBox: data.svgViewBox ? data.svgViewBox : "0 0 50 50",
+                ...(svg ? { innerHTML: svg } : {}),
+              },
+              svg
+                ? void 0
+                : [
+                    (0, vue.h)("circle", {
+                      class: "path",
+                      cx: "25",
+                      cy: "25",
+                      r: "20",
+                      fill: "none",
+                    }),
+                  ]
+            );
+            const spinnerText = data.text ? (0, vue.h)("p", { class: ns.b("text") }, [data.text]) : void 0;
+            return (0, vue.h)(
+              vue.Transition,
+              {
+                name: ns.b("fade"),
+                onAfterLeave: handleAfterLeave,
+              },
+              {
+                default: (0, vue.withCtx)(() => [
+                  (0, vue.withDirectives)(
+                    (0, vue.createVNode)(
+                      "div",
+                      {
+                        style: { backgroundColor: data.background || "" },
+                        class: [ns.b("mask"), data.customClass, ns.is("fullscreen", data.fullscreen)],
+                      },
+                      [(0, vue.h)("div", { class: ns.b("spinner") }, [spinner, spinnerText])]
                     ),
-                  ]),
-                }
-              );
-            };
-          },
-        })
-      );
+                    [[vue.vShow, data.visible]]
+                  ),
+                ]),
+              }
+            );
+          };
+        },
+      });
+      const loadingInstance = (0, vue.createApp)(elLoadingComponent);
       Object.assign(loadingInstance._context, appContext ?? {});
       const vm = loadingInstance.mount(document.createElement("div"));
       return {
@@ -19686,7 +19782,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         handleAfterLeave,
         vm,
         get $el() {
-          return vm.$el;
+          return destroyed ? null : vm.$el;
         },
       };
     }
@@ -19768,13 +19864,14 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     Loading$1._context = null;
     var INSTANCE_KEY = Symbol("ElLoading");
     var getAttributeName = (name) => {
-      return `element-loading-${hyphenate(name)}`;
+      return `element-loading-${hyphenate$1(name)}`;
     };
     var createInstance = (el, binding) => {
       const vm = binding.instance;
-      const getBindingProp = (key) => (isObject$1(binding.value) ? binding.value[key] : void 0);
+      const getBindingProp = (key) => (isObject$2(binding.value) ? binding.value[key] : void 0);
       const resolveExpression = (key) => {
-        return (0, vue.ref)((isString(key) && vm?.[key]) || key);
+        const data = (isString(key) && vm?.[key]) || key;
+        return (0, vue.ref)(data);
       };
       const getProp = (name) => resolveExpression(getBindingProp(name) || el.getAttribute(getAttributeName(name)));
       const fullscreen = getBindingProp("fullscreen") ?? binding.modifiers.fullscreen;
@@ -19816,7 +19913,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         else
           updateOptions(
             instance.options,
-            isObject$1(binding.value)
+            isObject$2(binding.value)
               ? binding.value
               : {
                   text: el.getAttribute(getAttributeName("text")),
@@ -20169,18 +20266,20 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
       key: 2,
       style: { "text-align": "center" },
     };
+    var avatarSrc =
+      "'//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png'";
     var FollowForum_default = _plugin_vue_export_helper_default(
       (0, vue.defineComponent)({
         __name: "FollowForum",
         props: { UserData: {} },
         setup(__props) {
           (0, vue.useCssVars)((_ctx) => ({
-            v7d2e2d7b: (0, vue.unref)(levelBgColor),
-            v30f37a00: (0, vue.unref)(levelColor),
-            v7da305e4: (0, vue.unref)(levelColor0_3),
-            v7da314ee: (0, vue.unref)(levelColor4_9),
-            be1afb78: (0, vue.unref)(levelColor10_15),
-            be1586fe: (0, vue.unref)(levelColor16_18),
+            v25309962: (0, vue.unref)(levelBgColor),
+            v2fbc64d4: (0, vue.unref)(levelColor),
+            v149a3a90: (0, vue.unref)(levelColor0_3),
+            v149a499a: (0, vue.unref)(levelColor4_9),
+            v56ef3bf0: (0, vue.unref)(levelColor10_15),
+            v56f1f62d: (0, vue.unref)(levelColor16_18),
           }));
           const props = __props;
           let showIsLoading = (0, vue.ref)(true);
@@ -20307,8 +20406,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                   [
                                     (0, vue.createVNode)(_component_el_avatar, {
                                       class: "follow-forum-avatar",
+                                      src: avatarSrc,
                                       size: 35,
-                                      src: "//tb2.bdstatic.com/tb/mobile/sglobal/layout/classic/icon/apple-touch-icon-144x144-precomposed_08a91b3.png",
                                     }),
                                     (0, vue.createElementVNode)("div", _hoisted_3$11, [
                                       (0, vue.createElementVNode)(
@@ -20382,10 +20481,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       }),
-      [["__scopeId", "data-v-d50718f2"]]
+      [["__scopeId", "data-v-25425ef4"]]
     );
     _css(
-      ".el-image-viewer__wrapper{position:fixed;inset:0}.el-image-viewer__wrapper:focus{outline:none!important}.el-image-viewer__btn{z-index:1;opacity:.8;cursor:pointer;box-sizing:border-box;-webkit-user-select:none;user-select:none;border-radius:50%;justify-content:center;align-items:center;display:flex;position:absolute}.el-image-viewer__btn .el-icon{cursor:pointer}.el-image-viewer__close{width:40px;height:40px;font-size:40px;top:40px;right:40px}.el-image-viewer__canvas{-webkit-user-select:none;user-select:none;justify-content:center;align-items:center;width:100%;height:100%;display:flex;position:static}.el-image-viewer__actions{background-color:var(--el-text-color-regular);border-color:#fff;border-radius:22px;height:44px;padding:0 23px;bottom:30px;left:50%;transform:translate(-50%)}.el-image-viewer__actions__inner{cursor:default;color:#fff;justify-content:space-around;align-items:center;gap:22px;width:100%;height:100%;padding:0 6px;font-size:23px;display:flex}.el-image-viewer__actions__divider{margin:0 -6px}.el-image-viewer__progress{cursor:default;color:#fff;bottom:90px;left:50%;transform:translate(-50%)}.el-image-viewer__prev{color:#fff;background-color:var(--el-text-color-regular);border-color:#fff;width:44px;height:44px;font-size:24px;top:50%;left:40px;transform:translateY(-50%)}.el-image-viewer__next{text-indent:2px;color:#fff;background-color:var(--el-text-color-regular);border-color:#fff;width:44px;height:44px;font-size:24px;top:50%;right:40px;transform:translateY(-50%)}.el-image-viewer__close{color:#fff;background-color:var(--el-text-color-regular);border-color:#fff;width:44px;height:44px;font-size:24px}.el-image-viewer__mask{opacity:.5;background:#000;width:100%;height:100%;position:absolute;top:0;left:0}.el-image-viewer-parent--hidden{overflow:hidden}.viewer-fade-enter-active{animation:viewer-fade-in var(--el-transition-duration)}.viewer-fade-leave-active{animation:viewer-fade-out var(--el-transition-duration)}@keyframes viewer-fade-in{0%{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translate(0)}}@keyframes viewer-fade-out{0%{opacity:1;transform:translate(0)}to{opacity:0;transform:translateY(-20px)}}"
+      ".el-image-viewer__wrapper{position:fixed;inset:0}.el-image-viewer__wrapper:focus{outline:none!important}.el-image-viewer__btn{z-index:1;opacity:.8;cursor:pointer;box-sizing:border-box;-webkit-user-select:none;user-select:none;border-radius:50%;justify-content:center;align-items:center;display:flex;position:absolute}.el-image-viewer__btn .el-icon{cursor:pointer}.el-image-viewer__close{width:40px;height:40px;font-size:40px;top:40px;right:40px}.el-image-viewer__canvas{-webkit-user-select:none;user-select:none;justify-content:center;align-items:center;width:100%;height:100%;display:flex;position:static}.el-image-viewer__img{cursor:grab}.el-image-viewer__img:active{cursor:grabbing}.el-image-viewer__actions{background-color:var(--el-text-color-regular);border-color:#fff;border-radius:22px;height:44px;padding:0 23px;bottom:30px;left:50%;transform:translate(-50%)}.el-image-viewer__actions__inner{cursor:default;color:#fff;justify-content:space-around;align-items:center;gap:22px;width:100%;height:100%;padding:0 6px;font-size:23px;display:flex}.el-image-viewer__actions__divider{margin:0 -6px}.el-image-viewer__progress{cursor:default;color:#fff;bottom:90px;left:50%;transform:translate(-50%)}.el-image-viewer__prev{color:#fff;background-color:var(--el-text-color-regular);border-color:#fff;width:44px;height:44px;font-size:24px;top:50%;left:40px;transform:translateY(-50%)}.el-image-viewer__next{text-indent:2px;color:#fff;background-color:var(--el-text-color-regular);border-color:#fff;width:44px;height:44px;font-size:24px;top:50%;right:40px;transform:translateY(-50%)}.el-image-viewer__close{color:#fff;background-color:var(--el-text-color-regular);border-color:#fff;width:44px;height:44px;font-size:24px}.el-image-viewer__mask{opacity:.5;background:#000;width:100%;height:100%;position:absolute;top:0;left:0}.el-image-viewer-parent--hidden{overflow:hidden}.viewer-fade-enter-active{animation:viewer-fade-in var(--el-transition-duration)}.viewer-fade-leave-active{animation:viewer-fade-out var(--el-transition-duration)}@keyframes viewer-fade-in{0%{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translate(0)}}@keyframes viewer-fade-out{0%{opacity:1;transform:translate(0)}to{opacity:0;transform:translateY(-20px)}}"
     );
     _css(
       ".el-image__error,.el-image__placeholder,.el-image__wrapper,.el-image__inner{width:100%;height:100%}.el-image{display:inline-block;position:relative;overflow:hidden}.el-image__inner{vertical-align:top;opacity:1}.el-image__inner.is-loading{opacity:0}.el-image__wrapper{position:absolute;top:0;left:0}.el-image__placeholder{background:var(--el-fill-color-light)}.el-image__error{background:var(--el-fill-color-light);color:var(--el-text-color-placeholder);vertical-align:middle;justify-content:center;align-items:center;font-size:14px;display:flex}.el-image__preview{cursor:pointer}"
@@ -20397,7 +20496,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$9 = { class: "posts-item-user-name" };
     var _hoisted_5$9 = { class: "posts-item-user-other-info" };
     var _hoisted_6$9 = { class: "posts-item-title" };
-    var _hoisted_7$8 = { class: "posts-item-content" };
+    var _hoisted_7$9 = { class: "posts-item-content" };
     var _hoisted_8$8 = { class: "posts-item-forum" };
     var _hoisted_9$4 = { class: "posts-item-footer" };
     function _sfc_render$2(_ctx, _cache) {
@@ -20466,7 +20565,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   },
                 }),
               ]),
-              (0, vue.createElementVNode)("div", _hoisted_7$8, [
+              (0, vue.createElementVNode)("div", _hoisted_7$9, [
                 (0, vue.createVNode)(_component_el_skeleton_item, {
                   variant: "text",
                   style: {
@@ -20582,10 +20681,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$8 = { class: "posts-item-avatar" };
     var _hoisted_5$8 = { class: "posts-item-right-user-info" };
     var _hoisted_6$8 = { class: "posts-item-user-name" };
-    var _hoisted_7$7 = { class: "posts-item-user-other-info" };
+    var _hoisted_7$8 = { class: "posts-item-user-other-info" };
     var _hoisted_8$7 = ["innerHTML"];
     var _hoisted_9$3 = { class: "posts-item-content" };
-    var _hoisted_10$3 = {
+    var _hoisted_10$2 = {
       key: 0,
       class: "posts-item-media-container",
     };
@@ -20745,7 +20844,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                           (0, vue.toDisplayString)(__props.UserData.showName),
                                           1
                                         ),
-                                        (0, vue.createElementVNode)("div", _hoisted_7$7, [
+                                        (0, vue.createElementVNode)("div", _hoisted_7$8, [
                                           (0, vue.createVNode)(
                                             _component_el_text,
                                             {
@@ -20797,7 +20896,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                               ),
                               postItem.thread_info.media && postItem.thread_info.media.length > 0
                                 ? ((0, vue.openBlock)(),
-                                  (0, vue.createElementBlock)("div", _hoisted_10$3, [
+                                  (0, vue.createElementBlock)("div", _hoisted_10$2, [
                                     (0, vue.createVNode)(
                                       _component_el_row,
                                       {
@@ -21752,7 +21851,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$7 = { class: "user-info-item" };
     var _hoisted_5$7 = { class: "user-info-item" };
     var _hoisted_6$7 = { class: "user-info-item" };
-    var _hoisted_7$6 = { class: "user-info-item" };
+    var _hoisted_7$7 = { class: "user-info-item" };
     var _hoisted_8$6 = { class: "user-info-item" };
     var About_default = _plugin_vue_export_helper_default(
       (0, vue.defineComponent)({
@@ -21970,7 +22069,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             }
                           ),
                         ]),
-                        (0, vue.createElementVNode)("div", _hoisted_7$6, [
+                        (0, vue.createElementVNode)("div", _hoisted_7$7, [
                           (0, vue.createVNode)(
                             _component_el_text,
                             {
@@ -22148,7 +22247,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$6 = { class: "user-avatar" };
     var _hoisted_5$6 = { class: "user-item-row-center" };
     var _hoisted_6$6 = { class: "user-info" };
-    var _hoisted_7$5 = { class: "user-item-row-right" };
+    var _hoisted_7$6 = { class: "user-item-row-right" };
     var _hoisted_8$5 = {
       key: 2,
       style: { "text-align": "center" },
@@ -22404,7 +22503,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                                 ]),
                                               ]),
                                             ]),
-                                            (0, vue.createElementVNode)("div", _hoisted_7$5, [
+                                            (0, vue.createElementVNode)("div", _hoisted_7$6, [
                                               (0, vue.createVNode)(
                                                 _component_el_button,
                                                 {
@@ -22489,7 +22588,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$5 = { class: "user-avatar" };
     var _hoisted_5$5 = { class: "user-item-row-center" };
     var _hoisted_6$5 = { class: "user-info" };
-    var _hoisted_7$4 = { class: "user-item-row-right" };
+    var _hoisted_7$5 = { class: "user-item-row-right" };
     var _hoisted_8$4 = {
       key: 2,
       style: { "text-align": "center" },
@@ -22747,7 +22846,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                                 ]),
                                               ]),
                                             ]),
-                                            (0, vue.createElementVNode)("div", _hoisted_7$4, [
+                                            (0, vue.createElementVNode)("div", _hoisted_7$5, [
                                               (0, vue.createVNode)(
                                                 _component_el_button,
                                                 {
@@ -23070,7 +23169,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$4 = { class: "layout-icon" };
     var _hoisted_5$4 = { class: "layout-arrow" };
     var _hoisted_6$4 = { class: "layout-icon" };
-    var _hoisted_7$3 = { class: "layout-arrow" };
+    var _hoisted_7$4 = { class: "layout-arrow" };
     function _sfc_render(_ctx, _cache) {
       const _component_el_icon = ElIcon;
       const _component_ArrowRight = (0, vue.resolveComponent)("ArrowRight");
@@ -23214,7 +23313,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                   ),
                 ]),
                 _cache[5] || (_cache[5] = (0, vue.createElementVNode)("div", { class: "layout-text" }, "@我的", -1)),
-                (0, vue.createElementVNode)("div", _hoisted_7$3, [
+                (0, vue.createElementVNode)("div", _hoisted_7$4, [
                   (0, vue.createVNode)(
                     _component_el_icon,
                     {
@@ -23247,13 +23346,13 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$3 = { class: "user-avatar" };
     var _hoisted_5$3 = ["src"];
     var _hoisted_6$3 = { class: "user-info-text" };
-    var _hoisted_7$2 = { class: "user-name" };
+    var _hoisted_7$3 = { class: "user-name" };
     var _hoisted_8$3 = { class: "user-time" };
     var _hoisted_9$2 = {
       key: 0,
       class: "reply-content",
     };
-    var _hoisted_10$2 = ["onClick"];
+    var _hoisted_10$1 = ["onClick"];
     var _hoisted_11$1 = { class: "post-info__inner" };
     var _hoisted_12$1 = { class: "post-image" };
     var _hoisted_13$1 = ["src"];
@@ -23370,7 +23469,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             (0, vue.createElementVNode)("div", _hoisted_6$3, [
                               (0, vue.createElementVNode)(
                                 "div",
-                                _hoisted_7$2,
+                                _hoisted_7$3,
                                 (0, vue.toDisplayString)(
                                   item.agreeer.show_nickname || item.agreeer.name_show || item.agreeer.name
                                 ),
@@ -23440,7 +23539,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             ]),
                           ],
                           8,
-                          _hoisted_10$2
+                          _hoisted_10$1
                         ),
                       ])
                     );
@@ -23473,10 +23572,10 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$2 = { class: "user-avatar" };
     var _hoisted_5$2 = ["src"];
     var _hoisted_6$2 = { class: "user-info-text" };
-    var _hoisted_7$1 = { class: "user-name" };
+    var _hoisted_7$2 = { class: "user-name" };
     var _hoisted_8$2 = { class: "user-time" };
     var _hoisted_9$1 = { class: "reply-content" };
-    var _hoisted_10$1 = ["onClick"];
+    var _hoisted_10 = ["onClick"];
     var _hoisted_11 = { class: "post-info" };
     var _hoisted_12 = ["onClick"];
     var _hoisted_13 = { class: "post-image" };
@@ -23593,7 +23692,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             (0, vue.createElementVNode)("div", _hoisted_6$2, [
                               (0, vue.createElementVNode)(
                                 "div",
-                                _hoisted_7$1,
+                                _hoisted_7$2,
                                 (0, vue.toDisplayString)(item.replyer.name_show || item.replyer.name),
                                 1
                               ),
@@ -23636,7 +23735,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                   ),
                                 ],
                                 8,
-                                _hoisted_10$1
+                                _hoisted_10
                               ))
                             : (0, vue.createCommentVNode)("", true),
                         ]),
@@ -24803,6 +24902,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           style: `
       ${__pops__.config.cssText.panelCSS}
       
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-form-container {
           
       }
@@ -24864,7 +24966,6 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 : "80vh",
         });
         const $form = $dialog.$shadowRoot.querySelector(".rule-form-container");
-        $dialog.$shadowRoot.querySelector("input[type=submit]");
         const $ulist = $dialog.$shadowRoot.querySelector(".rule-form-ulist");
         const view = await this.option.getView(await this.option.data());
         domUtils.append($ulist, view);
@@ -24911,6 +25012,9 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           style: `
       ${__pops__.config.cssText.panelCSS}
 
+      .pops{
+        max-height: 90dvh;
+      }
       .rule-view-search-container{
         display: flex;
         align-items: center;
@@ -26809,7 +26913,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             if ($loadMore) {
               if (utils.isVisible($loadMore, true)) $loadMore.click();
             }
-          }),
+          }, 100),
           {
             capture: true,
             passive: true,
@@ -27285,7 +27389,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         });
         const search = utils.debounce(() => {
           this.frontPageSeach();
-        });
+        }, 100);
         domUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
           search();
         });
@@ -27529,7 +27633,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               TiebaSearchSuggestion.init(this.$el.$searchInput);
               return;
             }
-            const searchEvent = utils.debounce(() => {
+            const searchEvent = utils.debounce(async () => {
               let searchText = this.getSearchText();
               if (utils.isNull(searchText)) {
                 alert("请勿输入纯空格或空内容");
@@ -27544,16 +27648,19 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
               this.$data.hasMore = false;
               this.showSearchResultModel();
               this.clearOldSearchResult();
-              this.searchThread();
-            });
+              await this.searchThread();
+            }, 100);
             domUtils.click(this.$el.$searchBtn, () => {
+              log.info(`点击搜索按钮搜索`);
               searchEvent();
             });
             domUtils.onKeyup(this.$el.$searchInput, (evt) => {
               if (evt.code !== "Enter") return;
+              log.info(`按下回车键搜索`);
               searchEvent();
             });
             domUtils.on(this.$el.$searchInput, "search", () => {
+              log.info(`移动端触发search事件搜索`);
               searchEvent();
             });
             domUtils.click(this.$el.$navSearchBack, () => {
@@ -27601,6 +27708,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                 qmsg.default.error("暂不支持该排序类型：" + selectOptionValue);
                 return;
               }
+              log.info(`结果排序选项修改触发搜索`);
               searchEvent();
             });
             TiebaPost.optimizeImagePreview();
@@ -28058,6 +28166,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         return this.$el.$searchInput.value.trim();
       },
       addScrollEvent() {
+        if (this.$context.intersectionObserver) return;
         log.success("添加滚动事件");
         const lockFn = new utils.LockFunction(async () => {
           await this.searchThread();
@@ -28116,7 +28225,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
             return;
           }
         }
-        console.log("搜索页码：", this.$data.pn);
+        console.log("当前搜索页码：", this.$data.pn);
         const searchThreadData = await TiebaNewPCApi.searchThread(
           this.$data.searchText,
           this.$data.pn,
@@ -28130,14 +28239,15 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
         }
         this.$data.pn++;
         log.success(searchThreadData);
-        const searchData = searchThreadData.post_list;
-        this.addSearchResult(searchData);
+        const searchResultList = searchThreadData.post_list;
+        log.success(`成功加载 ${searchResultList.length}个搜索结果`);
+        this.addSearchResult(searchResultList);
         if (searchThreadData.has_more) {
           this.addScrollEvent();
           this.showSearchResultModel();
         } else {
           log.error("搜索结果就1页，移除滚动监听");
-          if (searchData.length === 0) this.alertErrorSearch("搜索结果为空");
+          if (searchResultList.length === 0) this.alertErrorSearch("搜索结果为空");
           this.removeScrollEvent();
         }
       },
@@ -30706,7 +30816,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4$1 = { class: "gm-reply-other-toolbar" };
     var _hoisted_5$1 = { class: "text" };
     var _hoisted_6$1 = { class: "icon icoon-good" };
-    var _hoisted_7 = ["xlink:href"];
+    var _hoisted_7$1 = ["xlink:href"];
     var _hoisted_8$1 = { class: "text" };
     var SmallToolbar_default = _plugin_vue_export_helper_default(
       (0, vue.defineComponent)({
@@ -30831,7 +30941,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                           },
                           null,
                           8,
-                          _hoisted_7
+                          _hoisted_7$1
                         ),
                       ])),
                       (0, vue.createElementVNode)(
@@ -30980,12 +31090,12 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
     var _hoisted_4 = { class: "full-toolbar-top-left-container" };
     var _hoisted_5 = { class: "full-toolbar-top-right-container" };
     var _hoisted_6 = ["fill"];
-    var _hoisted_8 = { class: "full-toolbar-bottom-panel" };
-    var _hoisted_9 = {
+    var _hoisted_7 = { class: "full-toolbar-bottom-panel" };
+    var _hoisted_8 = {
       key: 0,
       class: "emoji-panel",
     };
-    var _hoisted_10 = { class: "emoji-panel-huaji" };
+    var _hoisted_9 = { class: "emoji-panel-huaji" };
     var FullToolbar_default = _plugin_vue_export_helper_default(
       (0, vue.defineComponent)({
         __name: "FullToolbar",
@@ -31174,7 +31284,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                               },
                               {
                                 default: (0, vue.withCtx)(() => [
-                                  ...(_cache[2] || (_cache[2] = [(0, vue.createTextVNode)("发表", -1)])),
+                                  ...(_cache[1] || (_cache[1] = [(0, vue.createTextVNode)("发表", -1)])),
                                 ]),
                                 _: 1,
                               },
@@ -31246,7 +31356,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                           },
                           {
                             default: (0, vue.withCtx)(() => [
-                              ...(_cache[3] || (_cache[3] = [(0, vue.createTextVNode)("发表", -1)])),
+                              ...(_cache[2] || (_cache[2] = [(0, vue.createTextVNode)("发表", -1)])),
                             ]),
                             _: 1,
                           },
@@ -31299,8 +31409,8 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                                       height: "20",
                                     },
                                     [
-                                      ...(_cache[4] ||
-                                        (_cache[4] = [
+                                      ...(_cache[3] ||
+                                        (_cache[3] = [
                                           (0, vue.createElementVNode)(
                                             "path",
                                             {
@@ -31321,16 +31431,15 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
                             _: 1,
                           }
                         ),
-                        (0, vue.createCommentVNode)("", true),
                       ]),
                       _: 1,
                     }
                   ),
-                  (0, vue.createElementVNode)("div", _hoisted_8, [
+                  (0, vue.createElementVNode)("div", _hoisted_7, [
                     currentPanelMenu.value.state && currentPanelMenu.value.name === "emoji"
                       ? ((0, vue.openBlock)(),
-                        (0, vue.createElementBlock)("div", _hoisted_9, [
-                          (0, vue.createElementVNode)("div", _hoisted_10, [
+                        (0, vue.createElementBlock)("div", _hoisted_8, [
+                          (0, vue.createElementVNode)("div", _hoisted_9, [
                             ((0, vue.openBlock)(true),
                             (0, vue.createElementBlock)(
                               vue.Fragment,
@@ -31368,7 +31477,7 @@ usage: app.provide(ZINDEX_INJECTION_KEY, { current: 0 })`
           };
         },
       }),
-      [["__scopeId", "data-v-e3390787"]]
+      [["__scopeId", "data-v-0bd4838e"]]
     );
     var usePlaceHolder = (0, pinia.defineStore)("placeholder", {
       state: () => ({

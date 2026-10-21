@@ -29,7 +29,7 @@ const TiebaSearchSuggestion = {
     });
     const search = utils.debounce(() => {
       this.frontPageSeach();
-    });
+    }, 100);
     // 点击搜索
     DOMUtils.on(TiebaSearch.$el.$searchBtn, "click", () => {
       search();
@@ -405,7 +405,7 @@ const TiebaSearch = {
        *
        * 按下回车键搜索
        */
-      const searchEvent = utils.debounce(() => {
+      const searchEvent = utils.debounce(async () => {
         let searchText = this.getSearchText();
         if (utils.isNull(searchText)) {
           alert("请勿输入纯空格或空内容");
@@ -422,10 +422,11 @@ const TiebaSearch = {
         this.$data.hasMore = false;
         this.showSearchResultModel();
         this.clearOldSearchResult();
-        this.searchThread();
-      });
+        await this.searchThread();
+      }, 100);
       // 点击搜索
       DOMUtils.click(this.$el.$searchBtn, () => {
+        log.info(`点击搜索按钮搜索`);
         searchEvent();
       });
       // 回车搜索
@@ -433,10 +434,12 @@ const TiebaSearch = {
         if (evt.code !== "Enter") {
           return;
         }
+        log.info(`按下回车键搜索`);
         searchEvent();
       });
       // 监听 search 事件
       DOMUtils.on(this.$el.$searchInput, "search", () => {
+        log.info(`移动端触发search事件搜索`);
         searchEvent();
       });
       // 设置返回按钮的点击事件-退出搜索模式
@@ -500,6 +503,7 @@ const TiebaSearch = {
           Qmsg.error("暂不支持该排序类型：" + selectOptionValue);
           return;
         }
+        log.info(`结果排序选项修改触发搜索`);
         searchEvent();
       });
       // 图片预览
@@ -1027,6 +1031,7 @@ const TiebaSearch = {
    * 添加滚动事件
    */
   addScrollEvent() {
+    if (this.$context.intersectionObserver) return;
     log.success("添加滚动事件");
     const lockFn = new utils.LockFunction(async () => {
       await this.searchThread();
@@ -1108,7 +1113,7 @@ const TiebaSearch = {
         return;
       }
     }
-    console.log("搜索页码：", this.$data.pn);
+    console.log("当前搜索页码：", this.$data.pn);
     const searchThreadData = await TiebaNewPCApi.searchThread(
       this.$data.searchText,
       this.$data.pn,
@@ -1122,14 +1127,15 @@ const TiebaSearch = {
     }
     this.$data.pn++;
     log.success(searchThreadData);
-    const searchData = searchThreadData.post_list!;
-    this.addSearchResult(searchData);
+    const searchResultList = searchThreadData.post_list!;
+    log.success(`成功加载 ${searchResultList.length}个搜索结果`);
+    this.addSearchResult(searchResultList);
     if (searchThreadData.has_more) {
       this.addScrollEvent();
       this.showSearchResultModel();
     } else {
       log.error("搜索结果就1页，移除滚动监听");
-      if (searchData.length === 0) {
+      if (searchResultList.length === 0) {
         this.alertErrorSearch("搜索结果为空");
       }
       this.removeScrollEvent();

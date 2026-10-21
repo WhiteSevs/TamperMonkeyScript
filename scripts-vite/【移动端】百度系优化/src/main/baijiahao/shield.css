@@ -13,6 +13,14 @@ div#commentModule > div > div > span:nth-child(2),
 .foldMaskWrapper {
   display: none !important;
 }
+/* 内容后面的all in */
+#content_wrapper {
+  margin-bottom: 0.5rem;
+
+  & ~ * {
+    display: none !important;
+  }
+}
 body.scrollHide {
   overflow: auto !important;
 }

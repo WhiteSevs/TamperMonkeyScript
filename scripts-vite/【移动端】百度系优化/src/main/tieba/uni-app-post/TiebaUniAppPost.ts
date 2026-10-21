@@ -226,7 +226,7 @@ export const TiebaUniAppPost = {
         } else {
           // 按钮不存在
         }
-      }),
+      }, 100),
       {
         capture: true,
         passive: true,

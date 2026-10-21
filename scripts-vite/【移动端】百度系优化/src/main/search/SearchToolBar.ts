@@ -267,7 +267,7 @@ export const BaiduSearchToolBar = {
             }
           });
         }
-      }, 50)
+      }, 100)
     );
   },
   /**
