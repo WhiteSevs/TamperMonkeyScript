@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】MT论坛优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.16
+// @version      2026.10.22
 // @author       WhiteSevs
 // @description  MT论坛效果增强，如自动签到、自动展开帖子、滚动加载评论、显示UID、自定义屏蔽、手机版小黑屋、编辑器优化、在线用户查看、便捷式图床、自定义用户标签、积分商城商品上架提醒等
 // @license      GPL-3.0-only
@@ -11,10 +11,10 @@
 // @exclude      /^http(s|)://bbs.binmt.cc/uc_server.*$/
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@5698a8673fcd8ba11bdf710d96d00b9d887a52d4/lib/js-watermark/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.0/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/highlight.min.js
 // @resource     HljsCSS    https://fastly.jsdelivr.net/npm/highlight.js@11.12.0/styles/github-dark.min.css
@@ -433,6 +433,7 @@
     isHTML: true,
     autoClose: true,
     showClose: false,
+    isTextWrap: true,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") return false;
@@ -2160,17 +2161,17 @@
       let ownCookie = "";
       let url = details.url;
       if (url.startsWith("//")) url = window.location.protocol + url;
-      let urlObj = new URL(url);
+      let urlInst = new URL(url);
       if (
         this.$data.useDocumentCookie &&
-        urlObj.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))
+        urlInst.hostname.endsWith(window.location.hostname.split(".").slice(-2).join("."))
       )
         ownCookie = this.concatCookie(ownCookie, document.cookie.trim());
       for (let index = 0; index < this.$data.cookieRule.length; index++) {
-        let rule = this.$data.cookieRule[index];
-        if (urlObj.hostname.match(rule.hostname)) {
-          let cookie = Panel.getValue(rule.key);
-          if (utils.isNull(cookie)) break;
+        const rule = this.$data.cookieRule[index];
+        if (urlInst.hostname.match(rule.hostname)) {
+          const cookie = typeof rule.getCookie == "function" ? rule.getCookie() : Panel.getValue(rule.key);
+          if (utils.isNull(cookie)) continue;
           ownCookie = this.concatCookie(ownCookie, cookie);
         }
       }
@@ -2184,12 +2185,52 @@
         delete details.headers.Cookie;
     }
   };
+  var getAcwScV2ByArg1 = (arg1) => {
+    const pwd = "3000176000856006061501533003690027800375";
+    const hexXor = function (box, pwd) {
+      let res = "";
+      for (let i = 0; i < box.length && i < pwd.length; i += 2) {
+        let tmp = (Number.parseInt(box.slice(i, i + 2), 16) ^ Number.parseInt(pwd.slice(i, i + 2), 16)).toString(16);
+        if (tmp.length === 1) tmp = "0" + tmp;
+        res += tmp;
+      }
+      return res;
+    };
+    const unsbox = function (str) {
+      const code = [
+        15, 35, 29, 24, 33, 16, 1, 38, 10, 9, 19, 31, 40, 27, 22, 23, 25, 13, 6, 11, 39, 18, 20, 8, 14, 21, 32, 26, 2,
+        30, 7, 4, 17, 5, 3, 28, 34, 37, 12, 36,
+      ];
+      const res = [];
+      for (let i = 0; i < str.length; i++) {
+        const cur = str[i];
+        for (let j = 0; j < code.length; j++) if (code[j] === i + 1) res[j] = cur;
+      }
+      return res.join("");
+    };
+    return hexXor(unsbox(arg1), pwd);
+  };
+  var isIncludeAcwV2 = (text) => {
+    return text.includes("acw_sc__v2=");
+  };
+  var extractAcwV2Arg1 = (text) => {
+    if (!isIncludeAcwV2(text)) return;
+    return text.match(/var[\s]+arg1[\s]*=[\s]*('|")(.+?)('|")/)?.[2];
+  };
   CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Viewer);
   CommonUtil.setGMResourceCSS(GM_RESOURCE_MAPPING.Hljs);
+  var acw_sc__v2 = null;
   var httpxCookieManager = new HttpxCookieManager([
     {
       key: "httpx-cookie-bbs.binmt.cc",
       hostname: /bbs.binmt.cc/g,
+    },
+    {
+      key: "httpx-default-cookie-bbs.binmt.cc",
+      hostname: /bbs.binmt.cc/g,
+      getCookie() {
+        return acw_sc__v2 ? `acw_sc__v2=${acw_sc__v2}` : "";
+      },
     },
   ]);
   httpx.interceptors.request.use((data) => {
@@ -2198,12 +2239,21 @@
   });
   httpx.interceptors.response.use((data, resolveOption) => {
     try {
+      const urlInst = new URL(CommonUtil.fixUrl(data.finalUrl));
+      const responseText = data.responseText;
       if (
-        new URL(CommonUtil.fixUrl(data.finalUrl)).hostname.endsWith(location.hostname) &&
-        data.responseText.includes("acw_sc__v2=")
+        !resolveOption.InterceptConfig.isRetry &&
+        urlInst.hostname.endsWith(location.hostname) &&
+        isIncludeAcwV2(responseText)
       ) {
-        qmsg.default.error("检测到触发反爬虫，请刷新页面后再试");
+        const acw_sc__v2_arg1 = extractAcwV2Arg1(responseText);
+        if (acw_sc__v2_arg1) {
+          log.info("获取arg1: " + acw_sc__v2_arg1);
+          acw_sc__v2 = getAcwScV2ByArg1(acw_sc__v2_arg1);
+          log.info("生成acw_sc__v2: " + acw_sc__v2);
+        }
         resolveOption.isSuccess = false;
+        resolveOption.InterceptConfig.isRetry = true;
       }
     } catch {}
     return data;
@@ -2212,10 +2262,7 @@
     mask: { enable: true },
     drag: true,
   });
-  qmsg.default.config({
-    isLimitWidth: true,
-    limitWidthWrap: "wrap",
-  });
+  qmsg.default.config({ isTextWrap: true });
   var ElementUtils = {
     registerLeftMenu(config) {
       domUtils.waitNode(".comiis_sidenv_box .sidenv_li .comiis_left_Touch", 1e4).then(($leftTouch) => {
@@ -2531,7 +2578,7 @@
                         <p>${userInfo["operator"]}</p>
                     </div>
                     <div class="blackhome-operator-user-info">
-                    ${userInfo["reason"]}
+                    ${userInfo["reason"] ?? "无"}
                     </div>
                     </div>
                 </div>
@@ -3640,6 +3687,9 @@
     },
     isSpaceWithAt() {
       return RouterUtil.builder().pathnameStartsWith("/space-uid-").r();
+    },
+    isSpaceThread() {
+      return this.isSpace() && RouterUtil.seachParams("do", "thread").r();
     },
     isForumList() {
       return RouterUtil.builder().pathnameStartsWith("/forum.php").searchParams("forumlist").r();
@@ -6621,9 +6671,10 @@
         this.repairEnterSpace();
       });
       domUtils.onReady(() => {
-        Panel.execMenuOnce("mt-space-showCommentContent", () => {
-          this.showCommentContent();
-        });
+        if (MTRouter.isSpaceThread())
+          Panel.execMenuOnce("mt-space-showCommentContent", () => {
+            this.showCommentContent();
+          });
       });
     },
     repairEnterSpace() {
@@ -6650,22 +6701,22 @@
 		div.contrete-reply a{margin:0 10px}
 		`);
       async function getPCReply() {
-        let response = await httpx.get(window.location.href, { headers: { "User-Agent": utils.getRandomPCUA() } });
-        if (!response.status) return;
+        const response = await httpx.get(window.location.href, { headers: { "User-Agent": utils.getRandomPCUA() } });
+        if (!response.isSuccess) return;
         let doc = domUtils.toElement(response.data.responseText, true, true);
         let resultList = [];
         doc.querySelectorAll("#delform tr.bw0_all+tr").forEach((item) => {
           let replyData = [];
           let tagTDNode = item.querySelector("td");
           let tagTDValue = domUtils.html(tagTDNode).replace(/^&nbsp;/, "");
-          replyData.push(tagTDValue);
+          if (tagTDValue !== "") replyData.push(tagTDValue);
           let nextHTML = domUtils.next(item);
           let $tr = doc.querySelectorAll("#delform tr");
           for (let index = 0; index < $tr.length; index++) {
             if (!nextHTML || domUtils.attr(nextHTML, "class") === "bw0_all") break;
             let nextTdHTML = nextHTML.querySelector("td");
             let nextValue = domUtils.html(nextTdHTML).replace(/^&nbsp;/, "");
-            replyData = replyData.concat(nextValue);
+            if (nextValue != "") replyData.push(nextValue);
             nextHTML = domUtils.next(nextHTML);
           }
           resultList.push(...replyData);
@@ -6682,9 +6733,10 @@
       function formatPCReply(dataList) {
         let resultJSON = {};
         dataList.forEach((item) => {
-          let url = domUtils.createElement("div", { innerHTML: item }).querySelector("a")?.getAttribute("href");
-          let paramPtidMatch = url.match(MTRegExp.ptid);
-          let paramPidMatch = url.match(MTRegExp.pid);
+          const url = domUtils.createElement("div", { innerHTML: item }).querySelector("a")?.getAttribute("href");
+          if (!url) return;
+          const paramPtidMatch = url.match(MTRegExp.ptid);
+          const paramPidMatch = url.match(MTRegExp.pid);
           if (!paramPtidMatch) {
             qmsg.default.error("获取ptid失败");
             return;
@@ -6693,8 +6745,8 @@
             qmsg.default.error("获取pid失败");
             return;
           }
-          let paramPtid = paramPtidMatch[paramPtidMatch.length - 1];
-          let paramPid = paramPidMatch[paramPidMatch.length - 1];
+          const paramPtid = paramPtidMatch[paramPtidMatch.length - 1];
+          const paramPid = paramPidMatch[paramPidMatch.length - 1];
           if (resultJSON[paramPtid]) resultJSON[paramPtid]["data"].push(item);
           else
             resultJSON[paramPtid] = {
@@ -6705,19 +6757,27 @@
         });
         return resultJSON;
       }
-      var pcReplyArray = await getPCReply();
-      if (pcReplyArray == null) return;
-      var pcReplyJSON = formatPCReply(pcReplyArray);
-      getForumList().forEach((forumListItem, forumListItemIndex) => {
-        let forumTid = forumListItem.querySelector(".comiis_xznalist_bottom a").getAttribute("tid");
+      const forumList = getForumList();
+      if (forumList.length == 0) {
+        log.error("获取帖子列表失败");
+        return;
+      }
+      const pcReplyArray = await getPCReply();
+      if (pcReplyArray == null || pcReplyArray.length == 0) {
+        log.error("获取PC端帖子回复内容为空");
+        return;
+      }
+      const pcReplyJSON = formatPCReply(pcReplyArray);
+      forumList.forEach(($forumListItem) => {
+        let forumTid = $forumListItem.querySelector(".comiis_xznalist_bottom a").getAttribute("tid");
         if (!forumTid) {
           qmsg.default.error("获取帖子tid失败");
-          log.error(forumListItem);
+          log.error($forumListItem);
           return;
         }
         if (!pcReplyJSON[forumTid]) return;
         pcReplyJSON[forumTid]["data"].forEach((forumListReplyHTMLItem) => {
-          domUtils.append(forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
+          domUtils.append($forumListItem, `<div class="contrete-reply">${forumListReplyHTMLItem}</div>`);
         });
       });
     },
@@ -7089,6 +7149,7 @@
       this.config.win.history.pushState({}, "", pushUrl);
       log.success("监听popstate事件");
       domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
+      if (typeof this.config.onEnter == "function") this.config.onEnter();
     }
     async quitGestureBackMode(isUrlChange = false) {
       this.isBacking = true;
@@ -7111,6 +7172,7 @@
       domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
       this.isBacking = false;
       if (typeof this.config.afterHistoryBackCallBack === "function") this.config.afterHistoryBackCallBack(isUrlChange);
+      if (typeof this.config.onEnter == "function") this.config.onQuite();
     }
   };
   var small_window_default =
@@ -11014,11 +11076,11 @@
         MTRouter.isSpace()
       )
         Panel.execMenuOnce("mt-show-user-uid", () => {
-          this.showUserUID();
+          return this.showUserUID();
         });
       if (MTRouter.isSearch() || MTRouter.isGuide() || MTRouter.isSpace() || MTRouter.isPlate())
         Panel.execMenuOnce("mt-small-window", () => {
-          MTSmallWindow.init();
+          return MTSmallWindow.init();
         });
       if (MTRouter.isPost()) {
         log.info(`Router: 帖子`);
@@ -11041,35 +11103,35 @@
       } else log.error(`Router: 未适配的链接 ==> ` + window.location.href);
       domUtils.onReady(() => {
         Panel.execMenuOnce("mt-black-home", () => {
-          MTBlackHome.init();
+          return MTBlackHome.init();
         });
         Panel.execMenuOnce("mt-online-user", () => {
-          MTOnlineUser.init();
+          return MTOnlineUser.init();
         });
         Panel.execMenuOnce("mt-post-paidThemePost", () => {
-          MTPaidThemePost.init();
+          return MTPaidThemePost.init();
         });
         Panel.execMenuOnce("mt-ownBlock", () => {
-          MTOwnBlock.init();
+          return MTOwnBlock.init();
         });
         Panel.execMenuOnce("mt-post-comment-filter", () => {
-          MTCommentFilter.init();
+          return MTCommentFilter.init();
         });
         Panel.execMenuOnce("mt-productListingReminder", () => {
-          MTProductListingReminder.init();
+          return MTProductListingReminder.init();
         });
         Panel.execMenuOnce("mt-customizeUserLabels", () => {
-          MTCustomizeUserLabels.init();
+          return MTCustomizeUserLabels.init();
         });
         Panel.execMenu("mt-auto-sign", () => {
-          MTAutoSignIn.init();
+          return MTAutoSignIn.init();
         });
         Panel.execMenu("mt-extend-cookie-expire", () => {
-          this.extendCookieExpire();
+          return this.extendCookieExpire();
         });
         if (!MTRouter.isPostPublish_edit())
           Panel.execMenuOnce("mt-link-text-to-hyperlink", () => {
-            MTIdentifyLinks();
+            return MTIdentifyLinks();
           });
       });
     },
@@ -11118,7 +11180,7 @@
             }
           });
       });
-      utils.mutationObserver(document, {
+      let mutation = utils.mutationObserver(document, {
         config: {
           subtree: true,
           childList: true,
@@ -11127,6 +11189,7 @@
           lockFn.run();
         },
       });
+      return () => mutation.disconnect();
     },
     async extendCookieExpire() {
       log.info(`延长cookie有效期`);
