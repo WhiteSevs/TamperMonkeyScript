@@ -9,7 +9,16 @@ type HttpxCookieManagerRule = {
   /** 匹配url的hostname的正则或字符串 */
   hostname: RegExp | string;
   /** 获取cookie的值，如果为空则默认为通过Panel.getValue(key)来获取 */
-  getCookie?(): string | undefined | null;
+  getCookie?():
+    | IArray<
+        | {
+            key: string;
+            value: string;
+          }
+        | string
+      >
+    | undefined
+    | null;
 };
 
 class HttpxCookieManager {
@@ -67,6 +76,8 @@ class HttpxCookieManager {
   }
   /**
    * 合并两个cookie
+   * @param targetCookie
+   * @param newCookie
    */
   concatCookie(targetCookie: string, newCookie: string) {
     if (utils.isNull(targetCookie)) {
@@ -114,7 +125,21 @@ class HttpxCookieManager {
       const rule = this.$data.cookieRule[index];
       if (urlInst.hostname.match(rule.hostname)) {
         // 域名匹配成功
-        const cookie = typeof rule.getCookie == "function" ? rule.getCookie() : (Panel.getValue(rule.key) as string);
+        let cookie: string | undefined = "";
+        if (typeof rule.getCookie == "function") {
+          const __cookieValue = rule.getCookie();
+          if (Array.isArray(__cookieValue)) {
+            for (const item of __cookieValue) {
+              if (typeof item == "string") {
+                cookie = this.concatCookie(cookie, item);
+              } else if (typeof item == "object" && item) {
+                cookie = this.concatCookie(cookie, item.key + "=" + item.value);
+              }
+            }
+          }
+        } else {
+          cookie = Panel.getValue<string | undefined>(rule.key);
+        }
         if (utils.isNull(cookie)) {
           continue;
         }
