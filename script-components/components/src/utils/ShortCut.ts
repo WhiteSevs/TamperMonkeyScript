@@ -262,14 +262,45 @@ class ShortCut {
   initGlobalKeyboardListener(
     shortCutOption: ShortCutOption | ShortCutOption[],
     config?: {
-      /** 是否阻止默认行为 */
+      /**
+       * 这里的是监听时全局阻止
+       *
+       * 是否阻止默认行为
+       * @default false
+       */
       isPrevent?: boolean;
-      /** 是否仅阻止事件的传播 */
+      /**
+       * 这里的是监听时全局阻止
+       *
+       * 是否仅阻止事件的传播
+       * @default false
+       */
       onlyStopPropagation?: boolean;
-      /** 是否使用捕获 */
+      /**
+       * 是否使用捕获
+       * @default false
+       */
       capture?: boolean;
-      /** 在调用配置的快捷键之前触发的回调，如果返回false则不触配置的快捷键的回调 */
-      beforeCallBack?: () => void | boolean | Promise<void | boolean>;
+      /**
+       * （命中）在调用配置的快捷键之前触发的回调，如果返回`false`则不触配置的快捷键的回调
+       */
+      beforeCallBack?: () => IPromise<
+        | void
+        | boolean
+        | {
+            /**
+             * 是否阻止默认行为
+             * @default false
+             */
+            isPrevent?: boolean;
+            /**
+             * 是否仅阻止事件的传播
+             */
+            onlyStopPropagation?: boolean;
+          }
+      >;
+      /** 在调用配置的快捷键触发后的回调 */
+      afterCallBack?: () => void;
     }
   ) {
     if (!this.#data.localOptions.length) {
@@ -320,9 +351,16 @@ class ShortCut {
             for (const findShortcut of findShortcuts) {
               log.info("调用快捷键", findShortcut);
               if (typeof config?.beforeCallBack === "function") {
-                const flag = await config.beforeCallBack();
-                if (typeof flag === "boolean" && !flag) {
+                const beforeResult = await config.beforeCallBack();
+                if (typeof beforeResult === "boolean" && !beforeResult) {
                   return;
+                } else if (typeof beforeResult === "object" && beforeResult) {
+                  if (beforeResult.isPrevent) {
+                    DOMUtils.preventEvent(event);
+                  }
+                  if (beforeResult.onlyStopPropagation) {
+                    DOMUtils.preventEvent(event, true);
+                  }
                 }
               }
               // 找快捷键对应的配置
@@ -502,14 +540,12 @@ class ShortCut {
   }
 }
 
-export {
-  ShortCut
-};
+export { ShortCut };
 
-export type { 
+export type {
   ShortCutOption,
   ShortCutKeyboardOption,
-  ShortCutLocalStorageOption, ShortCutOptionElement,
-  ShortCutOptionWindow 
+  ShortCutLocalStorageOption,
+  ShortCutOptionElement,
+  ShortCutOptionWindow,
 };
-
