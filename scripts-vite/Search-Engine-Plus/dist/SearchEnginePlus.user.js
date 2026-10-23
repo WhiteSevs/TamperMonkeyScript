@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.21
+// @version      2026.10.23
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -3491,11 +3491,12 @@
       return addBlockCSSWithEnd("#b_bop_cs_sb_place");
     },
     removeOtherUserSearch() {
-      log.info(`移除其它用户还搜索过/其他用户还问了以下问题`);
+      log.info(`移除「其他用户还搜索过/其他用户还问了以下问题」`);
       return addBlockCSSWithEnd(
         '#b_results .b_ans:has(a[aria-label*="还搜索"])',
         '#b_results .b_algo:has(a[aria-label*="还搜索"])',
-        "#b_results .b_ans:has(#df_listaa)"
+        "#b_results .b_ans:has(#df_listaa)",
+        '#b_results .b_inline_ajax_rs:has(a[aria-label*="还搜索"])'
       );
     },
     removeTopLeftAreaSwtich() {
@@ -3608,6 +3609,11 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+            /* 资讯 */
+            & [id^="ACFContainer_"]{
+              justify-content: center;
+            }
         }
         & .b_ans,
         & .b_algo {
@@ -3629,6 +3635,11 @@
       /* 顶部的特殊搜索结果卡片宽度溢出适配 */
       #b_mcw #b_wpt_container{
         width: 100% !important;
+      }
+      /* 搜索结果顶部的 包含xx结果 是否只需要 xxx 的结果 */
+      /* 这个屏蔽好了，不好弄宽度 */
+      #b_suptop .b_ans{
+        display: none !important;
       }
     `;
       const moreColumnCSS = `
@@ -4429,7 +4440,7 @@
           UISwitch("移除右侧更多搜索结果", "bing-search-removeRightMoreSearchResult", true),
           UISwitch("移除「Copilot Search」", "bing-search-removeCopilotSearch"),
           UISwitch("移除底部悬浮的工具栏", "bing-search-removeBottomFloatingToolbar", true),
-          UISwitch("移除「其它用户还搜索过/其他用户还问了以下问题」", "bing-search-removeOtherUserSearch", true),
+          UISwitch("移除「其他用户还搜索过/其他用户还问了以下问题」", "bing-search-removeOtherUserSearch", true),
           UISwitch("移除左上角「国内版/国际版」", "bing-search-removeTopLeftAreaSwtich"),
           UISwitch("移除右上角「帐户奖励和偏好设置」", "bing-search-removeTopRightAccountSetting"),
           UISwitch(
