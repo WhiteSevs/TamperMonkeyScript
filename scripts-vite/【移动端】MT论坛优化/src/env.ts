@@ -33,7 +33,11 @@ const httpxCookieManager = new HttpxCookieManager([
     key: "httpx-default-cookie-bbs.binmt.cc",
     hostname: /bbs.binmt.cc/g,
     getCookie() {
-      return acw_sc__v2 ? `acw_sc__v2=${acw_sc__v2}` : "";
+      if (!acw_sc__v2) return;
+      return {
+        key: "acw_sc__v2",
+        value: acw_sc__v2,
+      };
     },
   },
 ]);
