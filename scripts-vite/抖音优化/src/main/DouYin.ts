@@ -37,7 +37,6 @@ export const DouYin = {
       return this.removeAds();
     });
     DouYinGestureBackClearHash();
-    DouYinHook.init();
     DouYinVideoFilter.init();
     DouYinNetWorkHook.init();
     DouYinRedirect.init();
@@ -113,6 +112,10 @@ export const DouYin = {
     } else {
       log.error("未适配router: " + window.location.href);
     }
+
+    // 快捷键劫持放到最后
+    // 以避免自定义快捷键也被劫持的情况
+    DouYinHook.init();
   },
   /**
    * 移除ads
@@ -165,10 +168,7 @@ export const DouYin = {
    * 移除<meta>标签name="apple-itunes-app"
    */
   async removeMetaAppleItunesApp() {
-    const $metaList = await DOMUtils.waitNodeList<NodeListOf<HTMLMeterElement>>(
-      ['meta[name="apple-itunes-app"]'],
-      10000
-    );
+    const $metaList = await DOMUtils.waitNodeList<NodeListOf<HTMLMeterElement>>('meta[name="apple-itunes-app"]', 10000);
     if (!$metaList) {
       return;
     }

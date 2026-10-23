@@ -23,6 +23,7 @@ import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
 import type { VideoQualityMap } from "@/main/live/DouYinLive";
+import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 
 /**
  * 视频播放器的播放速度
@@ -634,15 +635,29 @@ export const DouYinVideoPlayer = {
      */
     function setRate(value: VideoPlayerRate = "1") {
       unsafeWindow.sessionStorage.setItem(Definition_Key, value);
-      $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting").forEach(($playbackSetting) => {
+      let isSuccess = false;
+      const $$playbackSetting = $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting");
+      if (!$$playbackSetting.length) {
+        log.error("未找到播放倍速设置按钮");
+        return;
+      }
+      $$playbackSetting.forEach(($playbackSetting) => {
+        const $video = DouYinElementUtil.findUpward<HTMLVideoElement>($playbackSetting, "video");
+        if ($video) {
+          $video.playbackRate = Number(value);
+        }
         const $container = utils.getReactInstance($playbackSetting).reactContainer;
         const updatePlayBackRatio = $container?.memoizedState?.element?.props?.xgCase?.updatePlayBackRatio;
         if (typeof updatePlayBackRatio === "function") {
           updatePlayBackRatio();
-        } else {
-          Qmsg.error("设置倍速失败，原因：未找到更新播放倍速的函数");
+          isSuccess = true;
         }
       });
+      if (!isSuccess) {
+        Qmsg.error("设置倍速失败，原因：未找到更新播放倍速的函数");
+      } else {
+        log.success("调用函数设置倍速成功");
+      }
     }
     setRate(rate);
   },

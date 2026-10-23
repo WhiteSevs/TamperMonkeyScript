@@ -1,12 +1,12 @@
-import { $$, DOMUtils, log, utils } from "@/env";
+import { $$, DOMUtils, log } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
+import { DouYinUtils } from "@/utils/DouYinUtils";
 import { Panel } from "@components/setting/panel";
 import { ShortCut, type ShortCutOption } from "@components/utils/ShortCut";
 import Qmsg from "qmsg";
 import { unsafeWindow } from "ViteGM";
 import { DouYinVideoPlayer, type VideoPlayerRate } from "./DouYinVideoPlayer";
-import { DouYinUtils } from "@/utils/DouYinUtils";
 
 export const DouYinVideoPlayerShortCut = {
   shortCut: new ShortCut("video-short-cut"),
@@ -19,8 +19,11 @@ export const DouYinVideoPlayerShortCut = {
       beforeCallBack() {
         if (DouYinRouter.isLive()) {
           // 不允许在直播下执行
-          return;
+          return false;
         }
+        return {
+          onlyStopPropagation: true,
+        };
       },
     });
   },

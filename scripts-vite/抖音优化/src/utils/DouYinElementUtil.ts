@@ -185,4 +185,20 @@ export const DouYinElementUtil = {
     utils.sortListByProperty(nodeInViewData, (it) => it.toCenter, false);
     return nodeInViewData;
   },
+  /**
+   * 查找元素
+   *
+   * 目标元素内没有，循环往上层父元素内找
+   * @param $el
+   * @param selector
+   */
+  findUpward<E extends HTMLElement = HTMLElement>($el: Element, selector: string): E | undefined {
+    const $elChild = DOMUtils.selector<E>(selector, $el);
+    if ($elChild) return $elChild;
+    while ($el.parentElement) {
+      $el = $el.parentElement;
+      const $elChild = DOMUtils.selector<E>(selector, $el);
+      if ($elChild) return $elChild;
+    }
+  },
 };

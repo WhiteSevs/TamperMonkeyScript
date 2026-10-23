@@ -476,7 +476,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                             };
                           }),
                           void 0,
-                          "选择视频播放的速度"
+                          "选择视频播放的速度，该值与快捷键调整的倍速冲突，如果需使用快捷键改变倍速，请设置改值为1"
                         ),
                       ],
                     },

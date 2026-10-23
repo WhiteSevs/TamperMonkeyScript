@@ -12,11 +12,15 @@ export const DouYinLiveShortCut = {
   },
   init() {
     this.shortCut.initGlobalKeyboardListener(this.getShortCutOptions(), {
+      capture: true,
       beforeCallBack() {
         if (!DouYinRouter.isLive()) {
           // 仅允许在直播页面下生效
           return false;
         }
+        return {
+          onlyStopPropagation: true,
+        };
       },
     });
   },
