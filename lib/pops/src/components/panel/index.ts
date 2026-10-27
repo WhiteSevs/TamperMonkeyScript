@@ -72,7 +72,7 @@ export const PopsPanel = {
       popsType,
       config,
       /*html*/ `
-			<div class="pops-title pops-${popsType}-title" style="text-align: ${config.title.position};${headerStyle}">${
+			<div class="pops-title pops-${popsType}-title pops-user-select-none" style="text-align: ${config.title.position};${headerStyle}">${
         config.title.html
           ? config.title.text
           : `<p pops class="pops-${popsType}-title-text" class="pops-${popsType}-title-text" style="${headerPStyle}">${config.title.text}</p>`

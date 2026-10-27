@@ -74,7 +74,7 @@ export const PopsDrawer = {
       /*html*/ `
             ${
               config.title.enable
-                ? /*html*/ `<div class="pops-title pops-${popsType}-title" style="${headerStyle}">${
+                ? /*html*/ `<div class="pops-title pops-${popsType}-title pops-user-select-none" style="${headerStyle}">${
                     config.title.html
                       ? config.title.text
                       : /*html*/ `<p pops class="pops-${popsType}-title-text" style="width: 100%;text-align: ${config.title.position};${headerPStyle}">${config.title.text}</p>`

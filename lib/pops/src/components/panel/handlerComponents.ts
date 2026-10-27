@@ -1989,7 +1989,7 @@ export const PanelHandlerComponents = () => {
                     position: "center",
                   },
                   content: {
-                    text: /*html*/ `<ul class="select-container"></ul>`,
+                    text: /*html*/ `<ul class="select-container pops-user-select-none"></ul>`,
                     html: true,
                   },
                   btn: {
@@ -2428,7 +2428,7 @@ export const PanelHandlerComponents = () => {
             PopsSafeUtils.setSafeHTML(
               this.$el.$container,
               /*html*/ `
-              <div class="el-select__wrapper">
+              <div class="el-select__wrapper pops-user-select-none">
               </div>`
             );
             this.$el.$wrapper = $li.querySelector<HTMLElement>(".el-select__wrapper")!;
@@ -3200,7 +3200,7 @@ export const PanelHandlerComponents = () => {
                   position: "center",
                 },
                 content: {
-                  text: /*html*/ `<ul class="select-container"></ul>`,
+                  text: /*html*/ `<ul class="select-container pops-user-select-none"></ul>`,
                   html: true,
                 },
                 btn: {

@@ -80,7 +80,7 @@ export const PopsIframe = {
       popsType,
       config,
       /*html*/ `
-            <div class="pops-title pops-${popsType}-title" style="text-align: ${
+            <div class="pops-title pops-${popsType}-title pops-user-select-none" style="text-align: ${
               config.title.position
             };${headerStyle}">${
               config.title.html

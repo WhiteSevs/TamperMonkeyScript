@@ -1018,7 +1018,7 @@ section.pops-panel-container .pops-panel-slider input[type="range"]::-moz-range-
   --el-color-info-light-8: #e9e9eb;
   --el-color-primary-light-9: #ecf5ff;
   --el-color-primary-light-8: #d9ecff;
-  --el-color-primary: #409eff;
+  --el-color-primary: #007dfe;
   --el-color-white: #ffffff;
   width: 200px;
 }
@@ -1362,7 +1362,7 @@ section.pops-panel-deepMenu-container .pops-panel-container-header-ul li.pops-pa
     --el-color-info-light-8: #e9e9eb;
     --el-color-primary-light-9: #ecf5ff;
     --el-color-primary-light-8: #d9ecff;
-    --el-color-primary: #409eff;
+    --el-color-primary: #007dfe;
     --el-color-white: #ffffff;
   }
   .pops-panel-select-multiple .el-tag {
