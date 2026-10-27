@@ -44,6 +44,8 @@ body > .ins-code-runner-btn ,
 /* 会员积分下载推广 */
 #mainBox .simple-ad-slot,
 /* 文章右侧 */
-.simple-ad-slot {
+.simple-ad-slot,
+/* 免费解锁完整内容 */
+.article-lock-overlay {
   display: none !important;
 }

@@ -6,3 +6,6 @@
 .dl_right_fixed {
 	margin-left: 45px;
 }*/
+#article_content {
+  max-height: unset !important;
+}
