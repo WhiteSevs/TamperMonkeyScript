@@ -20,6 +20,8 @@ declare type IPromise<T> = T | Promise<T>;
 
 declare type IFunction<T> = T | ((...args: any[]) => T);
 
+declare type IPFunction<T> = T | (() => T);
+
 declare type IArray<T> = T | T[];
 
 /**

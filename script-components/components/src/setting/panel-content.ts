@@ -14,16 +14,18 @@ import { PanelUISize } from "./panel-ui-size";
 const PanelContent = {
   $data: {
     /**
+     * 存储添加的菜单配置项
      * @private
      */
-    __contentConfig: null as null | UtilsDictionary<number, PopsPanelContentConfig[]>,
+    __contentConfig: null as null | UtilsDictionary<number, () => PopsPanelContentConfig | PopsPanelContentConfig[]>,
     get contentConfig() {
       if (this.__contentConfig == null) {
-        this.__contentConfig = new utils.Dictionary<number, PopsPanelContentConfig[]>();
+        this.__contentConfig = new utils.Dictionary<number, NonNullable<typeof this.__contentConfig>>();
       }
       return this.__contentConfig;
     },
     /**
+     * 本函数自带的默认的配置项
      * @private
      */
     __defaultBottomContentConfig: [] as PopsPanelContentConfig[],
@@ -34,25 +36,31 @@ const PanelContent = {
    * 如果是第一组添加的话，那么它默认就是设置菜单打开的配置
    * @param configList 配置项
    */
-  addContentConfig(configList: PopsPanelContentConfig | PopsPanelContentConfig[]) {
-    if (!Array.isArray(configList)) {
-      configList = [configList];
-    }
-    let index = this.$data.contentConfig.keys().length;
-    this.$data.contentConfig.set(index, configList);
+  addContentConfig(configList: IPFunction<PopsPanelContentConfig | PopsPanelContentConfig[]>) {
+    const __configList = typeof configList === "function" ? configList : () => configList;
+
+    const index = this.$data.contentConfig.keys().length;
+    this.$data.contentConfig.set(index, __configList);
   },
   /**
    * 获取所有的配置内容，用于初始化默认的值
    */
   getAllContentConfig(): PopsPanelContentConfig[] {
-    return this.$data.contentConfig.values().flat();
+    return this.$data.contentConfig
+      .values()
+      .map((it) => {
+        return typeof it === "function" ? it() : it;
+      })
+      .flat();
   },
   /**
    * 获取配置内容
    * @param index 配置索引
    */
   getConfig(index: number = 0): PopsPanelContentConfig[] {
-    return this.$data.contentConfig.get(index) ?? [];
+    const __configList = (this.$data.contentConfig.get(index) ?? (() => []))();
+
+    return Array.isArray(__configList) ? __configList : [__configList];
   },
   /**
    * 获取左侧底部默认的配置项
@@ -539,4 +547,3 @@ const PanelContent = {
 };
 
 export { PanelContent };
-
