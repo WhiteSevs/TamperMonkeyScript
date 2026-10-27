@@ -1193,9 +1193,10 @@ const Panel = {
               // 还在里面
               // 那这里的是deepMenu
               const $findDeepMenu = await DOMUtils.waitNode(() => {
-                return Array.from(
+                const $itemList = Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLElement>(".pops-panel-deepMenu-nav-item")
-                ).find(($deepMenu) => {
+                );
+                return $itemList.find(($deepMenu) => {
                   const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
                     $deepMenu,
                     panelHandlerComponents.$data.nodeStoreConfigKey
@@ -1203,9 +1204,11 @@ const Panel = {
                   // 找到对应的二级菜单
                   return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                 });
-              }, 2500);
+              }, 5000);
               if ($findDeepMenu) {
+                // 进入二级菜单
                 $findDeepMenu.click();
+                await utils.sleep(500);
               } else {
                 Qmsg.error(translateCallback("未找到对应的二级菜单"));
                 return {
@@ -1219,16 +1222,17 @@ const Panel = {
               };
             } else {
               const $findTargetMenu = await DOMUtils.waitNode(() => {
-                return Array.from(
+                const $itemList = Array.from(
                   $panel.$shadowRoot.querySelectorAll<HTMLLIElement>(`li:not(.pops-panel-deepMenu-nav-item)`)
-                ).find(($menuItem) => {
+                );
+                return $itemList.find(($menuItem) => {
                   const viewConfig: PopsPanelDeepViewConfig = Reflect.get(
                     $menuItem,
                     panelHandlerComponents.$data.nodeStoreConfigKey
                   );
                   return viewConfig === target.matchedData?.formConfig;
                 });
-              }, 2500);
+              }, 5000);
               if ($findTargetMenu) {
                 scrollToElementAndListen($findTargetMenu);
                 const $fold = $findTargetMenu.closest<HTMLElement>(`.pops-panel-forms-fold[data-fold-enable]`);
