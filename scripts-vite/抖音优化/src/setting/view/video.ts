@@ -462,21 +462,54 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                       text: "",
                       views: [
                         UISwitch("启用", "dy-video-playbackrate", false, void 0, "快捷键请到<code>功能</code>中设置"),
-                        UISelect(
-                          "倍速",
+                        UISelect<number | string>(
+                          "固定倍速",
                           "dy-video-playbackrate-select-value",
-                          1,
+                          "",
                           [
-                            0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 5, 6, 7, 8,
-                            9, 10, 11, 12, 13, 14, 15, 16,
+                            "无",
+                            0.25,
+                            0.5,
+                            0.75,
+                            1,
+                            1.25,
+                            1.5,
+                            1.75,
+                            2,
+                            2.25,
+                            2.5,
+                            2.75,
+                            3,
+                            3.25,
+                            3.5,
+                            3.75,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12,
+                            13,
+                            14,
+                            15,
+                            16,
                           ].map((it) => {
+                            if (it == "无") {
+                              return {
+                                text: it,
+                                value: "",
+                              };
+                            }
                             return {
                               text: String(it),
                               value: Number(String(it)),
                             };
                           }),
                           void 0,
-                          "选择视频播放的速度，该值与快捷键调整的倍速冲突，如果需使用快捷键改变倍速，请设置改值为1"
+                          "选择视频播放的固定速度，该值与快捷键调整的倍速冲突"
                         ),
                       ],
                     },

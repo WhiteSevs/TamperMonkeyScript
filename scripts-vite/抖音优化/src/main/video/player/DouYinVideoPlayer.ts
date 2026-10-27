@@ -106,7 +106,9 @@ export const DouYinVideoPlayer = {
       return this.objectFit(option.value);
     });
     Panel.execMenuOnce(["dy-video-playbackrate", "dy-video-playbackrate-select-value"], (option) => {
-      return this.playbackrate(option.value[1]);
+      const rate = option.value[1];
+      if (utils.isNull(rate)) return;
+      return this.playbackrate(rate);
     });
     Panel.execMenuOnce("dy-video-allowSelectTitleText", () => {
       return this.allowSelectTitleText();
@@ -633,7 +635,7 @@ export const DouYinVideoPlayer = {
      * 先设置session的值，再调用更新函数
      * @param value
      */
-    function setRate(value: VideoPlayerRate = "1") {
+    const setRate = function (value: VideoPlayerRate = "1") {
       unsafeWindow.sessionStorage.setItem(Definition_Key, value);
       let isSuccess = false;
       const $$playbackSetting = $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting");
@@ -658,8 +660,9 @@ export const DouYinVideoPlayer = {
       } else {
         log.success("调用函数设置倍速成功");
       }
-    }
-    setRate(rate);
+      return isSuccess;
+    };
+    return setRate(rate);
   },
   /**
    * 视频下载支持
@@ -1675,7 +1678,9 @@ export const DouYinVideoPlayer = {
 		/* 用户主页的视频 */
 		.basePlayerContainer .imgBackground,
 		/* 搜索的图文视频 */
-		.basePlayerContainer .dySwiperSlide img+div{
+		.basePlayerContainer .dySwiperSlide img+div,
+    /* 直播间背景色 */
+    [data-e2e="feed-live"] .douyin-player-dynamic-background > div[style*="background"]{
 			background: ${color}  !important;
 		}
 		`);
@@ -1925,17 +1930,14 @@ export const DouYinVideoPlayer = {
 		`);
   },
   /**
-   * 自定义播放倍速
+   * 固定倍速
    * @param rate 速度
    */
   playbackrate(rate: number) {
     log.info(`自定义播放倍速：${rate}`);
     const lockFn = new utils.LockFunction(() => {
       if (DouYinRouter.isLive()) return;
-      $$("video").forEach(($video) => {
-        if ($video.closest('[data-e2e="feed-live"]')) return;
-        $video.playbackRate = rate;
-      });
+      this.chooseVideoRate(rate as any);
     });
     const observer = utils.mutationObserver(document, {
       config: {
@@ -1952,9 +1954,7 @@ export const DouYinVideoPlayer = {
         observer?.disconnect();
       },
       () => {
-        $$("video").forEach(($video) => {
-          $video.playbackRate = 1;
-        });
+        this.chooseVideoRate("1");
       },
     ];
   },

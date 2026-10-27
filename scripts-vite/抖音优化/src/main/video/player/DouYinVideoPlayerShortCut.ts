@@ -1,4 +1,4 @@
-import { $$, DOMUtils, log } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { DouYinRouter } from "@/router/DouYinRouter";
 import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import { DouYinUtils } from "@/utils/DouYinUtils";
@@ -124,8 +124,12 @@ export const DouYinVideoPlayerShortCut = {
         callback() {
           log.info("触发快捷键 ==> 倍速播放");
           const enable = !Panel.getValue("dy-video-playbackrate");
+          const rate = Panel.getValue<string>("dy-video-playbackrate-select-value");
           if (enable) {
-            const rate = Panel.getValue<string>("dy-video-playbackrate-select-value");
+            if (utils.isNull(rate)) {
+              Qmsg.error("请先选择固定倍速");
+              return;
+            }
             Qmsg.success("开启倍速：" + rate);
           } else {
             Qmsg.info("关闭倍速");

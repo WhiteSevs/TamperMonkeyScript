@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.23
+// @version      2026.10.27
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -13,7 +13,7 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.10/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
@@ -430,15 +430,21 @@
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) configList = [configList];
-      let index = this.$data.contentConfig.keys().length;
-      this.$data.contentConfig.set(index, configList);
+      const __configList = typeof configList === "function" ? configList : () => configList;
+      const index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, __configList);
     },
     getAllContentConfig() {
-      return this.$data.contentConfig.values().flat();
+      return this.$data.contentConfig
+        .values()
+        .map((it) => {
+          return typeof it === "function" ? it() : it;
+        })
+        .flat();
     },
     getConfig(index = 0) {
-      return this.$data.contentConfig.get(index) ?? [];
+      const __configList = (this.$data.contentConfig.get(index) ?? (() => []))();
+      return Array.isArray(__configList) ? __configList : [__configList];
     },
     getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
@@ -1710,9 +1716,11 @@
                       return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
-                }, 2500);
-                if ($findDeepMenu) $findDeepMenu.click();
-                else {
+                }, 5e3);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                  await utils$1.sleep(500);
+                } else {
                   qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
@@ -1733,7 +1741,7 @@
                       );
                     }
                   );
-                }, 2500);
+                }, 5e3);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
@@ -9452,8 +9460,12 @@
           callback() {
             log.info("触发快捷键 ==> 倍速播放");
             const enable = !Panel.getValue("dy-video-playbackrate");
+            const rate = Panel.getValue("dy-video-playbackrate-select-value");
             if (enable) {
-              const rate = Panel.getValue("dy-video-playbackrate-select-value");
+              if (utils$1.isNull(rate)) {
+                qmsg.default.error("请先选择固定倍速");
+                return;
+              }
               qmsg.default.success("开启倍速：" + rate);
             } else qmsg.default.info("关闭倍速");
             Panel.setValue("dy-video-playbackrate", enable);
@@ -9553,7 +9565,9 @@
         return this.objectFit(option.value);
       });
       Panel.execMenuOnce(["dy-video-playbackrate", "dy-video-playbackrate-select-value"], (option) => {
-        return this.playbackrate(option.value[1]);
+        const rate = option.value[1];
+        if (utils$1.isNull(rate)) return;
+        return this.playbackrate(rate);
       });
       Panel.execMenuOnce("dy-video-allowSelectTitleText", () => {
         return this.allowSelectTitleText();
@@ -9974,7 +9988,7 @@
     },
     chooseVideoRate(rate = "1") {
       const Definition_Key = "player_playbackratio";
-      function setRate(value = "1") {
+      const setRate = function (value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
         let isSuccess = false;
         const $$playbackSetting = $$("xg-icon.xgplayer-playback-setting");
@@ -9995,8 +10009,9 @@
         });
         if (!isSuccess) qmsg.default.error("设置倍速失败，原因：未找到更新播放倍速的函数");
         else log.success("调用函数设置倍速成功");
-      }
-      setRate(rate);
+        return isSuccess;
+      };
+      return setRate(rate);
     },
     supportVideoDownloader($parseNode) {
       log.info("视频下载支持");
@@ -10757,7 +10772,9 @@
 		/* 用户主页的视频 */
 		.basePlayerContainer .imgBackground,
 		/* 搜索的图文视频 */
-		.basePlayerContainer .dySwiperSlide img+div{
+		.basePlayerContainer .dySwiperSlide img+div,
+    /* 直播间背景色 */
+    [data-e2e="feed-live"] .douyin-player-dynamic-background > div[style*="background"]{
 			background: ${color}  !important;
 		}
 		`);
@@ -10956,10 +10973,7 @@
       log.info(`自定义播放倍速：${rate}`);
       const lockFn = new utils$1.LockFunction(() => {
         if (DouYinRouter.isLive()) return;
-        $$("video").forEach(($video) => {
-          if ($video.closest('[data-e2e="feed-live"]')) return;
-          $video.playbackRate = rate;
-        });
+        this.chooseVideoRate(rate);
       });
       const observer = utils$1.mutationObserver(document, {
         config: {
@@ -10976,9 +10990,7 @@
           observer?.disconnect();
         },
         () => {
-          $$("video").forEach(($video) => {
-            $video.playbackRate = 1;
-          });
+          this.chooseVideoRate("1");
         },
       ];
     },
@@ -15065,20 +15077,52 @@
                         views: [
                           UISwitch("启用", "dy-video-playbackrate", false, void 0, "快捷键请到<code>功能</code>中设置"),
                           UISelect(
-                            "倍速",
+                            "固定倍速",
                             "dy-video-playbackrate-select-value",
-                            1,
+                            "",
                             [
-                              0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4, 5, 6, 7,
-                              8, 9, 10, 11, 12, 13, 14, 15, 16,
+                              "无",
+                              0.25,
+                              0.5,
+                              0.75,
+                              1,
+                              1.25,
+                              1.5,
+                              1.75,
+                              2,
+                              2.25,
+                              2.5,
+                              2.75,
+                              3,
+                              3.25,
+                              3.5,
+                              3.75,
+                              4,
+                              5,
+                              6,
+                              7,
+                              8,
+                              9,
+                              10,
+                              11,
+                              12,
+                              13,
+                              14,
+                              15,
+                              16,
                             ].map((it) => {
+                              if (it == "无")
+                                return {
+                                  text: it,
+                                  value: "",
+                                };
                               return {
                                 text: String(it),
                                 value: Number(String(it)),
                               };
                             }),
                             void 0,
-                            "选择视频播放的速度，该值与快捷键调整的倍速冲突，如果需使用快捷键改变倍速，请设置改值为1"
+                            "选择视频播放的固定速度，该值与快捷键调整的倍速冲突"
                           ),
                         ],
                       },
