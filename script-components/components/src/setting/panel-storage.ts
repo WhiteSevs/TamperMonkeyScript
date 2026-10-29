@@ -5,7 +5,7 @@ import { KEY } from "./panel-config";
 const PopsPanelStorageApi = new StorageUtils(KEY);
 
 if (import.meta.env.DEV) {
-  Reflect.set(unsafeWindow, "PopsPanelStorageApi", PopsPanelStorageApi);
+  Reflect.set(unsafeWindow ?? window, "PopsPanelStorageApi", PopsPanelStorageApi);
 }
 
 export { PopsPanelStorageApi };

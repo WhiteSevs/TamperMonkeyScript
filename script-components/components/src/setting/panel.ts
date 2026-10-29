@@ -1538,7 +1538,7 @@ const Panel = {
 };
 
 if (import.meta.env.DEV) {
-  Reflect.set(unsafeWindow, "Panel", Panel);
+  Reflect.set(unsafeWindow ?? window, "Panel", Panel);
 }
 
 export { Panel, type ExecMenuCallBackOption, type OnceExecMenuStoreData, type UrlChangeWithExecMenuOnceEventConfig };
