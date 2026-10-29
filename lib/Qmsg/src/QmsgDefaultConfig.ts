@@ -14,7 +14,7 @@ export const QmsgDefaultConfig = {
   /** 实例配置的默认值 */
   get config(): Required<QmsgConfig> {
     return {
-      parent: document.body || document.documentElement,
+      parent: null,
       useShadowRoot: true,
       shadowRootMode: "open",
       animation: true,

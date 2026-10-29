@@ -172,18 +172,35 @@ export class QmsgMsg {
     this.$el.$item.classList.add(QmsgUtils.getNameSpacify("item"));
     this.$el.$item.setAttribute(QmsgUtils.getNameSpacify("uuid"), this.uuid);
     /** 总根元素 */
-    let $shadowContainer: HTMLElement | null;
+    let $shadowContainer: HTMLElement | null = null;
+    const shadowContainer_CLASSNAME = "qmsg-shadow-container";
     /** 根元素 */
     let $shadowRoot: ShadowRoot | null | undefined | HTMLElement;
     /** 容器包裹的元素 */
     let $wrapper: HTMLElement | null;
-    $shadowContainer = document.querySelector<HTMLElement>(".qmsg-shadow-container");
-    $shadowRoot = this.setting.useShadowRoot ? $shadowContainer?.shadowRoot : $shadowContainer;
-    if (!$shadowContainer) {
-      // 页面中不存在ShadowRoot容器元素
+    // 获取页面中的容器
+    // 如果指定了parent，那从parent中获取
+    if (this.setting.parent instanceof Element) {
+      // 如果指定了parent，那从parent中获取
+      for (const $el of Array.from(this.setting.parent.childNodes)) {
+        if ($el instanceof HTMLElement && $el.matches("." + shadowContainer_CLASSNAME)) {
+          $shadowContainer = $el;
+          break;
+        }
+      }
+    } else {
+      // 没有指定那就从页面中获取咯
+      $shadowContainer = document.querySelector<HTMLElement>("." + shadowContainer_CLASSNAME);
+    }
+    if ($shadowContainer) {
+      // 设置root
+      $shadowRoot = this.setting.useShadowRoot ? $shadowContainer?.shadowRoot : $shadowContainer;
+    } else {
+      // 页面中|父元素内不存在ShadowRoot容器元素
       // 添加新增的ShadowRoot容器元素
+      const $parent = this.setting.parent ?? document.body ?? document.documentElement;
       $shadowContainer = document.createElement("div");
-      $shadowContainer.className = "qmsg-shadow-container";
+      $shadowContainer.className = shadowContainer_CLASSNAME;
       if (this.setting.useShadowRoot) {
         $shadowRoot = $shadowContainer.attachShadow({
           mode: this.setting.shadowRootMode,
@@ -202,7 +219,7 @@ export class QmsgMsg {
         $contentContainer.insertAdjacentElement("afterend", __$ownStyle__);
       }
 
-      this.setting.parent.appendChild($shadowContainer);
+      $parent.appendChild($shadowContainer);
     }
     if ($shadowRoot == null) {
       throw new TypeError("QmsgInst " + QmsgDefaultConfig.PLUGIN_NAME + " $shadowRoot is null");

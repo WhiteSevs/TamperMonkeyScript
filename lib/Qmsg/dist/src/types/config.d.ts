@@ -11,7 +11,7 @@ export interface QmsgConfig {
      * 实例插入到页面的父元素
      * @default document.body || document.documentElement
      */
-    parent?: HTMLElement | Document | DocumentFragment | Node | Element;
+    parent?: HTMLElement | Document | DocumentFragment | Node | Element | null;
     /**
      * 是否使用shadowRoot（在其内部插入实例元素）
      * @default true

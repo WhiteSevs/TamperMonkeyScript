@@ -1,6 +1,5 @@
-# v1.7.3
+# v1.7.4
 
-## Chore
+## Fix
 
-- add `textWrap` config
-- update dependencies
+- 修复`parent`不生效
