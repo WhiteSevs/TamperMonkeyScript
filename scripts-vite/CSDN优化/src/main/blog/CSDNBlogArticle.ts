@@ -67,6 +67,8 @@ export const CSDNBlogArticle = {
     // 【屏蔽】左侧博客信息
     // 去除margin偏移
     result.push(CSDNBlogBlock.shieldLeftBlogContainerAside());
+    // 【屏蔽】左侧导航栏
+    result.push(CSDNBlogBlock.blockLeftNavBar());
     result.push(
       addStyle(/*css*/ `
       #mainBox {

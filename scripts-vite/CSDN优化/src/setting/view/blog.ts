@@ -47,6 +47,7 @@ export const SettingUIBlog: PopsPanelContentConfig = {
                 UISwitch("【屏蔽】登录弹窗", "csdn-blog-shieldLoginDialog", true),
                 UISwitch("【屏蔽】顶部工具栏", "csdn-blog-shieldTopToolbar", false),
                 UISwitch("【屏蔽】左侧博客信息", "csdn-blog-shieldLeftBlogContainerAside", false),
+                UISwitch("【屏蔽】左侧导航栏", "csdn-blog-blockLeftNavBar", false),
                 UISwitch("【屏蔽】右侧目录信息", "csdn-blog-shieldRightDirectoryInformation", false),
                 UISwitch("【屏蔽】评论区", "csdn-blog-blockComment", false),
                 UISwitch("【屏蔽】底部文章", "csdn-blog-blockBottomRecommendArticle", false),

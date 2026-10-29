@@ -18,6 +18,9 @@ export const CSDNBlogBlock = {
     Panel.execMenuOnce("csdn-blog-shieldLeftBlogContainerAside", () => {
       return this.shieldLeftBlogContainerAside();
     });
+    Panel.execMenuOnce("csdn-blog-blockLeftNavBar", () => {
+      return this.blockLeftNavBar();
+    });
     Panel.execMenuOnce("csdn-blog-shieldRightDirectoryInformation", () => {
       return this.shieldRightDirectoryInformation();
     });
@@ -60,6 +63,13 @@ export const CSDNBlogBlock = {
     return CommonUtil.addBlockCSS(`aside.blog_container_aside`);
   },
   /**
+   * 【屏蔽】左侧导航栏
+   */
+  blockLeftNavBar() {
+    log.info("【屏蔽】左侧导航栏");
+    return CommonUtil.addBlockCSS(`aside.layout-sidebar-aside`);
+  },
+  /**
    * 【屏蔽】右侧目录信息
    */
   shieldRightDirectoryInformation() {
@@ -71,7 +81,7 @@ export const CSDNBlogBlock = {
    */
   shieldBottomFloatingToolbar() {
     log.info("屏蔽底部悬浮工具栏");
-    return CommonUtil.addBlockCSS(`#toolBarBox`);
+    return CommonUtil.addBlockCSS(`#toolBarBox`, "#simple-sticky-userbar");
   },
   /**
    * 【屏蔽】底部的AI伴读
