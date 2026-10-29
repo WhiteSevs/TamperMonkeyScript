@@ -11,9 +11,11 @@ type GestureBackConfig = {
   /** 退出手势模式的延迟时间，单位ms @default 150 */
   backDelayTime?: number;
   /** 调用退出手势模式前执行的回调函数 @default null */
-  beforeHistoryBackCallBack?: (isUrlChange: boolean) => void;
+  beforeHistoryBackCallBack?: (opt: { hash: string; isFromPopStateEvent: boolean }) => IPromise<void | {
+    isPreventDefault?: boolean;
+  }>;
   /** 调用退出手势模式后执行的回调函数 @default null */
-  afterHistoryBackCallBack?: (isUrlChange: boolean) => void;
+  afterHistoryBackCallBack?: (opt: { hash: string; isFromPopStateEvent: boolean }) => IPromise<void>;
   /** 进入后调用 */
   onEnter?(): void;
   /** 退出后调用 */
@@ -26,7 +28,12 @@ class GestureBack {
   /**
    * 是否正在后退
    */
-  isBacking = false;
+  isQuiting = false;
+  isEntering = false;
+  /**
+   * 已推送次数
+   */
+  pushCount = 0;
   config: Required<GestureBackConfig>;
   constructor(config: GestureBackConfig) {
     // @ts-ignore
@@ -34,6 +41,9 @@ class GestureBack {
     this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
     this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
     this.popStateEvent = this.popStateEvent.bind(this);
+    if (this.config.hash.trim() == "") {
+      throw new Error("hash不能为空");
+    }
     if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime)) {
       this.config.backDelayTime = 150;
     }
@@ -47,76 +57,133 @@ class GestureBack {
    */
   popStateEvent(event: Event) {
     DOMUtils.preventEvent(event);
-    if (this.isBacking) {
+    if (this.isEntering) {
       return;
     }
-    this.quitGestureBackMode(true);
+    if (this.isQuiting) {
+      return;
+    }
+    this.quitGestureBackMode(void 0, true);
   }
-  /**
-   * 进入手势模式
-   */
-  enterGestureBackMode() {
-    /* 监听地址改变 */
-    log.success("进入手势模式");
-    let pushUrl = this.config.hash;
-    if (!pushUrl.startsWith("#")) {
+  fixHash(hash: string) {
+    if (!hash.startsWith("#")) {
       // 完善hash
       // /xxx
       // xxxx
-      if (!pushUrl.startsWith("/")) {
-        pushUrl = "/" + pushUrl;
+      if (!hash.startsWith("/")) {
+        hash = "/" + hash;
       }
-      pushUrl = "#" + pushUrl;
+      hash = "#" + hash;
+    } else if (!hash.startsWith("#/")) {
+      // #xx
+      hash = hash.replace(/^#/, "#/");
     }
-    if (this.config.useUrl) {
-      pushUrl =
-        this.config.win.location.origin + this.config.win.location.pathname + this.config.win.location.search + pushUrl;
-    }
-    this.config.win.history.pushState({}, "", pushUrl);
-    log.success("监听popstate事件");
-    DOMUtils.on(this.config.win, "popstate", this.popStateEvent, {
-      capture: true,
-    });
+    return hash;
+  }
+  /**
+   * 进入手势模式
+   * @param hash 传入的话就是追加手势记录
+   */
+  async enterGestureBackMode(hash?: string) {
+    try {
+      this.isEntering = true;
+      const isAddPushRecord = hash != null;
+      log.success(isAddPushRecord ? "追加手势记录 " + hash : "进入手势模式");
+      let pushUrl = hash ?? this.config.hash;
+      pushUrl = this.fixHash(pushUrl);
+      if (this.config.useUrl) {
+        pushUrl =
+          this.config.win.location.origin +
+          this.config.win.location.pathname +
+          this.config.win.location.search +
+          pushUrl;
+      }
+      this.config.win.history.pushState({}, "", pushUrl);
+      if (isAddPushRecord) {
+        await utils.sleep(this.config.backDelayTime || 150);
+        return;
+      }
+      DOMUtils.off(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+      log.success("监听popstate事件");
+      DOMUtils.on(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
 
-    if (typeof this.config.onEnter == "function") {
-      this.config.onEnter();
+      if (typeof this.config.onEnter == "function") {
+        this.config.onEnter();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.isEntering = false;
     }
   }
   /**
    * 退出手势模式
-   * @param isUrlChange 是否是url改变触发的
+   * @param isFromPopStateEvent 是否是由监听的事件触发的
    */
-  async quitGestureBackMode(isUrlChange: boolean = false) {
-    this.isBacking = true;
-    log.success("退出手势模式");
-    if (typeof this.config.beforeHistoryBackCallBack === "function") {
-      this.config.beforeHistoryBackCallBack(isUrlChange);
-    }
-    let maxDate = Date.now() + 1000 * 5;
-    while (true) {
-      if (Date.now() > maxDate) {
-        log.error("未知情况，history.back()失败，无法退出手势模式");
-        break;
+  async quitGestureBackMode(hash: string = this.config.hash, isFromPopStateEvent: boolean = false) {
+    try {
+      this.isQuiting = true;
+      if (typeof this.config.beforeHistoryBackCallBack === "function") {
+        const result = await this.config.beforeHistoryBackCallBack({
+          hash,
+          isFromPopStateEvent,
+        });
+        if (typeof result == "object" && result) {
+          if (result.isPreventDefault) {
+            log.info("取消手势退出");
+            return;
+          }
+        }
       }
-      if (this.config.win.location.hash.endsWith(this.config.hash)) {
-        log.info("history.back()");
-        this.config.win.history.back();
-        await utils.sleep(this.config.backDelayTime || 150);
-      } else {
-        break;
+      log.success("开始检测并退出手势模式");
+      let maxDate = Date.now() + 1000 * 5;
+      hash = this.fixHash(hash);
+      while (1) {
+        if (Date.now() > maxDate) {
+          log.error("未知情况，history.back()失败，无法退出手势模式");
+          break;
+        }
+        // 当前浏览器的hash和传入的hash相同，则进行后退
+        if (this.config.win.location.hash == hash) {
+          this.back();
+          log.info("history.back()");
+          await utils.sleep(this.config.backDelayTime);
+        } else {
+          break;
+        }
       }
+      const configFixHash = this.fixHash(this.config.hash);
+      if (hash != configFixHash) {
+        // 传入的hash和配置的hash不同，则不移除popstate事件
+        return;
+      }
+      log.success("移除popstate事件");
+      DOMUtils.off(this.config.win, "popstate", this.popStateEvent, {
+        capture: true,
+      });
+      if (typeof this.config.afterHistoryBackCallBack === "function") {
+        await this.config.afterHistoryBackCallBack({ hash, isFromPopStateEvent });
+      }
+      if (typeof this.config.onEnter == "function") {
+        this.config.onQuite();
+      }
+      log.success("成功完整退出手势模式");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this.isQuiting = false;
     }
-    log.success("移除popstate事件");
-    DOMUtils.off(this.config.win, "popstate", this.popStateEvent, {
-      capture: true,
-    });
-    this.isBacking = false;
-    if (typeof this.config.afterHistoryBackCallBack === "function") {
-      this.config.afterHistoryBackCallBack(isUrlChange);
+  }
+  back() {
+    if (this.config.win.location.hash == "") {
+      return false;
     }
-    if (typeof this.config.onEnter == "function") {
-      this.config.onQuite();
-    }
+    this.config.win.history.back();
+    return true;
   }
 }
 
