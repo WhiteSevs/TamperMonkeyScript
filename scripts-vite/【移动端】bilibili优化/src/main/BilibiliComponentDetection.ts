@@ -44,6 +44,7 @@ export const BilibiliComponentDetection = {
 				justify-content: center;
 				align-items: center;
 				width: fit-content;
+        height: fit-content;
 				background: #574AB830;
 				border-radius: 8px;
 				margin: 0 6px 0 6px;

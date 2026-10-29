@@ -79,11 +79,14 @@
 #app.main-container bili-open-app.btn-download {
   display: none !important;
 }
-/* 番剧的react页面的 */
+/* 番剧（react） */
 /* 下载 App */
 #__next m-open-app[class^="TopBar_download"],
 /* 右下角悬浮的 */
-#__next m-open-app:has([class^="GoApp"]) {
+#__next m-open-app:has([class^="GoApp"]),
+/* 底部悬浮的 浏览方式 */
+#__next [class*="OpenAppDialog_root_"],
+#__next [class*="GoApp_fixedOpenapp_"] {
   display: none !important;
 }
 /* 高清更流畅，App内打开观看 */

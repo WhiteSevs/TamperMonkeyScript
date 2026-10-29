@@ -1,6 +1,6 @@
 import { utils } from "@/env";
 import { Panel } from "@components/setting/panel";
-import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
+import { GM_getValue, GM_setValue } from "ViteGM";
 
 /** 弹幕过滤器 */
 export const BilibiliDanmakuFilter = {

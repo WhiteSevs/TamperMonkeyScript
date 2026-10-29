@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.21
+// @version      2026.10.29
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -15,8 +15,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/QRCode/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.js
 // @require      https://fastly.jsdelivr.net/npm/md5@2.3.0/dist/md5.min.js
 // @require      https://fastly.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.js
@@ -55,8 +55,8 @@
   qmsg,
   md5,
   viewerjs,
-  artplayer,
   artplayer_plugin_danmuku,
+  artplayer,
   flv_js
 ) {
   "use strict";
@@ -96,8 +96,8 @@
   qmsg = __toESM(qmsg);
   md5 = __toESM(md5);
   viewerjs = __toESM(viewerjs);
-  artplayer = __toESM(artplayer);
   artplayer_plugin_danmuku = __toESM(artplayer_plugin_danmuku);
+  artplayer = __toESM(artplayer);
   flv_js = __toESM(flv_js);
   var s = new Set();
   var _css = async (t) => {
@@ -121,7 +121,7 @@
     })(t);
   };
   _css(
-    ".m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]){display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn{display:none!important}#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp,#app .m-opus_wp .m-open-app.opus-float-btn,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp,#app.main-container bili-open-app.btn-download,#__next m-open-app[class^=TopBar_download]{display:none!important}#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app,#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}"
+    ".m-video2-awaken-btn,.openapp-dialog,.m-head .launch-app-btn.m-nav-openapp,.m-head .launch-app-btn.home-float-openapp,.m-head m-open-app,.m-home .launch-app-btn.home-float-openapp,.m-space .launch-app-btn.m-space-float-openapp,.m-space .launch-app-btn.m-nav-openapp{display:none!important}.m-space m-open-app:has(>.m-fixed-openapp){display:none!important}#app .video .launch-app-btn.m-nav-openapp,#app .video .mplayer-widescreen-callapp,#app .video .launch-app-btn.m-float-openapp,#app .video .m-video-season-panel .launch-app-btn .open-app{display:none!important}#app .video .launch-app-btn.m-video-main-launchapp:has([class^=m-video2-awaken]){display:none!important}#app.LIVE .open-app-btn.bili-btn-warp,#app .m-dynamic .launch-app-btn.m-nav-openapp,#app .m-dynamic .dynamic-float-openapp.dynamic-float-btn{display:none!important}#app .m-dynamic m-open-app:has(>.m-fixed-openapp){display:none!important}#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .float-openapp.opus-float-btn,#app .m-opus .v-switcher .launch-app-btn.list-more,#app .m-opus .opus-nav .launch-app-btn.m-nav-openapp,#app .m-opus .m-navbar .m-nav-openapp,#app .m-opus m-open-app.m-open-app.fixed-openapp,#app .m-opus_wp .m-open-app.opus-float-btn,#app .topic-detail .launch-app-btn.m-nav-openapp,#app .topic-detail .launch-app-btn.m-topic-float-openapp,#app.main-container bili-open-app.btn-download,#__next m-open-app[class^=TopBar_download],#__next [class*=OpenAppDialog_root_],#__next [class*=GoApp_fixedOpenapp_]{display:none!important}#__next m-open-app:has([class^=GoApp]){display:none!important}#__next m-open-app[class^=MainButton_btnWrap]{visibility:hidden!important}#app .read-app-main bili-open-app,#app .playlist>.open-app-wp{display:none!important}#app .playlist>.open-app-wp+div{padding-top:56.25%}"
   );
   _css("html{--bili-color:#fb7299;--bili-color-rgb:251, 114, 153}");
   var beautify_default$1 =
@@ -560,15 +560,21 @@
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) configList = [configList];
-      let index = this.$data.contentConfig.keys().length;
-      this.$data.contentConfig.set(index, configList);
+      const __configList = typeof configList === "function" ? configList : () => configList;
+      const index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, __configList);
     },
     getAllContentConfig() {
-      return this.$data.contentConfig.values().flat();
+      return this.$data.contentConfig
+        .values()
+        .map((it) => {
+          return typeof it === "function" ? it() : it;
+        })
+        .flat();
     },
     getConfig(index = 0) {
-      return this.$data.contentConfig.get(index) ?? [];
+      const __configList = (this.$data.contentConfig.get(index) ?? (() => []))();
+      return Array.isArray(__configList) ? __configList : [__configList];
     },
     getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
@@ -1840,9 +1846,11 @@
                       return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
-                }, 2500);
-                if ($findDeepMenu) $findDeepMenu.click();
-                else {
+                }, 5e3);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                  await utils$1.sleep(500);
+                } else {
                   qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
@@ -1863,7 +1871,7 @@
                       );
                     }
                   );
-                }, 2500);
+                }, 5e3);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
@@ -3258,8 +3266,8 @@
           allowInterceptConfig: false,
         }
       );
-      if (!response.status) {
-        log.error(["获取导航栏用户信息失败，请求异常", response]);
+      if (!response.isSuccess) {
+        log.error("获取导航栏用户信息失败，请求异常", response);
         return;
       }
       const data = utils$1.toJSON(response.data.responseText);
@@ -3278,7 +3286,7 @@
         },
         fetch: true,
       });
-      if (!response.status) return;
+      if (!response.isSuccess) return;
       const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return;
       return data["data"];
@@ -3292,33 +3300,19 @@
         },
         fetch: true,
       });
-      if (!response.status) return;
+      if (!response.isSuccess) return;
       const data = utils$1.toJSON(response.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) return data["message"];
       return data["data"];
     },
   };
   var BilibiliGlobalData = {
-    $data: { isLogin: new Promise(() => false) },
-    $flag: {
-      isSetQueryLoginStatus: false,
-      isQueryLoginStatus: false,
-    },
-    init() {
-      this.resetLoginStatus();
-    },
-    resetLoginStatus() {
-      if (this.$flag.isSetQueryLoginStatus) return;
-      this.$flag.isSetQueryLoginStatus = true;
+    init() {},
+    async isLogin() {
       let isLogin = false;
-      this.$data.isLogin = new Promise(async (resolve) => {
-        if (!this.$flag.isQueryLoginStatus) {
-          this.$flag.isQueryLoginStatus = true;
-          let userNavInfo = await BilibiliUserApi.nav(false);
-          if (userNavInfo && userNavInfo.isLogin) isLogin = true;
-        }
-        resolve(isLogin);
-      });
+      const userNavInfo = await BilibiliUserApi.nav(false);
+      if (userNavInfo && userNavInfo.isLogin) isLogin = true;
+      return isLogin;
     },
   };
   function b2a(bvid) {
@@ -3379,6 +3373,8 @@
       },
     },
     $el: {
+      root: null,
+      commentContainer: null,
       replyList: null,
       navSort: null,
       hotSort: null,
@@ -3390,11 +3386,20 @@
       isInitCSS: false,
       isHookNetwork: false,
     },
-    async init($el) {
+    option: {
+      onEnterLzlWrapper: null,
+      onQuitLzlWrapper: null,
+      onEnterViewer: null,
+      onQuitViewer: null,
+    },
+    async init($el, opt) {
       this.initData();
+      this.option = opt || {};
       this.networkHook();
       this.addStyle();
       this.setupStandardCommentContainer($el);
+      this.onLzlPreviewClickEvent();
+      this.onPreviewImageClickEvent();
       await new Promise((resolve) => {
         domUtils.wait(() => {
           if (BilibiliRouter.isVideo()) {
@@ -3441,6 +3446,9 @@
         const value = Reflect.get(this.$el, key);
         if (!document.contains(value)) return;
         Reflect.set(this.$el, key, null);
+      });
+      Object.keys(this.option).forEach((key) => {
+        Reflect.set(this.option, key, null);
       });
     },
     networkHook() {
@@ -3490,6 +3498,7 @@
     .reply-item .root-reply-container {
         padding: 0 !important;
         display: flex;
+        gap: 24px;
     }
 
     .reply-item .root-reply-container .root-reply-avatar {
@@ -3498,7 +3507,7 @@
     }
 
     .reply-item .root-reply-container .content-warp {
-        margin-left: 12px;
+        margin-left: 0px;
     }
 
     .reply-item .root-reply-container .content-warp .user-info,
@@ -3507,7 +3516,7 @@
     }
 
     .reply-item .root-reply-container .content-warp .root-reply .reply-content-container {
-        width: calc(100vw - 88px) !important;
+        /* width: calc(100vw - 88px) !important; */
     }
 
     .reply-item .root-reply-container .content-warp .root-reply .reply-content .note-prefix {
@@ -3515,7 +3524,7 @@
     }
 
     .reply-item .sub-reply-container {
-        padding-left: 44px !important;
+        padding-left: 64px !important;
     }
 
     .reply-item .sub-reply-container .sub-reply-list .sub-reply-item {
@@ -3598,7 +3607,7 @@
         --bg2: #F6F7F8;
     }
 
-    .jump-link {
+    a.jump-link {
         color: #008DDA;
     }
     `);
@@ -3629,12 +3638,52 @@
         </div>
     `
       );
+      this.$el.commentContainer = $root.querySelector(".comment-container");
       this.$el.replyList = $root.querySelector(".reply-list");
       this.$el.navSort = $root.querySelector(".comment-container .reply-header .nav-sort");
       this.$el.hotSort = this.$el.navSort.querySelector(".hot-sort");
       this.$el.timeSort = this.$el.navSort.querySelector(".time-sort");
       this.$el.totalReply = $root.querySelector(".comment-container .reply-header .total-reply");
       this.$el.replyWrapper = $root.querySelector(".comment-container .reply-warp");
+      this.$el.root = $root;
+    },
+    onLzlPreviewClickEvent() {
+      domUtils.on(this.$el.replyWrapper, "click", ".sub-reply-list-preview", (evt, selectorTarget) => {
+        let $click = evt.composedPath()[0];
+        if (!($click instanceof Element)) return;
+        if ($click.closest(".view-more")) return;
+        if ($click.closest("a")) return;
+        if ($click.closest("img")) return;
+        if ($click.closest(".viewer-container")) return;
+        const $viewMore = selectorTarget.querySelector(".view-more");
+        if (!$viewMore) return;
+        domUtils.emit($viewMore, "click", false);
+      });
+    },
+    onPreviewImageClickEvent() {
+      domUtils.on(this.$el.root, "click", ".preview-image-container", (evt, $preview) => {
+        domUtils.preventEvent(evt);
+        const $click = evt.composedPath()[0];
+        const viewer = new viewerjs.default($preview, {
+          title: false,
+          toolbar: false,
+          tooltip: false,
+          keyboard: false,
+          container: $preview.parentElement,
+          hidden: () => {
+            viewer.destroy();
+            if (typeof this.option.onQuitViewer == "function") this.option.onQuitViewer();
+          },
+        });
+        let index = 0;
+        if ($click instanceof Element) {
+          const imgList = Array.from($preview.querySelectorAll("img[src]"));
+          const $img = $click.closest("img");
+          index = $img ? imgList.indexOf($img) : index;
+        }
+        viewer.view(index);
+        if (typeof this.option.onEnterViewer == "function") this.option.onEnterViewer();
+      });
     },
     enableSwitchingSortType($root) {
       domUtils.addClass(this.$el.navSort, "hot");
@@ -3645,7 +3694,7 @@
         this.$data.currentSortType = sortTypeConstant.HOT;
         domUtils.addClass(this.$el.navSort, "hot");
         domUtils.removeClass(this.$el.navSort, "time");
-        $root.scrollTo(0, 0);
+        this.$el.commentContainer.scrollTo(0, 0);
         this.loadFirstPagination($root);
       });
       domUtils.on(this.$el.timeSort, "click", (evt) => {
@@ -3654,7 +3703,7 @@
         this.$data.currentSortType = sortTypeConstant.LATEST;
         domUtils.addClass(this.$el.navSort, "time");
         domUtils.removeClass(this.$el.navSort, "hot");
-        $root.scrollTo(0, 0);
+        this.$el.commentContainer.scrollTo(0, 0);
         this.loadFirstPagination($root);
       });
     },
@@ -3716,10 +3765,11 @@
         if (!this.$data.nextOffset) {
         }
       } else if (this.$data.currentSortType === sortTypeConstant.LATEST) Reflect.set(params, "mode", 2);
-      const isLogin = await BilibiliGlobalData.$data.isLogin;
+      const isLogin = await BilibiliGlobalData.isLogin();
       const fetchResult = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await wbi(params)}`,
         {
+          allowInterceptConfig: false,
           fetch: !isLogin,
           fetchInit: { credentials: "same-origin" },
           anonymous: !isLogin,
@@ -3729,14 +3779,8 @@
       this.$data.nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
       return fetchResultJSON;
     },
-    appendReplyItem(replyData, isTopReply) {
-      if (
-        typeof this.$data.replyPool === "object" &&
-        this.$data.replyPool != null &&
-        this.$data.replyPool[replyData.rpid]
-      )
-        return;
-      const $replyItem = domUtils.createElement("div", {
+    getReplyItem(replyData, isTopReply, isShowLzlReplyContent = true) {
+      return domUtils.createElement("div", {
         className: "reply-item",
         innerHTML: `
             <div class="root-reply-container">
@@ -3782,45 +3826,73 @@
             </div>
           </div>
         </div>
+        ${
+          isShowLzlReplyContent
+            ? `
         <div class="sub-reply-container">
-          <div class="sub-reply-list">
-            ${this.getSubReplyItems(replyData.replies)}
-            ${
-              replyData.rcount > (replyData.replies || []).length
-                ? `
-              <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
+          <div class="sub-reply-list-preview">${this.getSubReplyPreviewItems(replyData.replies)}<div class="view-more" style="padding-left: 0px; font-size: 13px; color: #9499A0;${replyData.rcount > (replyData.replies || []).length ? "" : "display:none;"}">
                 <div class="view-more-default">
-                  <span>共${replyData.rcount}条回复, </span>
-                  <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
+                  ${replyData.reply_control.up_reply ? "<span>UP主等人</span>" : ""}
+                  <span>共${replyData.rcount}条回复</span>
+                  <span class="view-more-btn">&nbsp;&gt;</span>
                 </div>
               </div>
-              `
-                : ""
-            }
           </div>
         </div>
+        `
+            : ""
+        }
+        
         `,
       });
+    },
+    appendReplyItem(replyData, isTopReply) {
+      if (
+        typeof this.$data.replyPool === "object" &&
+        this.$data.replyPool != null &&
+        this.$data.replyPool[replyData.rpid]
+      )
+        return;
+      const $replyItem = this.getReplyItem(replyData, isTopReply);
       domUtils.append(this.$el.replyList, $replyItem);
       this.$data.replyPool[replyData.rpid_str] = true;
-      const $previewImageContainer = $replyItem.querySelector(".preview-image-container");
-      if ($previewImageContainer)
-        new viewerjs.default($previewImageContainer, {
-          title: false,
-          toolbar: false,
-          tooltip: false,
-          keyboard: false,
-        });
-      const subReplyList = $replyItem.querySelector(".sub-reply-list");
-      const viewMoreBtn = $replyItem.querySelector(".view-more-btn");
-      if (viewMoreBtn)
-        domUtils.on(viewMoreBtn, "click", () => {
-          this.loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1);
+      $replyItem.querySelector(".sub-reply-list");
+      const $viewMore = $replyItem.querySelector(".view-more");
+      if ($viewMore)
+        domUtils.on($viewMore, "click", (evt) => {
+          domUtils.preventEvent(evt);
+          this.showLzlWrapper(replyData.rpid, 1, replyData, replyData.replies);
+          if (typeof this.option.onEnterLzlWrapper == "function") this.option.onEnterLzlWrapper();
         });
     },
     getFormattedTime(ms) {
-      const time = new Date(ms * 1e3);
-      return `${time.getFullYear()}-${(time.getMonth() + 1).toString().padStart(2, "0")}-${time.getDate().toString().padStart(2, "0")} ${time.getHours().toString().padStart(2, "0")}:${time.getMinutes().toString().padStart(2, "0")}`;
+      function formatRelativeTime(date) {
+        if (typeof date === "number") date = new Date(date);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMinutes = Math.floor(diffMs / 6e4);
+        const diffHours = Math.floor(diffMs / 36e5);
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+        const diffDays = Math.floor((todayStart - dateStart) / 864e5);
+        const padZero = (num) => String(num).padStart(2, "0");
+        const formatTime = (d) => {
+          return `${padZero(d.getHours())}:${padZero(d.getMinutes())}:${padZero(d.getSeconds())}`;
+        };
+        if (diffDays > 3) return utils$1.formatTime(date, "yyyy-MM-dd HH:mm:ss");
+        if (diffDays === 3) return `3天前`;
+        if (diffDays === 2) return `前天 ${formatTime(date)}`;
+        if (diffDays === 1) return `昨天 ${formatTime(date)}`;
+        if (diffDays === 0) {
+          if (diffMinutes < 60) {
+            if (diffMinutes == 0) return "刚刚";
+            return `${diffMinutes}分钟前`;
+          }
+          return `${diffHours}小时前`;
+        }
+        return utils$1.formatTime(date, "yyyy-MM-dd HH:mm:ss");
+      }
+      return formatRelativeTime(ms * 1e3);
     },
     getMemberLevelColor(level) {
       return {
@@ -3861,17 +3933,8 @@
         if (Number.isNaN(totalSecond)) return timestamp;
         const linkElementHTML = `<a class="jump-link video-time" onclick="(async () => {
           // jump to exact time
-          const videoElement = document.querySelector('video.gsl-video');
+          const videoElement = document.querySelector('video.art-video');
           videoElement.currentTime = ${totalSecond};
-  
-          // close comment module
-          document.querySelector('.close-comment-module-btn').click();
-  
-          // scroll to top
-          window.scrollTo(0, 0);
-  
-          // play video if it is paused
-          if (videoElement.paused) videoElement.play();
         })()">${timestamp}</a>`;
         keywordBlacklist.push(linkElementHTML);
         return linkElementHTML;
@@ -3904,7 +3967,7 @@
       if (images.length === 2) imageSizeConfig = "width: 128px; height: 128px;";
       let result = "";
       for (const image of images)
-        result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
+        result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img loading="lazy" src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
       return result;
     },
     getSubReplyItems(subReplies) {
@@ -3940,7 +4003,155 @@
         `;
       return result;
     },
-    async loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, paginationNumber) {
+    getSubReplyPreviewItems(subReplies) {
+      if (!(subReplies instanceof Array)) return "";
+      if (!subReplies.length) return "";
+      const preview_subReplies = subReplies.slice(0, 3);
+      let result = "";
+      for (const replyItemData of preview_subReplies)
+        result += `
+          <div class="sub-reply-item">
+            <span class="reply-content-container sub-reply-content">
+              <a class="sub-user-name" href="https://space.bilibili.com/${replyItemData.mid}" target="_blank" data-user-id="${replyItemData.mid}" data-root-reply-id="${replyItemData.rpid}">${replyItemData.member.uname}</a>
+              ${
+                this.$data.createrID && this.$data.createrID.toString() === replyItemData.mid.toString()
+                  ? `
+                <i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);vertical-align: middle;margin-left:4px;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect>
+                    <path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path>
+                  </svg>
+                </i>`
+                  : ""
+              }
+              <span>：</span>
+              <span class="reply-content">${this.getConvertedMessage(replyItemData.content)}</span>
+              ${
+                replyItemData.like
+                  ? `
+              <span class="reply-split-line">|</span>
+              <span class="sub-reply-like">
+                <i class="svg-icon like use-color sub-like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
+                <span>${replyItemData.like}</span>
+              </span>`
+                  : ""
+              }
+            </span>
+          </div>
+        `;
+      return result;
+    },
+    isLzlShow() {
+      return this.$el.root?.querySelector(".lzl-comment-container") !== null;
+    },
+    showLzlWrapper(rootReplyID, paginationNumber, replyData, lzlReplyDataList) {
+      const $commentContainer = this.$el.root?.querySelector(".comment-container");
+      let $lzlWrapper = this.$el.root?.querySelector(".lzl-comment-container");
+      if ($lzlWrapper) {
+        domUtils.remove($lzlWrapper);
+        $lzlWrapper = null;
+      }
+      if (!$lzlWrapper) {
+        $lzlWrapper = domUtils.createElement("div", {
+          className: "lzl-comment-container",
+          innerHTML: `
+          <div class="reply-header">
+            <div class="reply-navigation">
+              <ul class="nav-bar">
+                <li class="nav-title">
+                  <span class="nav-title-text">评论详情</span>
+                </li>
+                <li class="nav-back"></li>
+              </ul>
+            </div>
+          </div>
+          <div class="reply-warp">
+            <div class="reply-list-main"></div>
+            <div class="reply-lzl-split-line"></div>
+            <div class="reply-lzl-content-control">
+              <div class="reply-lzl-content-navigation">
+                <ul class="nav-bar">
+                  <li class="nav-title">
+                    <span class="nav-title-text"></span>
+                  </li>
+                  <li class="nav-sort" style="display: none;">
+                    <span class="nav-sort-hot">按热度</span>
+                    <span class="nav-sort-time">按时间</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="reply-list"></div>
+            <div class="anchor-for-loading" style="text-align: center;color: #61666d;margin: 25px 0px;">正在加载...</div>
+          </div>
+        `,
+        });
+        domUtils.after($commentContainer, $lzlWrapper);
+      }
+      domUtils.css($commentContainer, "position", "absolute");
+      domUtils.css($commentContainer, "display", "none");
+      const $replyMainTopContainer = $lzlWrapper.querySelector(".reply-list-main");
+      const $replyList = $lzlWrapper.querySelector(".reply-list");
+      const $lzlNavTitleText = $lzlWrapper.querySelector(".reply-lzl-content-control .nav-title-text");
+      domUtils.append($replyMainTopContainer, this.getReplyItem(replyData, false, false));
+      domUtils.text($lzlNavTitleText, `相关回复共${replyData.rcount}条`);
+      const $lzlReplyFragment = [];
+      for (const replyItemData of lzlReplyDataList) {
+        const $replyItem = this.getReplyItem(replyItemData, false, false);
+        $lzlReplyFragment.push($replyItem);
+      }
+      domUtils.append($replyList, $lzlReplyFragment);
+      const $loadNext = $lzlWrapper.querySelector(".anchor-for-loading");
+      let startPageNumber = paginationNumber;
+      if (replyData.rcount == replyData.replies.length && startPageNumber == 1) {
+        $loadNext.textContent = "所有评论已加载完毕";
+        return {
+          $commentContainer,
+          $lzlWrapper,
+          $loadNext,
+        };
+      }
+      const ob = new IntersectionObserver(async (entries) => {
+        if (!entries[0].isIntersecting) return;
+        const { data: newPaginationData } = await this.getLzlReplyData(rootReplyID, startPageNumber);
+        if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
+          $loadNext.textContent = "所有评论已加载完毕";
+          ob.disconnect();
+          return;
+        }
+        const $lzlReplyFragment = [];
+        for (const replyItemData of newPaginationData.replies) {
+          if (startPageNumber == 1) {
+            if (lzlReplyDataList.some((item) => item.rpid === replyItemData.rpid)) continue;
+          }
+          const $replyItem = this.getReplyItem(replyItemData, false, false);
+          $lzlReplyFragment.push($replyItem);
+        }
+        domUtils.append($replyList, $lzlReplyFragment);
+        startPageNumber++;
+      });
+      ob.observe($loadNext);
+      return {
+        $commentContainer,
+        $lzlWrapper,
+        $loadNext,
+      };
+    },
+    exitLzl() {
+      const $commentContainer = this.$el.root?.querySelector(".comment-container");
+      const $lzlWrapper = this.$el.root?.querySelector(".lzl-comment-container");
+      if ($commentContainer) {
+        domUtils.css($commentContainer, "display", "");
+        domUtils.css($commentContainer, "visibility", "");
+        domUtils.css($commentContainer, "position", "");
+      }
+      if ($lzlWrapper) {
+        domUtils.remove($lzlWrapper);
+        if (typeof this.option.onQuitLzlWrapper == "function") this.option.onQuitLzlWrapper();
+      }
+    },
+    async getLzlReplyData(rootReplyID, paginationNumber) {
       const params = {
         oid: this.$data.oid,
         type: this.$data.commentType,
@@ -3949,7 +4160,7 @@
         pn: paginationNumber,
         web_location: 333.788,
       };
-      const isLogin = await BilibiliGlobalData.$data.isLogin;
+      const isLogin = await BilibiliGlobalData.isLogin();
       const subReplyResponse = await httpx.get(
         `https://${BilibiliApiConfig.web_host}/x/v2/reply/reply?${utils$1.toSearchParamsStr(params)}`,
         {
@@ -3959,7 +4170,7 @@
           anonymous: !isLogin,
         }
       );
-      if (!subReplyResponse.status) {
+      if (!subReplyResponse.isSuccess) {
         log.error(subReplyResponse);
         qmsg.default.error("请求异常，获取评论的回复失败");
         return;
@@ -3970,76 +4181,7 @@
         console.error("you should login first", subReplyResponse);
         return;
       }
-      const subReplyData = subReplyJSON.data;
-      subReplyList.innerHTML = this.getSubReplyItems(subReplyData.replies);
-      this.addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
-      subReplyList.parentElement.parentElement.scrollIntoView({ behavior: "instant" });
-      global.scrollTo(0, document.documentElement.scrollTop - 60);
-    },
-    addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, currentPageNumber) {
-      if (subReplyAmount <= 10) return;
-      const pageAmount = Math.ceil(subReplyAmount / 10);
-      const pageSwitcher = domUtils.createElement("div", {
-        className: "sub-reply-pagination",
-        innerHTML: `
-          <div class="view-more-pagination">
-            <span class="pagination-page-count">共${pageAmount}页</span>
-            ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
-            ${(() => {
-              const left = [
-                currentPageNumber - 4,
-                currentPageNumber - 3,
-                currentPageNumber - 2,
-                currentPageNumber - 1,
-              ].filter((num) => num >= 1);
-              const right = [
-                currentPageNumber + 1,
-                currentPageNumber + 2,
-                currentPageNumber + 3,
-                currentPageNumber + 4,
-              ].filter((num) => num <= pageAmount);
-              const merge = [].concat(left, currentPageNumber, right);
-              let chosen;
-              if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
-              else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
-              else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
-              let final = JSON.parse(JSON.stringify(chosen));
-              if (!final.includes(1)) {
-                let front = [1];
-                if (final.at(0) !== 2) front = [1, "..."];
-                final = [].concat(front, final);
-              }
-              if (!final.includes(pageAmount)) {
-                let back = [pageAmount];
-                if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
-                final = [].concat(final, back);
-              }
-              return final.reduce((acc, cur) => {
-                if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
-                if (cur === currentPageNumber)
-                  return acc + `<span class="pagination-page-number current-page">${cur}</span>`;
-                return acc + `<span class="pagination-page-number">${cur}</span>`;
-              }, "");
-            })()}
-            ${currentPageNumber !== pageAmount ? `<span class="pagination-btn pagination-to-next-btn">下一页</span>` : ""}
-          </div>
-        `,
-      });
-      const pageSwitcherPrevBtn = pageSwitcher.querySelector(".pagination-to-prev-btn");
-      domUtils.on(pageSwitcherPrevBtn, "click", () => {
-        this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1);
-      });
-      const pageSwitcherNextBtn = pageSwitcher.querySelector(".pagination-to-next-btn");
-      domUtils.on(pageSwitcherNextBtn, "click", () => {
-        this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1);
-      });
-      pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach(($pageNumber) => {
-        const number = parseInt($pageNumber.textContent);
-        domUtils.on($pageNumber, "click", () =>
-          this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
-        );
-      });
-      subReplyList.appendChild(pageSwitcher);
+      return subReplyJSON;
     },
     addAnchor() {
       const anchorElement = domUtils.createElement(
@@ -4066,7 +4208,7 @@
     },
   };
   var MobileCommentModule_default =
-    ':root {\n  --v_xs: 5px;\n  --v_xsx: 4px;\n  --v_xxs: 6px;\n  --v_sm: 10px;\n  --v_smx: 8px;\n  --v_xsm: 12px;\n  --v_md: 15px;\n  --v_mdx: 14px;\n  --v_xmd: 16px;\n  --v_lg: 20px;\n  --v_lgx: 18px;\n  --v_xlg: 22px;\n  --v_xl: 25px;\n  --v_xlx: 24px;\n  --v_xxl: 26px;\n  --v_fs_1: 24px;\n  --v_fs_2: 18px;\n  --v_fs_3: 16px;\n  --v_fs_4: 14px;\n  --v_fs_5: 13px;\n  --v_fs_6: 12px;\n  --v_lh_xs: 1;\n  --v_lh_sm: 1.25;\n  --v_lh_md: 1.5;\n  --v_lh_lg: 1.75;\n  --v_lh_xl: 2;\n  --v_height_xs: 16px;\n  --v_height_sm: 24px;\n  --v_height_md: 32px;\n  --v_height_lg: 40px;\n  --v_height_xl: 48px;\n  --v_radius: 6px;\n  --v_radius_sm: 4px;\n  --v_radius_md: 8px;\n  --v_radius_lg: 10px;\n  --v_brand_pink: var(--brand_pink, #ff6699);\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\n  --v_brand_blue: var(--brand_blue, #00aeec);\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\n  --v_stress_red: var(--stress_red, #f85a54);\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\n  --v_success_green: var(--success_green, #2ac864);\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\n  --v_operate_orange: var(--operate_orange, #ff7f24);\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\n  --v_bg1: var(--bg1, #ffffff);\n  --v_bg2: var(--bg2, #f6f7f8);\n  --v_bg3: var(--bg3, #f1f2f3);\n  --v_bg1_float: var(--bg1_float, #ffffff);\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\n  --v_text_white: var(--text_white, #ffffff);\n  --v_text1: var(--text1, #18191c);\n  --v_text2: var(--text2, #61666d);\n  --v_text3: var(--text3, #9499a0);\n  --v_text4: var(--text4, #c9ccd0);\n  --v_text_link: var(--text_link, #008ac5);\n  --v_text_notice: var(--text_notice, #e58900);\n  --v_line_light: var(--line_light, #f1f2f3);\n  --v_line_regular: var(--line_regular, #e3e5e7);\n  --v_line_bold: var(--line_bold, #c9ccd0);\n  --v_graph_white: var(--graph_white, #ffffff);\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\n  --v_graph_medium: var(--graph_medium, #9499a0);\n  --v_graph_icon: var(--graph_icon, #61666d);\n  --v_shadow: var(--shadow, #000000);\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\n  --v_text_hover: var(--text_hover, #797f87);\n  --v_text_active: var(--text_active, #61666d);\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\n  --v_line_border: var(--line_border, #c9ccd0);\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\n}\n\n@font-face {\n  font-family: fanscard;\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\n}\n\n.svg-icon {\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.svg-icon svg {\n  width: 100%;\n  height: 100%;\n}\n\n.svg-icon.use-color svg path {\n  fill: currentColor;\n  color: inherit;\n}\n\n.top-vote-card {\n  background-color: var(--graph_bg_thin);\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  height: 80px;\n  width: 100%;\n  margin-bottom: 24px;\n  padding: 12px 16px 12px 10px;\n  border-radius: 6px;\n}\n\n.top-vote-card__multi {\n  cursor: pointer;\n}\n\n.top-vote-card__multi:hover .vote-result-text {\n  color: var(--brand_blue);\n  transition: 0.2s;\n}\n\n.top-vote-card-left {\n  width: 40%;\n  max-width: calc(40% - 30px);\n  margin-right: 20px;\n  word-wrap: break-word;\n  font-size: 13px;\n  line-height: 18px;\n  color: var(--text1);\n}\n\n.top-vote-card-left__title {\n  display: flex;\n  align-items: center;\n}\n\n.top-vote-card-left__title svg {\n  margin-right: 2px;\n  flex: none;\n}\n\n.top-vote-card-left__title span {\n  display: -webkit-box;\n  float: none;\n  height: 18px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  word-break: break-word;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 1;\n}\n\n.top-vote-card-left__join {\n  height: 17px;\n  display: flex;\n  align-items: center;\n  margin-top: 4px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.top-vote-card-left__join .vote-icon {\n  height: 12px;\n}\n\n.top-vote-card-left__join span {\n  display: flex;\n  align-items: center;\n}\n\n.top-vote-card-right {\n  width: 60%;\n  font-size: var(--2fde2a28);\n  line-height: 17px;\n  display: flex;\n  --option-height: 40px;\n  --option-radius: 6px;\n}\n\n.top-vote-card-right .vote-text__not-vote {\n  opacity: 0.9;\n}\n\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\n  font-weight: 400 !important;\n}\n\n.top-vote-card-right .vote-text :first-child {\n  font-weight: 500;\n}\n\n.top-vote-card-right .vote-icon {\n  flex: none;\n}\n\n.top-vote-card-right .left-vote-option {\n  position: relative;\n  display: flex;\n  min-width: 120px;\n  align-items: center;\n  justify-content: space-between;\n  background-color: rgba(255, 102, 153, var(--212267a6));\n  height: var(--option-height);\n  width: var(--38c5ebb3);\n  padding-left: 10px;\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\n  cursor: pointer;\n  margin-right: 30px;\n  color: var(--332a347e);\n  transition: width ease-out 0.2s;\n}\n\n.top-vote-card-right .left-vote-option .skew-vote-option {\n  position: absolute;\n  right: -20px;\n  top: 0;\n}\n\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\n  left: -8px;\n  background-color: #f69;\n  transform: skew(21deg);\n  border-top-right-radius: calc(var(--option-radius) - 2px);\n  border-bottom-right-radius: var(--option-radius);\n}\n\n.top-vote-card-right .skew-vote-option {\n  height: 40px;\n  width: 20px;\n  overflow: hidden;\n  opacity: var(--212267a6);\n  pointer-events: none;\n}\n\n.top-vote-card-right .skew-vote-option__fill {\n  pointer-events: all;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n}\n\n.top-vote-card-right .right-vote-option {\n  position: relative;\n  display: flex;\n  min-width: 120px;\n  align-items: center;\n  flex-direction: row-reverse;\n  justify-content: space-between;\n  background-color: rgba(0, 174, 236, var(--212267a6));\n  height: var(--option-height);\n  width: var(--4b2970aa);\n  padding-right: 10px;\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\n  cursor: pointer;\n  color: var(--1e587827);\n  transition: width ease-out 0.2s;\n}\n\n.top-vote-card-right .right-vote-option .skew-vote-option {\n  position: absolute;\n  left: -20px;\n  top: 0;\n}\n\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\n  left: 8px;\n  background-color: #00aeec;\n  transform: skew(21deg);\n  border-top-left-radius: var(--option-radius);\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\n}\n\n.top-vote-card-right .right-vote-option .vote-text {\n  text-align: right;\n}\n\n.top-vote-card-right .had_voted {\n  cursor: unset;\n}\n\n.reply-header .reply-notice {\n  display: flex;\n  align-items: center;\n  position: relative;\n  min-height: 40px;\n  padding: 4px 10px;\n  margin-bottom: 16px;\n  font-size: 13px;\n  border-radius: 2px;\n  color: var(--Ye5_u);\n  cursor: pointer;\n}\n\n.reply-header .reply-notice:after {\n  content: "";\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  background-color: var(--Ye5_u);\n  opacity: 0.2;\n}\n\n.reply-header .reply-notice .notice-icon {\n  width: 16px;\n  height: 16px;\n  margin-right: 5px;\n}\n\n.reply-header .reply-notice .notice-content {\n  flex: 1;\n  padding: 0 5px;\n  vertical-align: top;\n  word-wrap: break-word;\n  word-break: break-all;\n}\n\n.reply-header .reply-notice .notice-close-icon {\n  position: relative;\n  z-index: 1;\n  width: 10px;\n  height: 10px;\n  margin-left: 5px;\n}\n\n.reply-header .reply-navigation {\n  margin-bottom: 22px;\n}\n\n.reply-header .reply-navigation .nav-bar {\n  display: flex;\n  align-items: center;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  justify-content: space-between;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title {\n  display: flex;\n  align-items: center;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title {\n    font-size: 20px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title {\n    font-size: 24px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\n  color: var(--text1);\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n  margin: 0 36px 0 6px;\n  font-weight: 400;\n  color: var(--text3);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n    font-size: 14px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  color: var(--text1);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-size: 16px;\n  }\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort {\n  display: flex;\n  align-items: center;\n  color: var(--text3);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-sort {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-sort {\n    font-size: 16px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\n  height: 11px;\n  margin: 0 12px;\n  border-left: solid 1px;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\n  cursor: pointer;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\n  cursor: pointer;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\n  color: var(--text1);\n}\n\n.reply-header .reply-navigation .nav-operation-warp {\n  position: absolute;\n  right: 0;\n}\n\n/*\n   * @bilibili/userAvatar\n   * version: 1.2.0-beta.2. Powered by main-frontend\n   * 用户头像公共组件.\n   * author: wuxiuran\n   */\n.bili-avatar {\n  display: block;\n  position: relative;\n  background-image: url(data:image/gif;base64,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);\n  -webkit-background-size: cover;\n  background-size: cover;\n  border-radius: 50%;\n  margin: 0;\n  padding: 0;\n}\n\n.bili-avatar * {\n  margin: 0;\n  padding: 0;\n}\n\n.bili-avatar-face {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n  -moz-transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  -o-transform: translate(-50%, -50%);\n  transform: translate(-50%, -50%);\n  width: 100%;\n  height: 100%;\n}\n\n.bili-avatar-pendent-dom {\n  height: 176.48%;\n  width: 176.48%;\n  position: absolute;\n  top: -38.33%;\n  left: -38.33%;\n  overflow: hidden;\n}\n\n.bili-avatar-pendent-dom img {\n  height: 100%;\n  min-width: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.bili-avatar-img {\n  border: none;\n  display: block;\n  -o-object-fit: cover;\n  object-fit: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n.bili-avatar-img-radius {\n  border-radius: 50%;\n}\n\n.bili-avatar-img[src=""],\n.bili-avatar-img:not([src]) {\n  opacity: 0;\n}\n\n.bili-avatar-img.bili-avatar-img-error {\n  display: none;\n}\n\n.bili-avatar-right-icon {\n  width: 27.5%;\n  height: 27.5%;\n  position: absolute;\n  right: 0;\n  bottom: -1px;\n  -webkit-background-size: cover;\n  background-size: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n.bili-avatar-nft-icon {\n  position: absolute;\n  width: 27.5%;\n  height: 27.5%;\n  right: -webkit-calc(27.5% - 1px);\n  right: -moz-calc(27.5% - 1px);\n  right: calc(27.5% - 1px);\n  bottom: -1px;\n  -webkit-background-size: cover;\n  background-size: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n@-webkit-keyframes bili-avatar {\n  0% {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -webkit-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n@-moz-keyframes bili-avatar {\n  0% {\n    -moz-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -moz-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n@keyframes bili-avatar {\n  0% {\n    -webkit-transform: translate3d(0, 0, 0);\n    -moz-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -webkit-transform: translate3d(-97.5%, 0, 0);\n    -moz-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n.bili-avatar .bili-avatar-size-80 {\n  width: 22px;\n  height: 22px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-60,\n.bili-avatar .bili-avatar-size-50,\n.bili-avatar .bili-avatar-size-48 {\n  width: 18px;\n  height: 18px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-40,\n.bili-avatar .bili-avatar-size-36 {\n  width: 14px;\n  height: 14px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-30,\n.bili-avatar .bili-avatar-size-24 {\n  width: 12px;\n  height: 12px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-nft-80 {\n  width: 22px;\n  height: 22px;\n  bottom: -1px;\n  right: -webkit-calc(22px - 1px);\n  right: -moz-calc(22px - 1px);\n  right: 21px;\n}\n\n.bili-avatar .bili-avatar-size-nft-60,\n.bili-avatar .bili-avatar-size-nft-50,\n.bili-avatar .bili-avatar-size-nft-48 {\n  width: 18px;\n  height: 18px;\n  bottom: -1px;\n  right: -webkit-calc(18px - 1px);\n  right: -moz-calc(18px - 1px);\n  right: 17px;\n}\n\n.bili-avatar .bili-avatar-size-nft-40,\n.bili-avatar .bili-avatar-size-nft-36 {\n  width: 14px;\n  height: 14px;\n  bottom: -1px;\n  right: -webkit-calc(14px - 1px);\n  right: -moz-calc(14px - 1px);\n  right: 13px;\n}\n\n.bili-avatar .bili-avatar-size-nft-30,\n.bili-avatar .bili-avatar-size-nft-24 {\n  width: 12px;\n  height: 12px;\n  bottom: -1px;\n  right: -webkit-calc(12px - 1px);\n  right: -moz-calc(12px - 1px);\n  right: 11px;\n}\n\n.reply-image {\n  width: var(--3414c33c);\n  height: var(--822197ea);\n}\n\n.reply-image.b-img {\n  background-color: inherit;\n}\n\n.reply-image.b-img img {\n  width: 100%;\n  height: 100%;\n}\n\n.opacity-enter-active,\n.opacity-leave-active {\n  transition: opacity 0.15s ease;\n}\n\n.opacity-enter-from,\n.opacity-leave-to {\n  opacity: 0;\n}\n\n.reply-box {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-box .box-normal {\n  display: flex;\n  z-index: 2;\n}\n\n.reply-box .box-normal .reply-box-avatar {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 80px;\n  height: 48px;\n}\n\n.reply-box .box-normal .reply-box-warp {\n  position: relative;\n  flex: 1;\n  transition: 0.2s;\n  border: 1px solid var(--line_regular);\n  border-radius: 6px;\n  background-color: var(--bg3);\n  overflow-x: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp.focus-within,\n.reply-box .box-normal .reply-box-warp:hover {\n  border-color: var(--line_regular);\n  background-color: var(--bg1);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\n  padding: 8px 0;\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  border-radius: 6px;\n  cursor: text;\n  overflow: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\n  margin-left: 10px;\n  margin-bottom: 4px;\n  height: 20px;\n  font-size: 12px;\n  line-height: 17px;\n  display: flex;\n  align-items: center;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\n  flex: none;\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 4px;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\n  background-color: var(--Pi1);\n  color: var(--Pi5);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\n  background-color: var(--brand_blue_thin);\n  color: var(--brand_blue);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\n  background-color: var(--graph_bg_regular);\n  color: var(--text3);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\n  max-width: calc(100% - 68px);\n  color: var(--text2);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\n  flex: none;\n  margin-left: 4px;\n  cursor: pointer;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-input {\n  padding: 0 8px;\n  width: 100%;\n  height: 100%;\n  border: 1px solid var(--Ga1);\n  border-radius: 6px;\n  background-color: var(--bg3);\n  font-family: inherit;\n  line-height: 20px;\n  color: var(--text1);\n  resize: none;\n  outline: none;\n  overflow-y: scroll;\n  overflow-x: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\n  background-color: var(--bg1);\n  border-color: var(--graph_weak);\n}\n\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\n  padding: 0 8px;\n  width: 100%;\n  height: 32px;\n  border: none;\n  border-radius: 6px;\n  background-color: transparent;\n  font-family: inherit;\n  font-size: 14px;\n  line-height: 32px;\n  color: var(--text1);\n  resize: none;\n  outline: none;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\n  color: var(--text3);\n}\n\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\n  background: transparent;\n}\n\n.reply-box .box-expand {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-left: 80px;\n  margin-top: 10px;\n  z-index: 1;\n  height: 32px;\n  transition: all 0.2s ease-in-out;\n}\n\n.reply-box .box-expand.hide {\n  margin-top: 0;\n  height: 0;\n  overflow: hidden;\n  transition: all 0.2s ease-in-out;\n}\n\n.reply-box .box-expand .box-left {\n  display: flex;\n  align-items: center;\n}\n\n.reply-box .box-expand .reply-box-emoji {\n  width: 32px;\n  height: 26px;\n  margin-right: 6px;\n  position: relative;\n}\n\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .at-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 32px;\n  height: 26px;\n  margin-right: 6px;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .image-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 32px;\n  height: 26px;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .image-btn.disabled {\n  opacity: 0.4;\n}\n\n.reply-box .box-expand .image-btn .image-upload-input {\n  appearance: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0;\n  font-size: 0;\n  user-select: auto;\n  cursor: pointer;\n}\n\n.reply-box .box-expand .forward-to-dynamic {\n  display: flex;\n  align-items: center;\n  margin-left: 16px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-box .box-expand .forward-to-dynamic .forward-input,\n.reply-box .box-expand .forward-to-dynamic .forward-label {\n  cursor: pointer;\n}\n\n.reply-box .box-expand .reply-box-send {\n  float: right;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 70px;\n  height: 32px;\n  border-radius: 6px;\n  cursor: pointer;\n}\n\n.reply-box .box-expand .reply-box-send .send-text {\n  position: absolute;\n  z-index: 1;\n  font-size: 16px;\n  color: var(--text_white);\n}\n\n.reply-box .box-expand .reply-box-send:after {\n  content: "";\n  position: absolute;\n  opacity: 0.5;\n  width: 100%;\n  height: 100%;\n  border-radius: 4px;\n  background-color: var(--brand_blue);\n}\n\n.reply-box .box-expand .reply-box-send:hover:after {\n  opacity: 1;\n}\n\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\n  line-height: normal;\n}\n\n.reply-box.box-active .reply-box-send.send-active:after {\n  opacity: 1;\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg3);\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  cursor: pointer;\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\n  padding: 4px 9px;\n  margin: 0 3px;\n  border-radius: 4px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\n  background-color: var(--Lb4);\n  cursor: pointer;\n}\n\n.reply-box.disabled .reply-box-send .send-text {\n  color: var(--text3);\n}\n\n.reply-box.disabled .reply-box-send:after {\n  opacity: 1;\n  background-color: var(--bg3);\n}\n\n.reply-box.fixed-box {\n  position: relative;\n  z-index: 2;\n  padding: 15px 0;\n  border-top: 0.5px solid var(--graph_bg_thick);\n  background-color: var(--bg1);\n}\n\n.reply-content-container.fold .reply-content {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 4;\n}\n\n.reply-content-container .reply-content {\n  color: var(--text1);\n  overflow: hidden;\n  word-wrap: break-word;\n  word-break: break-word;\n  white-space: pre-wrap;\n  line-height: 24px;\n  vertical-align: baseline;\n}\n\n.reply-content-container .reply-content .note-prefix {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 1px 4px;\n  border-radius: 4px;\n  margin-right: 8px;\n  font-size: 12px;\n  color: var(--text3);\n  line-height: 20px;\n  vertical-align: bottom;\n  background-color: var(--bg2);\n}\n\n.reply-content-container .reply-content .note-prefix .note-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.reply-content-container .reply-content .top-icon {\n  top: -2px;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 30px;\n  height: 18px;\n  border: 1px solid var(--brand_pink);\n  border-radius: 3px;\n  margin-right: 5px;\n  font-size: 12px;\n  color: var(--brand_pink);\n}\n\n.reply-content-container .reply-content .emoji-small {\n  vertical-align: text-bottom;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .emoji-small {\n    width: 20px;\n    height: 20px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .emoji-small {\n    width: 22px;\n    height: 22px;\n  }\n}\n\n.reply-content-container .reply-content .emoji-large {\n  width: 50px;\n  height: 50px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-container .reply-content .icon {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-top;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .icon {\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .icon {\n    line-height: 26px;\n  }\n}\n\n.reply-content-container .reply-content .icon.search-word {\n  width: 12px;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n}\n\n.reply-content-container .reply-content .jump-link {\n  vertical-align: baseline;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .jump-link {\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .jump-link {\n    line-height: 26px;\n  }\n}\n\n.reply-content-container .expand-content {\n  color: var(--text_link);\n  cursor: pointer;\n  margin-left: 4px;\n}\n\n.reply-content-container .expand-content:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-item {\n  position: relative;\n  padding: 8px 0 8px 42px;\n  border-radius: 4px;\n}\n\n@media screen and (max-width: 1681px) {\n  .sub-reply-item {\n    font-size: 15px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .sub-reply-item {\n    font-size: 16px;\n    line-height: 26px;\n  }\n}\n\n.sub-reply-item.show-reply {\n  background-color: #dff6fb;\n  animation-name: enterAnimation-jumpReply-1f8a4018;\n  animation-duration: 2s;\n  animation-delay: 3s;\n  animation-fill-mode: forwards;\n}\n\n.sub-reply-item .sub-user-info {\n  display: inline-flex;\n  align-items: center;\n  margin-right: 9px;\n  line-height: 24px;\n  vertical-align: baseline;\n  white-space: nowrap;\n}\n\n.sub-reply-item .sub-user-info .sub-reply-avatar {\n  position: absolute;\n  left: 8px;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-user-info .sub-user-name {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  margin-right: 5px;\n  color: var(--3bab3096);\n  cursor: pointer;\n}\n\n@media screen and (max-width: 1681px) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-size: 13px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-size: 14px;\n    line-height: 26px;\n  }\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.sub-reply-item .sub-user-info .sub-user-level {\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-user-info .sub-up-icon {\n  cursor: default;\n}\n\n.sub-reply-item .sub-reply-info {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 2px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-time {\n  margin-right: var(--7530c1e4);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-location {\n  margin-right: 20px;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\n  margin-right: 5px;\n  color: #9499a0;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\n  color: #00aeec;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\n  color: #9499a0;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\n  color: #00aeec;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-btn {\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\n  position: absolute;\n  right: 40px;\n  opacity: 0;\n}\n\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\n  opacity: 1;\n}\n\n@keyframes enterAnimation-jumpReply-1f8a4018 {\n  0% {\n    background-color: #dff6fb;\n  }\n\n  to {\n    background-color: #dff6fb00;\n  }\n}\n\n.sub-reply-list .view-more {\n  padding-left: 8px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.sub-reply-list .view-more .view-more-default .view-more-btn {\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination {\n  color: var(--text1);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\n  margin-right: 10px;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\n  margin: 0 4 0 14px;\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\n  margin: 0 4px;\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\n  margin: 0 4px;\n  cursor: default;\n}\n\n.image-exhibition {\n  margin-top: 8px;\n  user-select: none;\n}\n\n.image-exhibition .preview-image-container {\n  max-width: var(--dacbf126);\n  display: flex;\n  flex-wrap: wrap;\n  row-gap: var(--77b1c8ee);\n  column-gap: var(--0c349aa2);\n}\n\n.image-exhibition .preview-image-container .image-item-wrap {\n  display: flex;\n  justify-content: center;\n  position: relative;\n  border-radius: var(--7fefecd2);\n  overflow: hidden;\n  cursor: zoom-in;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\n  flex-direction: column;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\n  justify-content: start;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  right: 4px;\n  bottom: 4px;\n  height: 20px;\n  padding: 0 6px;\n  border-radius: 4px;\n  font-size: 13px;\n  color: var(--text_white);\n  font-weight: 500;\n  line-height: 18px;\n  background: rgba(0, 0, 0, 0.7);\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\n  border-bottom-right-radius: 0;\n  border-top-right-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\n  border-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\n  border-bottom-right-radius: var(--7fefecd2);\n  border-top-right-radius: var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\n  border-radius: var(--7fefecd2) 0 0 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\n  border-radius: 0 var(--7fefecd2) 0 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\n  border-radius: 0 0 0 var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\n  border-radius: 0 0 var(--7fefecd2) 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\n  border-radius: 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\n  border-radius: 0 0 0 var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\n  border-radius: 0 0 var(--7fefecd2) 0;\n}\n\n.reply-user-sailing {\n  height: 48px;\n}\n\n.vote-warp {\n  display: flex;\n  width: 100%;\n  height: 80px;\n  border: 0.5px solid var(--graph_bg_thick);\n  border-radius: 4px;\n  margin: 10px 0;\n}\n\n.vote-warp .vote-icon-warp {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-basis: 80px;\n  flex-shrink: 0;\n  border-top-left-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: var(--brand_blue_thin);\n}\n\n.vote-warp .vote-icon-warp .vote-icon {\n  width: 40px;\n  height: 40px;\n}\n\n.vote-warp .vote-container {\n  display: flex;\n  align-items: center;\n  flex: 1;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 4px;\n  background-color: var(--bg1);\n}\n\n.vote-warp .vote-container .vote-text-warp {\n  flex: 1;\n  padding-left: 15px;\n}\n\n.vote-warp .vote-container .vote-text-warp .vote-title {\n  font-size: 14px;\n  color: var(--text1);\n}\n\n.vote-warp .vote-container .vote-text-warp .vote-desc {\n  margin-top: 10px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.vote-warp .vote-container .vote-btn-warp {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-basis: 90px;\n  flex-shrink: 0;\n}\n\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\n  width: 54px;\n  height: 28px;\n  border-radius: 4px;\n  font-size: 13px;\n  text-align: center;\n  line-height: 28px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n  cursor: pointer;\n}\n\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\n  background-color: var(--Lb4);\n}\n\n.vote-dialog {\n  max-height: 100vh;\n  overflow-y: auto;\n}\n\n.vote-dialog::-webkit-scrollbar {\n  width: 4px;\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.vote-dialog::-webkit-scrollbar-thumb {\n  border-radius: 4px;\n  background-color: var(--graph_bg_thick);\n  transition: 0.3s ease-in-out;\n}\n\n.vote-dialog::-webkit-scrollbar-track {\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.vote-dialog .vote-iframe-warp {\n  height: 600px;\n  padding-top: 10px;\n  border-top: 0.5px solid var(--graph_weak);\n}\n\n.vote-dialog .vote-iframe-warp .vote-iframe {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-item {\n  position: relative;\n}\n\n.reply-item .login-limit-mask {\n  display: none;\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 10;\n  pointer-events: none;\n}\n\n.reply-item .login-limit-mask .mask-top {\n  height: 80%;\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\n}\n\n.reply-item .login-limit-mask .mask-bottom {\n  height: 20%;\n  background: var(--bg1);\n}\n\n.reply-item.login-limit-reply-end .login-limit-mask {\n  display: block;\n}\n\n.reply-item .root-reply-container {\n  padding: 22px 0 0 80px;\n}\n\n.reply-item .root-reply-container.show-reply {\n  animation-name: enterAnimation-jumpReply-7041f671;\n  animation-duration: 5s;\n  animation-fill-mode: forwards;\n}\n\n.reply-item .root-reply-container .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: 0;\n  width: 80px;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp {\n  flex: 1;\n  position: relative;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate {\n  position: absolute;\n  top: 0;\n  right: 0;\n  user-select: none;\n  transform: translateY(-15px);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\n  width: 82px;\n  height: 36px;\n  transform: translateY(6px);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\n  width: var(--213e47ca);\n  height: var(--268890ba);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\n  display: flex;\n  align-items: center;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\n  height: 48px;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\n  position: absolute;\n  right: 0;\n  font-size: 13px;\n  color: var(--2bd55d12);\n  line-height: 16px;\n  word-break: keep-all;\n  transform: scale(0.7);\n  transform-origin: center center;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\n  font-family: fanscard;\n}\n\n.reply-item .root-reply-container .content-warp .user-info {\n  display: flex;\n  align-items: center;\n  margin-bottom: 4px;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .user-info {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .user-info {\n    font-size: 14px;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .user-info .user-name {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  margin-right: 5px;\n  color: var(--dc735352);\n  cursor: pointer;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .user-info .user-level {\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\n  cursor: default;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: var(--697d5c46);\n  height: 12px;\n  padding: 2px;\n  border-radius: 2px;\n  background-color: var(--brand_pink_thin);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\n  border: 0.5px solid var(--brand_pink);\n  background-color: transparent;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 16px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  color: var(--brand_pink);\n  white-space: nowrap;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\n  display: flex;\n  align-items: center;\n  height: 14px;\n  padding-left: 5px;\n  border: 0.5px solid var(--3d3b5a1e);\n  border-radius: 10px;\n  margin-left: 5px;\n  background-image: var(--35269ce2);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\n  display: flex;\n  align-items: center;\n  position: relative;\n  width: var(--1f5204fd);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\n  position: absolute;\n  left: -8px;\n  width: 20px;\n  height: 20px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\n  position: absolute;\n  right: 0;\n  width: 8px;\n  height: 11px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: var(--4f9eed68);\n  height: 100%;\n  margin-right: 4px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 18px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  color: var(--57e6be72);\n  font-weight: 500;\n  white-space: nowrap;\n  transform: scale(0.5) translate(-50%, -50%);\n  transform-origin: 0 0;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  width: 11.5px;\n  height: 11.5px;\n  border-radius: 50%;\n  margin-right: 0.5px;\n  background-color: var(--59f85baa);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 14px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  top: 52%;\n  left: 50%;\n  font-family: Reeji-CloudHuPo-GBK;\n  color: var(--103312b6);\n  font-weight: 500;\n  white-space: nowrap;\n  line-height: 1;\n  transform: scale(0.5) translate(-50%, -43%);\n  transform-origin: 0 0;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info {\n  margin-bottom: 4px;\n  height: 20px;\n  font-size: 12px;\n  line-height: 17px;\n  display: flex;\n  align-items: center;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag {\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 4px;\n  flex: none;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\n  background-color: var(--Pi1);\n  color: var(--Pi5);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\n  background-color: var(--brand_blue_thin);\n  color: var(--brand_blue);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\n  background-color: var(--graph_bg_regular);\n  color: var(--text3);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__text {\n  color: var(--Ga7_u);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply {\n  position: relative;\n  padding: 2px 0;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .root-reply {\n    font-size: 15px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .root-reply {\n    font-size: 16px;\n    line-height: 26px;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\n  display: block;\n  overflow: hidden;\n  width: 100%;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 2px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\n  margin-right: var(--472bae2d);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\n  margin-right: 20px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\n  margin-right: 5px;\n  color: #9499a0;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\n  color: #00aeec;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\n  color: #9499a0;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\n  color: #00aeec;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\n  color: var(--brand_blue);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\n  position: absolute;\n  right: 20px;\n  display: none;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\n  display: flex;\n  align-items: center;\n  margin-top: 6px;\n  font-size: 12px;\n  line-height: 17px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 10px;\n}\n\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\n  display: block;\n}\n\n.reply-item .sub-reply-container {\n  padding-left: 72px;\n}\n\n.reply-item .reply-box-container {\n  padding: 25px 0 10px 80px;\n}\n\n.reply-item .bottom-line {\n  margin-left: 80px;\n  border-bottom: 1px solid var(--graph_bg_thick);\n  margin-top: 14px;\n}\n\n.reply-item .reply-dynamic-card {\n  position: absolute;\n  z-index: 10;\n  top: 30px;\n  left: 400px;\n}\n\n@keyframes enterAnimation-jumpReply-7041f671 {\n  0% {\n    background-color: #dff6fb;\n  }\n\n  to {\n    background-color: #dff6fb00;\n  }\n}\n\n.reply-list {\n  margin-top: 14px;\n  padding-bottom: 100px;\n}\n\n.reply-list .reply-end-mark {\n  height: 100px;\n}\n\n.reply-list .reply-end,\n.reply-list .reply-loading,\n.reply-list .view-all-reply {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--text3);\n  text-align: center;\n}\n\n.reply-list .view-all-reply:hover {\n  color: var(--brand_blue);\n  cursor: pointer;\n}\n\n.reply-list .login-prompt {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: calc(100% - 80px);\n  height: 50px;\n  margin: 16px 0 0 auto;\n  border-radius: 6px;\n  font-size: 14px;\n  color: var(--brand_blue);\n  background-color: var(--brand_blue_thin);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.reply-list .login-prompt:hover {\n  background-color: var(--Lb2);\n}\n\n.user-card {\n  position: absolute;\n  top: var(--555c4a14);\n  left: var(--8468e010);\n  z-index: 10;\n  width: 366px;\n  border: 0.5px solid var(--graph_weak);\n  border-radius: 8px;\n  background-color: var(--bg1);\n  box-shadow: 0 0 30px #0000001a;\n}\n\n.user-card .card-bg {\n  width: 100%;\n  height: 85px;\n  border-radius: 8px 8px 0 0;\n  overflow: hidden;\n  background-image: var(--71924242);\n  background-size: cover;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n\n.user-card .user-card-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  width: 70px;\n  margin-top: 10px;\n  cursor: pointer;\n}\n\n.user-card .card-content {\n  display: flex;\n  flex-direction: column;\n  padding: 12px 20px 16px 70px;\n}\n\n.user-card .card-content .card-user-info {\n  display: flex;\n  align-items: center;\n  color: var(--text1);\n  margin-bottom: 10px;\n}\n\n.user-card .card-content .card-user-info .card-user-name {\n  max-width: 160px;\n  margin-right: 5px;\n  font-size: 16px;\n  font-weight: 600;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--text1);\n  color: var(--7ba58c95);\n  text-decoration: none;\n}\n\n.user-card .card-content .card-user-info .card-user-sex {\n  width: 16px;\n  height: 16px;\n  margin-right: 5px;\n}\n\n.user-card .card-content .card-user-info .card-user-level {\n  margin-right: 5px;\n  cursor: pointer;\n}\n\n.user-card .card-content .card-user-info .card-user-vip {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: var(--7a718880);\n  height: 16px;\n  padding: 1px 4px;\n  border-radius: 2px;\n  color: var(--612d8511);\n  background-color: var(--29ab308e);\n  cursor: default;\n}\n\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 20px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  white-space: nowrap;\n  font-style: normal;\n}\n\n.user-card .card-content .card-social-info {\n  display: flex;\n  align-items: center;\n  font-size: 12px;\n  color: var(--text1);\n}\n\n.user-card .card-content .card-social-info .card-user-attention,\n.user-card .card-content .card-social-info .card-user-fans,\n.user-card .card-content .card-social-info .card-user-like {\n  margin-right: 18px;\n  color: inherit;\n  text-decoration: none;\n}\n\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\n  margin-left: 3px;\n  color: var(--text3);\n}\n\n.user-card .card-content .card-verify-info {\n  padding-top: 10px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.user-card .card-content .card-verify-info .card-verify-icon {\n  vertical-align: text-bottom;\n  margin-right: 3px;\n}\n\n.user-card .card-content .card-sign {\n  padding-top: 8px;\n  font-size: 12px;\n  color: var(--text3);\n  word-break: break-all;\n}\n\n.user-card .card-content .card-btn-warp {\n  display: flex;\n  margin-top: 16px;\n  font-size: 14px;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100px;\n  height: 30px;\n  border-radius: 4px;\n  margin-right: 8px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n  transition: 0.4s;\n  cursor: pointer;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\n  display: none;\n  position: absolute;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\n  color: var(--text2);\n  background-color: var(--bg3);\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\n  display: none;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\n  display: inline;\n}\n\n.user-card .card-content .card-btn-warp .card-message-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100px;\n  height: 30px;\n  border: 1px solid var(--graph_weak);\n  border-radius: 4px;\n  color: var(--text2);\n  cursor: pointer;\n}\n\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\n  border-color: var(--brand_blue);\n  color: var(--brand_blue);\n}\n\n.dynamic-card {\n  display: flex;\n  flex-direction: column;\n  position: absolute;\n  z-index: 10;\n  top: var(--7b058890);\n  left: 400px;\n  width: 710px;\n  height: 550px;\n  border-radius: 6px;\n  background-color: var(--bg1);\n  box-shadow: 0 0 25px #00000026;\n}\n\n.dynamic-card .card-header {\n  display: flex;\n  align-items: center;\n  flex-basis: 50px;\n  padding: 0 10px;\n  border-bottom: 0.5px solid var(--line_light);\n}\n\n.dynamic-card .card-header .card-title {\n  flex: 1;\n  text-align: center;\n  font-size: 16px;\n  color: var(--text1);\n}\n\n.dynamic-card .card-header .close-card {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 30px;\n  height: 30px;\n  border-radius: 6px;\n  color: var(--text2);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.dynamic-card .card-header .close-card:hover {\n  background-color: var(--bg3);\n}\n\n.dynamic-card .card-content {\n  flex: 1;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar {\n  width: 4px;\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\n  border-radius: 4px;\n  background-color: var(--graph_bg_thick);\n  transition: 0.3s ease-in-out;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar-track {\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.dynamic-card .card-content .dynamic-card-iframe {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-view-image {\n  position: fixed;\n  z-index: 999999;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(24, 25, 28, 0.85);\n  transform: scale(1);\n  user-select: none;\n  cursor: default;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -webkit-user-drag: none;\n}\n\n.reply-view-image,\n.reply-view-image * {\n  box-sizing: border-box;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  z-index: 2;\n  width: 42px;\n  height: 42px;\n  border-radius: 50%;\n  color: var(--text_white);\n  background: rgba(0, 0, 0, 0.58);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon:hover {\n  color: var(--brand_pink);\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\n  top: 16px;\n  right: 16px;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\n  top: 50%;\n  left: 16px;\n  transform: translateY(-50%);\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\n  top: 50%;\n  right: 16px;\n  transform: translateY(-50%);\n}\n\n.reply-view-image .show-image-wrap {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  max-height: 100%;\n  padding: 0 100px;\n  overflow: auto;\n}\n\n.reply-view-image .show-image-wrap .loading-svga {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  width: 42px;\n  height: 42px;\n}\n\n.reply-view-image .show-image-wrap.vertical {\n  flex-direction: column;\n  justify-content: var(--c186e874);\n}\n\n.reply-view-image .show-image-wrap .image-content {\n  width: calc(100vw - 200px);\n  max-width: var(--34114ac9);\n  -webkit-user-drag: none;\n}\n\n.reply-view-image .preview-list {\n  display: flex;\n  align-items: center;\n  position: absolute;\n  left: 50%;\n  bottom: 30px;\n  z-index: 2;\n  padding: 6px 10px;\n  border-radius: 8px;\n  background: rgba(24, 25, 28, 0.8);\n  backdrop-filter: blur(20px);\n  transform: translate(-50%);\n}\n\n.reply-view-image .preview-list .preview-item-box {\n  padding: 1px;\n  border: 2px solid transparent;\n  border-radius: 8px;\n  transition: 0.3s;\n  cursor: pointer;\n}\n\n.reply-view-image .preview-list .preview-item-box.active {\n  border-color: var(--brand_pink);\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\n  flex-direction: column;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\n  justify-content: start;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\n  -webkit-user-drag: none;\n}\n\n.reply-view-image--transition-enter-active,\n.reply-view-image--transition-leave-active {\n  transition: all 0.3s ease;\n}\n\n.reply-view-image--transition-enter-from,\n.reply-view-image--transition-leave-to {\n  transform: scale(0.4);\n  opacity: 0;\n}\n\n.reply-warp {\n  position: relative;\n}\n\n.reply-warp .fixed-reply-box {\n  position: fixed;\n  bottom: 0;\n  left: var(--3e88ddc5);\n  z-index: 10;\n  width: var(--d9a0b070);\n}\n\n.reply-warp .fixed-reply-box .reply-box-shadow {\n  position: absolute;\n  top: -10px;\n  z-index: 1;\n  width: 100%;\n  height: 36px;\n  border-radius: 50%;\n  background-color: #00000014;\n  filter: blur(10px);\n}\n\n.reply-warp .fixed-reply-box--transition-enter-active,\n.reply-warp .fixed-reply-box--transition-leave-active {\n  transition: opacity 0.5s ease;\n}\n\n.reply-warp .fixed-reply-box--transition-enter-from,\n.reply-warp .fixed-reply-box--transition-leave-to {\n  opacity: 0;\n}\n\n.bili-comment.browser-pc {\n  background-color: var(--bg1);\n}\n\n.bili-comment.browser-pc * {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Regular,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 400;\n  box-sizing: border-box;\n  -webkit-font-smoothing: antialiased;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .bili-comment.browser-pc * {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.bili-comment.browser-pc * ul {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n\n.bili-comment.browser-pc * a {\n  text-decoration: none;\n  background-color: transparent;\n  color: var(--text_link);\n  cursor: pointer;\n}\n\n.bili-comment.browser-pc * a:hover {\n  color: var(--Lb4);\n}\n\n.bili-comment.browser-pc * i {\n  font-style: normal;\n}\n\n.bili-comment.browser-pc * p {\n  margin: 0;\n  padding: 0;\n}\n\n.bili-comment.browser-pc .comment-container {\n  animation-name: enterAnimation-commentContainer;\n  animation-duration: 1s;\n  animation-fill-mode: forwards;\n}\n\n.reply-operation-client {\n  display: inline-flex;\n  position: relative;\n}\n\n.reply-operation-client .operation-icon {\n  border-radius: 4px;\n  cursor: pointer;\n}\n\n.reply-operation-client .operation-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-operation-client .operation-list {\n  display: flex;\n  flex-direction: column;\n  position: absolute;\n  top: 10px;\n  right: 0;\n  z-index: 10;\n  width: 180px;\n  padding: 12px 0;\n  border-radius: 6px;\n  font-size: 14px;\n  color: var(--text2);\n  background-color: var(--bg1_float);\n  box-shadow: 0 0 5px #0003;\n}\n\n.reply-operation-client .operation-list .operation-option {\n  display: flex;\n  align-items: center;\n  height: 40px;\n  padding: 0 15px;\n  cursor: pointer;\n}\n\n.reply-operation-client .operation-list .operation-option:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal {\n  position: absolute;\n  top: 0;\n  left: 50%;\n  width: auto;\n  padding: 10px 20px;\n  border: 1px solid var(--graph_bg_thick);\n  border-radius: 8px;\n  margin-bottom: 100px;\n  font-size: 12px;\n  line-height: 12px;\n  text-align: center;\n  white-space: nowrap;\n  background-color: var(--bg1);\n  box-shadow: 0 0 5px #0003;\n  transform: translate(-50%, -100%);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\n  display: flex;\n  justify-content: center;\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 40px;\n  height: 20px;\n  border-radius: 4px;\n  margin-right: 20px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\n  background-color: var(--Lb4);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 40px;\n  height: 20px;\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\n  color: var(--brand_blue);\n}\n\n.select-reply-dialog-client .select-dialog-content {\n  text-align: left;\n}\n\n.select-reply-dialog-client .cancel-select-reply {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.select-reply-dialog-client .comfirm-select-reply {\n  width: 130px;\n}\n\n.close-reply-dialog-client .close-reply-dialog-content {\n  text-align: left;\n}\n\n.close-reply-dialog-client .cancel-close-reply {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.close-reply-dialog-client .comfirm-close-reply {\n  width: 130px;\n}\n\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\n  text-align: left;\n}\n\n.close-danmaku-dialog-client .cancel-close-danmaku {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.close-danmaku-dialog-client .comfirm-close-danmaku {\n  width: 130px;\n}\n\n.blacklist-dialog-client .blacklist-dialog-content {\n  text-align: center;\n}\n\n.blacklist-dialog-client .comfirm-pull-blacklist {\n  margin-right: 20px;\n}\n\n.reply-header-client .reply-notice {\n  display: flex;\n  align-items: center;\n  position: relative;\n  height: 40px;\n  padding: 11px 14px;\n  margin-bottom: 10px;\n  font-size: 12px;\n  border-radius: 2px;\n  color: var(--text_notice);\n  background-color: var(--Or0);\n  cursor: pointer;\n}\n\n.reply-header-client .reply-notice .notice-content {\n  flex: 1;\n  position: relative;\n  padding: 0 5px;\n  line-height: 18px;\n  vertical-align: top;\n  word-wrap: break-word;\n  word-break: break-all;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  transition: 2s;\n}\n\n.reply-header-client .reply-navigation {\n  margin: 12px 0;\n}\n\n.reply-header-client .reply-navigation .nav-bar {\n  display: flex;\n  align-items: center;\n  position: relative;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\n  font-size: 12px;\n  color: var(--text1);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\n  display: flex;\n  align-items: center;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\n  height: 10px;\n  margin: 0 8px;\n  border-left: solid 1px;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\n  cursor: pointer;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\n  cursor: pointer;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\n  color: var(--text1);\n}\n\n.reply-header-client .reply-navigation .nav-operation-warp {\n  position: absolute;\n  right: 0;\n}\n\n.reply-box-client {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-box-client .reply-box-warp {\n  position: relative;\n  flex: 1;\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea {\n  width: 100%;\n  height: 32px;\n  padding: 5px 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  line-height: 20px;\n  color: var(--text1);\n  background-color: var(--bg2);\n  resize: none;\n  outline: none;\n  transition: 0.2s;\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\n  color: var(--text4);\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\n  border-color: var(--brand_pink);\n}\n\n.reply-box-client .box-operation-warp {\n  display: flex;\n  align-items: center;\n  margin-top: 10px;\n  height: 32px;\n}\n\n.reply-box-client .box-operation-warp .reply-box-emoji {\n  position: relative;\n  margin-right: auto;\n}\n\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\n  cursor: pointer;\n}\n\n.reply-box-client .box-operation-warp .reply-box-send {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 70px;\n  height: 100%;\n  border-radius: 4px;\n  cursor: pointer;\n}\n\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\n  position: absolute;\n  z-index: 1;\n  color: var(--text_white);\n}\n\n.reply-box-client .box-operation-warp .reply-box-send:after {\n  content: "";\n  position: absolute;\n  opacity: 0.5;\n  width: 100%;\n  height: 100%;\n  border-radius: 4px;\n  background-color: var(--brand_pink);\n}\n\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\n  opacity: 1;\n}\n\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\n  height: 60px;\n}\n\n.reply-box-client.box-active .reply-box-send.send-active:after {\n  opacity: 1;\n}\n\n.reply-box-client.disabled .reply-box-warp .disable-mask {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg3);\n}\n\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\n  cursor: pointer;\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\n  cursor: not-allowed;\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\n  color: var(--text3);\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\n  opacity: 1;\n  background-color: var(--bg3);\n}\n\n.note-prefix {\n  vertical-align: -3px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0 3px;\n  line-height: 19px;\n  border-radius: 4px;\n  margin-right: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg2);\n}\n\n.note-prefix .note-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.reply-content-client {\n  color: var(--text1);\n  overflow: hidden;\n  word-wrap: break-word;\n  word-break: break-word;\n  white-space: pre-wrap;\n  vertical-align: baseline;\n  transition: 0.2s;\n}\n\n.reply-content-client.root {\n  line-height: 25px;\n}\n\n.reply-content-client.need-view-more {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n}\n\n.reply-content-client.sub {\n  line-height: 20px;\n}\n\n.reply-content-client .top-icon {\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 30px;\n  height: 18px;\n  border: 1px solid var(--brand_pink);\n  border-radius: 3px;\n  margin-right: 5px;\n  font-size: 12px;\n  color: var(--brand_pink);\n  vertical-align: 1px;\n}\n\n.reply-content-client .emoji-small {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .emoji-large {\n  width: 36px;\n  height: 36px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .jump-link {\n  vertical-align: baseline;\n}\n\n.reply-content-client .icon {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-top;\n}\n\n.reply-content-client .icon.vote {\n  width: 16px;\n  height: 16px;\n  margin-right: 3px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .icon.search-word {\n  width: 12px;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n}\n\n.view-more-reply {\n  font-size: 12px;\n  color: var(--text_link);\n  line-height: 17px;\n  cursor: pointer;\n}\n\n.view-more-reply:hover {\n  color: var(--Lb4);\n}\n\n.sub-reply-item-client {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n  position: relative;\n  max-height: 42px;\n  padding: 3px 0;\n  font-size: 14px;\n  overflow: hidden;\n}\n\n.sub-reply-item-client .sub-user-info {\n  display: inline-flex;\n  align-items: center;\n  color: var(--text2);\n  line-height: 20px;\n  vertical-align: baseline;\n  white-space: nowrap;\n}\n\n.sub-reply-item-client .sub-user-info .sub-user-name {\n  margin-right: 5px;\n  font-size: 14px;\n  cursor: pointer;\n}\n\n.sub-reply-item-client .sub-user-info .sub-up-icon {\n  margin-right: 4px;\n  cursor: default;\n}\n\n.sub-reply-list-client {\n  border-radius: 4px;\n  padding: 7px 10px;\n  margin-top: 12px;\n  background-color: var(--bg2_float);\n}\n\n.sub-reply-list-client .view-more {\n  margin-top: 4px;\n  cursor: pointer;\n}\n\n.sub-reply-list-client .view-more .view-more-text {\n  font-size: 12px;\n  color: var(--text_link);\n}\n\n.sub-reply-list-client .view-more .view-more-text:hover {\n  color: var(--Lb4);\n}\n\n.content-warp--blacklist .reply-content {\n  display: inline-flex;\n  align-items: center;\n  padding: 4px;\n  border-radius: 4px;\n  color: var(--text1);\n  background-color: var(--bg2_float);\n}\n\n.content-warp--blacklist .reply-content .ban-icon {\n  margin-right: 4px;\n}\n\n.content-warp--blacklist .reply-header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 8px;\n}\n\n.content-warp--blacklist .reply-header .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: 0;\n  cursor: pointer;\n}\n\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\n  width: 30px;\n  height: 30px;\n}\n\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\n  color: var(--text1);\n}\n\n.reply-item-client {\n  position: relative;\n  padding: 10px 0 14px 42px;\n  border-bottom: 1px solid var(--line_light);\n}\n\n.reply-item-client .content-warp {\n  flex: 1;\n  position: relative;\n}\n\n.reply-item-client .content-warp .reply-header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 8px;\n}\n\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: -42px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\n  display: flex;\n  align-items: center;\n  font-size: 13px;\n  color: var(--text2);\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\n  margin-right: 5px;\n  color: var(--be794234);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\n  margin-right: 5px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\n  cursor: default;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-item-client .content-warp .root-reply {\n  position: relative;\n  font-size: 15px;\n  line-height: 25px;\n  transition: 0.2s;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 12px;\n  font-size: 13px;\n  color: var(--text3);\n  line-height: 16px;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\n  margin-right: 5px;\n  color: var(--text3);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\n  display: none;\n  position: absolute;\n  right: 20px;\n}\n\n.reply-item-client .content-warp .reply-item-box {\n  margin-top: 12px;\n}\n\n.reply-item-client .content-warp .reply-tag-list {\n  display: flex;\n  align-items: center;\n  margin-top: 12px;\n  font-size: 12px;\n  line-height: 14px;\n}\n\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\n  padding: 5px 6px;\n  border-radius: 2px;\n  margin-right: 10px;\n  color: var(--text2);\n  background-color: var(--bg2_float);\n}\n\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\n  display: block;\n}\n\n.reply-list {\n  position: relative;\n  margin-top: 14px;\n  padding-bottom: 100px;\n}\n\n.reply-list .reply-empty {\n  margin-top: 100px;\n  text-align: center;\n  font-size: 14px;\n  color: var(--text3);\n}\n\n.reply-list .reply-end-mark {\n  height: 100px;\n}\n\n.reply-list .reply-end,\n.reply-list .reply-loading {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--text3);\n  text-align: center;\n}\n\n.fixed-reply-box {\n  bottom: 0;\n  z-index: 20;\n  width: 100%;\n}\n\n.fixed-reply-box .reply-box-wrap {\n  background-color: var(--bg1);\n  padding: 14px 0;\n  border-top: 1px solid var(--line_light);\n}\n\n.fixed-reply-box .reply-box-shadow {\n  position: absolute;\n  top: -10px;\n  z-index: -1;\n  height: 36px;\n  border-radius: 50%;\n  background-color: #00000014;\n  filter: blur(10px);\n  width: calc(100% - 72px);\n  left: 50%;\n  transform: translate(-50%);\n}\n\n.reply-detail {\n  flex: 1;\n}\n\n.reply-detail .reply-header {\n  display: flex;\n  align-items: center;\n  position: sticky;\n  z-index: 9;\n  top: 0;\n  left: 0;\n  height: 46px;\n  border-bottom: 1px solid var(--line_light);\n  margin-bottom: 14px;\n  background-color: var(--bg1);\n}\n\n.reply-detail .reply-header .return-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 32px;\n  height: 32px;\n  border-radius: 4px;\n  margin-right: 4px;\n  color: var(--text1);\n  cursor: pointer;\n}\n\n.reply-detail .reply-header .return-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-detail .reply-header .reply-title {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--text1);\n}\n\n.dialog-reply {\n  flex: 1;\n}\n\n.dialog-reply .reply-header {\n  display: flex;\n  align-items: center;\n  position: sticky;\n  z-index: 9;\n  top: 0;\n  left: 0;\n  height: 46px;\n  border-bottom: 1px solid var(--line_light);\n  margin-bottom: 14px;\n  background-color: var(--bg1);\n}\n\n.dialog-reply .reply-header .return-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 32px;\n  height: 32px;\n  border-radius: 4px;\n  margin-right: 4px;\n  color: var(--text1);\n  cursor: pointer;\n}\n\n.dialog-reply .reply-header .return-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.dialog-reply .reply-header .reply-title {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--text1);\n}\n\n.bili-comment.client {\n  background-color: var(--bg1);\n}\n\n.bili-comment.client * {\n  box-sizing: border-box;\n  font-family:\n    PingFang SC,\n    HarmonyOS_Regular,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  -webkit-font-smoothing: antialiased;\n}\n\n.bili-comment.client * ul {\n  list-style: none;\n}\n\n.bili-comment.client * a {\n  text-decoration: none;\n  background-color: transparent;\n  color: var(--text_link);\n  cursor: pointer;\n}\n\n.bili-comment.client * a:hover {\n  color: var(--Lb4);\n}\n\n.bili-comment.client * i {\n  font-style: normal;\n}\n';
+    ':root {\n  --v_xs: 5px;\n  --v_xsx: 4px;\n  --v_xxs: 6px;\n  --v_sm: 10px;\n  --v_smx: 8px;\n  --v_xsm: 12px;\n  --v_md: 15px;\n  --v_mdx: 14px;\n  --v_xmd: 16px;\n  --v_lg: 20px;\n  --v_lgx: 18px;\n  --v_xlg: 22px;\n  --v_xl: 25px;\n  --v_xlx: 24px;\n  --v_xxl: 26px;\n  --v_fs_1: 24px;\n  --v_fs_2: 18px;\n  --v_fs_3: 16px;\n  --v_fs_4: 14px;\n  --v_fs_5: 13px;\n  --v_fs_6: 12px;\n  --v_lh_xs: 1;\n  --v_lh_sm: 1.25;\n  --v_lh_md: 1.5;\n  --v_lh_lg: 1.75;\n  --v_lh_xl: 2;\n  --v_height_xs: 16px;\n  --v_height_sm: 24px;\n  --v_height_md: 32px;\n  --v_height_lg: 40px;\n  --v_height_xl: 48px;\n  --v_radius: 6px;\n  --v_radius_sm: 4px;\n  --v_radius_md: 8px;\n  --v_radius_lg: 10px;\n  --v_brand_pink: var(--brand_pink, #ff6699);\n  --v_brand_pink_thin: var(--brand_pink_thin, #ffecf1);\n  --v_brand_blue: var(--brand_blue, #00aeec);\n  --v_brand_blue_thin: var(--brand_blue_thin, #dff6fd);\n  --v_stress_red: var(--stress_red, #f85a54);\n  --v_stress_red_thin: var(--stress_red_thin, #feecea);\n  --v_success_green: var(--success_green, #2ac864);\n  --v_success_green_thin: var(--success_green_thin, #e4f8ea);\n  --v_operate_orange: var(--operate_orange, #ff7f24);\n  --v_operate_orange_thin: var(--operate_orange_thin, #fff0e3);\n  --v_pay_yellow: var(--pay_yellow, #ffb027);\n  --v_pay_yellow_thin: var(--pay_yellow_thin, #fff6e4);\n  --v_bg1: var(--bg1, #ffffff);\n  --v_bg2: var(--bg2, #f6f7f8);\n  --v_bg3: var(--bg3, #f1f2f3);\n  --v_bg1_float: var(--bg1_float, #ffffff);\n  --v_bg2_float: var(--bg2_float, #f1f2f3);\n  --v_text_white: var(--text_white, #ffffff);\n  --v_text1: var(--text1, #18191c);\n  --v_text2: var(--text2, #61666d);\n  --v_text3: var(--text3, #9499a0);\n  --v_text4: var(--text4, #c9ccd0);\n  --v_text_link: var(--text_link, #008ac5);\n  --v_text_notice: var(--text_notice, #e58900);\n  --v_line_light: var(--line_light, #f1f2f3);\n  --v_line_regular: var(--line_regular, #e3e5e7);\n  --v_line_bold: var(--line_bold, #c9ccd0);\n  --v_graph_white: var(--graph_white, #ffffff);\n  --v_graph_bg_thin: var(--graph_bg_thin, #f6f7f8);\n  --v_graph_bg_regular: var(--graph_bg_regular, #f1f2f3);\n  --v_graph_bg_thick: var(--graph_bg_thick, #e3e5e7);\n  --v_graph_weak: var(--graph_weak, #c9ccd0);\n  --v_graph_medium: var(--graph_medium, #9499a0);\n  --v_graph_icon: var(--graph_icon, #61666d);\n  --v_shadow: var(--shadow, #000000);\n  --v_brand_pink_hover: var(--brand_pink_hover, #ff8cb0);\n  --v_brand_pink_active: var(--brand_pink_active, #e84b85);\n  --v_brand_pink_disabled: var(--brand_pink_disabled, #ffb3ca);\n  --v_brand_blue_hover: var(--brand_blue_hover, #40c5f1);\n  --v_brand_blue_active: var(--brand_blue_active, #008ac5);\n  --v_brand_blue_disabled: var(--brand_blue_disabled, #80daf6);\n  --v_stress_red_hover: var(--stress_red_hover, #fa857f);\n  --v_stress_red_active: var(--stress_red_active, #e23d3d);\n  --v_stress_red_disabled: var(--stress_red_disabled, #fcafaa);\n  --v_text_hover: var(--text_hover, #797f87);\n  --v_text_active: var(--text_active, #61666d);\n  --v_text_disabled: var(--text_disabled, #c9ccd0);\n  --v_line_border: var(--line_border, #c9ccd0);\n  --v_line_bolder_hover: var(--line_bolder_hover, #e3e5e7);\n  --v_line_bolder_active: var(--line_bolder_active, #aeb3b9);\n  --v_line_bolder_disabled: var(--line_bolder_disabled, #f1f2f3);\n}\n\n@font-face {\n  font-family: fanscard;\n  src: url(//s1.hdslb.com/bfs/static/jinkela/mall-h5/asserts/fansCard.ttf);\n}\n\n.svg-icon {\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n}\n\n.svg-icon svg {\n  width: 100%;\n  height: 100%;\n}\n\n.svg-icon.use-color svg path {\n  fill: currentColor;\n  color: inherit;\n}\n\n.top-vote-card {\n  background-color: var(--graph_bg_thin);\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  height: 80px;\n  width: 100%;\n  margin-bottom: 24px;\n  padding: 12px 16px 12px 10px;\n  border-radius: 6px;\n}\n\n.top-vote-card__multi {\n  cursor: pointer;\n}\n\n.top-vote-card__multi:hover .vote-result-text {\n  color: var(--brand_blue);\n  transition: 0.2s;\n}\n\n.top-vote-card-left {\n  width: 40%;\n  max-width: calc(40% - 30px);\n  margin-right: 20px;\n  word-wrap: break-word;\n  font-size: 13px;\n  line-height: 18px;\n  color: var(--text1);\n}\n\n.top-vote-card-left__title {\n  display: flex;\n  align-items: center;\n}\n\n.top-vote-card-left__title svg {\n  margin-right: 2px;\n  flex: none;\n}\n\n.top-vote-card-left__title span {\n  display: -webkit-box;\n  float: none;\n  height: 18px;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  word-break: break-word;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 1;\n}\n\n.top-vote-card-left__join {\n  height: 17px;\n  display: flex;\n  align-items: center;\n  margin-top: 4px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.top-vote-card-left__join .vote-icon {\n  height: 12px;\n}\n\n.top-vote-card-left__join span {\n  display: flex;\n  align-items: center;\n}\n\n.top-vote-card-right {\n  width: 60%;\n  font-size: var(--2fde2a28);\n  line-height: 17px;\n  display: flex;\n  --option-height: 40px;\n  --option-radius: 6px;\n}\n\n.top-vote-card-right .vote-text__not-vote {\n  opacity: 0.9;\n}\n\n.top-vote-card-right .vote-text__not-vote .vui_ellipsis {\n  font-weight: 400 !important;\n}\n\n.top-vote-card-right .vote-text :first-child {\n  font-weight: 500;\n}\n\n.top-vote-card-right .vote-icon {\n  flex: none;\n}\n\n.top-vote-card-right .left-vote-option {\n  position: relative;\n  display: flex;\n  min-width: 120px;\n  align-items: center;\n  justify-content: space-between;\n  background-color: rgba(255, 102, 153, var(--212267a6));\n  height: var(--option-height);\n  width: var(--38c5ebb3);\n  padding-left: 10px;\n  border-radius: var(--option-radius) 0 0 var(--option-radius);\n  cursor: pointer;\n  margin-right: 30px;\n  color: var(--332a347e);\n  transition: width ease-out 0.2s;\n}\n\n.top-vote-card-right .left-vote-option .skew-vote-option {\n  position: absolute;\n  right: -20px;\n  top: 0;\n}\n\n.top-vote-card-right .left-vote-option .skew-vote-option__fill {\n  left: -8px;\n  background-color: #f69;\n  transform: skew(21deg);\n  border-top-right-radius: calc(var(--option-radius) - 2px);\n  border-bottom-right-radius: var(--option-radius);\n}\n\n.top-vote-card-right .skew-vote-option {\n  height: 40px;\n  width: 20px;\n  overflow: hidden;\n  opacity: var(--212267a6);\n  pointer-events: none;\n}\n\n.top-vote-card-right .skew-vote-option__fill {\n  pointer-events: all;\n  position: absolute;\n  top: 0;\n  width: 100%;\n  height: 100%;\n}\n\n.top-vote-card-right .right-vote-option {\n  position: relative;\n  display: flex;\n  min-width: 120px;\n  align-items: center;\n  flex-direction: row-reverse;\n  justify-content: space-between;\n  background-color: rgba(0, 174, 236, var(--212267a6));\n  height: var(--option-height);\n  width: var(--4b2970aa);\n  padding-right: 10px;\n  border-radius: 0 var(--option-radius) var(--option-radius) 0;\n  cursor: pointer;\n  color: var(--1e587827);\n  transition: width ease-out 0.2s;\n}\n\n.top-vote-card-right .right-vote-option .skew-vote-option {\n  position: absolute;\n  left: -20px;\n  top: 0;\n}\n\n.top-vote-card-right .right-vote-option .skew-vote-option__fill {\n  left: 8px;\n  background-color: #00aeec;\n  transform: skew(21deg);\n  border-top-left-radius: var(--option-radius);\n  border-bottom-left-radius: calc(var(--option-radius) - 2px);\n}\n\n.top-vote-card-right .right-vote-option .vote-text {\n  text-align: right;\n}\n\n.top-vote-card-right .had_voted {\n  cursor: unset;\n}\n\n.reply-header .reply-notice {\n  display: flex;\n  align-items: center;\n  position: relative;\n  min-height: 40px;\n  padding: 4px 10px;\n  margin-bottom: 16px;\n  font-size: 13px;\n  border-radius: 2px;\n  color: var(--Ye5_u);\n  cursor: pointer;\n}\n\n.reply-header .reply-notice:after {\n  content: "";\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  background-color: var(--Ye5_u);\n  opacity: 0.2;\n}\n\n.reply-header .reply-notice .notice-icon {\n  width: 16px;\n  height: 16px;\n  margin-right: 5px;\n}\n\n.reply-header .reply-notice .notice-content {\n  flex: 1;\n  padding: 0 5px;\n  vertical-align: top;\n  word-wrap: break-word;\n  word-break: break-all;\n}\n\n.reply-header .reply-notice .notice-close-icon {\n  position: relative;\n  z-index: 1;\n  width: 10px;\n  height: 10px;\n  margin-left: 5px;\n}\n\n.reply-header .reply-navigation {\n  margin-bottom: 22px;\n}\n\n.reply-header .reply-navigation .nav-bar {\n  display: flex;\n  align-items: center;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  justify-content: space-between;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title {\n  display: flex;\n  align-items: center;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title {\n    font-size: 20px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title {\n    font-size: 24px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\n  color: var(--text1);\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-header .reply-navigation .nav-bar .nav-title .nav-title-text {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n  margin: 0 36px 0 6px;\n  font-weight: 400;\n  color: var(--text3);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-title .total-reply {\n    font-size: 14px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-select-reply {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  color: var(--text1);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-size: 16px;\n  }\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-header .reply-navigation .nav-bar .nav-select-reply {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort {\n  display: flex;\n  align-items: center;\n  color: var(--text3);\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-sort {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-header .reply-navigation .nav-bar .nav-sort {\n    font-size: 16px;\n  }\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .part-symbol {\n  height: 11px;\n  margin: 0 12px;\n  border-left: solid 1px;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort {\n  cursor: pointer;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort {\n  cursor: pointer;\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort .time-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\n.reply-header .reply-navigation .nav-bar .nav-sort.time .time-sort {\n  color: var(--text1);\n}\n\n.reply-header .reply-navigation .nav-operation-warp {\n  position: absolute;\n  right: 0;\n}\n\n/*\n   * @bilibili/userAvatar\n   * version: 1.2.0-beta.2. Powered by main-frontend\n   * 用户头像公共组件.\n   * author: wuxiuran\n   */\n.bili-avatar {\n  display: block;\n  position: relative;\n  background-image: url(data:image/gif;base64,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);\n  -webkit-background-size: cover;\n  background-size: cover;\n  border-radius: 50%;\n  margin: 0;\n  padding: 0;\n}\n\n.bili-avatar * {\n  margin: 0;\n  padding: 0;\n}\n\n.bili-avatar-face {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n  -moz-transform: translate(-50%, -50%);\n  -ms-transform: translate(-50%, -50%);\n  -o-transform: translate(-50%, -50%);\n  transform: translate(-50%, -50%);\n  width: 100%;\n  height: 100%;\n}\n\n.bili-avatar-pendent-dom {\n  height: 176.48%;\n  width: 176.48%;\n  position: absolute;\n  top: -38.33%;\n  left: -38.33%;\n  overflow: hidden;\n}\n\n.bili-avatar-pendent-dom img {\n  height: 100%;\n  min-width: 100%;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n\n.bili-avatar-img {\n  border: none;\n  display: block;\n  -o-object-fit: cover;\n  object-fit: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n.bili-avatar-img-radius {\n  border-radius: 50%;\n}\n\n.bili-avatar-img[src=""],\n.bili-avatar-img:not([src]) {\n  opacity: 0;\n}\n\n.bili-avatar-img.bili-avatar-img-error {\n  display: none;\n}\n\n.bili-avatar-right-icon {\n  width: 27.5%;\n  height: 27.5%;\n  position: absolute;\n  right: 0;\n  bottom: -1px;\n  -webkit-background-size: cover;\n  background-size: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n.bili-avatar-nft-icon {\n  position: absolute;\n  width: 27.5%;\n  height: 27.5%;\n  right: -webkit-calc(27.5% - 1px);\n  right: -moz-calc(27.5% - 1px);\n  right: calc(27.5% - 1px);\n  bottom: -1px;\n  -webkit-background-size: cover;\n  background-size: cover;\n  image-rendering: -webkit-optimize-contrast;\n}\n\n@-webkit-keyframes bili-avatar {\n  0% {\n    -webkit-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -webkit-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n@-moz-keyframes bili-avatar {\n  0% {\n    -moz-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -moz-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n@keyframes bili-avatar {\n  0% {\n    -webkit-transform: translate3d(0, 0, 0);\n    -moz-transform: translate3d(0, 0, 0);\n    transform: translateZ(0);\n  }\n\n  to {\n    -webkit-transform: translate3d(-97.5%, 0, 0);\n    -moz-transform: translate3d(-97.5%, 0, 0);\n    transform: translate3d(-97.5%, 0, 0);\n  }\n}\n\n.bili-avatar .bili-avatar-size-80 {\n  width: 22px;\n  height: 22px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-60,\n.bili-avatar .bili-avatar-size-50,\n.bili-avatar .bili-avatar-size-48 {\n  width: 18px;\n  height: 18px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-40,\n.bili-avatar .bili-avatar-size-36 {\n  width: 14px;\n  height: 14px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-30,\n.bili-avatar .bili-avatar-size-24 {\n  width: 12px;\n  height: 12px;\n  bottom: -1px;\n}\n\n.bili-avatar .bili-avatar-size-nft-80 {\n  width: 22px;\n  height: 22px;\n  bottom: -1px;\n  right: -webkit-calc(22px - 1px);\n  right: -moz-calc(22px - 1px);\n  right: 21px;\n}\n\n.bili-avatar .bili-avatar-size-nft-60,\n.bili-avatar .bili-avatar-size-nft-50,\n.bili-avatar .bili-avatar-size-nft-48 {\n  width: 18px;\n  height: 18px;\n  bottom: -1px;\n  right: -webkit-calc(18px - 1px);\n  right: -moz-calc(18px - 1px);\n  right: 17px;\n}\n\n.bili-avatar .bili-avatar-size-nft-40,\n.bili-avatar .bili-avatar-size-nft-36 {\n  width: 14px;\n  height: 14px;\n  bottom: -1px;\n  right: -webkit-calc(14px - 1px);\n  right: -moz-calc(14px - 1px);\n  right: 13px;\n}\n\n.bili-avatar .bili-avatar-size-nft-30,\n.bili-avatar .bili-avatar-size-nft-24 {\n  width: 12px;\n  height: 12px;\n  bottom: -1px;\n  right: -webkit-calc(12px - 1px);\n  right: -moz-calc(12px - 1px);\n  right: 11px;\n}\n\n.reply-image {\n  width: var(--3414c33c);\n  height: var(--822197ea);\n}\n\n.reply-image.b-img {\n  background-color: inherit;\n}\n\n.reply-image.b-img img {\n  width: 100%;\n  height: 100%;\n}\n\n.opacity-enter-active,\n.opacity-leave-active {\n  transition: opacity 0.15s ease;\n}\n\n.opacity-enter-from,\n.opacity-leave-to {\n  opacity: 0;\n}\n\n.reply-box {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-box .box-normal {\n  display: flex;\n  z-index: 2;\n}\n\n.reply-box .box-normal .reply-box-avatar {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 80px;\n  height: 48px;\n}\n\n.reply-box .box-normal .reply-box-warp {\n  position: relative;\n  flex: 1;\n  transition: 0.2s;\n  border: 1px solid var(--line_regular);\n  border-radius: 6px;\n  background-color: var(--bg3);\n  overflow-x: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp.focus-within,\n.reply-box .box-normal .reply-box-warp:hover {\n  border-color: var(--line_regular);\n  background-color: var(--bg1);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap {\n  padding: 8px 0;\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  border-radius: 6px;\n  cursor: text;\n  overflow: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info {\n  margin-left: 10px;\n  margin-bottom: 4px;\n  height: 20px;\n  font-size: 12px;\n  line-height: 17px;\n  display: flex;\n  align-items: center;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag {\n  flex: none;\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 4px;\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--pink {\n  background-color: var(--Pi1);\n  color: var(--Pi5);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--blue {\n  background-color: var(--brand_blue_thin);\n  color: var(--brand_blue);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__tag--gary {\n  background-color: var(--graph_bg_regular);\n  color: var(--text3);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__text {\n  max-width: calc(100% - 68px);\n  color: var(--text2);\n}\n\n.reply-box .box-normal .reply-box-warp .textarea-wrap .vote-info__close {\n  flex: none;\n  margin-left: 4px;\n  cursor: pointer;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-input {\n  padding: 0 8px;\n  width: 100%;\n  height: 100%;\n  border: 1px solid var(--Ga1);\n  border-radius: 6px;\n  background-color: var(--bg3);\n  font-family: inherit;\n  line-height: 20px;\n  color: var(--text1);\n  resize: none;\n  outline: none;\n  overflow-y: scroll;\n  overflow-x: hidden;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-input.focus,\n.reply-box .box-normal .reply-box-warp .reply-input:hover {\n  background-color: var(--bg1);\n  border-color: var(--graph_weak);\n}\n\n.reply-box .box-normal .reply-box-warp .reply-box-textarea {\n  padding: 0 8px;\n  width: 100%;\n  height: 32px;\n  border: none;\n  border-radius: 6px;\n  background-color: transparent;\n  font-family: inherit;\n  font-size: 14px;\n  line-height: 32px;\n  color: var(--text1);\n  resize: none;\n  outline: none;\n}\n\n.reply-box .box-normal .reply-box-warp .reply-box-textarea::placeholder {\n  color: var(--text3);\n}\n\n.reply-box .box-normal .reply-box-warp .image-content-wrap {\n  background: transparent;\n}\n\n.reply-box .box-expand {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  margin-left: 80px;\n  margin-top: 10px;\n  z-index: 1;\n  height: 32px;\n  transition: all 0.2s ease-in-out;\n}\n\n.reply-box .box-expand.hide {\n  margin-top: 0;\n  height: 0;\n  overflow: hidden;\n  transition: all 0.2s ease-in-out;\n}\n\n.reply-box .box-expand .box-left {\n  display: flex;\n  align-items: center;\n}\n\n.reply-box .box-expand .reply-box-emoji {\n  width: 32px;\n  height: 26px;\n  margin-right: 6px;\n  position: relative;\n}\n\n.reply-box .box-expand .reply-box-emoji .emoji-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100%;\n  height: 100%;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .at-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 32px;\n  height: 26px;\n  margin-right: 6px;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .image-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 32px;\n  height: 26px;\n  border: 1px solid var(--line_regular);\n  border-radius: 4px;\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-box .box-expand .image-btn.disabled {\n  opacity: 0.4;\n}\n\n.reply-box .box-expand .image-btn .image-upload-input {\n  appearance: none;\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  opacity: 0;\n  font-size: 0;\n  user-select: auto;\n  cursor: pointer;\n}\n\n.reply-box .box-expand .forward-to-dynamic {\n  display: flex;\n  align-items: center;\n  margin-left: 16px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-box .box-expand .forward-to-dynamic .forward-input,\n.reply-box .box-expand .forward-to-dynamic .forward-label {\n  cursor: pointer;\n}\n\n.reply-box .box-expand .reply-box-send {\n  float: right;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 70px;\n  height: 32px;\n  border-radius: 6px;\n  cursor: pointer;\n}\n\n.reply-box .box-expand .reply-box-send .send-text {\n  position: absolute;\n  z-index: 1;\n  font-size: 16px;\n  color: var(--text_white);\n}\n\n.reply-box .box-expand .reply-box-send:after {\n  content: "";\n  position: absolute;\n  opacity: 0.5;\n  width: 100%;\n  height: 100%;\n  border-radius: 4px;\n  background-color: var(--brand_blue);\n}\n\n.reply-box .box-expand .reply-box-send:hover:after {\n  opacity: 1;\n}\n\n.reply-box.box-active .box-normal .reply-box-warp .reply-box-textarea.send-active {\n  line-height: normal;\n}\n\n.reply-box.box-active .reply-box-send.send-active:after {\n  opacity: 1;\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg3);\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  cursor: pointer;\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn {\n  padding: 4px 9px;\n  margin: 0 3px;\n  border-radius: 4px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n}\n\n.reply-box.disabled .box-normal .reply-box-warp .disable-mask .no-login-mask .login-btn:hover {\n  background-color: var(--Lb4);\n  cursor: pointer;\n}\n\n.reply-box.disabled .reply-box-send .send-text {\n  color: var(--text3);\n}\n\n.reply-box.disabled .reply-box-send:after {\n  opacity: 1;\n  background-color: var(--bg3);\n}\n\n.reply-box.fixed-box {\n  position: relative;\n  z-index: 2;\n  padding: 15px 0;\n  border-top: 0.5px solid var(--graph_bg_thick);\n  background-color: var(--bg1);\n}\n\n.reply-content-container.fold .reply-content {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 4;\n}\n\n.reply-content-container .reply-content {\n  color: var(--text1);\n  overflow: hidden;\n  word-wrap: break-word;\n  word-break: break-word;\n  white-space: pre-wrap;\n  line-height: 24px;\n  vertical-align: baseline;\n}\n\n.reply-content-container .reply-content .note-prefix {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 1px 4px;\n  border-radius: 4px;\n  margin-right: 8px;\n  font-size: 12px;\n  color: var(--text3);\n  line-height: 20px;\n  vertical-align: bottom;\n  background-color: var(--bg2);\n}\n\n.reply-content-container .reply-content .note-prefix .note-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.reply-content-container .reply-content .top-icon {\n  top: -2px;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 30px;\n  height: 18px;\n  border: 1px solid var(--brand_pink);\n  border-radius: 3px;\n  margin-right: 5px;\n  font-size: 12px;\n  color: var(--brand_pink);\n}\n\n.reply-content-container .reply-content .emoji-small {\n  vertical-align: text-bottom;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .emoji-small {\n    width: 20px;\n    height: 20px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .emoji-small {\n    width: 22px;\n    height: 22px;\n  }\n}\n\n.reply-content-container .reply-content .emoji-large {\n  width: 50px;\n  height: 50px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-container .reply-content .icon {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-top;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .icon {\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .icon {\n    line-height: 26px;\n  }\n}\n\n.reply-content-container .reply-content .icon.search-word {\n  width: 12px;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n}\n\n.reply-content-container .reply-content .jump-link {\n  vertical-align: baseline;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-content-container .reply-content .jump-link {\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-content-container .reply-content .jump-link {\n    line-height: 26px;\n  }\n}\n\n.reply-content-container .expand-content {\n  color: var(--text_link);\n  cursor: pointer;\n  margin-left: 4px;\n}\n\n.reply-content-container .expand-content:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-item {\n  position: relative;\n  padding: 2px 0 2px 0;\n  border-radius: 4px;\n}\n\n@media screen and (max-width: 1681px) {\n  .sub-reply-item {\n    font-size: 15px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .sub-reply-item {\n    font-size: 16px;\n    line-height: 26px;\n  }\n}\n\n.sub-reply-item.show-reply {\n  background-color: #dff6fb;\n  animation-name: enterAnimation-jumpReply-1f8a4018;\n  animation-duration: 2s;\n  animation-delay: 3s;\n  animation-fill-mode: forwards;\n}\n\n.sub-reply-item .sub-user-info {\n  display: inline-flex;\n  align-items: center;\n  margin-right: 9px;\n  line-height: 24px;\n  vertical-align: baseline;\n  white-space: nowrap;\n}\n\n.sub-reply-item .sub-user-info .sub-reply-avatar {\n  position: absolute;\n  left: 8px;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-user-info .sub-user-name {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  margin-right: 5px;\n  color: var(--3bab3096);\n  cursor: pointer;\n}\n\n@media screen and (max-width: 1681px) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-size: 13px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-size: 14px;\n    line-height: 26px;\n  }\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .sub-reply-item .sub-user-info .sub-user-name {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.sub-reply-item .sub-user-info .sub-user-level {\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-user-info .sub-up-icon {\n  cursor: default;\n}\n\n.sub-reply-item .sub-reply-info {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 2px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-time {\n  margin-right: var(--7530c1e4);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-location {\n  margin-right: 20px;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon {\n  margin-right: 5px;\n  color: #9499a0;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon:hover,\n.sub-reply-item .sub-reply-info .sub-reply-like .sub-like-icon.liked {\n  color: #00aeec;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon {\n  color: #9499a0;\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon:hover,\n.sub-reply-item .sub-reply-info .sub-reply-dislike .sub-dislike-icon.disliked {\n  color: #00aeec;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-btn {\n  cursor: pointer;\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-item .sub-reply-info .sub-reply-operation-warp {\n  position: absolute;\n  right: 40px;\n  opacity: 0;\n}\n\n.sub-reply-item:hover .sub-reply-info .sub-reply-operation-warp {\n  opacity: 1;\n}\n\n@keyframes enterAnimation-jumpReply-1f8a4018 {\n  0% {\n    background-color: #dff6fb;\n  }\n\n  to {\n    background-color: #dff6fb00;\n  }\n}\n\n.sub-reply-list .view-more {\n  padding-left: 8px;\n  font-size: 13px;\n  color: var(--text3);\n}\n\n.sub-reply-list .view-more .view-more-default .view-more-btn {\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-default .view-more-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination {\n  color: var(--text1);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-count {\n  margin-right: 10px;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-btn {\n  margin: 0 4 0 14px;\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-btn:hover {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number {\n  margin: 0 4px;\n  cursor: pointer;\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number:hover,\n.sub-reply-list .view-more .view-more-pagination .pagination-page-number.current-page {\n  color: var(--brand_blue);\n}\n\n.sub-reply-list .view-more .view-more-pagination .pagination-page-dot {\n  margin: 0 4px;\n  cursor: default;\n}\n\n.image-exhibition {\n  margin-top: 8px;\n  user-select: none;\n}\n\n.image-exhibition .preview-image-container {\n  max-width: var(--dacbf126);\n  display: flex;\n  flex-wrap: wrap;\n  row-gap: var(--77b1c8ee);\n  column-gap: var(--0c349aa2);\n}\n\n.image-exhibition .preview-image-container .image-item-wrap {\n  display: flex;\n  justify-content: center;\n  position: relative;\n  border-radius: var(--7fefecd2);\n  overflow: hidden;\n  cursor: zoom-in;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap.vertical {\n  flex-direction: column;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap.extra-long {\n  justify-content: start;\n}\n\n.image-exhibition .preview-image-container .image-item-wrap .more-image {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  right: 4px;\n  bottom: 4px;\n  height: 20px;\n  padding: 0 6px;\n  border-radius: 4px;\n  font-size: 13px;\n  color: var(--text_white);\n  font-weight: 500;\n  line-height: 18px;\n  background: rgba(0, 0, 0, 0.7);\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 1) {\n  border-bottom-right-radius: 0;\n  border-top-right-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 2) {\n  border-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-child(3n + 3) {\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0;\n}\n\n.image-exhibition .preview-image-container .client-image-item-warp:nth-last-child(1) {\n  border-bottom-right-radius: var(--7fefecd2);\n  border-top-right-radius: var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(1) {\n  border-radius: var(--7fefecd2) 0 0 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3) {\n  border-radius: 0 var(--7fefecd2) 0 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(7) {\n  border-radius: 0 0 0 var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(9) {\n  border-radius: 0 0 var(--7fefecd2) 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp:nth-child(3n + 2) {\n  border-radius: 0;\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(4) {\n  border-radius: 0 0 0 var(--7fefecd2);\n}\n\n.image-exhibition .preview-image-container .expand-image-item-warp.expand-image-two-rows:nth-child(6) {\n  border-radius: 0 0 var(--7fefecd2) 0;\n}\n\n.reply-user-sailing {\n  height: 48px;\n}\n\n.vote-warp {\n  display: flex;\n  width: 100%;\n  height: 80px;\n  border: 0.5px solid var(--graph_bg_thick);\n  border-radius: 4px;\n  margin: 10px 0;\n}\n\n.vote-warp .vote-icon-warp {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-basis: 80px;\n  flex-shrink: 0;\n  border-top-left-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: var(--brand_blue_thin);\n}\n\n.vote-warp .vote-icon-warp .vote-icon {\n  width: 40px;\n  height: 40px;\n}\n\n.vote-warp .vote-container {\n  display: flex;\n  align-items: center;\n  flex: 1;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 4px;\n  background-color: var(--bg1);\n}\n\n.vote-warp .vote-container .vote-text-warp {\n  flex: 1;\n  padding-left: 15px;\n}\n\n.vote-warp .vote-container .vote-text-warp .vote-title {\n  font-size: 14px;\n  color: var(--text1);\n}\n\n.vote-warp .vote-container .vote-text-warp .vote-desc {\n  margin-top: 10px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.vote-warp .vote-container .vote-btn-warp {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-basis: 90px;\n  flex-shrink: 0;\n}\n\n.vote-warp .vote-container .vote-btn-warp .vote-btn {\n  width: 54px;\n  height: 28px;\n  border-radius: 4px;\n  font-size: 13px;\n  text-align: center;\n  line-height: 28px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n  cursor: pointer;\n}\n\n.vote-warp .vote-container .vote-btn-warp .vote-btn:hover {\n  background-color: var(--Lb4);\n}\n\n.vote-dialog {\n  max-height: 100vh;\n  overflow-y: auto;\n}\n\n.vote-dialog::-webkit-scrollbar {\n  width: 4px;\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.vote-dialog::-webkit-scrollbar-thumb {\n  border-radius: 4px;\n  background-color: var(--graph_bg_thick);\n  transition: 0.3s ease-in-out;\n}\n\n.vote-dialog::-webkit-scrollbar-track {\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.vote-dialog .vote-iframe-warp {\n  height: 600px;\n  padding-top: 10px;\n  border-top: 0.5px solid var(--graph_weak);\n}\n\n.vote-dialog .vote-iframe-warp .vote-iframe {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-item {\n  position: relative;\n}\n\n.reply-item .login-limit-mask {\n  display: none;\n  position: absolute;\n  top: 0;\n  right: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 10;\n  pointer-events: none;\n}\n\n.reply-item .login-limit-mask .mask-top {\n  height: 80%;\n  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, var(--bg1) 100%);\n}\n\n.reply-item .login-limit-mask .mask-bottom {\n  height: 20%;\n  background: var(--bg1);\n}\n\n.reply-item.login-limit-reply-end .login-limit-mask {\n  display: block;\n}\n\n.reply-item .root-reply-container {\n  padding: 22px 0 0 80px;\n}\n\n.reply-item .root-reply-container.show-reply {\n  animation-name: enterAnimation-jumpReply-7041f671;\n  animation-duration: 5s;\n  animation-fill-mode: forwards;\n}\n\n.reply-item .root-reply-container .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: 0;\n  width: 80px;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp {\n  flex: 1;\n  position: relative;\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate {\n  position: absolute;\n  top: 0;\n  right: 0;\n  user-select: none;\n  transform: translateY(-15px);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label {\n  width: 82px;\n  height: 36px;\n  transform: translateY(6px);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .easter-egg-label img {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .selected-reply .selected-reply-icon {\n  width: var(--213e47ca);\n  height: var(--268890ba);\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing {\n  display: flex;\n  align-items: center;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-img {\n  height: 48px;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text {\n  position: absolute;\n  right: 0;\n  font-size: 13px;\n  color: var(--2bd55d12);\n  line-height: 16px;\n  word-break: keep-all;\n  transform: scale(0.7);\n  transform-origin: center center;\n}\n\n.reply-item .root-reply-container .content-warp .reply-decorate .user-sailing .user-sailing-text .sailing-text {\n  font-family: fanscard;\n}\n\n.reply-item .root-reply-container .content-warp .user-info {\n  display: flex;\n  align-items: center;\n  margin-bottom: 4px;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .user-info {\n    font-size: 13px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .user-info {\n    font-size: 14px;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .user-info .user-name {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Medium,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 500;\n  margin-right: 5px;\n  color: var(--dc735352);\n  cursor: pointer;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .reply-item .root-reply-container .content-warp .user-info .user-name {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .user-info .user-level {\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .up-icon {\n  cursor: default;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: var(--697d5c46);\n  height: 12px;\n  padding: 2px;\n  border-radius: 2px;\n  background-color: var(--brand_pink_thin);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box.originalFan {\n  border: 0.5px solid var(--brand_pink);\n  background-color: transparent;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .contractor-box .contractor-text {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 16px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  color: var(--brand_pink);\n  white-space: nowrap;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge {\n  display: flex;\n  align-items: center;\n  height: 14px;\n  padding-left: 5px;\n  border: 0.5px solid var(--3d3b5a1e);\n  border-radius: 10px;\n  margin-left: 5px;\n  background-image: var(--35269ce2);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap {\n  display: flex;\n  align-items: center;\n  position: relative;\n  width: var(--1f5204fd);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-frist-icon {\n  position: absolute;\n  left: -8px;\n  width: 20px;\n  height: 20px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-icon-wrap .badge-second-icon {\n  position: absolute;\n  right: 0;\n  width: 8px;\n  height: 11px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: var(--4f9eed68);\n  height: 100%;\n  margin-right: 4px;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-name-wrap .badge-name {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 18px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  color: var(--57e6be72);\n  font-weight: 500;\n  white-space: nowrap;\n  transform: scale(0.5) translate(-50%, -50%);\n  transform-origin: 0 0;\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  width: 11.5px;\n  height: 11.5px;\n  border-radius: 50%;\n  margin-right: 0.5px;\n  background-color: var(--59f85baa);\n}\n\n.reply-item .root-reply-container .content-warp .user-info .fan-badge .badge-level-wrap .badge-level {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 14px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  position: absolute;\n  top: 52%;\n  left: 50%;\n  font-family: Reeji-CloudHuPo-GBK;\n  color: var(--103312b6);\n  font-weight: 500;\n  white-space: nowrap;\n  line-height: 1;\n  transform: scale(0.5) translate(-50%, -43%);\n  transform-origin: 0 0;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info {\n  margin-bottom: 4px;\n  height: 20px;\n  font-size: 12px;\n  line-height: 17px;\n  display: flex;\n  align-items: center;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag {\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 4px;\n  flex: none;\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--pink {\n  background-color: var(--Pi1);\n  color: var(--Pi5);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--blue {\n  background-color: var(--brand_blue_thin);\n  color: var(--brand_blue);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__tag--gray {\n  background-color: var(--graph_bg_regular);\n  color: var(--text3);\n}\n\n.reply-item .root-reply-container .content-warp .vote-info__text {\n  color: var(--Ga7_u);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply {\n  position: relative;\n}\n\n@media screen and (max-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .root-reply {\n    font-size: 15px;\n    line-height: 24px;\n  }\n}\n\n@media screen and (min-width: 1681px) {\n  .reply-item .root-reply-container .content-warp .root-reply {\n    font-size: 16px;\n    line-height: 26px;\n  }\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-content-container {\n  display: block;\n  overflow: hidden;\n  width: 100%;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 2px;\n  font-size: 13px;\n  color: var(--text3);\n  justify-content: space-between;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-time {\n  margin-right: var(--472bae2d);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-location {\n  margin-right: 20px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon {\n  margin-right: 5px;\n  color: #9499a0;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon:hover,\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-like .like-icon.liked {\n  color: #00aeec;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon {\n  color: #9499a0;\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon:hover,\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-dislike .dislike-icon.disliked {\n  color: #00aeec;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn {\n  cursor: pointer;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-btn:hover {\n  color: var(--brand_blue);\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-info .reply-operation-warp {\n  position: absolute;\n  right: 20px;\n  display: none;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list {\n  display: flex;\n  align-items: center;\n  margin-top: 6px;\n  font-size: 12px;\n  line-height: 17px;\n}\n\n.reply-item .root-reply-container .content-warp .root-reply .reply-tag-list .reply-tag-item {\n  padding: 2px 6px;\n  border-radius: 2px;\n  margin-right: 10px;\n}\n\n.reply-item .root-reply-container:hover .content-warp .root-reply .reply-info .reply-operation-warp {\n  display: block;\n}\n\n.reply-item .sub-reply-container {\n  padding-left: 72px;\n}\n\n.reply-item .reply-box-container {\n  padding: 25px 0 10px 80px;\n}\n\n.reply-item .bottom-line {\n  margin-left: 80px;\n  border-bottom: 1px solid var(--graph_bg_thick);\n  margin-top: 14px;\n}\n\n.reply-item .reply-dynamic-card {\n  position: absolute;\n  z-index: 10;\n  top: 30px;\n  left: 400px;\n}\n\n@keyframes enterAnimation-jumpReply-7041f671 {\n  0% {\n    background-color: #dff6fb;\n  }\n\n  to {\n    background-color: #dff6fb00;\n  }\n}\n\n.reply-list {\n  margin-top: 14px;\n  padding-bottom: 100px;\n}\n\n.reply-list .reply-end-mark {\n  height: 100px;\n}\n\n.reply-list .reply-end,\n.reply-list .reply-loading,\n.reply-list .view-all-reply {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--text3);\n  text-align: center;\n}\n\n.reply-list .view-all-reply:hover {\n  color: var(--brand_blue);\n  cursor: pointer;\n}\n\n.reply-list .login-prompt {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: calc(100% - 80px);\n  height: 50px;\n  margin: 16px 0 0 auto;\n  border-radius: 6px;\n  font-size: 14px;\n  color: var(--brand_blue);\n  background-color: var(--brand_blue_thin);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.reply-list .login-prompt:hover {\n  background-color: var(--Lb2);\n}\n\n.user-card {\n  position: absolute;\n  top: var(--555c4a14);\n  left: var(--8468e010);\n  z-index: 10;\n  width: 366px;\n  border: 0.5px solid var(--graph_weak);\n  border-radius: 8px;\n  background-color: var(--bg1);\n  box-shadow: 0 0 30px #0000001a;\n}\n\n.user-card .card-bg {\n  width: 100%;\n  height: 85px;\n  border-radius: 8px 8px 0 0;\n  overflow: hidden;\n  background-image: var(--71924242);\n  background-size: cover;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n\n.user-card .user-card-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  width: 70px;\n  margin-top: 10px;\n  cursor: pointer;\n}\n\n.user-card .card-content {\n  display: flex;\n  flex-direction: column;\n  padding: 12px 20px 16px 70px;\n}\n\n.user-card .card-content .card-user-info {\n  display: flex;\n  align-items: center;\n  color: var(--text1);\n  margin-bottom: 10px;\n}\n\n.user-card .card-content .card-user-info .card-user-name {\n  max-width: 160px;\n  margin-right: 5px;\n  font-size: 16px;\n  font-weight: 600;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  color: var(--text1);\n  color: var(--7ba58c95);\n  text-decoration: none;\n}\n\n.user-card .card-content .card-user-info .card-user-sex {\n  width: 16px;\n  height: 16px;\n  margin-right: 5px;\n}\n\n.user-card .card-content .card-user-info .card-user-level {\n  margin-right: 5px;\n  cursor: pointer;\n}\n\n.user-card .card-content .card-user-info .card-user-vip {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: var(--7a718880);\n  height: 16px;\n  padding: 1px 4px;\n  border-radius: 2px;\n  color: var(--612d8511);\n  background-color: var(--29ab308e);\n  cursor: default;\n}\n\n.user-card .card-content .card-user-info .card-user-vip .card-vip-text {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-size: 20px;\n  transform-origin: center center;\n  transform: scale(0.5);\n  white-space: nowrap;\n  font-style: normal;\n}\n\n.user-card .card-content .card-social-info {\n  display: flex;\n  align-items: center;\n  font-size: 12px;\n  color: var(--text1);\n}\n\n.user-card .card-content .card-social-info .card-user-attention,\n.user-card .card-content .card-social-info .card-user-fans,\n.user-card .card-content .card-social-info .card-user-like {\n  margin-right: 18px;\n  color: inherit;\n  text-decoration: none;\n}\n\n.user-card .card-content .card-social-info .card-user-attention .social-info-title,\n.user-card .card-content .card-social-info .card-user-fans .social-info-title,\n.user-card .card-content .card-social-info .card-user-like .social-info-title {\n  margin-left: 3px;\n  color: var(--text3);\n}\n\n.user-card .card-content .card-verify-info {\n  padding-top: 10px;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.user-card .card-content .card-verify-info .card-verify-icon {\n  vertical-align: text-bottom;\n  margin-right: 3px;\n}\n\n.user-card .card-content .card-sign {\n  padding-top: 8px;\n  font-size: 12px;\n  color: var(--text3);\n  word-break: break-all;\n}\n\n.user-card .card-content .card-btn-warp {\n  display: flex;\n  margin-top: 16px;\n  font-size: 14px;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100px;\n  height: 30px;\n  border-radius: 4px;\n  margin-right: 8px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n  transition: 0.4s;\n  cursor: pointer;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn .cancel-attention-text {\n  display: none;\n  position: absolute;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention {\n  color: var(--text2);\n  background-color: var(--bg3);\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .attention-text {\n  display: none;\n}\n\n.user-card .card-content .card-btn-warp .card-attention-btn.attention:hover .cancel-attention-text {\n  display: inline;\n}\n\n.user-card .card-content .card-btn-warp .card-message-btn {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 100px;\n  height: 30px;\n  border: 1px solid var(--graph_weak);\n  border-radius: 4px;\n  color: var(--text2);\n  cursor: pointer;\n}\n\n.user-card .card-content .card-btn-warp .card-message-btn:hover {\n  border-color: var(--brand_blue);\n  color: var(--brand_blue);\n}\n\n.dynamic-card {\n  display: flex;\n  flex-direction: column;\n  position: absolute;\n  z-index: 10;\n  top: var(--7b058890);\n  left: 400px;\n  width: 710px;\n  height: 550px;\n  border-radius: 6px;\n  background-color: var(--bg1);\n  box-shadow: 0 0 25px #00000026;\n}\n\n.dynamic-card .card-header {\n  display: flex;\n  align-items: center;\n  flex-basis: 50px;\n  padding: 0 10px;\n  border-bottom: 0.5px solid var(--line_light);\n}\n\n.dynamic-card .card-header .card-title {\n  flex: 1;\n  text-align: center;\n  font-size: 16px;\n  color: var(--text1);\n}\n\n.dynamic-card .card-header .close-card {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 30px;\n  height: 30px;\n  border-radius: 6px;\n  color: var(--text2);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.dynamic-card .card-header .close-card:hover {\n  background-color: var(--bg3);\n}\n\n.dynamic-card .card-content {\n  flex: 1;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar {\n  width: 4px;\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar-thumb {\n  border-radius: 4px;\n  background-color: var(--graph_bg_thick);\n  transition: 0.3s ease-in-out;\n}\n\n.dynamic-card .card-content::-webkit-scrollbar-track {\n  border-radius: 4px;\n  background-color: transparent;\n}\n\n.dynamic-card .card-content .dynamic-card-iframe {\n  width: 100%;\n  height: 100%;\n}\n\n.reply-view-image {\n  position: fixed;\n  z-index: 999999;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(24, 25, 28, 0.85);\n  transform: scale(1);\n  user-select: none;\n  cursor: default;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  -webkit-user-drag: none;\n}\n\n.reply-view-image,\n.reply-view-image * {\n  box-sizing: border-box;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  z-index: 2;\n  width: 42px;\n  height: 42px;\n  border-radius: 50%;\n  color: var(--text_white);\n  background: rgba(0, 0, 0, 0.58);\n  transition: 0.2s;\n  cursor: pointer;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon:hover {\n  color: var(--brand_pink);\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.close-container {\n  top: 16px;\n  right: 16px;\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.last-image {\n  top: 50%;\n  left: 16px;\n  transform: translateY(-50%);\n}\n\n.reply-view-image .operation-btn .operation-btn-icon.next-image {\n  top: 50%;\n  right: 16px;\n  transform: translateY(-50%);\n}\n\n.reply-view-image .show-image-wrap {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  max-height: 100%;\n  padding: 0 100px;\n  overflow: auto;\n}\n\n.reply-view-image .show-image-wrap .loading-svga {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  width: 42px;\n  height: 42px;\n}\n\n.reply-view-image .show-image-wrap.vertical {\n  flex-direction: column;\n  justify-content: var(--c186e874);\n}\n\n.reply-view-image .show-image-wrap .image-content {\n  width: calc(100vw - 200px);\n  max-width: var(--34114ac9);\n  -webkit-user-drag: none;\n}\n\n.reply-view-image .preview-list {\n  display: flex;\n  align-items: center;\n  position: absolute;\n  left: 50%;\n  bottom: 30px;\n  z-index: 2;\n  padding: 6px 10px;\n  border-radius: 8px;\n  background: rgba(24, 25, 28, 0.8);\n  backdrop-filter: blur(20px);\n  transform: translate(-50%);\n}\n\n.reply-view-image .preview-list .preview-item-box {\n  padding: 1px;\n  border: 2px solid transparent;\n  border-radius: 8px;\n  transition: 0.3s;\n  cursor: pointer;\n}\n\n.reply-view-image .preview-list .preview-item-box.active {\n  border-color: var(--brand_pink);\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap {\n  display: flex;\n  justify-content: center;\n  overflow: hidden;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.vertical {\n  flex-direction: column;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap.extra-long {\n  justify-content: start;\n}\n\n.reply-view-image .preview-list .preview-item-box .preview-item-wrap .item-content {\n  -webkit-user-drag: none;\n}\n\n.reply-view-image--transition-enter-active,\n.reply-view-image--transition-leave-active {\n  transition: all 0.3s ease;\n}\n\n.reply-view-image--transition-enter-from,\n.reply-view-image--transition-leave-to {\n  transform: scale(0.4);\n  opacity: 0;\n}\n\n.reply-warp {\n  position: relative;\n}\n\n.reply-warp .fixed-reply-box {\n  position: fixed;\n  bottom: 0;\n  left: var(--3e88ddc5);\n  z-index: 10;\n  width: var(--d9a0b070);\n}\n\n.reply-warp .fixed-reply-box .reply-box-shadow {\n  position: absolute;\n  top: -10px;\n  z-index: 1;\n  width: 100%;\n  height: 36px;\n  border-radius: 50%;\n  background-color: #00000014;\n  filter: blur(10px);\n}\n\n.reply-warp .fixed-reply-box--transition-enter-active,\n.reply-warp .fixed-reply-box--transition-leave-active {\n  transition: opacity 0.5s ease;\n}\n\n.reply-warp .fixed-reply-box--transition-enter-from,\n.reply-warp .fixed-reply-box--transition-leave-to {\n  opacity: 0;\n}\n\n.bili-comment.browser-pc {\n  background-color: var(--bg1);\n}\n\n.bili-comment.browser-pc * {\n  font-family:\n    PingFang SC,\n    HarmonyOS_Regular,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  font-weight: 400;\n  box-sizing: border-box;\n  -webkit-font-smoothing: antialiased;\n}\n\n@media (-webkit-max-device-pixel-ratio: 1) {\n  .bili-comment.browser-pc * {\n    font-family:\n      -apple-system,\n      BlinkMacSystemFont,\n      Helvetica Neue,\n      Helvetica,\n      Arial,\n      PingFang SC,\n      Hiragino Sans GB,\n      Microsoft YaHei,\n      sans-serif;\n  }\n}\n\n.bili-comment.browser-pc * ul {\n  padding: 0;\n  margin: 0;\n  list-style: none;\n}\n\n.bili-comment.browser-pc * a {\n  text-decoration: none;\n  background-color: transparent;\n  color: var(--text_link);\n  cursor: pointer;\n}\n\n.bili-comment.browser-pc * a:hover {\n  color: var(--Lb4);\n}\n\n.bili-comment.browser-pc * i {\n  font-style: normal;\n}\n\n.bili-comment.browser-pc * p {\n  margin: 0;\n  padding: 0;\n}\n\n.bili-comment.browser-pc .comment-container {\n  animation-name: enterAnimation-commentContainer;\n  animation-duration: 1s;\n  animation-fill-mode: forwards;\n}\n\n.reply-operation-client {\n  display: inline-flex;\n  position: relative;\n}\n\n.reply-operation-client .operation-icon {\n  border-radius: 4px;\n  cursor: pointer;\n}\n\n.reply-operation-client .operation-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-operation-client .operation-list {\n  display: flex;\n  flex-direction: column;\n  position: absolute;\n  top: 10px;\n  right: 0;\n  z-index: 10;\n  width: 180px;\n  padding: 12px 0;\n  border-radius: 6px;\n  font-size: 14px;\n  color: var(--text2);\n  background-color: var(--bg1_float);\n  box-shadow: 0 0 5px #0003;\n}\n\n.reply-operation-client .operation-list .operation-option {\n  display: flex;\n  align-items: center;\n  height: 40px;\n  padding: 0 15px;\n  cursor: pointer;\n}\n\n.reply-operation-client .operation-list .operation-option:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal {\n  position: absolute;\n  top: 0;\n  left: 50%;\n  width: auto;\n  padding: 10px 20px;\n  border: 1px solid var(--graph_bg_thick);\n  border-radius: 8px;\n  margin-bottom: 100px;\n  font-size: 12px;\n  line-height: 12px;\n  text-align: center;\n  white-space: nowrap;\n  background-color: var(--bg1);\n  box-shadow: 0 0 5px #0003;\n  transform: translate(-50%, -100%);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn {\n  display: flex;\n  justify-content: center;\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 40px;\n  height: 20px;\n  border-radius: 4px;\n  margin-right: 20px;\n  color: var(--text_white);\n  background-color: var(--brand_blue);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .comfirm-delete:hover {\n  background-color: var(--Lb4);\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 40px;\n  height: 20px;\n}\n\n.reply-operation-client .operation-list .delete-reply-modal .delete-reply-btn .cancel-delete:hover {\n  color: var(--brand_blue);\n}\n\n.select-reply-dialog-client .select-dialog-content {\n  text-align: left;\n}\n\n.select-reply-dialog-client .cancel-select-reply {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.select-reply-dialog-client .comfirm-select-reply {\n  width: 130px;\n}\n\n.close-reply-dialog-client .close-reply-dialog-content {\n  text-align: left;\n}\n\n.close-reply-dialog-client .cancel-close-reply {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.close-reply-dialog-client .comfirm-close-reply {\n  width: 130px;\n}\n\n.close-danmaku-dialog-client .close-danmaku-dialog-content {\n  text-align: left;\n}\n\n.close-danmaku-dialog-client .cancel-close-danmaku {\n  width: 130px;\n  margin-right: 20px;\n}\n\n.close-danmaku-dialog-client .comfirm-close-danmaku {\n  width: 130px;\n}\n\n.blacklist-dialog-client .blacklist-dialog-content {\n  text-align: center;\n}\n\n.blacklist-dialog-client .comfirm-pull-blacklist {\n  margin-right: 20px;\n}\n\n.reply-header-client .reply-notice {\n  display: flex;\n  align-items: center;\n  position: relative;\n  height: 40px;\n  padding: 11px 14px;\n  margin-bottom: 10px;\n  font-size: 12px;\n  border-radius: 2px;\n  color: var(--text_notice);\n  background-color: var(--Or0);\n  cursor: pointer;\n}\n\n.reply-header-client .reply-notice .notice-content {\n  flex: 1;\n  position: relative;\n  padding: 0 5px;\n  line-height: 18px;\n  vertical-align: top;\n  word-wrap: break-word;\n  word-break: break-all;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  transition: 2s;\n}\n\n.reply-header-client .reply-navigation {\n  margin: 12px 0;\n}\n\n.reply-header-client .reply-navigation .nav-bar {\n  display: flex;\n  align-items: center;\n  position: relative;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-select-reply {\n  font-size: 12px;\n  color: var(--text1);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort {\n  display: flex;\n  align-items: center;\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .part-symbol {\n  height: 10px;\n  margin: 0 8px;\n  border-left: solid 1px;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort {\n  cursor: pointer;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .hot-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort {\n  cursor: pointer;\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort .time-sort:hover {\n  color: var(--brand_blue);\n}\n\n.reply-header-client .reply-navigation .nav-bar .nav-sort.hot .hot-sort,\n.reply-header-client .reply-navigation .nav-bar .nav-sort.time .time-sort {\n  color: var(--text1);\n}\n\n.reply-header-client .reply-navigation .nav-operation-warp {\n  position: absolute;\n  right: 0;\n}\n\n.reply-box-client {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-box-client .reply-box-warp {\n  position: relative;\n  flex: 1;\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea {\n  width: 100%;\n  height: 32px;\n  padding: 5px 12px;\n  border: 1px solid transparent;\n  border-radius: 6px;\n  line-height: 20px;\n  color: var(--text1);\n  background-color: var(--bg2);\n  resize: none;\n  outline: none;\n  transition: 0.2s;\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea::placeholder {\n  color: var(--text4);\n}\n\n.reply-box-client .reply-box-warp .reply-box-textarea.focus,\n.reply-box-client .reply-box-warp .reply-box-textarea:hover {\n  border-color: var(--brand_pink);\n}\n\n.reply-box-client .box-operation-warp {\n  display: flex;\n  align-items: center;\n  margin-top: 10px;\n  height: 32px;\n}\n\n.reply-box-client .box-operation-warp .reply-box-emoji {\n  position: relative;\n  margin-right: auto;\n}\n\n.reply-box-client .box-operation-warp .reply-box-emoji .box-emoji-icon {\n  cursor: pointer;\n}\n\n.reply-box-client .box-operation-warp .reply-box-send {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 70px;\n  height: 100%;\n  border-radius: 4px;\n  cursor: pointer;\n}\n\n.reply-box-client .box-operation-warp .reply-box-send .send-text {\n  position: absolute;\n  z-index: 1;\n  color: var(--text_white);\n}\n\n.reply-box-client .box-operation-warp .reply-box-send:after {\n  content: "";\n  position: absolute;\n  opacity: 0.5;\n  width: 100%;\n  height: 100%;\n  border-radius: 4px;\n  background-color: var(--brand_pink);\n}\n\n.reply-box-client .box-operation-warp .reply-box-send:hover:after {\n  opacity: 1;\n}\n\n.reply-box-client.box-active .reply-box-warp .reply-box-textarea {\n  height: 60px;\n}\n\n.reply-box-client.box-active .reply-box-send.send-active:after {\n  opacity: 1;\n}\n\n.reply-box-client.disabled .reply-box-warp .disable-mask {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: absolute;\n  top: 0;\n  left: 0;\n  z-index: 1;\n  width: 100%;\n  height: 100%;\n  border-radius: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg3);\n}\n\n.reply-box-client.disabled .reply-box-warp .disable-mask .no-login-mask {\n  cursor: pointer;\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send {\n  cursor: not-allowed;\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send .send-text {\n  color: var(--text3);\n}\n\n.reply-box-client.disabled .box-operation-warp .reply-box-send:after {\n  opacity: 1;\n  background-color: var(--bg3);\n}\n\n.note-prefix {\n  vertical-align: -3px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0 3px;\n  line-height: 19px;\n  border-radius: 4px;\n  margin-right: 6px;\n  font-size: 12px;\n  color: var(--text3);\n  background-color: var(--bg2);\n}\n\n.note-prefix .note-icon {\n  width: 16px;\n  height: 16px;\n}\n\n.reply-content-client {\n  color: var(--text1);\n  overflow: hidden;\n  word-wrap: break-word;\n  word-break: break-word;\n  white-space: pre-wrap;\n  vertical-align: baseline;\n  transition: 0.2s;\n}\n\n.reply-content-client.root {\n  line-height: 25px;\n}\n\n.reply-content-client.need-view-more {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  overflow: hidden;\n}\n\n.reply-content-client.sub {\n  line-height: 20px;\n}\n\n.reply-content-client .top-icon {\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  width: 30px;\n  height: 18px;\n  border: 1px solid var(--brand_pink);\n  border-radius: 3px;\n  margin-right: 5px;\n  font-size: 12px;\n  color: var(--brand_pink);\n  vertical-align: 1px;\n}\n\n.reply-content-client .emoji-small {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .emoji-large {\n  width: 36px;\n  height: 36px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .jump-link {\n  vertical-align: baseline;\n}\n\n.reply-content-client .icon {\n  width: 20px;\n  height: 20px;\n  vertical-align: text-top;\n}\n\n.reply-content-client .icon.vote {\n  width: 16px;\n  height: 16px;\n  margin-right: 3px;\n  vertical-align: text-bottom;\n}\n\n.reply-content-client .icon.search-word {\n  width: 12px;\n  display: inline-block;\n  background-size: contain;\n  background-repeat: no-repeat;\n}\n\n.view-more-reply {\n  font-size: 12px;\n  color: var(--text_link);\n  line-height: 17px;\n  cursor: pointer;\n}\n\n.view-more-reply:hover {\n  color: var(--Lb4);\n}\n\n.sub-reply-item-client {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n  position: relative;\n  max-height: 42px;\n  padding: 3px 0;\n  font-size: 14px;\n  overflow: hidden;\n}\n\n.sub-reply-item-client .sub-user-info {\n  display: inline-flex;\n  align-items: center;\n  color: var(--text2);\n  line-height: 20px;\n  vertical-align: baseline;\n  white-space: nowrap;\n}\n\n.sub-reply-item-client .sub-user-info .sub-user-name {\n  margin-right: 5px;\n  font-size: 14px;\n  cursor: pointer;\n}\n\n.sub-reply-item-client .sub-user-info .sub-up-icon {\n  margin-right: 4px;\n  cursor: default;\n}\n\n.sub-reply-list-client {\n  border-radius: 4px;\n  padding: 7px 10px;\n  margin-top: 12px;\n  background-color: var(--bg2_float);\n}\n\n.sub-reply-list-client .view-more {\n  margin-top: 4px;\n  cursor: pointer;\n}\n\n.sub-reply-list-client .view-more .view-more-text {\n  font-size: 12px;\n  color: var(--text_link);\n}\n\n.sub-reply-list-client .view-more .view-more-text:hover {\n  color: var(--Lb4);\n}\n\n.content-warp--blacklist .reply-content {\n  display: inline-flex;\n  align-items: center;\n  padding: 4px;\n  border-radius: 4px;\n  color: var(--text1);\n  background-color: var(--bg2_float);\n}\n\n.content-warp--blacklist .reply-content .ban-icon {\n  margin-right: 4px;\n}\n\n.content-warp--blacklist .reply-header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 8px;\n}\n\n.content-warp--blacklist .reply-header .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: 0;\n  cursor: pointer;\n}\n\n.content-warp--blacklist .reply-header .root-reply-avatar .blacklist-avatar {\n  width: 30px;\n  height: 30px;\n}\n\n.content-warp--blacklist .reply-header .reply-info .balcklist-name {\n  color: var(--text1);\n}\n\n.reply-item-client {\n  position: relative;\n  padding: 10px 0 14px 42px;\n  border-bottom: 1px solid var(--line_light);\n}\n\n.reply-item-client .content-warp {\n  flex: 1;\n  position: relative;\n}\n\n.reply-item-client .content-warp .reply-header {\n  display: flex;\n  align-items: center;\n  margin-bottom: 8px;\n}\n\n.reply-item-client .content-warp .reply-header .root-reply-avatar {\n  display: flex;\n  justify-content: center;\n  position: absolute;\n  left: -42px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info {\n  display: flex;\n  flex-direction: column;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info {\n  display: flex;\n  align-items: center;\n  font-size: 13px;\n  color: var(--text2);\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-name {\n  margin-right: 5px;\n  color: var(--be794234);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .user-level {\n  margin-right: 5px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .user-info .up-icon {\n  cursor: default;\n}\n\n.reply-item-client .content-warp .reply-header .reply-info .reply-time {\n  font-size: 12px;\n  color: var(--text3);\n}\n\n.reply-item-client .content-warp .root-reply {\n  position: relative;\n  font-size: 15px;\n  line-height: 25px;\n  transition: 0.2s;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp {\n  display: flex;\n  align-items: center;\n  position: relative;\n  margin-top: 12px;\n  font-size: 13px;\n  color: var(--text3);\n  line-height: 16px;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon {\n  margin-right: 5px;\n  color: var(--text3);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon:hover,\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-like .like-icon.liked {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike {\n  display: flex;\n  align-items: center;\n  margin-right: 19px;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon {\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon:hover,\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-dislike .dislike-icon.disliked {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon {\n  color: var(--text3);\n  cursor: pointer;\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .reply-icon:hover {\n  color: var(--brand_pink);\n}\n\n.reply-item-client .content-warp .root-reply .reply-operation-warp .more-operation {\n  display: none;\n  position: absolute;\n  right: 20px;\n}\n\n.reply-item-client .content-warp .reply-item-box {\n  margin-top: 12px;\n}\n\n.reply-item-client .content-warp .reply-tag-list {\n  display: flex;\n  align-items: center;\n  margin-top: 12px;\n  font-size: 12px;\n  line-height: 14px;\n}\n\n.reply-item-client .content-warp .reply-tag-list .reply-tag-item {\n  padding: 5px 6px;\n  border-radius: 2px;\n  margin-right: 10px;\n  color: var(--text2);\n  background-color: var(--bg2_float);\n}\n\n.reply-item-client:hover .content-warp .root-reply .reply-operation-warp .more-operation {\n  display: block;\n}\n\n.reply-list {\n  position: relative;\n  margin-top: 14px;\n  padding-bottom: 100px;\n}\n\n.reply-list .reply-empty {\n  margin-top: 100px;\n  text-align: center;\n  font-size: 14px;\n  color: var(--text3);\n}\n\n.reply-list .reply-end-mark {\n  height: 100px;\n}\n\n.reply-list .reply-end,\n.reply-list .reply-loading {\n  margin-top: 20px;\n  font-size: 13px;\n  color: var(--text3);\n  text-align: center;\n}\n\n.fixed-reply-box {\n  bottom: 0;\n  z-index: 20;\n  width: 100%;\n}\n\n.fixed-reply-box .reply-box-wrap {\n  background-color: var(--bg1);\n  padding: 14px 0;\n  border-top: 1px solid var(--line_light);\n}\n\n.fixed-reply-box .reply-box-shadow {\n  position: absolute;\n  top: -10px;\n  z-index: -1;\n  height: 36px;\n  border-radius: 50%;\n  background-color: #00000014;\n  filter: blur(10px);\n  width: calc(100% - 72px);\n  left: 50%;\n  transform: translate(-50%);\n}\n\n.reply-detail {\n  flex: 1;\n}\n\n.reply-detail .reply-header {\n  display: flex;\n  align-items: center;\n  position: sticky;\n  z-index: 9;\n  top: 0;\n  left: 0;\n  height: 46px;\n  border-bottom: 1px solid var(--line_light);\n  margin-bottom: 14px;\n  background-color: var(--bg1);\n}\n\n.reply-detail .reply-header .return-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 32px;\n  height: 32px;\n  border-radius: 4px;\n  margin-right: 4px;\n  color: var(--text1);\n  cursor: pointer;\n}\n\n.reply-detail .reply-header .return-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.reply-detail .reply-header .reply-title {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--text1);\n}\n\n.dialog-reply {\n  flex: 1;\n}\n\n.dialog-reply .reply-header {\n  display: flex;\n  align-items: center;\n  position: sticky;\n  z-index: 9;\n  top: 0;\n  left: 0;\n  height: 46px;\n  border-bottom: 1px solid var(--line_light);\n  margin-bottom: 14px;\n  background-color: var(--bg1);\n}\n\n.dialog-reply .reply-header .return-icon {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  width: 32px;\n  height: 32px;\n  border-radius: 4px;\n  margin-right: 4px;\n  color: var(--text1);\n  cursor: pointer;\n}\n\n.dialog-reply .reply-header .return-icon:hover {\n  background-color: var(--graph_bg_thick);\n}\n\n.dialog-reply .reply-header .reply-title {\n  font-size: 16px;\n  font-weight: 600;\n  color: var(--text1);\n}\n\n.bili-comment.client {\n  background-color: var(--bg1);\n}\n\n.bili-comment.client * {\n  box-sizing: border-box;\n  font-family:\n    PingFang SC,\n    HarmonyOS_Regular,\n    Helvetica Neue,\n    Microsoft YaHei,\n    sans-serif;\n  -webkit-font-smoothing: antialiased;\n}\n\n.bili-comment.client * ul {\n  list-style: none;\n}\n\n.bili-comment.client * a {\n  text-decoration: none;\n  background-color: transparent;\n  color: var(--text_link);\n  cursor: pointer;\n}\n\n.bili-comment.client * a:hover {\n  color: var(--Lb4);\n}\n\n.bili-comment.client * i {\n  font-style: normal;\n}\n\n/* new */\n.sub-reply-item {\n  display: flex;\n}\n.reply-split-line {\n  color: #a9a9a9;\n  margin: 0px 4px;\n  align-self: center;\n}\n.sub-reply-item .reply-content-container.sub-reply-content {\n  display: flex;\n}\n\n.sub-reply-item .sub-reply-like {\n  color: #a9a9a9;\n  display: flex;\n  align-items: center;\n}\n\n.sub-reply-list-preview {\n  background: #f6f7f9;\n  border-radius: 4px;\n  padding: 8px;\n}\n.sub-reply-list-preview:empty,\n.sub-reply-list-preview:not(:has(.sub-reply-item)) {\n  display: none;\n}\n\n.sub-reply-list-preview .view-more-default {\n  color: #5b8ea5;\n  margin-top: 8px;\n}\n.sub-reply-list-preview .sub-reply-item .sub-user-info {\n  margin-right: 0;\n}\n.sub-reply-list-preview .sub-user-name {\n  color: #a9a9a9;\n  text-wrap: nowrap;\n}\n.sub-reply-list-preview .reply-content-container .svg-icon {\n  display: inline-block;\n  vertical-align: text-top;\n}\n.sub-reply-list-preview .reply-content {\n  display: -webkit-box;\n  -webkit-box-orient: vertical;\n  -webkit-line-clamp: 2;\n  line-clamp: 2;\n  overflow: hidden;\n}\n\n/* 楼中楼的样式 */\n.lzl-comment-container {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  overflow: auto;\n}\n.lzl-comment-container .reply-list {\n  padding-bottom: 0px;\n}\n\n.lzl-comment-container .reply-lzl-split-line {\n  background: #f2f2f2;\n  width: 100%;\n  height: 12px;\n}\n.lzl-comment-container .reply-lzl-content-control {\n  color: #a8a6a9;\n  padding: 12px;\n  margin: 4px 0px;\n}\n.lzl-comment-container .reply-lzl-content-control .nav-bar {\n  display: flex;\n  justify-content: space-between;\n  font-size: 14px;\n}\n';
   var BilibiliUrl = {
     getUserSpaceUrl(userId) {
       return `https://m.bilibili.com/space/${userId}`;
@@ -4349,62 +4491,111 @@
     },
   };
   var GestureBack = class {
-    isBacking = false;
+    isQuiting = false;
+    isEntering = false;
+    pushCount = 0;
     config;
     constructor(config) {
       this.config = config;
       this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
       this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
       this.popStateEvent = this.popStateEvent.bind(this);
+      if (this.config.hash.trim() == "") throw new Error("hash不能为空");
       if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime))
         this.config.backDelayTime = 150;
       if (this.config.win == null) this.config.win = self;
     }
     popStateEvent(event) {
       domUtils.preventEvent(event);
-      if (this.isBacking) return;
-      this.quitGestureBackMode(true);
+      if (this.isEntering) return;
+      if (this.isQuiting) return;
+      this.quitGestureBackMode(void 0, true);
     }
-    enterGestureBackMode() {
-      log.success("进入手势模式");
-      let pushUrl = this.config.hash;
-      if (!pushUrl.startsWith("#")) {
-        if (!pushUrl.startsWith("/")) pushUrl = "/" + pushUrl;
-        pushUrl = "#" + pushUrl;
-      }
-      if (this.config.useUrl)
-        pushUrl =
-          this.config.win.location.origin +
-          this.config.win.location.pathname +
-          this.config.win.location.search +
-          pushUrl;
-      this.config.win.history.pushState({}, "", pushUrl);
-      log.success("监听popstate事件");
-      domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
-      if (typeof this.config.onEnter == "function") this.config.onEnter();
+    fixHash(hash) {
+      if (!hash.startsWith("#")) {
+        if (!hash.startsWith("/")) hash = "/" + hash;
+        hash = "#" + hash;
+      } else if (!hash.startsWith("#/")) hash = hash.replace(/^#/, "#/");
+      return hash;
     }
-    async quitGestureBackMode(isUrlChange = false) {
-      this.isBacking = true;
-      log.success("退出手势模式");
-      if (typeof this.config.beforeHistoryBackCallBack === "function")
-        this.config.beforeHistoryBackCallBack(isUrlChange);
-      let maxDate = Date.now() + 5e3;
-      while (true) {
-        if (Date.now() > maxDate) {
-          log.error("未知情况，history.back()失败，无法退出手势模式");
-          break;
-        }
-        if (this.config.win.location.hash.endsWith(this.config.hash)) {
-          log.info("history.back()");
-          this.config.win.history.back();
+    async enterGestureBackMode(hash) {
+      try {
+        this.isEntering = true;
+        const isAddPushRecord = hash != null;
+        log.success(isAddPushRecord ? "追加手势记录 " + hash : "进入手势模式");
+        let pushUrl = hash ?? this.config.hash;
+        pushUrl = this.fixHash(pushUrl);
+        if (this.config.useUrl)
+          pushUrl =
+            this.config.win.location.origin +
+            this.config.win.location.pathname +
+            this.config.win.location.search +
+            pushUrl;
+        this.config.win.history.pushState({}, "", pushUrl);
+        if (isAddPushRecord) {
           await _whitesev_utils.default.sleep(this.config.backDelayTime || 150);
-        } else break;
+          return;
+        }
+        domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        log.success("监听popstate事件");
+        domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        if (typeof this.config.onEnter == "function") this.config.onEnter();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.isEntering = false;
       }
-      log.success("移除popstate事件");
-      domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
-      this.isBacking = false;
-      if (typeof this.config.afterHistoryBackCallBack === "function") this.config.afterHistoryBackCallBack(isUrlChange);
-      if (typeof this.config.onEnter == "function") this.config.onQuite();
+    }
+    async quitGestureBackMode(hash = this.config.hash, isFromPopStateEvent = false) {
+      try {
+        this.isQuiting = true;
+        if (typeof this.config.beforeHistoryBackCallBack === "function") {
+          const result = await this.config.beforeHistoryBackCallBack({
+            hash,
+            isFromPopStateEvent,
+          });
+          if (typeof result == "object" && result) {
+            if (result.isPreventDefault) {
+              log.info("取消手势退出");
+              return;
+            }
+          }
+        }
+        log.success("开始检测并退出手势模式");
+        let maxDate = Date.now() + 5e3;
+        hash = this.fixHash(hash);
+        while (1) {
+          if (Date.now() > maxDate) {
+            log.error("未知情况，history.back()失败，无法退出手势模式");
+            break;
+          }
+          if (this.config.win.location.hash == hash) {
+            this.back();
+            log.info("history.back()");
+            await _whitesev_utils.default.sleep(this.config.backDelayTime);
+          } else break;
+        }
+        const configFixHash = this.fixHash(this.config.hash);
+        if (hash != configFixHash) return;
+        log.success("移除popstate事件");
+        domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        if (typeof this.config.afterHistoryBackCallBack === "function")
+          await this.config.afterHistoryBackCallBack({
+            hash,
+            isFromPopStateEvent,
+          });
+        if (typeof this.config.onEnter == "function") this.config.onQuite();
+        log.success("成功完整退出手势模式");
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.isQuiting = false;
+      }
+    }
+    back() {
+      if (this.config.win.location.hash == "") return false;
+      this.config.win.history.back();
+      return true;
     }
   };
   var BilibiliApiRequestCheck = {
@@ -4423,7 +4614,7 @@
         fnval: config.fnval ?? 1,
         fnver: config.fnver ?? 0,
         fourk: config.fourk ?? 1,
-        try_look: (await BilibiliGlobalData.$data.isLogin) ? 0 : 1,
+        try_look: (await BilibiliGlobalData.isLogin()) ? 0 : 1,
         platform: config.setPlatformHTML5 ? "html5" : "pc",
       };
       BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
@@ -4482,7 +4673,7 @@
     },
   };
   var player_default =
-    "/* 设置播放器基础宽高 */\n#artplayer {\n  width: 100%;\n  height: 100%;\n}\n/* 通用隐藏class */\n.art-video-player .art-common-hide {\n  display: none !important;\n}\n/* 设置播放器基础宽高 */\n.art-video-player {\n  width: 100% !important;\n}\n/* 播放时隐藏进度条 */\n.art-hide-cursor .art-progress {\n  display: none !important;\n}\n/* 不知道为什么背景模糊了 */\n.art-video-player.art-backdrop .art-settings {\n  backdrop-filter: unset !important;\n}\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\n  max-width: 100px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n/* 竖屏 宽度小于400px */\n@media (orientation: portrait) and (max-width: 400px) {\n  /* 修正小屏下宽度溢出 */\n  .art-controls .art-control {\n    max-width: 60px;\n    white-space: pre-wrap;\n  }\n}\n\n/* 竖屏 宽度小于550px */\n@media (orientation: portrait) and (max-width: 550px) {\n  /* 隐藏 弹幕设置按钮 */\n  .artplayer-plugin-danmuku .apd-config ,\n    /* 隐藏 弹幕输入框 */\n	.artplayer-plugin-danmuku .apd-emitter {\n    display: none !important;\n  }\n  /* 弹幕库靠右对齐 */\n  .artplayer-plugin-danmuku {\n    justify-content: right;\n  }\n}\n/* 横屏 */\n@media (orientation: landscape) {\n  /* 限制弹幕输入框的最大宽度 */\n  .artplayer-plugin-danmuku .apd-emitter {\n    max-width: 260px;\n  }\n}\n\n/* 插件-在线观看人数  */\n.art-lock .art-layer-top-wrap {\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\n  display: none !important;\n}\n.art-layer-top-wrap {\n  --layer-top-wrap-follow-text-font-size: 0.8em;\n  --layer-top-wrap-follow-icon-size: 1em;\n  width: 100%;\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  color: #fff;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  left: 0;\n  -webkit-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  width: 100%;\n  background: linear-gradient(to bottom, #000, transparent);\n  padding: 10px calc(var(--art-padding));\n  z-index: 60;\n}\n.art-player-top-wrap {\n  width: 100%;\n}\n.art-player-top-wrap .art-player-top-title-text {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  max-width: 100%;\n}\n/* 面板隐藏时，顶部toolbar也隐藏 */\n.art-hide-cursor .art-layer-top-wrap {\n  transform: translateY(-60px);\n}\n/*.art-layer-top-wrap .art-player-top-wrap {\n}\n.art-layer-top-wrap .art-player-top-title-text {\n}*/\n/* 下面的当前在线观看人数 */\n.art-layer-top-wrap .art-player-top-follow {\n  margin-top: var(--art-padding);\n  gap: var(--layer-top-wrap-follow-text-font-size);\n  font-size: var(--layer-top-wrap-follow-text-font-size);\n  display: flex;\n  align-items: center;\n  position: absolute;\n}\n.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {\n  width: var(--layer-top-wrap-follow-icon-size);\n  height: var(--layer-top-wrap-follow-icon-size);\n}\n.art-layer-top-wrap .art-player-top-follow-text {\n  text-wrap: nowrap;\n}\n/* 插件-在线观看人数  */\n\n/* 插件-锁定 */\n.art-video-player .art-layers .art-layer.art-layer-lock {\n  /* 放在右边 */\n  right: 0;\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\n}\n/* 插件-锁定 */\n";
+    "/* 设置播放器基础宽高 */\n#artplayer {\n  width: 100%;\n  height: 100%;\n}\n/* 通用隐藏class */\n.art-video-player .art-common-hide {\n  display: none !important;\n}\n/* 设置播放器基础宽高 */\n.art-video-player {\n  width: 100% !important;\n}\n/* 播放时隐藏进度条 */\n.art-hide-cursor .art-progress {\n  display: none !important;\n}\n/* 不知道为什么背景模糊了 */\n.art-video-player.art-backdrop .art-settings {\n  backdrop-filter: unset !important;\n}\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\n  max-width: 100px;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  overflow: hidden;\n}\n\n/* 竖屏 宽度小于400px */\n@media (orientation: portrait) and (max-width: 400px) {\n  /* 修正小屏下宽度溢出 */\n  .art-controls .art-control {\n    max-width: 60px;\n    white-space: pre-wrap;\n  }\n}\n\n/* 竖屏 宽度小于550px */\n@media (orientation: portrait) and (max-width: 550px) {\n  /* 隐藏 弹幕设置按钮 */\n  .artplayer-plugin-danmuku .apd-config ,\n    /* 隐藏 弹幕输入框 */\n	.artplayer-plugin-danmuku .apd-emitter {\n    display: none !important;\n  }\n  /* 弹幕库靠右对齐 */\n  .artplayer-plugin-danmuku {\n    justify-content: right;\n  }\n}\n/* 横屏 */\n@media (orientation: landscape) {\n  /* 限制弹幕输入框的最大宽度 */\n  .artplayer-plugin-danmuku .apd-emitter {\n    max-width: 260px;\n  }\n}\n\n/* 插件-在线观看人数  */\n.art-lock .art-layer-top-wrap {\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\n  display: none !important;\n}\n.art-layer-top-wrap {\n  --layer-top-wrap-follow-text-font-size: 0.8em;\n  --layer-top-wrap-follow-icon-size: 1em;\n  width: 100%;\n  position: absolute;\n  top: 0px;\n  right: 0px;\n  color: #fff;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  left: 0;\n  -webkit-transition: all 0.2s ease-in-out;\n  transition: all 0.2s ease-in-out;\n  width: 100%;\n  background: linear-gradient(to bottom, #000, transparent);\n  padding: 10px calc(var(--art-padding));\n  z-index: 60;\n}\n.art-player-top-wrap {\n  width: 100%;\n}\n.art-player-top-wrap .art-player-video-title-text {\n  white-space: nowrap;\n  text-overflow: ellipsis;\n  overflow: hidden;\n  max-width: 100%;\n}\n.art-player-top-container {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  width: 100%;\n  overflow-x: auto;\n  white-space: nowrap;\n}\n.art-player-top-left-container {\n  max-width: 50%;\n}\n.art-player-top-right-container {\n  display: none;\n}\n/* 全屏下才显示 */\n.art-fullscreen .art-player-top-right-container {\n  display: flex;\n  gap: 5px;\n}\n.art-player-top-right-container .art-player-top-right-icon {\n  display: flex;\n}\n.art-player-top-right-container .art-player-top-right-icon span {\n  font-size: 0.7em;\n  display: flex;\n  align-items: flex-start;\n}\n/* 面板隐藏时，顶部toolbar也隐藏 */\n.art-hide-cursor .art-layer-top-wrap {\n  transform: translateY(-60px);\n}\n/* 下面的当前在线观看人数 */\n.art-layer-top-wrap .art-player-top-left-title-follow-container {\n  margin-top: var(--art-padding);\n  gap: var(--layer-top-wrap-follow-text-font-size);\n  font-size: var(--layer-top-wrap-follow-text-font-size);\n  display: flex;\n  align-items: center;\n  position: absolute;\n}\n.art-layer-top-wrap .art-player-top-left-title-follow-container .art-player-top-left-title-follow-icon {\n  width: var(--layer-top-wrap-follow-icon-size);\n  height: var(--layer-top-wrap-follow-icon-size);\n}\n.art-layer-top-wrap .art-player-top-left-title-follow-text {\n  text-wrap: nowrap;\n}\n/* 插件-在线观看人数  */\n\n/* 插件-锁定 */\n.art-video-player .art-layers .art-layer.art-layer-lock {\n  /* 放在右边 */\n  right: 0;\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\n}\n/* 插件-锁定 */\n";
   var VideoSoundQualityCode = {
     30216: "64K",
     30232: "132K",
@@ -4490,578 +4681,110 @@
     30250: "杜比全景声",
     30251: "Hi-Res无损",
   };
-  var ArtPlayerDanmakuOptionHelper = class {
-    $data = {
-      KEY: "art-player-danmaku-option",
-      localArtDanmakuOption: {},
+  var ArtPlayerBiliBiliIcon = {
+    loading: `<img src="data:image/gif;base64,R0lGODlhWgBaALMOAHR0dAICAnd3dwEBAXh4eAMDAwkJCQ0NDQsLCxwcHA4ODggICHl5eQAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiYWE1ODg5ZS1jN2RmLTRmZmUtYjkzOS0wMmVkMTZhNmNjZDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6M0I2ODI2NjA1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6M0I2ODI2NUY1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjljYjgzNjY2LWYxYWUtNGMyZi1hMGEwLThhODJmYjIxM2U0MyIgc3RSZWY6ZG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmU1NDE3YzFmLTllODAtMTE3OS04NjdiLWUy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">`,
+    state: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 80 80" width="100" height="100"><defs><path id="pid-64-svgo-a" d="M0 0h80v80H0z"/><path d="M52.546 8.014a3.998 3.998 0 014.222 3.077c.104.446.093.808.039 1.138a2.74 2.74 0 01-.312.881c-.073.132-.16.254-.246.376l-.257.366-.521.73c-.7.969-1.415 1.926-2.154 2.866l-.015.02a240.945 240.945 0 015.986.341l1.643.123.822.066.41.034.206.018.103.008.115.012c1.266.116 2.516.45 3.677.975a11.663 11.663 0 013.166 2.114c.931.87 1.719 1.895 2.321 3.022a11.595 11.595 0 011.224 3.613c.03.157.046.316.068.474l.015.119.013.112.022.206.085.822.159 1.646c.1 1.098.19 2.198.27 3.298.315 4.4.463 8.829.36 13.255a166.489 166.489 0 01-.843 13.213c-.012.127-.034.297-.053.454a7.589 7.589 0 01-.072.475l-.04.237-.05.236a11.762 11.762 0 01-.74 2.287 11.755 11.755 0 01-5.118 5.57 11.705 11.705 0 01-3.623 1.263c-.158.024-.316.052-.475.072l-.477.053-.821.071-1.644.134c-1.096.086-2.192.16-3.288.23a260.08 260.08 0 01-6.578.325c-8.772.324-17.546.22-26.313-.302a242.458 242.458 0 01-3.287-.22l-1.643-.129-.822-.069-.41-.035-.206-.018c-.068-.006-.133-.01-.218-.02a11.566 11.566 0 01-3.7-.992 11.732 11.732 0 01-5.497-5.178 11.73 11.73 0 01-1.215-3.627c-.024-.158-.051-.316-.067-.475l-.026-.238-.013-.119-.01-.103-.07-.823-.132-1.648a190.637 190.637 0 01-.22-3.298c-.256-4.399-.358-8.817-.258-13.233.099-4.412.372-8.811.788-13.197a11.65 11.65 0 013.039-6.835 11.585 11.585 0 016.572-3.563c.157-.023.312-.051.47-.07l.47-.05.82-.07 1.643-.13a228.493 228.493 0 016.647-.405l-.041-.05a88.145 88.145 0 01-2.154-2.867l-.52-.73-.258-.366c-.086-.122-.173-.244-.246-.376a2.74 2.74 0 01-.312-.881 2.808 2.808 0 01.04-1.138 3.998 3.998 0 014.22-3.077 2.8 2.8 0 011.093.313c.294.155.538.347.742.568.102.11.19.23.28.35l.27.359.532.72a88.059 88.059 0 012.06 2.936 73.036 73.036 0 011.929 3.03c.187.313.373.628.556.945 2.724-.047 5.447-.056 8.17-.038.748.006 1.496.015 2.244.026.18-.313.364-.624.549-.934a73.281 73.281 0 011.93-3.03 88.737 88.737 0 012.059-2.935l.533-.72.268-.359c.09-.12.179-.24.281-.35a2.8 2.8 0 011.834-.881zM30.13 34.631a4 4 0 00-.418 1.42 91.157 91.157 0 00-.446 9.128c0 2.828.121 5.656.364 8.483l.11 1.212a4 4 0 005.858 3.143c2.82-1.498 5.55-3.033 8.193-4.606a177.41 177.41 0 005.896-3.666l1.434-.942a4 4 0 00.047-6.632 137.703 137.703 0 00-7.377-4.708 146.88 146.88 0 00-6.879-3.849l-1.4-.725a4 4 0 00-5.382 1.742z" id="pid-64-svgo-d"/><filter x="-15.4%" y="-16.3%" width="130.9%" height="132.5%" filterUnits="objectBoundingBox" id="pid-64-svgo-c"><feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur stdDeviation="1" in="shadowOffsetOuter1" result="shadowBlurOuter1"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="shadowBlurOuter1" result="shadowMatrixOuter1"/><feOffset in="SourceAlpha" result="shadowOffsetOuter2"/><feGaussianBlur stdDeviation="3.5" in="shadowOffsetOuter2" result="shadowBlurOuter2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" in="shadowBlurOuter2" result="shadowMatrixOuter2"/><feMerge><feMergeNode in="shadowMatrixOuter1"/><feMergeNode in="shadowMatrixOuter2"/></feMerge></filter></defs><g fill="none" fill-rule="evenodd" opacity=".8"><mask id="pid-64-svgo-b" fill="#fff"><use xlink:href="#pid-64-svgo-a"/></mask><g mask="url(#pid-64-svgo-b)"><use fill="#000" filter="url(#pid-64-svgo-c)" xlink:href="#pid-64-svgo-d"/><use fill="#FFF" xlink:href="#pid-64-svgo-d"/></g></g></svg>`,
+    indicator: `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="16" height="16">
+        <path d="M16.118 3.667h.382a3.667 3.667 0 013.667 3.667v7.333a3.667 3.667 0 01-3.667 3.667h-11a3.667 3.667 0 01-3.667-3.667V7.333A3.667 3.667 0 015.5 3.666h.382L4.95 2.053a1.1 1.1 0 011.906-1.1l1.567 2.714h5.156L15.146.953a1.101 1.101 0 011.906 1.1l-.934 1.614z" fill="#333"></path>
+        <path d="M5.561 5.194h10.878a2.2 2.2 0 012.2 2.2v7.211a2.2 2.2 0 01-2.2 2.2H5.561a2.2 2.2 0 01-2.2-2.2V7.394a2.2 2.2 0 012.2-2.2z" fill="#fff"></path>
+        <path d="M6.967 8.556a1.1 1.1 0 011.1 1.1v2.689a1.1 1.1 0 11-2.2 0V9.656a1.1 1.1 0 011.1-1.1zM15.033 8.556a1.1 1.1 0 011.1 1.1v2.689a1.1 1.1 0 11-2.2 0V9.656a1.1 1.1 0 011.1-1.1z" fill="#333"></path>
+    </svg>
+        `,
+    fullscreenWebOn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_172"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_172)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -26,-20 -26,-20 C-27.049999237060547,-20 -27.920000076293945,-19.18000030517578 -27.989999771118164,-18.149999618530273 C-27.989999771118164,-18.149999618530273 -28,-18 -28,-18 C-28,-18 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -22,-4 -22,-4 C-20.950000762939453,-4 -20.079999923706055,-4.820000171661377 -20.010000228881836,-5.849999904632568 C-20.010000228881836,-5.849999904632568 -20,-6 -20,-6 C-20,-6 -20,-12 -20,-12 C-20,-12 -14,-12 -14,-12 C-12.949999809265137,-12 -12.079999923706055,-12.819999694824219 -12.010000228881836,-13.850000381469727 C-12.010000228881836,-13.850000381469727 -12,-14 -12,-14 C-12,-14 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M26,-20 C26,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-14 12,-14 C12,-12.949999809265137 12.819999694824219,-12.079999923706055 13.850000381469727,-12.010000228881836 C13.850000381469727,-12.010000228881836 14,-12 14,-12 C14,-12 20,-12 20,-12 C20,-12 20,-6 20,-6 C20,-4.949999809265137 20.81999969482422,-4.079999923706055 21.850000381469727,-4.010000228881836 C21.850000381469727,-4.010000228881836 22,-4 22,-4 C22,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-18 28,-18 C28,-19.049999237060547 27.18000030517578,-19.920000076293945 26.149999618530273,-19.989999771118164 C26.149999618530273,-19.989999771118164 26,-20 26,-20z M-22,4 C-22,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,18 -28,18 C-28,19.049999237060547 -27.18000030517578,19.920000076293945 -26.149999618530273,19.989999771118164 C-26.149999618530273,19.989999771118164 -26,20 -26,20 C-26,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,14 -12,14 C-12,12.949999809265137 -12.819999694824219,12.079999923706055 -13.850000381469727,12.010000228881836 C-13.850000381469727,12.010000228881836 -14,12 -14,12 C-14,12 -20,12 -20,12 C-20,12 -20,6 -20,6 C-20,4.949999809265137 -20.81999969482422,4.079999923706055 -21.850000381469727,4.010000228881836 C-21.850000381469727,4.010000228881836 -22,4 -22,4z M26,4 C26,4 22,4 22,4 C20.950000762939453,4 20.079999923706055,4.820000171661377 20.010000228881836,5.849999904632568 C20.010000228881836,5.849999904632568 20,6 20,6 C20,6 20,12 20,12 C20,12 14,12 14,12 C12.949999809265137,12 12.079999923706055,12.819999694824219 12.010000228881836,13.850000381469727 C12.010000228881836,13.850000381469727 12,14 12,14 C12,14 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 26,20 26,20 C27.049999237060547,20 27.920000076293945,19.18000030517578 27.989999771118164,18.149999618530273 C27.989999771118164,18.149999618530273 28,18 28,18 C28,18 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
+    fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
+  };
+  var ArtPlayerCommonOption = () => {
+    const option = {
+      container: "",
+      url: "",
+      volume: 1,
+      isLive: false,
+      muted: false,
+      autoplay: false,
+      pip: false,
+      autoMini: false,
+      screenshot: false,
+      setting: true,
+      loop: false,
+      flip: true,
+      playbackRate: true,
+      autoSize: false,
+      aspectRatio: false,
+      fullscreen: true,
+      fullscreenWeb: true,
+      subtitleOffset: true,
+      miniProgressBar: true,
+      mutex: false,
+      backdrop: true,
+      playsInline: false,
+      autoPlayback: true,
+      airplay: true,
+      lock: true,
+      fastForward: true,
+      theme: BilibiliData.theme,
+      lang: navigator.language.toLowerCase(),
+      moreVideoAttr: { crossOrigin: "anonymous" },
+      icons: ArtPlayerBiliBiliIcon,
+      settings: [],
     };
-    constructor(localDataKey) {
-      this.$data.KEY = localDataKey;
-      const defaultDanmakuOption = this.getDefaultDanmakuOption();
-      this.$data.localArtDanmakuOption = utils$1.assign(defaultDanmakuOption, _GM_getValue(this.$data.KEY, {}));
-    }
-    getDefaultDanmakuOption() {
-      return {
-        speed: 5,
-        margin: [10, "75%"],
-        opacity: 1,
-        modes: [0, 1, 2],
-        fontSize: 18,
-        antiOverlap: false,
-        synchronousPlayback: true,
-        visible: true,
-      };
-    }
-    getLocalArtDanmakuOption() {
-      return this.$data.localArtDanmakuOption;
-    }
-    onConfigChange(art) {
-      art.on("artplayerPluginDanmuku:config", (option) => {
-        Object.keys(this.$data.localArtDanmakuOption).forEach((key) => {
-          if (Reflect.has(option, key)) {
-            let value = Reflect.get(option, key);
-            Reflect.set(this.$data.localArtDanmakuOption, key, value);
-          }
-        });
-        _GM_setValue(this.$data.KEY, this.$data.localArtDanmakuOption);
-      });
-    }
+    const defaultVolume = option.volume ?? 1;
+    const localVolume = Panel.getValue("artplayer-settings-volume", defaultVolume);
+    option.volume = localVolume;
+    const volumnRange = Number((localVolume * 100).toFixed());
+    const volumnIcon = `
+    <i class="art-icon art-icon-volume" style="display: flex;">
+      <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 22 22">
+          <path d="M10.188 4.65L6 8H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1l4.188 3.35a.5.5 0 0 0 .812-.39V5.04a.498.498 0 0 0-.812-.39zM14.446 3.778a1 1 0 0 0-.862 1.804 6.002 6.002 0 0 1-.007 10.838 1 1 0 0 0 .86 1.806A8.001 8.001 0 0 0 19 11a8.001 8.001 0 0 0-4.554-7.222z"></path>
+          <path d="M15 11a3.998 3.998 0 0 0-2-3.465v6.93A3.998 3.998 0 0 0 15 11z"></path>
+      </svg>
+    </i>
+  `;
+    const muteIcon = `
+    <i class="art-icon art-icon-volume" style="display: flex;">
+      <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 22 22">
+          <path d="M15 11a3.998 3.998 0 0 0-2-3.465v2.636l1.865 1.865A4.02 4.02 0 0 0 15 11z"></path>
+          <path d="M13.583 5.583A5.998 5.998 0 0 1 17 11a6 6 0 0 1-.585 2.587l1.477 1.477a8.001 8.001 0 0 0-3.446-11.286 1 1 0 0 0-.863 1.805zM18.778 18.778l-2.121-2.121-1.414-1.414-1.415-1.415L13 13l-2-2-3.889-3.889-3.889-3.889a.999.999 0 1 0-1.414 1.414L5.172 8H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1l4.188 3.35a.5.5 0 0 0 .812-.39v-3.131l2.587 2.587-.01.005a1 1 0 0 0 .86 1.806c.215-.102.424-.214.627-.333l2.3 2.3a1.001 1.001 0 0 0 1.414-1.416zM11 5.04a.5.5 0 0 0-.813-.39L8.682 5.854 11 8.172V5.04z"></path>
+      </svg>
+    </i>
+  `;
+    option.settings.push({
+      html: "音量",
+      tooltip: volumnRange.toString(),
+      icon: `
+        <i class="art-icon art-icon-volume" style="display: flex;">
+          ${localVolume ? volumnIcon : muteIcon}
+        </i>`,
+      range: [volumnRange, 0, 100, 1],
+      onChange: function (item) {
+        const value = item.range[0];
+        this.volume = value / 100;
+        Panel.setValue("artplayer-settings-volume", this.volume);
+        if (item.$icon) {
+          if (this.volume === 0) domUtils.html(item.$icon, muteIcon);
+          else domUtils.html(item.$icon, volumnIcon);
+        }
+        return value;
+      },
+    });
+    return option;
   };
-  var TAG$3 = "[artplayer-plugin-m4sAudioSupport]：";
-  var ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
-  var M4SAudioUtils = {
-    $flag: { isIntervaling: false },
-    intervalHandler(fn, count = 2, delayTime = 900) {
-      if (M4SAudioUtils.$flag.isIntervaling) return;
-      M4SAudioUtils.$flag.isIntervaling = true;
-      let intervalCount = 0;
-      let intervalId = void 0;
-      let callback = () => {
-        if (intervalCount > count) {
-          M4SAudioUtils.$flag.isIntervaling = false;
-          clearInterval(intervalId);
-          return;
-        }
-        if (typeof fn === "function")
-          try {
-            fn();
-          } catch (error) {
-            console.error(TAG$3, error);
-          }
-        intervalCount++;
-      };
-      callback();
-      if (count > 1) intervalId = setInterval(callback, delayTime);
-      else M4SAudioUtils.$flag.isIntervaling = false;
-    },
-  };
-  var M4SAudio = {
-    $key: { plugin_KEY: "plugin-bilibili-m4sAudio" },
-    $data: {
-      art: null,
-      audio: new Audio(),
-      latestSyncTime: 0,
-      reconnectConfig: {
-        maxCount: 5,
-        delayTime: 1e3,
-      },
-      reconnectInfo: {
-        url: "",
-        count: 0,
-      },
-      option: null,
-    },
-    userEvent: { onRestart: void 0 },
-    events: {
-      play: () => {
-        M4SAudio.handler.play();
-        M4SAudio.handler.syncVolume();
-        M4SAudio.handler.syncMuted();
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        }, 1);
-      },
-      seek: (currentTime) => {
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-          M4SAudio.handler.syncPlayState();
-        });
-      },
-      pause: () => {
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        }, 1);
-        M4SAudio.handler.pause();
-      },
-      restart: (url) => {
-        if (typeof M4SAudio.userEvent.onRestart === "function") {
-          let newAudioUrl = M4SAudio.userEvent.onRestart(url);
-          M4SAudio.handler.playUrl(newAudioUrl);
-        }
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        }, 1);
-        M4SAudio.handler.syncPlayState();
-      },
-      muted: (state) => {
-        M4SAudio.handler.syncVolume();
-        M4SAudio.handler.syncMuted();
-      },
-      destroy: () => {
-        M4SAudio.handler.pause();
-      },
-      error: (error, reconnectTime) => {
-        M4SAudio.handler.pause();
-      },
-      resize: () => {
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        });
-      },
-      fullscreen: () => {
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        });
-      },
-      "video:ended": () => {
-        M4SAudio.handler.pause();
-      },
-      "video:ratechange": () => {
-        M4SAudio.handler.syncPlayBackRate();
-      },
-      "video:waiting": () => {
-        M4SAudio.handler.pause();
-      },
-      "video:playing": () => {
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        }, 1);
-        M4SAudio.handler.play();
-      },
-      "video:pause": () => {
-        M4SAudio.handler.pause();
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        }, 1);
-      },
-      "video:volumechange": () => {
-        M4SAudio.handler.syncVolume();
-        M4SAudio.handler.syncMuted();
-        M4SAudio.handler.syncPlayState();
-      },
-      "video:timeupdate": () => {
-        let videoTime = M4SAudio.$data.art.currentTime;
-        if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
-          M4SAudio.$data.latestSyncTime = videoTime;
-          M4SAudioUtils.intervalHandler(() => {
-            M4SAudio.handler.syncTime(0.777);
-          }, 1);
-        }
-      },
-    },
-    audioEvents: {
-      loadedmetadata: (event) => {
-        M4SAudio.$data.art.emit("m4sAudio:loadedmetadata", event);
-        console.log(TAG$3 + "Audio预加载完成");
-        M4SAudio.$data.reconnectInfo.count = 0;
-        M4SAudio.$data.reconnectInfo.url = "";
-        M4SAudio.$data.latestSyncTime = 0;
-        M4SAudio.handler.syncPlayState();
-        M4SAudio.handler.syncPlayBackRate();
-        M4SAudio.handler.syncVolume();
-        M4SAudio.handler.syncMuted();
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        });
-      },
-      canplaythrough: (event) => {
-        M4SAudio.$data.art.emit("m4sAudio:canplaythrough", event);
-        console.log(TAG$3 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
-        M4SAudioUtils.intervalHandler(() => {
-          M4SAudio.handler.syncTime();
-        });
-      },
-      error: (event) => {
-        M4SAudio.$data.art.emit("m4sAudio:error", event);
-        console.error("[artplayer-plugin-m4sAudioSupport]：Audio加载失败", event);
-        if (utils$1.isNull(M4SAudio.$data.reconnectInfo.url))
-          M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
-        if (M4SAudio.$data.reconnectInfo.count < M4SAudio.$data.reconnectConfig.maxCount) {
-          console.log(
-            `[artplayer-plugin-m4sAudioSupport]：Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
-          );
-          M4SAudio.$data.art.notice.show = `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`;
-          M4SAudio.$data.reconnectInfo.count++;
-          setTimeout(() => {
-            M4SAudio.handler.playUrl("");
-            M4SAudio.handler.playUrl(M4SAudio.$data.reconnectInfo.url);
-            M4SAudio.$data.audio.load();
-          }, M4SAudio.$data.reconnectConfig.delayTime);
-        } else {
-          console.error("[artplayer-plugin-m4sAudioSupport]：Audio已超出重连次数");
-          M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
-        }
-      },
-    },
-    handler: {
-      playUrl(url) {
-        if (typeof url !== "string") return;
-        M4SAudio.$data.audio.src = url;
-        M4SAudio.unbindAudio();
-        if (utils$1.isNotNull(url)) M4SAudio.bindAudio();
-        M4SAudio.$data.art.emit("m4sAudio:restart", url);
-        M4SAudio.handler.syncTime();
-        M4SAudio.handler.syncPlayState();
-      },
-      play() {
-        if (M4SAudio.$data.audio.paused) {
-          M4SAudio.$data.audio.play();
-          M4SAudio.$data.art.emit("m4sAudio:play");
-        }
-      },
-      pause() {
-        if (!M4SAudio.$data.audio.paused) {
-          M4SAudio.$data.audio.pause();
-          M4SAudio.$data.art.emit("m4sAudio:pause");
-        }
-      },
-      syncPlayState() {
-        if (M4SAudio.$data.art.playing) this.play();
-        else this.pause();
-        M4SAudio.$data.art.emit("m4sAudio:syncPlayState");
-      },
-      syncTime(offset = 0.1) {
-        let videoTime = M4SAudio.$data.art.currentTime;
-        let audioTime = M4SAudio.$data.audio.currentTime;
-        if (Math.abs(videoTime - audioTime) >= Math.abs(offset)) {
-          M4SAudio.$data.audio.currentTime = videoTime;
-          this.syncVolume();
-          this.syncMuted();
-          M4SAudio.$data.art.emit("m4sAudio:syncTime");
-        }
-      },
-      syncVolume() {
-        M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
-        M4SAudio.$data.art.emit("m4sAudio:syncVolume");
-      },
-      syncMuted() {
-        let artMuted = M4SAudio.$data.art.muted;
-        M4SAudio.$data.audio.muted = artMuted;
-        M4SAudio.$data.art.emit("m4sAudio:syncMuted");
-      },
-      syncPlayBackRate() {
-        let artPlayBackRate = M4SAudio.$data.art.playbackRate;
-        if (artPlayBackRate !== M4SAudio.$data.audio.playbackRate) {
-          M4SAudio.$data.audio.playbackRate = artPlayBackRate;
-          M4SAudio.$data.art.emit("m4sAudio:syncPlayBackRate");
-        }
-      },
-    },
-    update(option) {
-      this.unbind();
-      this.unbindAudio();
-      this.$data.option = null;
-      this.$data.option = option.audioList;
-      this.$data.latestSyncTime = 0;
-      const that = this;
-      if (option.audioList?.length) {
-        option.audioList.sort((leftItem, rightItem) => {
-          return rightItem.bandwidth - leftItem.bandwidth;
-        });
-        let firstAudioInfo = option.audioList[0];
-        const storageKey = `artplayer-m4s-audio-${option.from}`;
-        const storageAudioInfo = this.$data.art.storage.get(storageKey);
-        let currentSelectAudioInfo = {
-          index: 0,
-          html: firstAudioInfo.soundQualityCodeText,
-          url: firstAudioInfo.url,
-        };
-        if (storageAudioInfo) {
-          const findAudioIndex = option.audioList.findIndex(
-            (item) => item.soundQualityCode === storageAudioInfo.soundQualityCode
-          );
-          if (findAudioIndex !== -1) {
-            const findAudio = option.audioList[findAudioIndex];
-            currentSelectAudioInfo.index = findAudioIndex;
-            currentSelectAudioInfo.url = findAudio.url;
-            currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
-          } else console.warn(TAG$3 + "没有找到上次选的音频代码，使用当前默认第一个音频");
-        }
-        let selectorList = option.audioList.map((item, index) => {
-          return {
-            default: index === currentSelectAudioInfo.index,
-            html: item.soundQualityCodeText,
-            url: item.url,
-            soundQualityCode: item.soundQualityCode,
-            soundQualityCodeText: item.soundQualityCodeText,
-            codecs: item.codecs,
-            mimeType: item.mimeType,
-            bandwidth: item.bandwidth,
-            size: item.size,
-          };
-        });
-        const settingOption = {
-          name: ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY,
-          width: 200,
-          html: "音频",
-          tooltip: currentSelectAudioInfo.html,
-          icon: `
-				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
-					<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
-					<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
-					<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
-				</svg>
-				`,
-          selector: selectorList,
-          onSelect: function (selector) {
-            let itemInfo = selector;
-            console.log(TAG$3 + "切换音频", itemInfo);
-            that.handler.playUrl(itemInfo.url);
-            that.$data.art.storage.set(storageKey, { soundQualityCode: itemInfo.soundQualityCode });
-            return selector.html;
-          },
-        };
-        if (M4SAudio.$data.art.setting.find(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
-          M4SAudio.$data.art.setting.update(settingOption);
-        else M4SAudio.$data.art.setting.add(settingOption);
-        log.info("当前加载的音频：", currentSelectAudioInfo);
-        M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
-        this.bind();
-        this.bindAudio();
-      } else {
-        M4SAudio.handler.playUrl("");
-        if (M4SAudio.$data.art.setting.option.find((item) => item.name === ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
-          M4SAudio.$data.art.setting.remove(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY);
-      }
-    },
-    bind() {
-      Object.keys(this.events).forEach((eventName) => {
-        this.$data.art.on(eventName, this.events[eventName]);
-      });
-    },
-    bindAudio() {
-      Object.keys(this.audioEvents).forEach((eventName) => {
-        this.$data.audio.addEventListener(eventName, this.audioEvents[eventName], { once: true });
-      });
-    },
-    unbind() {
-      Object.keys(this.events).forEach((eventName) => {
-        this.$data.art.off(eventName, this.events[eventName]);
-      });
-    },
-    unbindAudio() {
-      Object.keys(this.audioEvents).forEach((eventName) => {
-        this.$data.audio.removeEventListener(eventName, this.audioEvents[eventName]);
-      });
-    },
-  };
-  var artplayerPluginM4SAudioSupport = (option) => {
-    return (art) => {
-      M4SAudio.$data.art = art;
-      if (typeof option.onRestart === "function") M4SAudio.userEvent.onRestart = option.onRestart;
-      M4SAudio.update({
-        from: option.from,
-        audioList: option.audioList,
-      });
-      return {
-        name: M4SAudio.$key.plugin_KEY,
-        update(...args) {
-          M4SAudio.update(...args);
-          M4SAudio.handler.syncVolume();
-          M4SAudio.handler.syncMuted();
-          M4SAudio.handler.syncTime();
-        },
-        getAudio() {
-          return M4SAudio.$data.audio;
-        },
-        getCurrentPlayConfig() {
-          return M4SAudio.$data.option.find((it) => it.url === M4SAudio.$data.audio.src);
-        },
-      };
+  var ArtPlayerDanmakuCommonOption = () => {
+    return {
+      heatmap: false,
+      color: "#FFFFFF",
+      mode: 0,
+      mount: void 0,
+      width: 800,
+      points: [],
+      filter: (danmu) => danmu.text.length <= 100,
+      beforeVisible: () => true,
+      emitter: false,
+      maxLength: 50,
+      lockTime: 3,
+      theme: utils$1.isThemeDark() ? "dark" : "light",
     };
   };
-  var ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY = M4SAudio.$key.plugin_KEY;
-  var TopToolBarUtils = {
-    show($el) {
-      if (!$el) return;
-    },
-    hide($el) {
-      if (!$el) return;
-    },
-  };
-  var TopToolBarEvent = {
-    events: {
-      control: (state) => {
-        if (!state) return;
-        TopToolBar.updateOnlineTotal({
-          showOnlineTotal: TopToolBar.$data.option.showOnlineTotal,
-          onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
-        });
-      },
-    },
-    bind() {
-      Object.keys(this.events).forEach((eventName) => {
-        TopToolBar.art.on(eventName, this.events[eventName]);
-      });
-    },
-    unbind() {
-      Object.keys(this.events).forEach((eventName) => {
-        TopToolBar.art.off(eventName, this.events[eventName]);
-      });
-    },
-  };
-  var TopToolBar = {
-    art: null,
-    $el: {
-      $topWrap: null,
-      $topTitle: null,
-      $topTitleText: null,
-      $topTitleFollow: null,
-      $topTitleFollowText: null,
-      $topRight: null,
-      $topRightFollow: null,
-    },
-    $data: {
-      isInit: false,
-      __option: {},
-      option: {},
-    },
-    $key: { plugin_KEY: "plugin-bilibili-topToolBar" },
-    init(option) {
-      this.art.layers.add({
-        name: "top-wrap",
-        html: `
-            <div class="art-player-top-wrap">
-                <div class="art-player-top-title">
-                    <!-- 番剧名，第xx集 -->
-                    <div class="art-player-top-title-text"></div></div>
-                <div class="art-player-top-follow">
-                    <svg class="art-player-top-follow-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="13306"><path d="M641.522424 590.30953c-29.470195-20.878516-61.574381-37.341466-95.630011-49.183166C617.699855 497.470075 661.783887 419.876859 661.783887 335.542102c0-132.611274-108.021226-240.529145-240.581334-240.529145-132.62867 0-240.545518 107.916848-240.545518 240.529145 0 45.162596 12.561084 89.143273 36.623106 127.426181 20.159132 32.190143 47.677882 59.195194 80.124875 78.789461-34.56933 11.740392-67.220984 28.493961-97.135294 49.663096-32.652677 23.136953-61.334927 51.117215-85.361133 83.051531-49.937342 66.587558-76.393901 145.737222-76.393901 228.959645 0 15.624862 12.561084 28.237111 28.066219 28.237111 15.607466 0 28.27088-12.612249 28.27088-28.237111 0-86.747713 33.850969-168.516018 95.252411-230.277664 61.266365-61.488423 142.486178-95.40693 228.532927-95.491865 2.806929 0.274246 5.749958 0 8.556886-0.685615l2.326998-0.445138c83.650165 1.678222 162.338319 35.528168 222.268246 95.544053 61.403488 61.675688 95.185896 143.478785 95.185896 230.311433 0 15.45397 12.629645 28.134781 28.16855 28.134781 15.538905 0 28.133757-12.681834 28.133757-28.134781 0-83.307358-26.355251-162.457022-76.393901-228.925876C702.958658 641.376603 674.174078 613.412714 641.522424 590.30953zM421.203576 519.768941c-101.550861 0-184.242188-82.588997-184.242188-184.225815 0-101.550861 82.692351-184.173626 184.242188-184.173626 101.483322 0 184.17465 82.622766 184.17465 184.173626C605.378226 437.178921 522.686898 519.768941 421.203576 519.768941z" p-id="13307"></path><path d="M932.277484 638.022205c-36.074613-52.05968-84.915995-91.249237-141.595902-113.821325 24.986067-17.661242 46.070268-41.141002 61.231573-68.505233 17.627473-31.642674 27.006074-67.820642 27.006074-104.699574 0-114.745371-88.956008-208.082152-198.10594-208.082152-15.607466 0-28.167526 12.595876-28.167526 28.134781s12.56006 28.082592 28.167526 28.082592c78.175477 0 141.700279 68.197218 141.700279 151.86478 0 83.804684-63.524802 151.932318-141.700279 151.932318-15.607466 0-28.167526 12.594853-28.167526 28.134781l0 0.171915c0 15.538905 12.56006 28.184923 28.167526 28.184923 140.569526 0 254.990508 121.899304 254.990508 271.76045 0 15.539928 12.664438 28.219715 28.203342 28.219715 15.504112 0 28.203342-12.68081 28.203342-28.219715C992.209458 761.28967 971.399503 694.427866 932.277484 638.022205z" p-id="13308"></path></svg>
-                    <span class="art-player-top-follow-text"></span>
-                </div>
-                <!-- 右侧的图标 -->
-                <div class="art-player-top-right">
-                    <div class="art-player-top-right-follow"></div>
-                </div>
-            </div>
-            `,
-        mounted: async function ($topWrap) {
-          TopToolBar.$el.$topWrap = $topWrap;
-          TopToolBar.$el.$topTitle = $topWrap.querySelector(".art-player-top-title");
-          TopToolBar.$el.$topTitleText = $topWrap.querySelector(".art-player-top-title-text");
-          TopToolBar.$el.$topTitleFollow = $topWrap.querySelector(".art-player-top-follow");
-          TopToolBar.$el.$topTitleFollowText = $topWrap.querySelector(".art-player-top-follow-text");
-          TopToolBar.$el.$topRight = $topWrap.querySelector(".art-player-top-right");
-          TopToolBar.$el.$topRightFollow = $topWrap.querySelector(".art-player-top-right-follow");
-          TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
-          TopToolBar.update(option);
-          TopToolBarEvent.bind();
-        },
-      });
-    },
-    update(option) {
-      if (!this.$data.isInit) {
-        this.$data.isInit = true;
-        Object.defineProperties(this.$data.option, {
-          showWrap: {
-            set(value) {
-              TopToolBar.$data.__option.showWrap = value;
-              if (value) TopToolBarUtils.show(TopToolBar.$el.$topWrap);
-              else TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
-            },
-            get() {
-              return TopToolBar.$data.__option.showWrap;
-            },
-          },
-          showTitle: {
-            set(value) {
-              TopToolBar.$data.__option.showTitle = value;
-              if (value) TopToolBarUtils.show(TopToolBar.$el.$topTitle);
-              else TopToolBarUtils.hide(TopToolBar.$el.$topTitle);
-            },
-            get() {
-              return TopToolBar.$data.__option.showTitle;
-            },
-          },
-          title: {
-            set(value) {
-              TopToolBar.$data.__option.title = value;
-              if (typeof value === "string") TopToolBar.$el.$topTitleText.innerText = value;
-            },
-            get() {
-              return TopToolBar.$data.__option.title;
-            },
-          },
-          showOnlineTotal: {
-            set(value) {
-              TopToolBar.$data.__option.showOnlineTotal = value;
-              if (value) TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
-              else TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
-            },
-            get() {
-              return TopToolBar.$data.__option.showOnlineTotal;
-            },
-          },
-          onlineInfoParams: {
-            set(value) {
-              TopToolBar.$data.__option.onlineInfoParams = value;
-              TopToolBar.updateOnlineTotal({
-                showOnlineTotal: this.showOnlineTotal,
-                onlineInfoParams: value,
-              });
-            },
-            get() {
-              return TopToolBar.$data.__option.onlineInfoParams;
-            },
-          },
-          showRight: {
-            set(value) {
-              TopToolBar.$data.__option.showRight = value;
-              if (value) TopToolBarUtils.show(TopToolBar.$el.$topRight);
-              else TopToolBarUtils.hide(TopToolBar.$el.$topRight);
-            },
-            get() {
-              return TopToolBar.$data.__option.showRight;
-            },
-          },
-          showRightFollow: {
-            set(value) {
-              TopToolBar.$data.__option.showRightFollow = value;
-              if (value) TopToolBarUtils.show(TopToolBar.$el.$topRightFollow);
-              else TopToolBarUtils.hide(TopToolBar.$el.$topRightFollow);
-            },
-            get() {
-              return TopToolBar.$data.__option.showRightFollow;
-            },
-          },
-        });
-      }
-      Object.assign(this.$data.option, option);
-    },
-    async updateOnlineTotal(option) {
-      if (!option.showOnlineTotal) return;
-      let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
-        aid: option.onlineInfoParams.aid,
-        bvid: option.onlineInfoParams.bvid,
-        cid: option.onlineInfoParams.cid,
-      });
-      if (!onlineTotalInfo) return;
-      TopToolBar.$el.$topTitleFollowText.innerText = `${onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0}人正在看`;
-    },
-  };
-  var artplayerPluginTopToolBar = (option) => {
-    return (art) => {
-      TopToolBar.art = art;
-      TopToolBar.init(option);
-      return {
-        name: TopToolBar.$key.plugin_KEY,
-        update(option) {
-          TopToolBar.update(option);
-        },
-      };
-    };
-  };
-  var ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY = TopToolBar.$key.plugin_KEY;
   var chinese = {
     S: "万与丑专业丛东丝丢两严丧个丬丰临为丽举么义乌乐乔习乡书买乱争于亏云亘亚产亩亲亵亸亿仅从仑仓仪们价众优伙会伛伞伟传伤伥伦伧伪伫体余佣佥侠侣侥侦侧侨侩侪侬俣俦俨俩俪俭债倾偬偻偾偿傥傧储傩儿兑兖党兰关兴兹养兽冁内冈册写军农冢冯冲决况冻净凄凉凌减凑凛几凤凫凭凯击凼凿刍划刘则刚创删别刬刭刽刿剀剂剐剑剥剧劝办务劢动励劲劳势勋勐勚匀匦匮区医华协单卖卢卤卧卫却卺厂厅历厉压厌厍厕厢厣厦厨厩厮县参叆叇双发变叙叠叶号叹叽吁后吓吕吗吣吨听启吴呒呓呕呖呗员呙呛呜咏咔咙咛咝咤咴咸哌响哑哒哓哔哕哗哙哜哝哟唛唝唠唡唢唣唤唿啧啬啭啮啰啴啸喷喽喾嗫呵嗳嘘嘤嘱噜噼嚣嚯团园囱围囵国图圆圣圹场坂坏块坚坛坜坝坞坟坠垄垅垆垒垦垧垩垫垭垯垱垲垴埘埙埚埝埯堑堕塆墙壮声壳壶壸处备复够头夸夹夺奁奂奋奖奥妆妇妈妩妪妫姗姜娄娅娆娇娈娱娲娴婳婴婵婶媪嫒嫔嫱嬷孙学孪宁宝实宠审宪宫宽宾寝对寻导寿将尔尘尧尴尸尽层屃屉届属屡屦屿岁岂岖岗岘岙岚岛岭岳岽岿峃峄峡峣峤峥峦崂崃崄崭嵘嵚嵛嵝嵴巅巩巯币帅师帏帐帘帜带帧帮帱帻帼幂幞干并广庄庆庐庑库应庙庞废庼廪开异弃张弥弪弯弹强归当录彟彦彻径徕御忆忏忧忾怀态怂怃怄怅怆怜总怼怿恋恳恶恸恹恺恻恼恽悦悫悬悭悯惊惧惨惩惫惬惭惮惯愍愠愤愦愿慑慭憷懑懒懔戆戋戏戗战戬户扎扑扦执扩扪扫扬扰抚抛抟抠抡抢护报担拟拢拣拥拦拧拨择挂挚挛挜挝挞挟挠挡挢挣挤挥挦捞损捡换捣据捻掳掴掷掸掺掼揸揽揿搀搁搂搅携摄摅摆摇摈摊撄撑撵撷撸撺擞攒敌敛数斋斓斗斩断无旧时旷旸昙昼昽显晋晒晓晔晕晖暂暧札术朴机杀杂权条来杨杩杰极构枞枢枣枥枧枨枪枫枭柜柠柽栀栅标栈栉栊栋栌栎栏树栖样栾桊桠桡桢档桤桥桦桧桨桩梦梼梾检棂椁椟椠椤椭楼榄榇榈榉槚槛槟槠横樯樱橥橱橹橼檐檩欢欤欧歼殁殇残殒殓殚殡殴毁毂毕毙毡毵氇气氢氩氲汇汉污汤汹沓沟没沣沤沥沦沧沨沩沪沵泞泪泶泷泸泺泻泼泽泾洁洒洼浃浅浆浇浈浉浊测浍济浏浐浑浒浓浔浕涂涌涛涝涞涟涠涡涢涣涤润涧涨涩淀渊渌渍渎渐渑渔渖渗温游湾湿溃溅溆溇滗滚滞滟滠满滢滤滥滦滨滩滪漤潆潇潋潍潜潴澜濑濒灏灭灯灵灾灿炀炉炖炜炝点炼炽烁烂烃烛烟烦烧烨烩烫烬热焕焖焘煅煳熘爱爷牍牦牵牺犊犟状犷犸犹狈狍狝狞独狭狮狯狰狱狲猃猎猕猡猪猫猬献獭玑玙玚玛玮环现玱玺珉珏珐珑珰珲琎琏琐琼瑶瑷璇璎瓒瓮瓯电画畅畲畴疖疗疟疠疡疬疮疯疱疴痈痉痒痖痨痪痫痴瘅瘆瘗瘘瘪瘫瘾瘿癞癣癫癯皑皱皲盏盐监盖盗盘眍眦眬着睁睐睑瞒瞩矫矶矾矿砀码砖砗砚砜砺砻砾础硁硅硕硖硗硙硚确硷碍碛碜碱碹磙礼祎祢祯祷祸禀禄禅离秃秆种积称秽秾稆税稣稳穑穷窃窍窑窜窝窥窦窭竖竞笃笋笔笕笺笼笾筑筚筛筜筝筹签简箓箦箧箨箩箪箫篑篓篮篱簖籁籴类籼粜粝粤粪粮糁糇紧絷纟纠纡红纣纤纥约级纨纩纪纫纬纭纮纯纰纱纲纳纴纵纶纷纸纹纺纻纼纽纾线绀绁绂练组绅细织终绉绊绋绌绍绎经绐绑绒结绔绕绖绗绘给绚绛络绝绞统绠绡绢绣绤绥绦继绨绩绪绫绬续绮绯绰绱绲绳维绵绶绷绸绹绺绻综绽绾绿缀缁缂缃缄缅缆缇缈缉缊缋缌缍缎缏缐缑缒缓缔缕编缗缘缙缚缛缜缝缞缟缠缡缢缣缤缥缦缧缨缩缪缫缬缭缮缯缰缱缲缳缴缵罂网罗罚罢罴羁羟羡翘翙翚耢耧耸耻聂聋职聍联聩聪肃肠肤肷肾肿胀胁胆胜胧胨胪胫胶脉脍脏脐脑脓脔脚脱脶脸腊腌腘腭腻腼腽腾膑臜舆舣舰舱舻艰艳艹艺节芈芗芜芦苁苇苈苋苌苍苎苏苘苹茎茏茑茔茕茧荆荐荙荚荛荜荞荟荠荡荣荤荥荦荧荨荩荪荫荬荭荮药莅莜莱莲莳莴莶获莸莹莺莼萚萝萤营萦萧萨葱蒇蒉蒋蒌蓝蓟蓠蓣蓥蓦蔷蔹蔺蔼蕲蕴薮藁藓虏虑虚虫虬虮虽虾虿蚀蚁蚂蚕蚝蚬蛊蛎蛏蛮蛰蛱蛲蛳蛴蜕蜗蜡蝇蝈蝉蝎蝼蝾螀螨蟏衅衔补衬衮袄袅袆袜袭袯装裆裈裢裣裤裥褛褴襁襕见观觃规觅视觇览觉觊觋觌觍觎觏觐觑觞触觯詟誉誊讠计订讣认讥讦讧讨让讪讫训议讯记讱讲讳讴讵讶讷许讹论讻讼讽设访诀证诂诃评诅识诇诈诉诊诋诌词诎诏诐译诒诓诔试诖诗诘诙诚诛诜话诞诟诠诡询诣诤该详诧诨诩诪诫诬语诮误诰诱诲诳说诵诶请诸诹诺读诼诽课诿谀谁谂调谄谅谆谇谈谊谋谌谍谎谏谐谑谒谓谔谕谖谗谘谙谚谛谜谝谞谟谠谡谢谣谤谥谦谧谨谩谪谫谬谭谮谯谰谱谲谳谴谵谶谷豮贝贞负贠贡财责贤败账货质贩贪贫贬购贮贯贰贱贲贳贴贵贶贷贸费贺贻贼贽贾贿赀赁赂赃资赅赆赇赈赉赊赋赌赍赎赏赐赑赒赓赔赕赖赗赘赙赚赛赜赝赞赟赠赡赢赣赪赵赶趋趱趸跃跄跖跞践跶跷跸跹跻踊踌踪踬踯蹑蹒蹰蹿躏躜躯车轧轨轩轪轫转轭轮软轰轱轲轳轴轵轶轷轸轹轺轻轼载轾轿辀辁辂较辄辅辆辇辈辉辊辋辌辍辎辏辐辑辒输辔辕辖辗辘辙辚辞辩辫边辽达迁过迈运还这进远违连迟迩迳迹适选逊递逦逻遗遥邓邝邬邮邹邺邻郁郄郏郐郑郓郦郧郸酝酦酱酽酾酿释里鉅鉴銮錾钆钇针钉钊钋钌钍钎钏钐钑钒钓钔钕钖钗钘钙钚钛钝钞钟钠钡钢钣钤钥钦钧钨钩钪钫钬钭钮钯钰钱钲钳钴钵钶钷钸钹钺钻钼钽钾钿铀铁铂铃铄铅铆铈铉铊铋铍铎铏铐铑铒铕铗铘铙铚铛铜铝铞铟铠铡铢铣铤铥铦铧铨铪铫铬铭铮铯铰铱铲铳铴铵银铷铸铹铺铻铼铽链铿销锁锂锃锄锅锆锇锈锉锊锋锌锍锎锏锐锑锒锓锔锕锖锗错锚锜锞锟锠锡锢锣锤锥锦锨锩锫锬锭键锯锰锱锲锳锴锵锶锷锸锹锺锻锼锽锾锿镀镁镂镃镆镇镈镉镊镌镍镎镏镐镑镒镕镖镗镙镚镛镜镝镞镟镠镡镢镣镤镥镦镧镨镩镪镫镬镭镮镯镰镱镲镳镴镶长门闩闪闫闬闭问闯闰闱闲闳间闵闶闷闸闹闺闻闼闽闾闿阀阁阂阃阄阅阆阇阈阉阊阋阌阍阎阏阐阑阒阓阔阕阖阗阘阙阚阛队阳阴阵阶际陆陇陈陉陕陧陨险随隐隶隽难雏雠雳雾霁霉霭靓静靥鞑鞒鞯鞴韦韧韨韩韪韫韬韵页顶顷顸项顺须顼顽顾顿颀颁颂颃预颅领颇颈颉颊颋颌颍颎颏颐频颒颓颔颕颖颗题颙颚颛颜额颞颟颠颡颢颣颤颥颦颧风飏飐飑飒飓飔飕飖飗飘飙飚飞飨餍饤饥饦饧饨饩饪饫饬饭饮饯饰饱饲饳饴饵饶饷饸饹饺饻饼饽饾饿馀馁馂馃馄馅馆馇馈馉馊馋馌馍馎馏馐馑馒馓馔馕马驭驮驯驰驱驲驳驴驵驶驷驸驹驺驻驼驽驾驿骀骁骂骃骄骅骆骇骈骉骊骋验骍骎骏骐骑骒骓骔骕骖骗骘骙骚骛骜骝骞骟骠骡骢骣骤骥骦骧髅髋髌鬓魇魉鱼鱽鱾鱿鲀鲁鲂鲄鲅鲆鲇鲈鲉鲊鲋鲌鲍鲎鲏鲐鲑鲒鲓鲔鲕鲖鲗鲘鲙鲚鲛鲜鲝鲞鲟鲠鲡鲢鲣鲤鲥鲦鲧鲨鲩鲪鲫鲬鲭鲮鲯鲰鲱鲲鲳鲴鲵鲶鲷鲸鲹鲺鲻鲼鲽鲾鲿鳀鳁鳂鳃鳄鳅鳆鳇鳈鳉鳊鳋鳌鳍鳎鳏鳐鳑鳒鳓鳔鳕鳖鳗鳘鳙鳛鳜鳝鳞鳟鳠鳡鳢鳣鸟鸠鸡鸢鸣鸤鸥鸦鸧鸨鸩鸪鸫鸬鸭鸮鸯鸰鸱鸲鸳鸴鸵鸶鸷鸸鸹鸺鸻鸼鸽鸾鸿鹀鹁鹂鹃鹄鹅鹆鹇鹈鹉鹊鹋鹌鹍鹎鹏鹐鹑鹒鹓鹔鹕鹖鹗鹘鹚鹛鹜鹝鹞鹟鹠鹡鹢鹣鹤鹥鹦鹧鹨鹩鹪鹫鹬鹭鹯鹰鹱鹲鹳鹴鹾麦麸黄黉黡黩黪黾鼋鼌鼍鼗鼹齄齐齑齿龀龁龂龃龄龅龆龇龈龉龊龋龌龙龚龛龟志制咨只里系范松没尝尝闹面准钟别闲乾尽脏拼冲里",
     T: "萬與醜專業叢東絲丟兩嚴喪個丬豐臨爲麗舉麼義烏樂喬習鄉書買亂爭於虧雲亙亞產畝親褻嚲億僅從侖倉儀們價衆優夥會傴傘偉傳傷倀倫傖僞佇體餘傭僉俠侶僥偵側僑儈儕儂俁儔儼倆儷儉債傾傯僂僨償儻儐儲儺兒兌兗黨蘭關興茲養獸囅內岡冊寫軍農冢馮沖決況凍淨淒涼凌減湊凜幾鳳鳧憑凱擊凼鑿芻劃劉則剛創刪別剗剄劊劌剴劑剮劍剝劇勸辦務勱動勵勁勞勢勳勐勩勻匭匱區醫華協單賣盧滷臥衛卻巹廠廳歷厲壓厭厙廁廂厴廈廚廄廝縣參靉靆雙發變敘疊葉號嘆嘰籲後嚇呂嗎唚噸聽啓吳嘸囈嘔嚦唄員咼嗆嗚詠咔嚨嚀噝吒咴鹹哌響啞噠嘵嗶噦譁噲嚌噥喲嘜嗊嘮啢嗩唣喚唿嘖嗇囀齧囉嘽嘯噴嘍嚳囁呵噯噓嚶囑嚕噼囂嚯團園囪圍圇國圖圓聖壙場阪壞塊堅壇壢壩塢墳墜壟壠壚壘墾垧堊墊埡墶壋塏堖塒壎堝埝垵塹墮壪牆壯聲殼壺壼處備復夠頭誇夾奪奩奐奮獎奧妝婦媽嫵嫗嬀姍姜婁婭嬈嬌孌娛媧嫺嫿嬰嬋嬸媼嬡嬪嬙嬤孫學孿寧寶實寵審憲宮寬賓寢對尋導壽將爾塵堯尷屍盡層屓屜屆屬屢屨嶼歲豈嶇崗峴嶴嵐島嶺嶽崬巋嶨嶧峽嶢嶠崢巒嶗崍嶮嶄嶸嶔嵛嶁嵴巔鞏巰幣帥師幃帳簾幟帶幀幫幬幘幗冪襆幹並廣莊慶廬廡庫應廟龐廢廎廩開異棄張彌弳彎彈強歸當錄彠彥徹徑徠御憶懺憂愾懷態慫憮慪悵愴憐總懟懌戀懇惡慟懨愷惻惱惲悅愨懸慳憫驚懼慘懲憊愜慚憚慣愍慍憤憒願懾憖憷懣懶懍戇戔戲戧戰戩戶扎撲扦執擴捫掃揚擾撫拋摶摳掄搶護報擔擬攏揀擁攔擰撥擇掛摯攣掗撾撻挾撓擋撟掙擠揮撏撈損撿換搗據捻擄摑擲撣摻摜揸攬撳攙擱摟攪攜攝攄擺搖擯攤攖撐攆擷擼攛擻攢敵斂數齋斕鬥斬斷無舊時曠暘曇晝曨顯晉曬曉曄暈暉暫曖札術樸機殺雜權條來楊榪傑極構樅樞棗櫪梘棖槍楓梟櫃檸檉梔柵標棧櫛櫳棟櫨櫟欄樹棲樣欒桊椏橈楨檔榿橋樺檜槳樁夢檮棶檢櫺槨櫝槧欏橢樓欖櫬櫚櫸檟檻檳櫧橫檣櫻櫫櫥櫓櫞檐檁歡歟歐殲歿殤殘殞殮殫殯毆毀轂畢斃氈毿氌氣氫氬氳匯漢污湯洶沓溝沒灃漚瀝淪滄渢潙滬沵濘淚澩瀧瀘濼瀉潑澤涇潔灑窪浹淺漿澆湞溮濁測澮濟瀏滻渾滸濃潯濜塗涌濤澇淶漣潿渦溳渙滌潤澗漲澀澱淵淥漬瀆漸澠漁瀋滲溫遊灣溼潰濺漵漊潷滾滯灩灄滿瀅濾濫灤濱灘澦漤瀠瀟瀲濰潛瀦瀾瀨瀕灝滅燈靈災燦煬爐燉煒熗點煉熾爍爛烴燭煙煩燒燁燴燙燼熱煥燜燾煅煳熘愛爺牘犛牽犧犢犟狀獷獁猶狽狍獮獰獨狹獅獪猙獄猻獫獵獼玀豬貓蝟獻獺璣璵瑒瑪瑋環現瑲璽珉珏琺瓏璫琿璡璉瑣瓊瑤璦璇瓔瓚甕甌電畫暢畲疇癤療瘧癘瘍癧瘡瘋皰痾癰痙癢瘂癆瘓癇癡癉瘮瘞瘻癟癱癮癭癩癬癲癯皚皺皸盞鹽監蓋盜盤瞘眥矓着睜睞瞼瞞矚矯磯礬礦碭碼磚硨硯碸礪礱礫礎硜硅碩硤磽磑礄確礆礙磧磣鹼碹磙禮禕禰禎禱禍稟祿禪離禿稈種積稱穢穠穭稅穌穩穡窮竊竅窯竄窩窺竇窶豎競篤筍筆筧箋籠籩築篳篩簹箏籌籤簡籙簀篋籜籮簞簫簣簍籃籬籪籟糴類秈糶糲粵糞糧糝餱緊縶糹糾紆紅紂纖紇約級紈纊紀紉緯紜紘純紕紗綱納紝縱綸紛紙紋紡紵紖紐紓線紺紲紱練組紳細織終縐絆紼絀紹繹經紿綁絨結絝繞絰絎繪給絢絳絡絕絞統綆綃絹繡綌綏絛繼綈績緒綾緓續綺緋綽鞝緄繩維綿綬繃綢綯綹綣綜綻綰綠綴緇緙緗緘緬纜緹緲緝縕繢緦綞緞緶線緱縋緩締縷編緡緣縉縛縟縝縫縗縞纏縭縊縑繽縹縵縲纓縮繆繅纈繚繕繒繮繾繰繯繳纘罌網羅罰罷羆羈羥羨翹翽翬耮耬聳恥聶聾職聹聯聵聰肅腸膚肷腎腫脹脅膽勝朧腖臚脛膠脈膾髒臍腦膿臠腳脫腡臉臘醃膕齶膩靦膃騰臏臢輿艤艦艙艫艱豔艹藝節羋薌蕪蘆蓯葦藶莧萇蒼苧蘇檾蘋莖蘢蔦塋煢繭荊薦薘莢蕘蓽蕎薈薺蕩榮葷滎犖熒蕁藎蓀蔭蕒葒葤藥蒞莜萊蓮蒔萵薟獲蕕瑩鶯蓴蘀蘿螢營縈蕭薩蔥蕆蕢蔣蔞藍薊蘺蕷鎣驀薔蘞藺藹蘄蘊藪藁蘚虜慮虛蟲虯蟣雖蝦蠆蝕蟻螞蠶蠔蜆蠱蠣蟶蠻蟄蛺蟯螄蠐蛻蝸蠟蠅蟈蟬蠍螻蠑螿蟎蠨釁銜補襯袞襖嫋褘襪襲襏裝襠褌褳襝褲襉褸襤襁襴見觀覎規覓視覘覽覺覬覡覿覥覦覯覲覷觴觸觶讋譽謄訁計訂訃認譏訐訌討讓訕訖訓議訊記訒講諱謳詎訝訥許訛論訩訟諷設訪訣證詁訶評詛識詗詐訴診詆謅詞詘詔詖譯詒誆誄試詿詩詰詼誠誅詵話誕詬詮詭詢詣諍該詳詫諢詡譸誡誣語誚誤誥誘誨誑說誦誒請諸諏諾讀諑誹課諉諛誰諗調諂諒諄誶談誼謀諶諜謊諫諧謔謁謂諤諭諼讒諮諳諺諦謎諞諝謨讜謖謝謠謗諡謙謐謹謾謫譾謬譚譖譙讕譜譎讞譴譫讖谷豶貝貞負貟貢財責賢敗賬貨質販貪貧貶購貯貫貳賤賁貰貼貴貺貸貿費賀貽賊贄賈賄貲賃賂贓資賅贐賕賑賚賒賦賭齎贖賞賜贔賙賡賠賧賴賵贅賻賺賽賾贗贊贇贈贍贏贛赬趙趕趨趲躉躍蹌跖躒踐躂蹺蹕躚躋踊躊蹤躓躑躡蹣躕躥躪躦軀車軋軌軒軑軔轉軛輪軟轟軲軻轤軸軹軼軤軫轢軺輕軾載輊轎輈輇輅較輒輔輛輦輩輝輥輞輬輟輜輳輻輯轀輸轡轅轄輾轆轍轔辭辯辮邊遼達遷過邁運還這進遠違連遲邇逕跡適選遜遞邐邏遺遙鄧鄺鄔郵鄒鄴鄰鬱郄郟鄶鄭鄆酈鄖鄲醞醱醬釅釃釀釋裏鉅鑑鑾鏨釓釔針釘釗釙釕釷釺釧釤鈒釩釣鍆釹鍚釵鈃鈣鈈鈦鈍鈔鍾鈉鋇鋼鈑鈐鑰欽鈞鎢鉤鈧鈁鈥鈄鈕鈀鈺錢鉦鉗鈷鉢鈳鉕鈽鈸鉞鑽鉬鉭鉀鈿鈾鐵鉑鈴鑠鉛鉚鈰鉉鉈鉍鈹鐸鉶銬銠鉺銪鋏鋣鐃銍鐺銅鋁銱銦鎧鍘銖銑鋌銩銛鏵銓鉿銚鉻銘錚銫鉸銥鏟銃鐋銨銀銣鑄鐒鋪鋙錸鋱鏈鏗銷鎖鋰鋥鋤鍋鋯鋨鏽銼鋝鋒鋅鋶鐦鐗銳銻鋃鋟鋦錒錆鍺錯錨錡錁錕錩錫錮鑼錘錐錦杴錈錇錟錠鍵鋸錳錙鍥鍈鍇鏘鍶鍔鍤鍬鍾鍛鎪鍠鍰鎄鍍鎂鏤鎡鏌鎮鎛鎘鑷鐫鎳鎿鎦鎬鎊鎰鎔鏢鏜鏍鏰鏞鏡鏑鏃鏇鏐鐔钁鐐鏷鑥鐓鑭鐠鑹鏹鐙鑊鐳鐶鐲鐮鐿鑔鑣鑞鑲長門閂閃閆閈閉問闖閏闈閒閎間閔閌悶閘鬧閨聞闥閩閭闓閥閣閡閫鬮閱閬闍閾閹閶鬩閿閽閻閼闡闌闃闠闊闋闔闐闒闕闞闤隊陽陰陣階際陸隴陳陘陝隉隕險隨隱隸雋難雛讎靂霧霽黴靄靚靜靨韃鞽韉鞴韋韌韍韓韙韞韜韻頁頂頃頇項順須頊頑顧頓頎頒頌頏預顱領頗頸頡頰頲頜潁熲頦頤頻頮頹頷頴穎顆題顒顎顓顏額顳顢顛顙顥纇顫顬顰顴風颺颭颮颯颶颸颼颻飀飄飆飈飛饗饜飣飢飥餳飩餼飪飫飭飯飲餞飾飽飼飿飴餌饒餉餄餎餃餏餅餑餖餓餘餒餕餜餛餡館餷饋餶餿饞饁饃餺餾饈饉饅饊饌饢馬馭馱馴馳驅馹駁驢駔駛駟駙駒騶駐駝駑駕驛駘驍罵駰驕驊駱駭駢驫驪騁驗騂駸駿騏騎騍騅騌驌驂騙騭騤騷騖驁騮騫騸驃騾驄驏驟驥驦驤髏髖髕鬢魘魎魚魛魢魷魨魯魴魺鮁鮃鮎鱸鮋鮓鮒鮊鮑鱟鮍鮐鮭鮚鮳鮪鮞鮦鰂鮜鱠鱭鮫鮮鮺鯗鱘鯁鱺鰱鰹鯉鰣鰷鯀鯊鯇鮶鯽鯒鯖鯪鯕鯫鯡鯤鯧鯝鯢鮎鯛鯨鰺鯴鯔鱝鰈鰏鱨鯷鰮鰃鰓鱷鰍鰒鰉鰁鱂鯿鰠鰲鰭鰨鰥鰩鰟鰜鰳鰾鱈鱉鰻鰵鱅鰼鱖鱔鱗鱒鱯鱤鱧鱣鳥鳩雞鳶鳴鳲鷗鴉鶬鴇鴆鴣鶇鸕鴨鴞鴦鴒鴟鴝鴛鷽鴕鷥鷙鴯鴰鵂鴴鵃鴿鸞鴻鵐鵓鸝鵑鵠鵝鵒鷳鵜鵡鵲鶓鵪鵾鵯鵬鵮鶉鶊鵷鷫鶘鶡鶚鶻鶿鶥鶩鷊鷂鶲鶹鶺鷁鶼鶴鷖鸚鷓鷚鷯鷦鷲鷸鷺鸇鷹鸌鸏鸛鸘鹺麥麩黃黌黶黷黲黽黿鼂鼉鞀鼴齇齊齏齒齔齕齗齟齡齙齠齜齦齬齪齲齷龍龔龕龜志制諮只裏系範鬆沒嚐嚐鬧面準鍾別閒乾盡髒拼衝裡",
@@ -5111,7 +4834,7 @@
       } else return tranStr(str, false);
     },
   };
-  var TAG$2 = "[artplayer-plugin-bilibiliCCSubTitle]：";
+  var TAG$3 = "[artplayer-plugin-bilibiliCCSubTitle]：";
   var SubTitleCustomStr = {
     src: "臟妳為傢蔔餵眾係姊託迴蹟儘封啟",
     des: "脏你为家卜喂众系姐托回迹尽对启",
@@ -5241,10 +4964,10 @@
               const findInfoIndex = settingOption.selector.findIndex((item) => item.subTitle_lan === storageInfo.lan);
               if (findInfoIndex !== -1) {
                 const findInfo = settingOption.selector[findInfoIndex];
-                console.log(TAG$2 + "选择字幕：" + findInfo.html);
+                console.log(TAG$3 + "选择字幕：" + findInfo.html);
                 currentSelectSubTitle.index = findInfoIndex;
                 currentSelectSubTitle.html = findInfo.html;
-              } else console.warn(TAG$2 + "没有找到上次选的字幕，使用当前默认无");
+              } else console.warn(TAG$3 + "没有找到上次选的字幕，使用当前默认无");
             }
             for (let index = 0; index < settingOption.selector.length; index++)
               settingOption.selector[index].default = index === currentSelectSubTitle.index;
@@ -5252,7 +4975,7 @@
             SubTitleData.currentSelectIndex = currentSelectSubTitle.index;
           }
           if (this.isAddSetting()) {
-            console.log(TAG$2 + "更新字幕菜单", selectorList ?? []);
+            console.log(TAG$3 + "更新字幕菜单", selectorList ?? []);
             that.art.setting.update(settingOption);
           } else that.art.setting.add(settingOption);
         },
@@ -5290,28 +5013,28 @@
         }
       );
       if (!videoInfoResponse.status) {
-        console.error(TAG$2 + "网络异常，获取视频的字幕信息失败", videoInfoResponse);
+        console.error(TAG$3 + "网络异常，获取视频的字幕信息失败", videoInfoResponse);
         return;
       }
-      console.log(TAG$2 + "视频的字幕信息", videoInfoResponse);
+      console.log(TAG$3 + "视频的字幕信息", videoInfoResponse);
       const videoInfoResultJSON = utils$1.toJSON(videoInfoResponse.data.responseText);
       if (!BilibiliApiResponseCheck.isWebApiSuccess(videoInfoResultJSON)) {
-        console.error(TAG$2 + "获取视频的字幕信息失败", videoInfoResultJSON);
+        console.error(TAG$3 + "获取视频的字幕信息失败", videoInfoResultJSON);
         return;
       }
       let subTitleUrlInfoList = videoInfoResultJSON["data"]["subtitle"]["subtitles"];
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$2 + "字幕列表为空", videoInfoResultJSON);
+        console.warn(TAG$3 + "字幕列表为空", videoInfoResultJSON);
         return;
       }
       subTitleUrlInfoList = subTitleUrlInfoList.filter((it) => utils$1.isNotNull(it.subtitle_url));
       if (!subTitleUrlInfoList.length) {
-        console.warn(TAG$2 + "有字幕列表，但是链接都为空", videoInfoResultJSON);
+        console.warn(TAG$3 + "有字幕列表，但是链接都为空", videoInfoResultJSON);
         return;
       }
       for (let index = 0; index < subTitleUrlInfoList.length; index++) {
         const subTitleUrlInfo = subTitleUrlInfoList[index];
-        console.log(TAG$2 + "获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
+        console.log(TAG$3 + "获取字幕链接信息：" + subTitleUrlInfo.subtitle_url);
         const subTitleInfoResponse = await httpx.get(subTitleUrlInfo.subtitle_url, {
           responseType: "json",
           allowInterceptConfig: false,
@@ -5321,7 +5044,7 @@
           },
         });
         if (subTitleInfoResponse.status) {
-          console.log(TAG$2 + "获取字幕信息成功");
+          console.log(TAG$3 + "获取字幕信息成功");
           const subTitleInfo = utils$1.toJSON(subTitleInfoResponse.data.responseText)["body"];
           const currentIndex = SubTitleData.allSubTitleInfo.length;
           const data = {
@@ -5337,7 +5060,7 @@
             subTitle_lan: data.lan,
             subTitle_data: data.data,
           });
-        } else console.error(TAG$2 + "获取字幕链接信息失败", subTitleInfoResponse);
+        } else console.error(TAG$3 + "获取字幕链接信息失败", subTitleInfoResponse);
       }
       if (Panel.getValue("bili-bangumi-generateSimpleChineseSubtitle")) {
         let subTitleHant = SubTitleData.allSubTitleInfo.find((item) => {
@@ -5368,7 +5091,7 @@
           });
         }
       }
-      console.log(TAG$2 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
+      console.log(TAG$3 + "加载视频CC字幕信息", SubTitleData.allSubTitleInfo);
       if (
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data == null ||
         SubTitleData.allSubTitleInfo[SubTitleData.currentSelectIndex].data.length == 0
@@ -5397,6 +5120,397 @@
     };
   }
   var ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY = SubTitle.$key.plugin_KEY;
+  var TAG$2 = "[artplayer-plugin-m4sAudioSupport]：";
+  var ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY = "setting-bilibili-m4sAudio";
+  var M4SAudioUtils = {
+    $flag: { isIntervaling: false },
+    intervalHandler(fn, count = 2, delayTime = 900) {
+      if (M4SAudioUtils.$flag.isIntervaling) return;
+      M4SAudioUtils.$flag.isIntervaling = true;
+      let intervalCount = 0;
+      let intervalId = void 0;
+      let callback = () => {
+        if (intervalCount > count) {
+          M4SAudioUtils.$flag.isIntervaling = false;
+          clearInterval(intervalId);
+          return;
+        }
+        if (typeof fn === "function")
+          try {
+            fn();
+          } catch (error) {
+            console.error(TAG$2, error);
+          }
+        intervalCount++;
+      };
+      callback();
+      if (count > 1) intervalId = setInterval(callback, delayTime);
+      else M4SAudioUtils.$flag.isIntervaling = false;
+    },
+  };
+  var M4SAudio = {
+    $key: { plugin_KEY: "plugin-bilibili-m4sAudio" },
+    $data: {
+      art: null,
+      audio: new Audio(),
+      latestSyncTime: 0,
+      reconnectConfig: {
+        maxCount: 5,
+        delayTime: 1e3,
+      },
+      reconnectInfo: {
+        url: "",
+        count: 0,
+      },
+      option: null,
+    },
+    userEvent: { onRestart: void 0 },
+    events: {
+      play: () => {
+        M4SAudio.handler.play();
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
+      },
+      seek: (currentTime) => {
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+          M4SAudio.handler.syncPlayState();
+        });
+      },
+      pause: () => {
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
+        M4SAudio.handler.pause();
+      },
+      restart: (url) => {
+        if (typeof M4SAudio.userEvent.onRestart === "function") {
+          let newAudioUrl = M4SAudio.userEvent.onRestart(url);
+          M4SAudio.handler.playUrl(newAudioUrl);
+        }
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
+        M4SAudio.handler.syncPlayState();
+      },
+      muted: (state) => {
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
+      },
+      destroy: () => {
+        M4SAudio.handler.pause();
+      },
+      error: (error, reconnectTime) => {
+        M4SAudio.handler.pause();
+      },
+      resize: () => {
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        });
+      },
+      fullscreen: () => {
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        });
+      },
+      "video:ended": () => {
+        M4SAudio.handler.pause();
+      },
+      "video:ratechange": () => {
+        M4SAudio.handler.syncPlayBackRate();
+      },
+      "video:waiting": () => {
+        M4SAudio.handler.pause();
+      },
+      "video:playing": () => {
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
+        M4SAudio.handler.play();
+      },
+      "video:pause": () => {
+        M4SAudio.handler.pause();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        }, 1);
+      },
+      "video:volumechange": () => {
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
+        M4SAudio.handler.syncPlayState();
+      },
+      "video:timeupdate": () => {
+        let videoTime = M4SAudio.$data.art.currentTime;
+        if (Math.abs(videoTime - M4SAudio.$data.latestSyncTime) >= 3) {
+          M4SAudio.$data.latestSyncTime = videoTime;
+          M4SAudioUtils.intervalHandler(() => {
+            M4SAudio.handler.syncTime(0.777);
+          }, 1);
+        }
+      },
+    },
+    audioEvents: {
+      loadedmetadata: (event) => {
+        M4SAudio.$data.art.emit("m4sAudio:loadedmetadata", event);
+        console.log(TAG$2 + "Audio预加载完成");
+        M4SAudio.$data.reconnectInfo.count = 0;
+        M4SAudio.$data.reconnectInfo.url = "";
+        M4SAudio.$data.latestSyncTime = 0;
+        M4SAudio.handler.syncPlayState();
+        M4SAudio.handler.syncPlayBackRate();
+        M4SAudio.handler.syncVolume();
+        M4SAudio.handler.syncMuted();
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        });
+      },
+      canplaythrough: (event) => {
+        M4SAudio.$data.art.emit("m4sAudio:canplaythrough", event);
+        console.log(TAG$2 + "浏览器估计该音频可以在不停止内容缓冲的情况下播放媒体直到结束");
+        M4SAudioUtils.intervalHandler(() => {
+          M4SAudio.handler.syncTime();
+        });
+      },
+      error: (event) => {
+        M4SAudio.$data.art.emit("m4sAudio:error", event);
+        console.error("[artplayer-plugin-m4sAudioSupport]：Audio加载失败", event);
+        if (utils$1.isNull(M4SAudio.$data.reconnectInfo.url))
+          M4SAudio.$data.reconnectInfo.url = M4SAudio.$data.audio.src;
+        if (M4SAudio.$data.reconnectInfo.count < M4SAudio.$data.reconnectConfig.maxCount) {
+          console.log(
+            `[artplayer-plugin-m4sAudioSupport]：Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`
+          );
+          M4SAudio.$data.art.notice.show = `Audio第${M4SAudio.$data.reconnectInfo.count + 1}次尝试重新连接`;
+          M4SAudio.$data.reconnectInfo.count++;
+          setTimeout(() => {
+            M4SAudio.handler.playUrl("");
+            M4SAudio.handler.playUrl(M4SAudio.$data.reconnectInfo.url);
+            M4SAudio.$data.audio.load();
+          }, M4SAudio.$data.reconnectConfig.delayTime);
+        } else {
+          console.error("[artplayer-plugin-m4sAudioSupport]：Audio已超出重连次数");
+          M4SAudio.$data.art.notice.show = `Audio已超出重连次数，请尝试切换源`;
+        }
+      },
+    },
+    handler: {
+      playUrl(url) {
+        if (typeof url !== "string") return;
+        M4SAudio.$data.audio.src = url;
+        M4SAudio.unbindAudio();
+        if (utils$1.isNotNull(url)) M4SAudio.bindAudio();
+        M4SAudio.$data.art.emit("m4sAudio:restart", url);
+        M4SAudio.handler.syncTime();
+        M4SAudio.handler.syncPlayState();
+      },
+      play() {
+        if (M4SAudio.$data.audio.paused) {
+          M4SAudio.$data.audio.play();
+          M4SAudio.$data.art.emit("m4sAudio:play");
+        }
+      },
+      pause() {
+        if (!M4SAudio.$data.audio.paused) {
+          M4SAudio.$data.audio.pause();
+          M4SAudio.$data.art.emit("m4sAudio:pause");
+        }
+      },
+      syncPlayState() {
+        if (M4SAudio.$data.art.playing) this.play();
+        else this.pause();
+        M4SAudio.$data.art.emit("m4sAudio:syncPlayState");
+      },
+      syncTime(offset = 0.1) {
+        let videoTime = M4SAudio.$data.art.currentTime;
+        let audioTime = M4SAudio.$data.audio.currentTime;
+        if (Math.abs(videoTime - audioTime) >= Math.abs(offset)) {
+          M4SAudio.$data.audio.currentTime = videoTime;
+          this.syncVolume();
+          this.syncMuted();
+          M4SAudio.$data.art.emit("m4sAudio:syncTime");
+        }
+      },
+      syncVolume() {
+        M4SAudio.$data.audio.volume = M4SAudio.$data.art.volume;
+        M4SAudio.$data.art.emit("m4sAudio:syncVolume");
+      },
+      syncMuted() {
+        let artMuted = M4SAudio.$data.art.muted;
+        M4SAudio.$data.audio.muted = artMuted;
+        M4SAudio.$data.art.emit("m4sAudio:syncMuted");
+      },
+      syncPlayBackRate() {
+        let artPlayBackRate = M4SAudio.$data.art.playbackRate;
+        if (artPlayBackRate !== M4SAudio.$data.audio.playbackRate) {
+          M4SAudio.$data.audio.playbackRate = artPlayBackRate;
+          M4SAudio.$data.art.emit("m4sAudio:syncPlayBackRate");
+        }
+      },
+    },
+    update(option) {
+      this.unbind();
+      this.unbindAudio();
+      this.$data.option = null;
+      this.$data.option = option.audioList;
+      this.$data.latestSyncTime = 0;
+      const that = this;
+      if (option.audioList?.length) {
+        option.audioList.sort((leftItem, rightItem) => {
+          return rightItem.bandwidth - leftItem.bandwidth;
+        });
+        let firstAudioInfo = option.audioList[0];
+        const storageKey = `artplayer-m4s-audio-${option.from}`;
+        const storageAudioInfo = this.$data.art.storage.get(storageKey);
+        let currentSelectAudioInfo = {
+          index: 0,
+          html: firstAudioInfo.soundQualityCodeText,
+          url: firstAudioInfo.url,
+        };
+        if (storageAudioInfo) {
+          const findAudioIndex = option.audioList.findIndex(
+            (item) => item.soundQualityCode === storageAudioInfo.soundQualityCode
+          );
+          if (findAudioIndex !== -1) {
+            const findAudio = option.audioList[findAudioIndex];
+            currentSelectAudioInfo.index = findAudioIndex;
+            currentSelectAudioInfo.url = findAudio.url;
+            currentSelectAudioInfo.html = findAudio.soundQualityCodeText;
+          } else console.warn(TAG$2 + "没有找到上次选的音频代码，使用当前默认第一个音频");
+        }
+        let selectorList = option.audioList.map((item, index) => {
+          return {
+            default: index === currentSelectAudioInfo.index,
+            html: item.soundQualityCodeText,
+            url: item.url,
+            soundQualityCode: item.soundQualityCode,
+            soundQualityCodeText: item.soundQualityCodeText,
+            codecs: item.codecs,
+            mimeType: item.mimeType,
+            bandwidth: item.bandwidth,
+            size: item.size,
+          };
+        });
+        const settingOption = {
+          name: ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY,
+          width: 200,
+          html: "音频",
+          tooltip: currentSelectAudioInfo.html,
+          icon: `
+				<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+					<path d="M123.5 438.5h131.3v310.7H123.5zM769.2 438.5h131.3v310.7H769.2z"></path>
+					<path d="M859.8 398.8h-48.3c-7.9 0-15.4 1.6-22.5 3.9v-32.4c0-125.2-101.9-227.1-227.1-227.1h-99.7c-125.2 0-227.1 101.9-227.1 227.1v32.4c-7.1-2.3-14.6-3.9-22.5-3.9h-48.3c-40.9 0-74.2 33.3-74.2 74.2v243c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V370.3c0-96.7 78.7-175.4 175.4-175.4h99.7c96.7 0 175.4 78.7 175.4 175.4V716c0 40.9 33.3 74.2 74.2 74.2h48.3c40.9 0 74.2-33.3 74.2-74.2V473c-0.1-40.9-33.3-74.2-74.2-74.2zM235.1 716c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z m647.2 0c0 12.4-10.1 22.5-22.5 22.5h-48.3c-12.4 0-22.5-10.1-22.5-22.5V473c0-12.4 10.1-22.5 22.5-22.5h48.3c12.4 0 22.5 10.1 22.5 22.5v243z"></path>
+					<path d="M531.3 652.3c-1.7 0-3.3-0.1-5-0.4-10.2-1.7-18.7-8.3-22.7-17.8l-41.1-95.4-37 43.8c-8.1 9.6-19.9 15.1-32.5 15.1h-71.9V546h67.6l56.6-67.1c6.8-8.1 17-12 27.5-10.4 10.4 1.5 19.1 8.2 23.3 17.9l41.6 96.7 21.9-24c8-8.8 19.5-13.9 31.4-13.9h102.4v51.7H595l-41.6 45.7c-5.6 6.2-13.7 9.7-22.1 9.7z"></path>
+				</svg>
+				`,
+          selector: selectorList,
+          onSelect: function (selector) {
+            let itemInfo = selector;
+            console.log(TAG$2 + "切换音频", itemInfo);
+            that.handler.playUrl(itemInfo.url);
+            that.$data.art.storage.set(storageKey, { soundQualityCode: itemInfo.soundQualityCode });
+            return selector.html;
+          },
+        };
+        if (M4SAudio.$data.art.setting.find(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
+          M4SAudio.$data.art.setting.update(settingOption);
+        else M4SAudio.$data.art.setting.add(settingOption);
+        log.info("当前加载的音频：", currentSelectAudioInfo);
+        M4SAudio.handler.playUrl(currentSelectAudioInfo.url);
+        this.bind();
+        this.bindAudio();
+      } else {
+        M4SAudio.handler.playUrl("");
+        if (M4SAudio.$data.art.setting.option.find((item) => item.name === ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY))
+          M4SAudio.$data.art.setting.remove(ArtPlayer_PLUGIN_M4S_SUPPORT_SETTING_KEY);
+      }
+    },
+    bind() {
+      Object.keys(this.events).forEach((eventName) => {
+        this.$data.art.on(eventName, this.events[eventName]);
+      });
+    },
+    bindAudio() {
+      Object.keys(this.audioEvents).forEach((eventName) => {
+        this.$data.audio.addEventListener(eventName, this.audioEvents[eventName], { once: true });
+      });
+    },
+    unbind() {
+      Object.keys(this.events).forEach((eventName) => {
+        this.$data.art.off(eventName, this.events[eventName]);
+      });
+    },
+    unbindAudio() {
+      Object.keys(this.audioEvents).forEach((eventName) => {
+        this.$data.audio.removeEventListener(eventName, this.audioEvents[eventName]);
+      });
+    },
+  };
+  var artplayerPluginM4SAudioSupport = (option) => {
+    return (art) => {
+      M4SAudio.$data.art = art;
+      if (typeof option.onRestart === "function") M4SAudio.userEvent.onRestart = option.onRestart;
+      M4SAudio.update({
+        from: option.from,
+        audioList: option.audioList,
+      });
+      return {
+        name: M4SAudio.$key.plugin_KEY,
+        update(...args) {
+          M4SAudio.update(...args);
+          M4SAudio.handler.syncVolume();
+          M4SAudio.handler.syncMuted();
+          M4SAudio.handler.syncTime();
+        },
+        getAudio() {
+          return M4SAudio.$data.audio;
+        },
+        getCurrentPlayConfig() {
+          return M4SAudio.$data.option.find((it) => it.url === M4SAudio.$data.audio.src);
+        },
+      };
+    };
+  };
+  var ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY = M4SAudio.$key.plugin_KEY;
+  var ArtPlayerDanmakuOptionHelper = class {
+    $data = {
+      KEY: "art-player-danmaku-option",
+      localArtDanmakuOption: {},
+    };
+    constructor(localDataKey) {
+      this.$data.KEY = localDataKey;
+      const defaultDanmakuOption = this.getDefaultDanmakuOption();
+      this.$data.localArtDanmakuOption = utils$1.assign(defaultDanmakuOption, _GM_getValue(this.$data.KEY, {}));
+    }
+    getDefaultDanmakuOption() {
+      return {
+        speed: 5,
+        margin: [10, "75%"],
+        opacity: 1,
+        modes: [0, 1, 2],
+        fontSize: 18,
+        antiOverlap: false,
+        synchronousPlayback: true,
+        visible: true,
+      };
+    }
+    getLocalArtDanmakuOption() {
+      return this.$data.localArtDanmakuOption;
+    }
+    onConfigChange(art) {
+      art.on("artplayerPluginDanmuku:config", (option) => {
+        Object.keys(this.$data.localArtDanmakuOption).forEach((key) => {
+          if (Reflect.has(option, key)) {
+            let value = Reflect.get(option, key);
+            Reflect.set(this.$data.localArtDanmakuOption, key, value);
+          }
+        });
+        _GM_setValue(this.$data.KEY, this.$data.localArtDanmakuOption);
+      });
+    }
+  };
   var TAG$1 = "[artplayer-plugin-epChoose]：";
   var GenerateArtPlayerEpTitle = (title, title_id) => {
     if (title_id == null || title_id == "") return title;
@@ -5506,94 +5620,6 @@
     };
   };
   var ArtPlayer_PLUGIN_EP_CHOOSE_KEY = EpChoose.$key.PLUGIN_KEY;
-  var ArtPlayerBiliBiliIcon = {
-    loading: `<img src="data:image/gif;base64,R0lGODlhWgBaALMOAHR0dAICAnd3dwEBAXh4eAMDAwkJCQ0NDQsLCxwcHA4ODggICHl5eQAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh/wtYTVAgRGF0YVhNUDw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTMyIDc5LjE1OTI4NCwgMjAxNi8wNC8xOS0xMzoxMzo0MCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiYWE1ODg5ZS1jN2RmLTRmZmUtYjkzOS0wMmVkMTZhNmNjZDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6M0I2ODI2NjA1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6M0I2ODI2NUY1NzhGMTFFNkEyMEVDNzhEOUY1RkQxRjgiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUuNSAoTWFjaW50b3NoKSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjljYjgzNjY2LWYxYWUtNGMyZi1hMGEwLThhODJmYjIxM2U0MyIgc3RSZWY6ZG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOmU1NDE3YzFmLTllODAtMTE3OS04NjdiLWUy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">`,
-    state: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 80 80" width="100" height="100"><defs><path id="pid-64-svgo-a" d="M0 0h80v80H0z"/><path d="M52.546 8.014a3.998 3.998 0 014.222 3.077c.104.446.093.808.039 1.138a2.74 2.74 0 01-.312.881c-.073.132-.16.254-.246.376l-.257.366-.521.73c-.7.969-1.415 1.926-2.154 2.866l-.015.02a240.945 240.945 0 015.986.341l1.643.123.822.066.41.034.206.018.103.008.115.012c1.266.116 2.516.45 3.677.975a11.663 11.663 0 013.166 2.114c.931.87 1.719 1.895 2.321 3.022a11.595 11.595 0 011.224 3.613c.03.157.046.316.068.474l.015.119.013.112.022.206.085.822.159 1.646c.1 1.098.19 2.198.27 3.298.315 4.4.463 8.829.36 13.255a166.489 166.489 0 01-.843 13.213c-.012.127-.034.297-.053.454a7.589 7.589 0 01-.072.475l-.04.237-.05.236a11.762 11.762 0 01-.74 2.287 11.755 11.755 0 01-5.118 5.57 11.705 11.705 0 01-3.623 1.263c-.158.024-.316.052-.475.072l-.477.053-.821.071-1.644.134c-1.096.086-2.192.16-3.288.23a260.08 260.08 0 01-6.578.325c-8.772.324-17.546.22-26.313-.302a242.458 242.458 0 01-3.287-.22l-1.643-.129-.822-.069-.41-.035-.206-.018c-.068-.006-.133-.01-.218-.02a11.566 11.566 0 01-3.7-.992 11.732 11.732 0 01-5.497-5.178 11.73 11.73 0 01-1.215-3.627c-.024-.158-.051-.316-.067-.475l-.026-.238-.013-.119-.01-.103-.07-.823-.132-1.648a190.637 190.637 0 01-.22-3.298c-.256-4.399-.358-8.817-.258-13.233.099-4.412.372-8.811.788-13.197a11.65 11.65 0 013.039-6.835 11.585 11.585 0 016.572-3.563c.157-.023.312-.051.47-.07l.47-.05.82-.07 1.643-.13a228.493 228.493 0 016.647-.405l-.041-.05a88.145 88.145 0 01-2.154-2.867l-.52-.73-.258-.366c-.086-.122-.173-.244-.246-.376a2.74 2.74 0 01-.312-.881 2.808 2.808 0 01.04-1.138 3.998 3.998 0 014.22-3.077 2.8 2.8 0 011.093.313c.294.155.538.347.742.568.102.11.19.23.28.35l.27.359.532.72a88.059 88.059 0 012.06 2.936 73.036 73.036 0 011.929 3.03c.187.313.373.628.556.945 2.724-.047 5.447-.056 8.17-.038.748.006 1.496.015 2.244.026.18-.313.364-.624.549-.934a73.281 73.281 0 011.93-3.03 88.737 88.737 0 012.059-2.935l.533-.72.268-.359c.09-.12.179-.24.281-.35a2.8 2.8 0 011.834-.881zM30.13 34.631a4 4 0 00-.418 1.42 91.157 91.157 0 00-.446 9.128c0 2.828.121 5.656.364 8.483l.11 1.212a4 4 0 005.858 3.143c2.82-1.498 5.55-3.033 8.193-4.606a177.41 177.41 0 005.896-3.666l1.434-.942a4 4 0 00.047-6.632 137.703 137.703 0 00-7.377-4.708 146.88 146.88 0 00-6.879-3.849l-1.4-.725a4 4 0 00-5.382 1.742z" id="pid-64-svgo-d"/><filter x="-15.4%" y="-16.3%" width="130.9%" height="132.5%" filterUnits="objectBoundingBox" id="pid-64-svgo-c"><feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/><feGaussianBlur stdDeviation="1" in="shadowOffsetOuter1" result="shadowBlurOuter1"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0" in="shadowBlurOuter1" result="shadowMatrixOuter1"/><feOffset in="SourceAlpha" result="shadowOffsetOuter2"/><feGaussianBlur stdDeviation="3.5" in="shadowOffsetOuter2" result="shadowBlurOuter2"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" in="shadowBlurOuter2" result="shadowMatrixOuter2"/><feMerge><feMergeNode in="shadowMatrixOuter1"/><feMergeNode in="shadowMatrixOuter2"/></feMerge></filter></defs><g fill="none" fill-rule="evenodd" opacity=".8"><mask id="pid-64-svgo-b" fill="#fff"><use xlink:href="#pid-64-svgo-a"/></mask><g mask="url(#pid-64-svgo-b)"><use fill="#000" filter="url(#pid-64-svgo-c)" xlink:href="#pid-64-svgo-d"/><use fill="#FFF" xlink:href="#pid-64-svgo-d"/></g></g></svg>`,
-    indicator: `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="16" height="16">
-        <path d="M16.118 3.667h.382a3.667 3.667 0 013.667 3.667v7.333a3.667 3.667 0 01-3.667 3.667h-11a3.667 3.667 0 01-3.667-3.667V7.333A3.667 3.667 0 015.5 3.666h.382L4.95 2.053a1.1 1.1 0 011.906-1.1l1.567 2.714h5.156L15.146.953a1.101 1.101 0 011.906 1.1l-.934 1.614z" fill="#333"></path>
-        <path d="M5.561 5.194h10.878a2.2 2.2 0 012.2 2.2v7.211a2.2 2.2 0 01-2.2 2.2H5.561a2.2 2.2 0 01-2.2-2.2V7.394a2.2 2.2 0 012.2-2.2z" fill="#fff"></path>
-        <path d="M6.967 8.556a1.1 1.1 0 011.1 1.1v2.689a1.1 1.1 0 11-2.2 0V9.656a1.1 1.1 0 011.1-1.1zM15.033 8.556a1.1 1.1 0 011.1 1.1v2.689a1.1 1.1 0 11-2.2 0V9.656a1.1 1.1 0 011.1-1.1z" fill="#333"></path>
-    </svg>
-        `,
-    fullscreenWebOn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_172"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_172)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -26,-20 -26,-20 C-27.049999237060547,-20 -27.920000076293945,-19.18000030517578 -27.989999771118164,-18.149999618530273 C-27.989999771118164,-18.149999618530273 -28,-18 -28,-18 C-28,-18 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -22,-4 -22,-4 C-20.950000762939453,-4 -20.079999923706055,-4.820000171661377 -20.010000228881836,-5.849999904632568 C-20.010000228881836,-5.849999904632568 -20,-6 -20,-6 C-20,-6 -20,-12 -20,-12 C-20,-12 -14,-12 -14,-12 C-12.949999809265137,-12 -12.079999923706055,-12.819999694824219 -12.010000228881836,-13.850000381469727 C-12.010000228881836,-13.850000381469727 -12,-14 -12,-14 C-12,-14 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M26,-20 C26,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-14 12,-14 C12,-12.949999809265137 12.819999694824219,-12.079999923706055 13.850000381469727,-12.010000228881836 C13.850000381469727,-12.010000228881836 14,-12 14,-12 C14,-12 20,-12 20,-12 C20,-12 20,-6 20,-6 C20,-4.949999809265137 20.81999969482422,-4.079999923706055 21.850000381469727,-4.010000228881836 C21.850000381469727,-4.010000228881836 22,-4 22,-4 C22,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-18 28,-18 C28,-19.049999237060547 27.18000030517578,-19.920000076293945 26.149999618530273,-19.989999771118164 C26.149999618530273,-19.989999771118164 26,-20 26,-20z M-22,4 C-22,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,18 -28,18 C-28,19.049999237060547 -27.18000030517578,19.920000076293945 -26.149999618530273,19.989999771118164 C-26.149999618530273,19.989999771118164 -26,20 -26,20 C-26,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,14 -12,14 C-12,12.949999809265137 -12.819999694824219,12.079999923706055 -13.850000381469727,12.010000228881836 C-13.850000381469727,12.010000228881836 -14,12 -14,12 C-14,12 -20,12 -20,12 C-20,12 -20,6 -20,6 C-20,4.949999809265137 -20.81999969482422,4.079999923706055 -21.850000381469727,4.010000228881836 C-21.850000381469727,4.010000228881836 -22,4 -22,4z M26,4 C26,4 22,4 22,4 C20.950000762939453,4 20.079999923706055,4.820000171661377 20.010000228881836,5.849999904632568 C20.010000228881836,5.849999904632568 20,6 20,6 C20,6 20,12 20,12 C20,12 14,12 14,12 C12.949999809265137,12 12.079999923706055,12.819999694824219 12.010000228881836,13.850000381469727 C12.010000228881836,13.850000381469727 12,14 12,14 C12,14 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 26,20 26,20 C27.049999237060547,20 27.920000076293945,19.18000030517578 27.989999771118164,18.149999618530273 C27.989999771118164,18.149999618530273 28,18 28,18 C28,18 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
-    fullscreenWebOff: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="28" height="28" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="__lottie_element_177"><rect width="88" height="88" x="0" y="0"></rect></clipPath></defs><g clip-path="url(#__lottie_element_177)"><g transform="matrix(1,0,0,1,44,44)" opacity="1" style="display: block;"><g opacity="1" transform="matrix(1,0,0,1,0,0)"><path fill="rgb(255,255,255)" fill-opacity="1" d=" M-14,-20 C-14,-20 -18,-20 -18,-20 C-19.049999237060547,-20 -19.920000076293945,-19.18000030517578 -19.989999771118164,-18.149999618530273 C-19.989999771118164,-18.149999618530273 -20,-18 -20,-18 C-20,-18 -20,-12 -20,-12 C-20,-12 -26,-12 -26,-12 C-27.049999237060547,-12 -27.920000076293945,-11.180000305175781 -27.989999771118164,-10.149999618530273 C-27.989999771118164,-10.149999618530273 -28,-10 -28,-10 C-28,-10 -28,-6 -28,-6 C-28,-4.949999809265137 -27.18000030517578,-4.079999923706055 -26.149999618530273,-4.010000228881836 C-26.149999618530273,-4.010000228881836 -26,-4 -26,-4 C-26,-4 -14,-4 -14,-4 C-12.949999809265137,-4 -12.079999923706055,-4.820000171661377 -12.010000228881836,-5.849999904632568 C-12.010000228881836,-5.849999904632568 -12,-6 -12,-6 C-12,-6 -12,-18 -12,-18 C-12,-19.049999237060547 -12.819999694824219,-19.920000076293945 -13.850000381469727,-19.989999771118164 C-13.850000381469727,-19.989999771118164 -14,-20 -14,-20z M18,-20 C18,-20 14,-20 14,-20 C12.949999809265137,-20 12.079999923706055,-19.18000030517578 12.010000228881836,-18.149999618530273 C12.010000228881836,-18.149999618530273 12,-18 12,-18 C12,-18 12,-6 12,-6 C12,-4.949999809265137 12.819999694824219,-4.079999923706055 13.850000381469727,-4.010000228881836 C13.850000381469727,-4.010000228881836 14,-4 14,-4 C14,-4 26,-4 26,-4 C27.049999237060547,-4 27.920000076293945,-4.820000171661377 27.989999771118164,-5.849999904632568 C27.989999771118164,-5.849999904632568 28,-6 28,-6 C28,-6 28,-10 28,-10 C28,-11.050000190734863 27.18000030517578,-11.920000076293945 26.149999618530273,-11.989999771118164 C26.149999618530273,-11.989999771118164 26,-12 26,-12 C26,-12 20,-12 20,-12 C20,-12 20,-18 20,-18 C20,-19.049999237060547 19.18000030517578,-19.920000076293945 18.149999618530273,-19.989999771118164 C18.149999618530273,-19.989999771118164 18,-20 18,-20z M-14,4 C-14,4 -26,4 -26,4 C-27.049999237060547,4 -27.920000076293945,4.820000171661377 -27.989999771118164,5.849999904632568 C-27.989999771118164,5.849999904632568 -28,6 -28,6 C-28,6 -28,10 -28,10 C-28,11.050000190734863 -27.18000030517578,11.920000076293945 -26.149999618530273,11.989999771118164 C-26.149999618530273,11.989999771118164 -26,12 -26,12 C-26,12 -20,12 -20,12 C-20,12 -20,18 -20,18 C-20,19.049999237060547 -19.18000030517578,19.920000076293945 -18.149999618530273,19.989999771118164 C-18.149999618530273,19.989999771118164 -18,20 -18,20 C-18,20 -14,20 -14,20 C-12.949999809265137,20 -12.079999923706055,19.18000030517578 -12.010000228881836,18.149999618530273 C-12.010000228881836,18.149999618530273 -12,18 -12,18 C-12,18 -12,6 -12,6 C-12,4.949999809265137 -12.819999694824219,4.079999923706055 -13.850000381469727,4.010000228881836 C-13.850000381469727,4.010000228881836 -14,4 -14,4z M26,4 C26,4 14,4 14,4 C12.949999809265137,4 12.079999923706055,4.820000171661377 12.010000228881836,5.849999904632568 C12.010000228881836,5.849999904632568 12,6 12,6 C12,6 12,18 12,18 C12,19.049999237060547 12.819999694824219,19.920000076293945 13.850000381469727,19.989999771118164 C13.850000381469727,19.989999771118164 14,20 14,20 C14,20 18,20 18,20 C19.049999237060547,20 19.920000076293945,19.18000030517578 19.989999771118164,18.149999618530273 C19.989999771118164,18.149999618530273 20,18 20,18 C20,18 20,12 20,12 C20,12 26,12 26,12 C27.049999237060547,12 27.920000076293945,11.180000305175781 27.989999771118164,10.149999618530273 C27.989999771118164,10.149999618530273 28,10 28,10 C28,10 28,6 28,6 C28,4.949999809265137 27.18000030517578,4.079999923706055 26.149999618530273,4.010000228881836 C26.149999618530273,4.010000228881836 26,4 26,4z M28,-28 C32.41999816894531,-28 36,-24.420000076293945 36,-20 C36,-20 36,20 36,20 C36,24.420000076293945 32.41999816894531,28 28,28 C28,28 -28,28 -28,28 C-32.41999816894531,28 -36,24.420000076293945 -36,20 C-36,20 -36,-20 -36,-20 C-36,-24.420000076293945 -32.41999816894531,-28 -28,-28 C-28,-28 28,-28 28,-28z"></path></g></g></g></svg>`,
-  };
-  var ArtPlayerCommonOption = () => {
-    const option = {
-      container: "",
-      url: "",
-      volume: 1,
-      isLive: false,
-      muted: false,
-      autoplay: false,
-      pip: false,
-      autoMini: false,
-      screenshot: false,
-      setting: true,
-      loop: false,
-      flip: true,
-      playbackRate: true,
-      autoSize: false,
-      aspectRatio: false,
-      fullscreen: true,
-      fullscreenWeb: true,
-      subtitleOffset: true,
-      miniProgressBar: true,
-      mutex: false,
-      backdrop: true,
-      playsInline: false,
-      autoPlayback: true,
-      airplay: true,
-      lock: true,
-      fastForward: true,
-      theme: BilibiliData.theme,
-      lang: navigator.language.toLowerCase(),
-      moreVideoAttr: { crossOrigin: "anonymous" },
-      icons: ArtPlayerBiliBiliIcon,
-      settings: [],
-    };
-    const defaultVolume = option.volume ?? 1;
-    const localVolume = Panel.getValue("artplayer-settings-volume", defaultVolume);
-    option.volume = localVolume;
-    const volumnRange = Number((localVolume * 100).toFixed());
-    const volumnIcon = `
-    <i class="art-icon art-icon-volume" style="display: flex;">
-      <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 22 22">
-          <path d="M10.188 4.65L6 8H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1l4.188 3.35a.5.5 0 0 0 .812-.39V5.04a.498.498 0 0 0-.812-.39zM14.446 3.778a1 1 0 0 0-.862 1.804 6.002 6.002 0 0 1-.007 10.838 1 1 0 0 0 .86 1.806A8.001 8.001 0 0 0 19 11a8.001 8.001 0 0 0-4.554-7.222z"></path>
-          <path d="M15 11a3.998 3.998 0 0 0-2-3.465v6.93A3.998 3.998 0 0 0 15 11z"></path>
-      </svg>
-    </i>
-  `;
-    const muteIcon = `
-    <i class="art-icon art-icon-volume" style="display: flex;">
-      <svg xmlns="http://www.w3.org/2000/svg" height="22" width="22" viewBox="0 0 22 22">
-          <path d="M15 11a3.998 3.998 0 0 0-2-3.465v2.636l1.865 1.865A4.02 4.02 0 0 0 15 11z"></path>
-          <path d="M13.583 5.583A5.998 5.998 0 0 1 17 11a6 6 0 0 1-.585 2.587l1.477 1.477a8.001 8.001 0 0 0-3.446-11.286 1 1 0 0 0-.863 1.805zM18.778 18.778l-2.121-2.121-1.414-1.414-1.415-1.415L13 13l-2-2-3.889-3.889-3.889-3.889a.999.999 0 1 0-1.414 1.414L5.172 8H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1l4.188 3.35a.5.5 0 0 0 .812-.39v-3.131l2.587 2.587-.01.005a1 1 0 0 0 .86 1.806c.215-.102.424-.214.627-.333l2.3 2.3a1.001 1.001 0 0 0 1.414-1.416zM11 5.04a.5.5 0 0 0-.813-.39L8.682 5.854 11 8.172V5.04z"></path>
-      </svg>
-    </i>
-  `;
-    option.settings.push({
-      html: "音量",
-      tooltip: volumnRange.toString(),
-      icon: `
-        <i class="art-icon art-icon-volume" style="display: flex;">
-          ${localVolume ? volumnIcon : muteIcon}
-        </i>`,
-      range: [volumnRange, 0, 100, 1],
-      onChange: function (item) {
-        const value = item.range[0];
-        this.volume = value / 100;
-        Panel.setValue("artplayer-settings-volume", this.volume);
-        if (item.$icon) {
-          if (this.volume === 0) domUtils.html(item.$icon, muteIcon);
-          else domUtils.html(item.$icon, volumnIcon);
-        }
-        return value;
-      },
-    });
-    return option;
-  };
   var TAG = "[artplayer-plugin-quality]：";
   var ArtPlayer_PLUGIN_QUALITY_KEY = "artplayer-plugin-quality";
   var VideoCodingCodeMap = {
@@ -6084,6 +6110,270 @@
     };
   };
   var ArtPlayer_PLUGIN_TOAST_KEY = Toast.$key.plugin_KEY;
+  var TopToolBarUtils = {
+    show($el) {
+      if (!$el) return;
+    },
+    hide($el) {
+      if (!$el) return;
+    },
+  };
+  var TopToolBarEvent = {
+    events: {
+      control: (state) => {
+        if (!state) return;
+        TopToolBar.updateOnlineTotal({
+          showOnlineTotal: TopToolBar.$data.option.showOnlineTotal,
+          onlineInfoParams: TopToolBar.$data.option.onlineInfoParams,
+        });
+      },
+    },
+    bind() {
+      Object.keys(this.events).forEach((eventName) => {
+        TopToolBar.art.on(eventName, this.events[eventName]);
+      });
+    },
+    unbind() {
+      Object.keys(this.events).forEach((eventName) => {
+        TopToolBar.art.off(eventName, this.events[eventName]);
+      });
+    },
+  };
+  var TopToolBar = {
+    art: null,
+    $el: {
+      $topWrap: null,
+      $topTitleContainer: null,
+      $topTitleText: null,
+      $topTitleFollow: null,
+      $topTitleFollowText: null,
+      $topRightContainer: null,
+      $topRightFollowContainer: null,
+    },
+    $data: {
+      isInit: false,
+      __option: {},
+      option: {},
+    },
+    $key: { plugin_KEY: "plugin-bilibili-topToolBar" },
+    init(option) {
+      this.art.layers.add({
+        name: "top-wrap",
+        html: `
+      <div class="art-player-top-wrap">
+        <div class="art-player-top-container">
+          <!-- 标题的容器 -->
+          <div class="art-player-top-left-container">
+            <!-- 视频的标题 -->
+            <div class="art-player-video-title-text"></div>
+          </div>
+          <!-- 顶部右侧组件 -->
+          <div class="art-player-top-right-container">
+            <!-- 点赞 -->
+            <div class="art-player-top-right-like">
+              <div class="art-player-top-right-icon">
+                <svg width="24" height="24" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" class="video-like-icon video-toolbar-item-icon">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M9.77234 30.8573V11.7471H7.54573C5.50932 11.7471 3.85742 13.3931 3.85742 15.425V27.1794C3.85742 29.2112 5.50932 30.8573 7.54573 30.8573H9.77234ZM11.9902 30.8573V11.7054C14.9897 10.627 16.6942 7.8853 17.1055 3.33591C17.2666 1.55463 18.9633 0.814421 20.5803 1.59505C22.1847 2.36964 23.243 4.32583 23.243 6.93947C23.243 8.50265 23.0478 10.1054 22.6582 11.7471H29.7324C31.7739 11.7471 33.4289 13.402 33.4289 15.4435C33.4289 15.7416 33.3928 16.0386 33.3215 16.328L30.9883 25.7957C30.2558 28.7683 27.5894 30.8573 24.528 30.8573H11.9911H11.9902Z" fill="currentColor"></path>
+                </svg>
+                <span data-value=""></span>
+              </div>
+            </div>
+            <!-- 评论 -->
+            <div class="art-player-top-right-comment">
+              <div class="art-player-top-right-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" t="1793156114520" class="video-fav-icon video-toolbar-item-icon" viewBox="0 0 1024 1024" width="24" height="24">
+                  <path d="M783.5648 773.3248H675.84c0.8192 0.6144 1.2288 0.8192 1.2288 0.8192-262.5536 0-455.0656 99.9424-455.0656 99.9424V774.144c0.2048-1.024 0.2048-1.8432 0.4096-2.6624-71.2704-9.0112-126.7712-69.2224-126.7712-142.9504v-333.824c0-80.0768 64.7168-144.7936 144.7936-144.7936h543.1296c80.0768 0 144.7936 64.7168 144.7936 144.7936v333.824c0 80.0768-64.9216 144.7936-144.7936 144.7936z" fill="currentColor"></path>
+                </svg>
+              </div>
+            </div>
+            <!-- 收藏 -->
+            <div class="art-player-top-right-collect">
+              <div class="art-player-top-right-icon">
+                <svg width="24" height="24" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" class="video-fav-icon video-toolbar-item-icon">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M19.8071 9.26152C18.7438 9.09915 17.7624 8.36846 17.3534 7.39421L15.4723 3.4972C14.8998 2.1982 13.1004 2.1982 12.4461 3.4972L10.6468 7.39421C10.1561 8.36846 9.25639 9.09915 8.19315 9.26152L3.94016 9.91102C2.63155 10.0734 2.05904 11.6972 3.04049 12.6714L6.23023 15.9189C6.96632 16.6496 7.29348 17.705 7.1299 18.7605L6.39381 23.307C6.14844 24.6872 7.62063 25.6614 8.84745 25.0119L12.4461 23.0634C13.4276 22.4951 14.6544 22.4951 15.6359 23.0634L19.2345 25.0119C20.4614 25.6614 21.8518 24.6872 21.6882 23.307L20.8703 18.7605C20.7051 17.705 21.0339 16.6496 21.77 15.9189L24.9597 12.6714C25.9412 11.6972 25.3687 10.0734 24.06 9.91102L19.8071 9.26152Z" fill="currentColor"></path>
+                </svg>
+                <span data-value=""></span>
+              </div>
+            </div>
+            <!-- 投币 -->
+            <div class="art-player-top-right-coin">
+              <div class="art-player-top-right-icon">
+                <svg width="24" height="24" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" class="video-coin-icon video-toolbar-item-icon">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M14.045 25.5454C7.69377 25.5454 2.54504 20.3967 2.54504 14.0454C2.54504 7.69413 7.69377 2.54541 14.045 2.54541C20.3963 2.54541 25.545 7.69413 25.545 14.0454C25.545 17.0954 24.3334 20.0205 22.1768 22.1771C20.0201 24.3338 17.095 25.5454 14.045 25.5454ZM9.66202 6.81624H18.2761C18.825 6.81624 19.27 7.22183 19.27 7.72216C19.27 8.22248 18.825 8.62807 18.2761 8.62807H14.95V10.2903C17.989 10.4444 20.3766 12.9487 20.3855 15.9916V17.1995C20.3854 17.6997 19.9799 18.1052 19.4796 18.1052C18.9793 18.1052 18.5738 17.6997 18.5737 17.1995V15.9916C18.5667 13.9478 16.9882 12.2535 14.95 12.1022V20.5574C14.95 21.0577 14.5444 21.4633 14.0441 21.4633C13.5437 21.4633 13.1382 21.0577 13.1382 20.5574V12.1022C11.1 12.2535 9.52148 13.9478 9.51448 15.9916V17.1995C9.5144 17.6997 9.10883 18.1052 8.60856 18.1052C8.1083 18.1052 7.70273 17.6997 7.70265 17.1995V15.9916C7.71158 12.9487 10.0992 10.4444 13.1382 10.2903V8.62807H9.66202C9.11309 8.62807 8.66809 8.22248 8.66809 7.72216C8.66809 7.22183 9.11309 6.81624 9.66202 6.81624Z" fill="currentColor"></path>
+                </svg>
+                <span data-value=""></span>
+              </div>
+            </div>
+            <!-- 分享 -->
+            <div class="art-player-top-right-share">
+              <div class="art-player-top-right-icon">
+                <svg width="24" height="24" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" class="video-share-icon video-toolbar-item-icon">
+                  <path d="M12.6058 10.3326V5.44359C12.6058 4.64632 13.2718 4 14.0934 4C14.4423 4 14.78 4.11895 15.0476 4.33606L25.3847 12.7221C26.112 13.3121 26.2087 14.3626 25.6007 15.0684C25.5352 15.1443 25.463 15.2144 25.3847 15.2779L15.0476 23.6639C14.4173 24.1753 13.4791 24.094 12.9521 23.4823C12.7283 23.2226 12.6058 22.8949 12.6058 22.5564V18.053C7.59502 18.053 5.37116 19.9116 2.57197 23.5251C2.47607 23.6489 2.00031 23.7769 2.00031 23.2122C2.00031 16.2165 3.90102 10.3326 12.6058 10.3326Z" fill="currentColor"></path>
+                </svg>
+                <span data-value=""></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 在线人数 -->
+        <div class="art-player-top-left-title-follow-container">
+            <svg class="art-player-top-left-title-follow-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="13306"><path d="M641.522424 590.30953c-29.470195-20.878516-61.574381-37.341466-95.630011-49.183166C617.699855 497.470075 661.783887 419.876859 661.783887 335.542102c0-132.611274-108.021226-240.529145-240.581334-240.529145-132.62867 0-240.545518 107.916848-240.545518 240.529145 0 45.162596 12.561084 89.143273 36.623106 127.426181 20.159132 32.190143 47.677882 59.195194 80.124875 78.789461-34.56933 11.740392-67.220984 28.493961-97.135294 49.663096-32.652677 23.136953-61.334927 51.117215-85.361133 83.051531-49.937342 66.587558-76.393901 145.737222-76.393901 228.959645 0 15.624862 12.561084 28.237111 28.066219 28.237111 15.607466 0 28.27088-12.612249 28.27088-28.237111 0-86.747713 33.850969-168.516018 95.252411-230.277664 61.266365-61.488423 142.486178-95.40693 228.532927-95.491865 2.806929 0.274246 5.749958 0 8.556886-0.685615l2.326998-0.445138c83.650165 1.678222 162.338319 35.528168 222.268246 95.544053 61.403488 61.675688 95.185896 143.478785 95.185896 230.311433 0 15.45397 12.629645 28.134781 28.16855 28.134781 15.538905 0 28.133757-12.681834 28.133757-28.134781 0-83.307358-26.355251-162.457022-76.393901-228.925876C702.958658 641.376603 674.174078 613.412714 641.522424 590.30953zM421.203576 519.768941c-101.550861 0-184.242188-82.588997-184.242188-184.225815 0-101.550861 82.692351-184.173626 184.242188-184.173626 101.483322 0 184.17465 82.622766 184.17465 184.173626C605.378226 437.178921 522.686898 519.768941 421.203576 519.768941z" p-id="13307"></path><path d="M932.277484 638.022205c-36.074613-52.05968-84.915995-91.249237-141.595902-113.821325 24.986067-17.661242 46.070268-41.141002 61.231573-68.505233 17.627473-31.642674 27.006074-67.820642 27.006074-104.699574 0-114.745371-88.956008-208.082152-198.10594-208.082152-15.607466 0-28.167526 12.595876-28.167526 28.134781s12.56006 28.082592 28.167526 28.082592c78.175477 0 141.700279 68.197218 141.700279 151.86478 0 83.804684-63.524802 151.932318-141.700279 151.932318-15.607466 0-28.167526 12.594853-28.167526 28.134781l0 0.171915c0 15.538905 12.56006 28.184923 28.167526 28.184923 140.569526 0 254.990508 121.899304 254.990508 271.76045 0 15.539928 12.664438 28.219715 28.203342 28.219715 15.504112 0 28.203342-12.68081 28.203342-28.219715C992.209458 761.28967 971.399503 694.427866 932.277484 638.022205z" p-id="13308"></path></svg>
+            <span class="art-player-top-left-title-follow-text"></span>
+        </div>
+        <!-- 右侧的图标 -->
+        <div class="art-player-top-right-follow-container">
+            <!-- <div class="art-player-top-right-follow"></div> -->
+        </div>
+      </div>`,
+        mounted: async function ($topWrap) {
+          TopToolBar.$el.$topWrap = $topWrap;
+          TopToolBar.$el.$topTitleContainer = $topWrap.querySelector(".art-player-top-container");
+          TopToolBar.$el.$topTitleText = $topWrap.querySelector(".art-player-video-title-text");
+          TopToolBar.$el.$topTitleFollow = $topWrap.querySelector(".art-player-top-left-title-follow-container");
+          TopToolBar.$el.$topTitleFollowText = $topWrap.querySelector(".art-player-top-left-title-follow-text");
+          TopToolBar.$el.$topRightContainer = $topWrap.querySelector(".art-player-top-right-container");
+          TopToolBar.$el.$topRightFollowContainer = $topWrap.querySelector(".art-player-top-right-follow-container");
+          TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+          TopToolBar.update(option);
+          TopToolBarEvent.bind();
+        },
+      });
+    },
+    update(option) {
+      if (!this.$data.isInit) {
+        this.$data.isInit = true;
+        Object.defineProperties(this.$data.option, {
+          showWrap: {
+            set(value) {
+              TopToolBar.$data.__option.showWrap = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topWrap);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topWrap);
+            },
+            get() {
+              return TopToolBar.$data.__option.showWrap;
+            },
+          },
+          showTitle: {
+            set(value) {
+              TopToolBar.$data.__option.showTitle = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topTitleContainer);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topTitleContainer);
+            },
+            get() {
+              return TopToolBar.$data.__option.showTitle;
+            },
+          },
+          title: {
+            set(value) {
+              TopToolBar.$data.__option.title = value;
+              if (typeof value === "string") TopToolBar.$el.$topTitleText.innerText = value;
+            },
+            get() {
+              return TopToolBar.$data.__option.title;
+            },
+          },
+          showOnlineTotal: {
+            set(value) {
+              TopToolBar.$data.__option.showOnlineTotal = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topTitleFollow);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topTitleFollow);
+            },
+            get() {
+              return TopToolBar.$data.__option.showOnlineTotal;
+            },
+          },
+          onlineInfoParams: {
+            set(value) {
+              TopToolBar.$data.__option.onlineInfoParams = value;
+              TopToolBar.updateOnlineTotal({
+                showOnlineTotal: this.showOnlineTotal,
+                onlineInfoParams: value,
+              });
+            },
+            get() {
+              return TopToolBar.$data.__option.onlineInfoParams;
+            },
+          },
+          videoView: {
+            set(value) {
+              TopToolBar.$data.__option.videoView = value;
+              TopToolBar.updateVideoData(value);
+            },
+            get() {
+              return TopToolBar.$data.__option.videoView;
+            },
+          },
+          showRight: {
+            set(value) {
+              TopToolBar.$data.__option.showRight = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topRightContainer);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topRightContainer);
+            },
+            get() {
+              return TopToolBar.$data.__option.showRight;
+            },
+          },
+          showRightFollow: {
+            set(value) {
+              TopToolBar.$data.__option.showRightFollow = value;
+              if (value) TopToolBarUtils.show(TopToolBar.$el.$topRightFollowContainer);
+              else TopToolBarUtils.hide(TopToolBar.$el.$topRightFollowContainer);
+            },
+            get() {
+              return TopToolBar.$data.__option.showRightFollow;
+            },
+          },
+        });
+      }
+      Object.assign(this.$data.option, option);
+    },
+    async updateOnlineTotal(option) {
+      if (!option.showOnlineTotal) return;
+      let onlineTotalInfo = await BilibiliVideoApi.onlineTotal({
+        aid: option.onlineInfoParams.aid,
+        bvid: option.onlineInfoParams.bvid,
+        cid: option.onlineInfoParams.cid,
+      });
+      if (!onlineTotalInfo) return;
+      TopToolBar.$el.$topTitleFollowText.innerText = `${onlineTotalInfo["total"] || onlineTotalInfo["count"] || 0}人正在看`;
+    },
+    updateVideoData(option) {
+      if (!option) return;
+      const $like = TopToolBar.$el.$topRightContainer.querySelector(".art-player-top-right-like span[data-value]");
+      const $collect = TopToolBar.$el.$topRightContainer.querySelector(
+        ".art-player-top-right-collect span[data-value]"
+      );
+      const $coin = TopToolBar.$el.$topRightContainer.querySelector(".art-player-top-right-coin span[data-value]");
+      const $share = TopToolBar.$el.$topRightContainer.querySelector(".art-player-top-right-share span[data-value]");
+      const valueAttrKey = "data-value";
+      const data = typeof option === "function" ? option() : option;
+      const likeCount = typeof data.like == "function" ? (data.like() ?? 0) : (data.like ?? 0);
+      const collectCount = typeof data.collect == "function" ? (data.collect() ?? 0) : (data.collect ?? 0);
+      const coinCount = typeof data.coin == "function" ? (data.coin() ?? 0) : (data.coin ?? 0);
+      const shareCount = typeof data.share == "function" ? (data.share() ?? 0) : (data.share ?? 0);
+      $like.textContent = likeCount.toString();
+      $like.setAttribute(valueAttrKey, likeCount.toString());
+      $collect.textContent = collectCount.toString();
+      $collect.setAttribute(valueAttrKey, collectCount.toString());
+      $coin.textContent = coinCount.toString();
+      $coin.setAttribute(valueAttrKey, coinCount.toString());
+      $share.textContent = shareCount.toString();
+      $share.setAttribute(valueAttrKey, shareCount.toString());
+    },
+  };
+  var artplayerPluginTopToolBar = (option) => {
+    return (art) => {
+      TopToolBar.art = art;
+      TopToolBar.init(option);
+      return {
+        name: TopToolBar.$key.plugin_KEY,
+        update(option) {
+          TopToolBar.update(option);
+        },
+      };
+    };
+  };
+  var ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY = TopToolBar.$key.plugin_KEY;
   var VideoStatistics = class {
     art;
     option;
@@ -6379,21 +6669,10 @@
       };
     };
   };
-  var ArtPlayerDanmakuCommonOption = () => {
-    return {
-      heatmap: false,
-      color: "#FFFFFF",
-      mode: 0,
-      mount: void 0,
-      width: 800,
-      points: [],
-      filter: (danmu) => danmu.text.length <= 100,
-      beforeVisible: () => true,
-      emitter: false,
-      maxLength: 50,
-      lockTime: 3,
-      theme: utils$1.isThemeDark() ? "dark" : "light",
-    };
+  var ArtPlayerInit = (art) => {
+    art.on("video:seeked", () => {
+      if (!art.playing) art.template.$poster.style.display = "none";
+    });
   };
   var generateVideoSelectSetting = (option) => {
     let epList = option.epList || [];
@@ -6529,6 +6808,7 @@
               cid: option.cid,
               bvid: option.bvid,
             },
+            videoView: option.videoView,
             title: option.videoTitle,
             showWrap: true,
             showTitle: true,
@@ -6542,6 +6822,7 @@
         artOption.autoplay = true;
       }
       this.$data.art = new artplayer.default(artOption);
+      ArtPlayerInit(this.$data.art);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
@@ -6594,7 +6875,7 @@
         log.info(`更新字幕`, subTitleOption);
       }
       if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
-        let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
+        const plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
         const topToolBarOption = {
           showRight: true,
           showRightFollow: true,
@@ -6607,6 +6888,7 @@
             cid: option.cid,
             bvid: option.bvid,
           },
+          videoView: option.videoView,
         };
         plugin_topToolBar.update(topToolBarOption);
         log.info(`更新顶部标题`, topToolBarOption);
@@ -6936,10 +7218,19 @@
             domUtils.append($mVideoPlayer, $artContainer);
           }
           artPlayerOption.container = $artPlayer;
+          artPlayerOption.videoView = {
+            like: () => $(".video-desc-wrapper .video-info-icon .video-like-icon+span")?.textContent ?? 0,
+            coin: () => $(".video-desc-wrapper .video-info-icon .video-coin-icon+span")?.textContent ?? 0,
+            collect: () => $(".video-desc-wrapper .video-info-icon .video-fav-icon+span")?.textContent ?? 0,
+            share: () => $(".video-desc-wrapper .video-info-icon .video-share-icon+span")?.textContent ?? 0,
+          };
           if (that.$data.art == null) {
-            let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
+            const art = await BilibiliVideoArtPlayer.init(artPlayerOption);
             if (art) that.$data.art = art;
-            else return;
+            else {
+              log.error("artplayer初始化失败");
+              return;
+            }
             that.$data.art.volume = 1;
             that.$data.art.once("ready", () => {
               Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
@@ -7558,6 +7849,9 @@
         addStyle(`
 				.comment-container{
 					position: relative;
+					width: 100%;
+          height: 100%;
+          overflow: auto;
 				}
 				.comment-container .reply-header{
 					position: sticky;
@@ -7576,14 +7870,15 @@
 					width: 100dvw;
 					height: 100dvh;
 					background-color: #fff;
-					overflow-x: hidden;
+					overflow: hidden;
+          text-shadow: none;
 				}
 				.close-comment-module-btn{
 					position: fixed;
 					right: 20px;
 					bottom: 20px;
 					z-index: 2001;
-					display: none;
+					display: flex;
 					justify-content: center;
 					align-items: center;
 					width: 40px;
@@ -7616,6 +7911,39 @@
           position: relative;
         }
       `);
+        addStyle(`
+        .art-video-player:has(#comment-module-wrapper){
+          --comment-module-w: 35%;
+        }
+        .art-video-player #comment-module-wrapper{
+          height: 100% !important;
+          position: relative;
+          width: var(--comment-module-w) !important;
+          float: right;
+        }
+        .art-video-player #comment-module-wrapper[data-show]{
+          display: block;
+        }
+        /* 其它元素宽度同步 */
+        .art-video-player:has(#comment-module-wrapper[data-show])>*:not([id*="comment-module-wrapper"]){
+          width: calc(100% - var(--comment-module-w)) !important;
+        }
+        /* 当右侧评论区显示时 */
+        .art-video-player:has(#comment-module-wrapper[data-show]){
+          /* 隐藏底部工具栏 弹幕 */
+          & .art-controls-center{
+            display: none !important;
+          }
+        }
+        /* 评论区的图片 */
+        .art-video-player #comment-module-wrapper .image-exhibition .preview-image-container{
+          max-width: 100% !important;
+          width: unset !important;
+        }
+        .art-video-player #comment-module-wrapper .image-exhibition .preview-image-container img{
+          max-width: 100% !important;
+        }
+      `);
       }
       domUtils.waitNode(".m-video-info", 1e4).then(async ($videoInfo) => {
         if (!$videoInfo) {
@@ -7625,13 +7953,27 @@
         domUtils.remove(".comment-module-show-btn");
         domUtils.remove(".close-comment-module-btn");
         domUtils.remove("#comment-module-wrapper");
+        const showAttr = "data-show";
         const gestureBack = new GestureBack({
           hash: "comment-module",
           useUrl: true,
-          beforeHistoryBackCallBack(isUrlChange) {
+          win: _unsafeWindow,
+          async beforeHistoryBackCallBack(opt) {
             let $viewerClose = $(".viewer-button.viewer-close");
-            if ($viewerClose) $viewerClose.click();
-            if (isUrlChange) $closeCommentModuleBtn.click();
+            if ($viewerClose && opt.isFromPopStateEvent) {
+              $viewerClose.click();
+              return { isPreventDefault: true };
+            }
+            if (opt.hash == "viewer") return;
+            if (MobileCommentModule.isLzlShow()) {
+              MobileCommentModule.exitLzl();
+              return { isPreventDefault: true };
+            }
+            if (opt.hash == gestureBack.config.hash && opt.isFromPopStateEvent) {
+              domUtils.css($commentModuleWrapper, { display: "" });
+              domUtils.removeAttr($commentModuleWrapper, showAttr);
+              domUtils.show($videoInfo, false);
+            }
           },
           onEnter() {
             domUtils.css(document.body, { overflow: "hidden" });
@@ -7644,23 +7986,20 @@
           className: "comment-module-show-btn",
           innerHTML: `查看评论`,
         });
+        domUtils.on($commentModuleShowBtn, "click", (event) => {
+          domUtils.preventEvent(event);
+          domUtils.css($commentModuleWrapper, { display: "block" });
+          domUtils.attr($commentModuleWrapper, showAttr, "");
+          domUtils.hide($videoInfo, false);
+          gestureBack.enterGestureBackMode();
+        });
         const $closeCommentModuleBtn = domUtils.createElement("span", {
           className: "close-comment-module-btn",
           innerHTML: "×",
         });
-        domUtils.on($commentModuleShowBtn, "click", (event) => {
-          domUtils.preventEvent(event);
-          domUtils.css($commentModuleWrapper, { display: "block" });
-          domUtils.css($closeCommentModuleBtn, { display: "flex" });
-          domUtils.hide($videoInfo, false);
-          gestureBack.enterGestureBackMode();
-        });
         domUtils.on($closeCommentModuleBtn, "click", (event) => {
           domUtils.preventEvent(event);
-          domUtils.css($commentModuleWrapper, { display: "" });
-          domUtils.css($closeCommentModuleBtn, { display: "" });
-          domUtils.show($videoInfo, false);
-          gestureBack.quitGestureBackMode(false);
+          gestureBack.back();
         });
         domUtils.append($videoInfo, $commentModuleShowBtn);
         const $commentModuleWrapper = domUtils.createElement("div", { id: "comment-module-wrapper" });
@@ -7669,12 +8008,86 @@
           log.error(`获取artplayer-container失败，无法插入评论元素`);
           return;
         }
-        const artPlayerHeight = domUtils.height($artplayerContainer);
-        if (artPlayerHeight > 100)
-          domUtils.css($commentModuleWrapper, { height: `calc(100dvh - ${artPlayerHeight}px - 11.73333vmin)` });
+        const renderCommentModuleHeight = () => {
+          const artPlayerHeight = domUtils.height($artplayerContainer);
+          if (artPlayerHeight > 100)
+            domUtils.css($commentModuleWrapper, { height: `calc(100dvh - ${artPlayerHeight}px - 11.73333vmin)` });
+        };
+        renderCommentModuleHeight();
+        BilibiliVideoPlayer.$data.art.on("resize", () => {
+          renderCommentModuleHeight();
+        });
         domUtils.after($artplayerContainer, $commentModuleWrapper);
-        domUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
-        MobileCommentModule.init($commentModuleWrapper);
+        MobileCommentModule.init($commentModuleWrapper, {
+          onEnterLzlWrapper() {
+            gestureBack.enterGestureBackMode("lzl-comment-module");
+          },
+          onQuitLzlWrapper() {
+            gestureBack.quitGestureBackMode("lzl-comment-module");
+          },
+          onEnterViewer() {
+            gestureBack.enterGestureBackMode("viewer");
+          },
+          onQuitViewer() {
+            gestureBack.quitGestureBackMode("viewer");
+          },
+        });
+        domUtils.append($commentModuleWrapper, $closeCommentModuleBtn);
+        const $commentIcon = await domUtils.waitNode(".art-player-top-right-comment", 1e4);
+        if ($commentIcon) {
+          let $commentParent = null;
+          let $commentPrev = null;
+          let $commentNext = null;
+          let $artVideoPlayer = void 0;
+          const clearState = () => {
+            $commentParent = null;
+            $commentPrev = null;
+            $commentNext = null;
+            $commentModuleWrapper.removeAttribute(showAttr);
+          };
+          BilibiliVideoPlayer.$data.art.on("fullscreen", (state) => {
+            if (state) {
+            } else {
+              if ($artVideoPlayer.contains($commentModuleWrapper)) {
+                if ($commentPrev) domUtils.after($commentPrev, $commentModuleWrapper);
+                else if ($commentNext) domUtils.before($commentNext, $commentModuleWrapper);
+                else if ($commentParent) domUtils.append($commentParent, $commentModuleWrapper);
+                else qmsg.default.error("无法找到原来的位置", { parent: $artVideoPlayer });
+              }
+              clearState();
+            }
+          });
+          domUtils.on($commentIcon, "click", (event) => {
+            domUtils.preventEvent(event);
+            $artVideoPlayer = $(".art-video-player");
+            if (!$artVideoPlayer) {
+              qmsg.default.error("获取art-video-player失败", { parent: $artVideoPlayer });
+              return;
+            }
+            if (!$artVideoPlayer.contains($commentModuleWrapper)) {
+              if (domUtils.prev($commentModuleWrapper)) {
+                $commentParent = null;
+                $commentPrev = domUtils.prev($commentModuleWrapper);
+                $commentNext = null;
+              } else if (domUtils.next($commentModuleWrapper)) {
+                $commentParent = null;
+                $commentPrev = null;
+                $commentNext = domUtils.next($commentModuleWrapper);
+              } else {
+                $commentParent = domUtils.parent($commentModuleWrapper);
+                $commentPrev = null;
+                $commentNext = null;
+              }
+              domUtils.append($artVideoPlayer, $commentModuleWrapper);
+              $commentModuleWrapper.removeAttribute(showAttr);
+            }
+            if ($commentModuleWrapper.hasAttribute(showAttr)) $commentModuleWrapper.removeAttribute(showAttr);
+            else {
+              gestureBack.enterGestureBackMode();
+              $commentModuleWrapper.setAttribute(showAttr, "true");
+            }
+          });
+        }
       });
     },
     addDescModule() {
@@ -7868,6 +8281,7 @@
 							</div>
 						`,
           });
+          domUtils.remove(".video-desc-wrapper");
           target.appendChild($descWrapper);
         },
       });
@@ -8325,15 +8739,18 @@
       if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable"))
         artOption.plugins.push(
           artplayerPluginTopToolBar({
+            showWrap: true,
+            showTitle: true,
+            showOnlineTotal: true,
+            title: option.videoTitle,
             onlineInfoParams: {
               aid: option.aid,
               cid: option.cid,
               bvid: option.bvid,
             },
-            title: option.videoTitle,
-            showWrap: true,
-            showTitle: true,
-            showOnlineTotal: true,
+            showRight: false,
+            showRightFollow: false,
+            videoView: option.videoView,
           })
         );
       if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable"))
@@ -8341,6 +8758,7 @@
       if (Panel.getValue("artplayer-plugin-bangumi-statistics-enable"))
         artOption.plugins.push(artplayerPluginVideoStatistics({ data: [] }));
       this.$data.art = new artplayer.default(artOption);
+      ArtPlayerInit(this.$data.art);
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
@@ -8395,8 +8813,6 @@
       if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
         let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY];
         const topToolBarOption = {
-          showRight: true,
-          showRightFollow: true,
           showWrap: true,
           showTitle: true,
           showOnlineTotal: true,
@@ -8406,6 +8822,9 @@
             cid: option.cid,
             bvid: option.bvid,
           },
+          showRight: false,
+          showRightFollow: false,
+          videoView: option.videoView,
         };
         plugin_topToolBar.update(topToolBarOption);
         log.info(`更新顶部标题`, topToolBarOption);
@@ -12186,6 +12605,7 @@
 				justify-content: center;
 				align-items: center;
 				width: fit-content;
+        height: fit-content;
 				background: #574AB830;
 				border-radius: 8px;
 				margin: 0 6px 0 6px;
@@ -12684,8 +13104,14 @@
             domUtils.append($player, $artPlayerContainer);
           }
           artPlayerOption.container = $artPlayer;
+          artPlayerOption.videoView = {
+            like: () => $(".video-desc-wrapper .video-info-icon .video-like-icon+span")?.textContent ?? 0,
+            coin: () => $(".video-desc-wrapper .video-info-icon .video-coin-icon+span")?.textContent ?? 0,
+            collect: () => $(".video-desc-wrapper .video-info-icon .video-fav-icon+span")?.textContent ?? 0,
+            share: () => $(".video-desc-wrapper .video-info-icon .video-share-icon+span")?.textContent ?? 0,
+          };
           if (that.$data.art == null) {
-            let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
+            const art = await BilibiliVideoArtPlayer.init(artPlayerOption);
             if (art) that.$data.art = art;
             else return;
             that.$data.art.volume = 1;
@@ -12857,8 +13283,14 @@
               to,
               from,
             });
-            if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+            if (to.hash === "#/seeCommentReply" || from.hash === "#/seeCommentReply") {
               log.info("该路由变化判定为#/seeCommentReply");
+              next();
+              return;
+            }
+            const commentModuleHash = ["#/comment-module", "#/lzl-comment-module"];
+            if (commentModuleHash.includes(to.hash) || commentModuleHash.includes(from.hash)) {
+              log.info("该路由变化判定为#/comment-module");
               next();
               return;
             }
@@ -12902,6 +13334,11 @@
             });
             if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
               log.info("该路由变化判定为#/seeCommentReply，不重载");
+              return;
+            }
+            const commentModuleHash = ["#/comment-module", "#/lzl-comment-module"];
+            if (commentModuleHash.includes(to.hash) || commentModuleHash.includes(from.hash)) {
+              log.info("该路由变化判定为#/comment-module，不重载");
               return;
             }
             Panel.execMenu("bili-listenRouterChange", () => {
@@ -13035,7 +13472,7 @@
                 type: "container",
                 text: "",
                 views: [
-                  UISwitch("启用", "bili-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
+                  UISwitch("启用", "bili-componentDetection", false, void 0, "启用后可检测用户的成分信息"),
                   UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                     BilibiliComponentDetectionRule.showView();
                   }),
@@ -14214,4 +14651,4 @@
   }
   `;
   }
-})(DOMUtils, pops, Utils, Qmsg, MD5, Viewer, Artplayer, artplayerPluginDanmuku, MD5);
+})(DOMUtils, pops, Utils, Qmsg, MD5, Viewer, artplayerPluginDanmuku, Artplayer, MD5);

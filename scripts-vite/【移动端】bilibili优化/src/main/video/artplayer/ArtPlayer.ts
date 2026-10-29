@@ -1,27 +1,19 @@
-import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
-import Artplayer from "artplayer";
-import type { Option } from "artplayer";
-import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
-import { DOMUtils, log, utils } from "@/env";
-import {
-  ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
-  artplayerPluginM4SAudioSupport,
-  type ArtPlayerPluginM4SAudioSupportOption,
-  type ArtPlayerPluginM4SAudioSupportResult,
-} from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
-import {
-  ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
-  artplayerPluginTopToolBar,
-  type ArtPlayerPluginTopToolBarOption,
-  type ArtPlayerPluginTopToolBarResult,
-} from "@/player/plugins/artplayer-plugin-TopToolBar";
+import { log } from "@/env";
+import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
+import { ArtPlayerDanmakuCommonOption } from "@/player/ArtPlayerDanmakuCommonOption";
 import {
   ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY,
   artplayerPluginBilibiliCCSubTitle,
   type ArtPlayerPluginBilibiliSubTitleOption,
   type ArtPlayerPluginBilibiliSubTitleResult,
 } from "@/player/plugins/artplayer-plugin-bilibiliCCSubtitle";
-import type { VIDEO_EP_LIST } from "../TypeVideo";
+import {
+  ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
+  artplayerPluginM4SAudioSupport,
+  type ArtPlayerPluginM4SAudioSupportOption,
+  type ArtPlayerPluginM4SAudioSupportResult,
+} from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
+import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
 import {
   ArtPlayer_PLUGIN_EP_CHOOSE_KEY,
   artplayerPluginEpChoose,
@@ -29,8 +21,6 @@ import {
   type ArtPlayerPluginEpChooseOption,
   type ArtPlayerPluginEpChooseResult,
 } from "@/player/plugins/artplayer-plugin-epChoose";
-import { BilibiliVideoPlayer } from "../BilibiliVideoPlayer";
-import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
 import {
   ArtPlayer_PLUGIN_QUALITY_KEY,
   artplayPluginQuality,
@@ -38,9 +28,20 @@ import {
   type ArtPlayerPluginQualityResult,
 } from "@/player/plugins/artplayer-plugin-quality";
 import { artplayerPluginToast } from "@/player/plugins/artplayer-plugin-toast";
+import {
+  ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
+  artplayerPluginTopToolBar,
+  type ArtPlayerPluginTopToolBarOption,
+  type ArtPlayerPluginTopToolBarResult,
+} from "@/player/plugins/artplayer-plugin-TopToolBar";
 import { artplayerPluginVideoStatistics } from "@/player/plugins/artplayer-plugin-videoStatistics";
-import { ArtPlayerDanmakuCommonOption } from "@/player/ArtPlayerDanmakuCommonOption";
 import { Panel } from "@components/setting/panel";
+import type { Option } from "artplayer";
+import Artplayer from "artplayer";
+import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
+import { BilibiliVideoPlayer } from "../BilibiliVideoPlayer";
+import type { VIDEO_EP_LIST } from "../TypeVideo";
+import { ArtPlayerInit } from "@/player/ArtPlayerInit";
 
 export interface BilibiliVideoArtPlayerOption {
   /** 容器 */
@@ -64,6 +65,10 @@ export interface BilibiliVideoArtPlayerOption {
   cid: string | number;
   /** 视频的标题 */
   videoTitle?: string;
+  /**
+   * 视频的数据信息
+   */
+  videoView?: ArtPlayerPluginTopToolBarOption["videoView"];
 }
 
 /**
@@ -250,6 +255,7 @@ export const BilibiliVideoArtPlayer = {
             cid: option.cid,
             bvid: option.bvid!,
           },
+          videoView: option.videoView,
           title: option.videoTitle,
           showWrap: true,
           showTitle: true,
@@ -274,6 +280,7 @@ export const BilibiliVideoArtPlayer = {
     }
 
     this.$data.art = new Artplayer(artOption);
+    ArtPlayerInit(this.$data.art);
 
     artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
     return this.$data.art;
@@ -294,6 +301,7 @@ export const BilibiliVideoArtPlayer = {
     art.currentTime = 0;
     log.info(`重置播放进度`);
 
+    // 更新插件信息
     this.updatePluginInfo(art, option);
 
     // 播放
@@ -365,7 +373,7 @@ export const BilibiliVideoArtPlayer = {
     if (Panel.getValue("artplayer-plugin-video-toptoolbar-enable")) {
       // 更新顶部标题
       // 更新顶部在线观看人数来源
-      let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY] as ArtPlayerPluginTopToolBarResult;
+      const plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY] as ArtPlayerPluginTopToolBarResult;
       // 更新数据
       const topToolBarOption = {
         showRight: true,
@@ -379,6 +387,7 @@ export const BilibiliVideoArtPlayer = {
           cid: option.cid,
           bvid: option.bvid!,
         },
+        videoView: option.videoView,
       } as ArtPlayerPluginTopToolBarOption;
       plugin_topToolBar.update(topToolBarOption);
       log.info(`更新顶部标题`, topToolBarOption);

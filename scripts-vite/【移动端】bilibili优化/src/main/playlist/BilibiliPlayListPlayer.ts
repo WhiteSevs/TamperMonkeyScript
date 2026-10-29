@@ -182,10 +182,16 @@ export const BilibiliPlayListPlayer = {
         }
         // 设置container参数
         artPlayerOption!.container = $artPlayer;
+        artPlayerOption.videoView = {
+          like: () => $(".video-desc-wrapper .video-info-icon .video-like-icon+span")?.textContent ?? 0,
+          coin: () => $(".video-desc-wrapper .video-info-icon .video-coin-icon+span")?.textContent ?? 0,
+          collect: () => $(".video-desc-wrapper .video-info-icon .video-fav-icon+span")?.textContent ?? 0,
+          share: () => $(".video-desc-wrapper .video-info-icon .video-share-icon+span")?.textContent ?? 0,
+        };
 
         // 初始化artplayer播放器
         if (that.$data.art == null) {
-          let art = await BilibiliVideoArtPlayer.init(artPlayerOption);
+          const art = await BilibiliVideoArtPlayer.init(artPlayerOption);
           if (art) {
             that.$data.art = art;
           } else {

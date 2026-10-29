@@ -143,7 +143,7 @@ const SettingUICommon: PopsPanelContentConfig = {
               type: "container",
               text: "",
               views: [
-                UISwitch("启用", "bili-componentDetection", true, void 0, "启用后可检测用户的成分信息"),
+                UISwitch("启用", "bili-componentDetection", false, void 0, "启用后可检测用户的成分信息"),
                 UIButton("自定义规则", "检测用户成分的规则", "管理", void 0, false, false, "primary", () => {
                   BilibiliComponentDetectionRule.showView();
                 }),

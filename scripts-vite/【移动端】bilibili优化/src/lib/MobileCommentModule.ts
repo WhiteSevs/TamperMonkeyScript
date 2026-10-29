@@ -39,6 +39,8 @@ export const MobileCommentModule = {
     },
   },
   $el: {
+    root: null as null | HTMLElement,
+    commentContainer: null as null | HTMLElement,
     /**
      * 回复列表元素
      */
@@ -68,11 +70,22 @@ export const MobileCommentModule = {
     isInitCSS: false,
     isHookNetwork: false,
   },
-  async init($el: HTMLElement) {
+  option: {
+    onEnterLzlWrapper: null as null | Function | undefined,
+    onQuitLzlWrapper: null as null | Function | undefined,
+    onEnterViewer: null as null | Function | undefined,
+    onQuitViewer: null as null | Function | undefined,
+  },
+  async init($el: HTMLElement, opt?: Partial<typeof this.option>) {
     this.initData();
+
+    // @ts-expect-error
+    this.option = opt || ({} as any as typeof this.option);
     this.networkHook();
     this.addStyle();
     this.setupStandardCommentContainer($el);
+    this.onLzlPreviewClickEvent();
+    this.onPreviewImageClickEvent();
 
     // collect oid & commentType
     await new Promise((resolve) => {
@@ -127,10 +140,15 @@ export const MobileCommentModule = {
       oid: null,
       commentType: null,
     };
+    // 重置存储的元素
     Object.keys(this.$el).forEach((key) => {
       const value = Reflect.get(this.$el, key);
       if (!document.contains(value)) return;
       Reflect.set(this.$el, key, null);
+    });
+    // 重置存储的配置
+    Object.keys(this.option).forEach((key) => {
+      Reflect.set(this.option, key, null);
     });
   },
   /**
@@ -191,6 +209,7 @@ export const MobileCommentModule = {
     .reply-item .root-reply-container {
         padding: 0 !important;
         display: flex;
+        gap: 24px;
     }
 
     .reply-item .root-reply-container .root-reply-avatar {
@@ -199,7 +218,7 @@ export const MobileCommentModule = {
     }
 
     .reply-item .root-reply-container .content-warp {
-        margin-left: 12px;
+        margin-left: 0px;
     }
 
     .reply-item .root-reply-container .content-warp .user-info,
@@ -208,7 +227,7 @@ export const MobileCommentModule = {
     }
 
     .reply-item .root-reply-container .content-warp .root-reply .reply-content-container {
-        width: calc(100vw - 88px) !important;
+        /* width: calc(100vw - 88px) !important; */
     }
 
     .reply-item .root-reply-container .content-warp .root-reply .reply-content .note-prefix {
@@ -216,7 +235,7 @@ export const MobileCommentModule = {
     }
 
     .reply-item .sub-reply-container {
-        padding-left: 44px !important;
+        padding-left: 64px !important;
     }
 
     .reply-item .sub-reply-container .sub-reply-list .sub-reply-item {
@@ -305,7 +324,7 @@ export const MobileCommentModule = {
         --bg2: #F6F7F8;
     }
 
-    .jump-link {
+    a.jump-link {
         color: #008DDA;
     }
     `);
@@ -339,12 +358,75 @@ export const MobileCommentModule = {
         </div>
     `
     );
+    this.$el.commentContainer = $root.querySelector(".comment-container");
     this.$el.replyList = $root.querySelector<HTMLElement>(".reply-list");
     this.$el.navSort = $root.querySelector(".comment-container .reply-header .nav-sort");
     this.$el.hotSort = this.$el.navSort!.querySelector(".hot-sort");
     this.$el.timeSort = this.$el.navSort!.querySelector(".time-sort");
     this.$el.totalReply = $root.querySelector(".comment-container .reply-header .total-reply");
     this.$el.replyWrapper = $root.querySelector(".comment-container .reply-warp");
+
+    this.$el.root = $root;
+  },
+  /**
+   * 绑定楼中楼预览的点击事件
+   */
+  onLzlPreviewClickEvent() {
+    DOMUtils.on(this.$el.replyWrapper, "click", ".sub-reply-list-preview", (evt, selectorTarget) => {
+      let $click = evt.composedPath()[0];
+      if (!($click instanceof Element)) {
+        return;
+      }
+      if ($click.closest(".view-more")) {
+        return;
+      }
+      if ($click.closest("a")) {
+        return;
+      }
+      if ($click.closest("img")) {
+        return;
+      }
+      if ($click.closest(".viewer-container")) {
+        return;
+      }
+      const $viewMore = selectorTarget.querySelector(".view-more");
+      if (!$viewMore) {
+        return;
+      }
+      DOMUtils.emit($viewMore, "click", false);
+    });
+  },
+  /**
+   * 全局图片预览
+   */
+  onPreviewImageClickEvent() {
+    DOMUtils.on(this.$el.root, "click", ".preview-image-container", (evt, $preview) => {
+      DOMUtils.preventEvent(evt);
+      const $click = evt.composedPath()[0];
+      const viewer = new Viewer($preview, {
+        title: false,
+        toolbar: false,
+        tooltip: false,
+        keyboard: false,
+        container: $preview.parentElement!,
+        hidden: () => {
+          viewer.destroy();
+          if (typeof this.option.onQuitViewer == "function") {
+            this.option.onQuitViewer();
+          }
+        },
+      });
+      let index = 0;
+      if ($click instanceof Element) {
+        const imgList = Array.from($preview.querySelectorAll("img[src]"));
+        const $img = $click.closest("img");
+        index = $img ? imgList.indexOf($img) : index;
+      }
+      viewer.view(index);
+      if (typeof this.option.onEnterViewer == "function") {
+        this.option.onEnterViewer();
+      }
+    });
   },
   /**
    * enable switching sort type
@@ -361,7 +443,7 @@ export const MobileCommentModule = {
       this.$data.currentSortType = sortTypeConstant.HOT;
       DOMUtils.addClass(this.$el.navSort!, "hot");
       DOMUtils.removeClass(this.$el.navSort!, "time");
-      $root.scrollTo(0, 0);
+      this.$el.commentContainer!.scrollTo(0, 0);
       this.loadFirstPagination($root);
     });
 
@@ -371,7 +453,7 @@ export const MobileCommentModule = {
       this.$data.currentSortType = sortTypeConstant.LATEST;
       DOMUtils.addClass(this.$el.navSort!, "time");
       DOMUtils.removeClass(this.$el.navSort!, "hot");
-      $root.scrollTo(0, 0);
+      this.$el.commentContainer!.scrollTo(0, 0);
       this.loadFirstPagination($root);
     });
   },
@@ -476,13 +558,14 @@ export const MobileCommentModule = {
       Reflect.set(params, "mode", 2);
     }
 
-    const isLogin = await BilibiliGlobalData.$data.isLogin;
+    const isLogin = await BilibiliGlobalData.isLogin();
     // 已登录就用跨域请求且不带Cookie
     // 未登录就用fetch请求
 
     const fetchResult = await httpx.get(
       `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await wbi(params)}`,
       {
+        allowInterceptConfig: false,
         fetch: !isLogin,
         fetchInit: {
           credentials: "same-origin",
@@ -494,20 +577,7 @@ export const MobileCommentModule = {
     this.$data.nextOffset = fetchResultJSON.data.cursor?.pagination_reply?.next_offset || "";
     return fetchResultJSON;
   },
-  /**
-   * 添加评论项
-   */
-  appendReplyItem(replyData: any, isTopReply?: boolean) {
-    if (
-      typeof this.$data.replyPool === "object" &&
-      this.$data.replyPool != null &&
-      // @ts-expect-error
-      this.$data.replyPool[replyData.rpid]
-    ) {
-      // 评论重复了
-      return;
-    }
-
+  getReplyItem(replyData: any, isTopReply?: boolean, isShowLzlReplyContent: boolean = true) {
     const $replyItem = DOMUtils.createElement("div", {
       className: "reply-item",
       innerHTML: /*html*/ `
@@ -587,56 +657,126 @@ export const MobileCommentModule = {
             </div>
           </div>
         </div>
+        ${
+          isShowLzlReplyContent
+            ? /*html*/ `
         <div class="sub-reply-container">
-          <div class="sub-reply-list">
-            ${this.getSubReplyItems(replyData.replies)}
-            ${
-              replyData.rcount > (replyData.replies || []).length
-                ? `
-              <div class="view-more" style="padding-left: 8px; font-size: 13px; color: #9499A0;">
+          <div class="sub-reply-list-preview">${this.getSubReplyPreviewItems(replyData.replies)}<div class="view-more" style="padding-left: 0px; font-size: 13px; color: #9499A0;${replyData.rcount > (replyData.replies || []).length ? "" : "display:none;"}">
                 <div class="view-more-default">
-                  <span>共${replyData.rcount}条回复, </span>
-                  <span class="view-more-btn" style="cursor: pointer;">点击查看</span>
+                  ${replyData.reply_control.up_reply ? /*html*/ "<span>UP主等人</span>" : ""}
+                  <span>共${replyData.rcount}条回复</span>
+                  <span class="view-more-btn">&nbsp;&gt;</span>
                 </div>
               </div>
-              `
-                : ""
-            }
           </div>
         </div>
+        `
+            : ""
+        }
+        
         `,
     });
+    return $replyItem;
+  },
+  /**
+   * 添加评论项
+   */
+  appendReplyItem(replyData: any, isTopReply?: boolean) {
+    if (
+      typeof this.$data.replyPool === "object" &&
+      this.$data.replyPool != null &&
+      // @ts-expect-error
+      this.$data.replyPool[replyData.rpid]
+    ) {
+      // 评论重复了
+      return;
+    }
+
+    const $replyItem = this.getReplyItem(replyData, isTopReply);
     DOMUtils.append(this.$el.replyList!, $replyItem);
     // @ts-expect-error
     this.$data.replyPool[replyData.rpid_str] = true;
 
-    // setup image viewer
-    const $previewImageContainer = $replyItem.querySelector<HTMLElement>(".preview-image-container");
-    if ($previewImageContainer)
-      new Viewer($previewImageContainer, {
-        title: false,
-        toolbar: false,
-        tooltip: false,
-        keyboard: false,
-      });
-
     // setup view more button
     const subReplyList = $replyItem.querySelector<HTMLElement>(".sub-reply-list")!;
-    const viewMoreBtn = $replyItem.querySelector<HTMLElement>(".view-more-btn")!;
-    if (viewMoreBtn) {
-      DOMUtils.on(viewMoreBtn, "click", () => {
-        this.loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1);
+    const $viewMore = $replyItem.querySelector<HTMLElement>(".view-more")!;
+    if ($viewMore) {
+      DOMUtils.on($viewMore, "click", (evt) => {
+        DOMUtils.preventEvent(evt);
+        // this.loadPaginatedSubReplies(replyData.rpid, subReplyList, replyData.rcount, 1);
+        this.showLzlWrapper(replyData.rpid, 1, replyData, replyData.replies);
+        if (typeof this.option.onEnterLzlWrapper == "function") {
+          this.option.onEnterLzlWrapper();
+        }
       });
     }
   },
   getFormattedTime(ms: number) {
-    const time = new Date(ms * 1000);
-    const year = time.getFullYear();
-    const month = (time.getMonth() + 1).toString().padStart(2, "0");
-    const day = time.getDate().toString().padStart(2, "0");
-    const hour = time.getHours().toString().padStart(2, "0");
-    const minute = time.getMinutes().toString().padStart(2, "0");
-    return `${year}-${month}-${day} ${hour}:${minute}`;
+    /**
+     * 格式化时间字符串
+     * @param {Date} date - 传入的Date类型时间
+     * @returns {string} 格式化后的时间字符串
+     */
+    function formatRelativeTime(date: number | Date) {
+      // 确保传入的是有效的 Date 对象
+      if (typeof date === "number") {
+        date = new Date(date);
+      }
+
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime(); // 时间差（毫秒）
+      const diffMinutes = Math.floor(diffMs / (1000 * 60)); // 时间差（分钟）
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60)); // 时间差（小时）
+
+      // 获取当前时间的0点时间戳，以及传入时间的0点时间戳，用于准确计算相差几天
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+      const diffDays = Math.floor((todayStart - dateStart) / (1000 * 60 * 60 * 24)); // 相差天数（按自然日计算）
+
+      // 辅助函数：补零
+      const padZero = (num: number) => String(num).padStart(2, "0");
+
+      // 辅助函数：格式化为 HH:mm:ss
+      const formatTime = (d: Date) => {
+        const HH = padZero(d.getHours());
+        const mm = padZero(d.getMinutes());
+        const ss = padZero(d.getSeconds());
+        return `${HH}:${mm}:${ss}`;
+      };
+
+      // 大于3天：返回 yyyy-MM-dd HH:mm:ss
+      if (diffDays > 3) {
+        return utils.formatTime(date, "yyyy-MM-dd HH:mm:ss");
+      }
+
+      // 距离第3天（即前3天）：返回 3天前
+      if (diffDays === 3) {
+        return `3天前`;
+      }
+      // 前天：返回 前天 HH:mm:ss
+      if (diffDays === 2) {
+        return `前天 ${formatTime(date)}`;
+      }
+      // 昨天：返回 昨天 HH:mm:ss
+      if (diffDays === 1) {
+        return `昨天 ${formatTime(date)}`;
+      }
+      // 大于1小时，且在1天内（即今天内）：返回 xx小时前
+      if (diffDays === 0) {
+        // 1小时内：返回 xx分钟前
+        if (diffMinutes < 60) {
+          if (diffMinutes == 0) {
+            return "刚刚";
+          }
+          return `${diffMinutes}分钟前`;
+        }
+        return `${diffHours}小时前`;
+      }
+
+      return utils.formatTime(date, "yyyy-MM-dd HH:mm:ss");
+    }
+
+    return formatRelativeTime(ms * 1000);
   },
   /**
    * 获取等级颜色
@@ -701,17 +841,8 @@ export const MobileCommentModule = {
 
       const linkElementHTML = /*html*/ `<a class="jump-link video-time" onclick="(async () => {
           // jump to exact time
-          const videoElement = document.querySelector('video.gsl-video');
+          const videoElement = document.querySelector('video.art-video');
           videoElement.currentTime = ${totalSecond};
-  
-          // close comment module
-          document.querySelector('.close-comment-module-btn').click();
-  
-          // scroll to top
-          window.scrollTo(0, 0);
-  
-          // play video if it is paused
-          if (videoElement.paused) videoElement.play();
         })()">${timestamp}</a>`;
       keywordBlacklist.push(linkElementHTML);
 
@@ -757,7 +888,7 @@ export const MobileCommentModule = {
 
     let result = "";
     for (const image of images) {
-      result += `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
+      result += /*html*/ `<div class="image-item-wrap" style="margin-top: 4px; margin-right: 4px; cursor: zoom-in;"><img loading="lazy" src="${image.img_src}" style="border-radius: 4px; ${imageSizeConfig}"></div>`;
     }
     return result;
   },
@@ -812,8 +943,175 @@ export const MobileCommentModule = {
 
     return result;
   },
+  getSubReplyPreviewItems(subReplies: any[]) {
+    if (!(subReplies instanceof Array)) return "";
+    if (!subReplies.length) return "";
 
-  async loadPaginatedSubReplies(rootReplyID: any, subReplyList: any, subReplyAmount: any, paginationNumber: number) {
+    const preview_subReplies = subReplies.slice(0, 3);
+    let result = "";
+    for (const replyItemData of preview_subReplies) {
+      result += /*html*/ `
+          <div class="sub-reply-item">
+            <span class="reply-content-container sub-reply-content">
+              <a class="sub-user-name" href="https://space.bilibili.com/${replyItemData.mid}" target="_blank" data-user-id="${replyItemData.mid}" data-root-reply-id="${replyItemData.rpid}">${replyItemData.member.uname}</a>
+              ${
+                this.$data.createrID && this.$data.createrID.toString() === replyItemData.mid.toString()
+                  ? /*html*/ `
+                <i class="svg-icon up-web up-icon" style="width: 20px; height: 24px; transform: scale(1.03);vertical-align: middle;margin-left:4px;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="0" y="4" width="24" height="16" rx="2" fill="#FF6699"></rect>
+                    <path d="M5.7 8.36V12.79C5.7 13.72 5.96 14.43 6.49 14.93C6.99 15.4 7.72 15.64 8.67 15.64C9.61 15.64 10.34 15.4 10.86 14.92C11.38 14.43 11.64 13.72 11.64 12.79V8.36H10.47V12.81C10.47 13.43 10.32 13.88 10.04 14.18C9.75 14.47 9.29 14.62 8.67 14.62C8.04 14.62 7.58 14.47 7.3 14.18C7.01 13.88 6.87 13.43 6.87 12.81V8.36H5.7ZM13.0438 8.36V15.5H14.2138V12.76H15.9838C17.7238 12.76 18.5938 12.02 18.5938 10.55C18.5938 9.09 17.7238 8.36 16.0038 8.36H13.0438ZM14.2138 9.36H15.9138C16.4238 9.36 16.8038 9.45 17.0438 9.64C17.2838 9.82 17.4138 10.12 17.4138 10.55C17.4138 10.98 17.2938 11.29 17.0538 11.48C16.8138 11.66 16.4338 11.76 15.9138 11.76H14.2138V9.36Z" fill="white"></path>
+                  </svg>
+                </i>`
+                  : ""
+              }
+              <span>：</span>
+              <span class="reply-content">${this.getConvertedMessage(replyItemData.content)}</span>
+              ${
+                replyItemData.like
+                  ? /*html*/ `
+              <span class="reply-split-line">|</span>
+              <span class="sub-reply-like">
+                <i class="svg-icon like use-color sub-like-icon" style="width: 16px; height: 16px;"><svg class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3323" width="200" height="200"><path d="M594.176 151.168a34.048 34.048 0 0 0-29.184 10.816c-11.264 13.184-15.872 24.064-21.504 40.064l-1.92 5.632c-5.632 16.128-12.8 36.864-27.648 63.232-25.408 44.928-50.304 74.432-86.208 97.024-23.04 14.528-43.648 26.368-65.024 32.576v419.648a4569.408 4569.408 0 0 0 339.072-4.672c38.72-2.048 72-21.12 88.96-52.032 21.504-39.36 47.168-95.744 63.552-163.008a782.72 782.72 0 0 0 22.528-163.008c0.448-16.832-13.44-32.256-35.328-32.256h-197.312a32 32 0 0 1-28.608-46.336l0.192-0.32 0.64-1.344 2.56-5.504c2.112-4.8 5.12-11.776 8.32-20.16 6.592-17.088 13.568-39.04 16.768-60.416 4.992-33.344 3.776-60.16-9.344-84.992-14.08-26.688-30.016-33.728-40.512-34.944zM691.84 341.12h149.568c52.736 0 100.864 40.192 99.328 98.048a845.888 845.888 0 0 1-24.32 176.384 742.336 742.336 0 0 1-69.632 178.56c-29.184 53.44-84.48 82.304-141.76 85.248-55.68 2.88-138.304 5.952-235.712 5.952-96 0-183.552-3.008-244.672-5.76-66.432-3.136-123.392-51.392-131.008-119.872a1380.672 1380.672 0 0 1-0.768-296.704c7.68-72.768 70.4-121.792 140.032-121.792h97.728c13.76 0 28.16-5.504 62.976-27.456 24.064-15.104 42.432-35.2 64.512-74.24 11.904-21.184 17.408-36.928 22.912-52.8l2.048-5.888c6.656-18.88 14.4-38.4 33.28-60.416a97.984 97.984 0 0 1 85.12-32.768c35.264 4.096 67.776 26.88 89.792 68.608 22.208 42.176 21.888 84.864 16 124.352a342.464 342.464 0 0 1-15.424 60.544z m-393.216 477.248V405.184H232.96c-40.448 0-72.448 27.712-76.352 64.512a1318.912 1318.912 0 0 0 0.64 282.88c3.904 34.752 32.96 61.248 70.4 62.976 20.8 0.96 44.8 1.92 71.04 2.816z" p-id="3324" fill="#9499a0"></path></svg></i>
+                <span>${replyItemData.like}</span>
+              </span>`
+                  : ""
+              }
+            </span>
+          </div>
+        `;
+    }
+
+    return result;
+  },
+  isLzlShow() {
+    return this.$el.root?.querySelector<HTMLElement>(".lzl-comment-container") !== null;
+  },
+  showLzlWrapper(rootReplyID: any, paginationNumber: number, replyData: any, lzlReplyDataList: any[]) {
+    const $commentContainer = this.$el.root?.querySelector<HTMLElement>(".comment-container")!;
+    let $lzlWrapper = this.$el.root?.querySelector<HTMLElement>(".lzl-comment-container");
+    if ($lzlWrapper) {
+      DOMUtils.remove($lzlWrapper);
+      $lzlWrapper = null;
+    }
+    if (!$lzlWrapper) {
+      $lzlWrapper = DOMUtils.createElement("div", {
+        className: "lzl-comment-container",
+        innerHTML: /*html*/ `
+          <div class="reply-header">
+            <div class="reply-navigation">
+              <ul class="nav-bar">
+                <li class="nav-title">
+                  <span class="nav-title-text">评论详情</span>
+                </li>
+                <li class="nav-back"></li>
+              </ul>
+            </div>
+          </div>
+          <div class="reply-warp">
+            <div class="reply-list-main"></div>
+            <div class="reply-lzl-split-line"></div>
+            <div class="reply-lzl-content-control">
+              <div class="reply-lzl-content-navigation">
+                <ul class="nav-bar">
+                  <li class="nav-title">
+                    <span class="nav-title-text"></span>
+                  </li>
+                  <li class="nav-sort" style="display: none;">
+                    <span class="nav-sort-hot">按热度</span>
+                    <span class="nav-sort-time">按时间</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="reply-list"></div>
+            <div class="anchor-for-loading" style="text-align: center;color: #61666d;margin: 25px 0px;">正在加载...</div>
+          </div>
+        `,
+      });
+      DOMUtils.after($commentContainer, $lzlWrapper);
+    }
+    // 隐藏主评论
+    DOMUtils.css($commentContainer, "position", "absolute");
+    DOMUtils.css($commentContainer, "display", "none");
+
+    const $replyMainTopContainer = $lzlWrapper.querySelector<HTMLElement>(".reply-list-main")!;
+    const $replyList = $lzlWrapper.querySelector<HTMLElement>(".reply-list")!;
+    const $lzlNavTitleText = $lzlWrapper.querySelector<HTMLElement>(".reply-lzl-content-control .nav-title-text")!;
+    DOMUtils.append($replyMainTopContainer, this.getReplyItem(replyData, false, false));
+    DOMUtils.text($lzlNavTitleText, `相关回复共${replyData.rcount}条`);
+
+    const $lzlReplyFragment: HTMLElement[] = [];
+    // 预加载楼中楼的1个或者2个评论
+    for (const replyItemData of lzlReplyDataList) {
+      const $replyItem = this.getReplyItem(replyItemData, false, false);
+      $lzlReplyFragment.push($replyItem);
+    }
+    DOMUtils.append($replyList, $lzlReplyFragment);
+
+    const $loadNext = $lzlWrapper.querySelector<HTMLElement>(".anchor-for-loading")!;
+
+    let startPageNumber = paginationNumber;
+
+    if (replyData.rcount == replyData.replies.length && startPageNumber == 1) {
+      // 如果以获取到的评论数量等于评论总数，则说明没有更多评论了
+      $loadNext.textContent = "所有评论已加载完毕";
+      return {
+        $commentContainer,
+        $lzlWrapper,
+        $loadNext,
+      };
+    }
+    const ob = new IntersectionObserver(async (entries) => {
+      if (!entries[0].isIntersecting) return;
+      const { data: newPaginationData } = await this.getLzlReplyData(rootReplyID, startPageNumber);
+      if (!newPaginationData.replies || newPaginationData.replies.length === 0) {
+        $loadNext.textContent = "所有评论已加载完毕";
+        ob.disconnect();
+        return;
+      }
+
+      const $lzlReplyFragment: HTMLElement[] = [];
+
+      for (const replyItemData of newPaginationData.replies) {
+        // this.appendReplyItem(replyData);
+        if (startPageNumber == 1) {
+          // 过滤掉预加载的重复的评论
+          const isFilter = lzlReplyDataList.some((item) => item.rpid === replyItemData.rpid);
+          if (isFilter) continue;
+        }
+        const $replyItem = this.getReplyItem(replyItemData, false, false);
+        $lzlReplyFragment.push($replyItem);
+      }
+      DOMUtils.append($replyList, $lzlReplyFragment);
+      startPageNumber++;
+    });
+
+    ob.observe($loadNext);
+
+    return {
+      $commentContainer,
+      $lzlWrapper,
+      $loadNext,
+    };
+  },
+  exitLzl() {
+    const $commentContainer = this.$el.root?.querySelector<HTMLElement>(".comment-container");
+    const $lzlWrapper = this.$el.root?.querySelector<HTMLElement>(".lzl-comment-container");
+    if ($commentContainer) {
+      DOMUtils.css($commentContainer, "display", "");
+      DOMUtils.css($commentContainer, "visibility", "");
+      DOMUtils.css($commentContainer, "position", "");
+    }
+    if ($lzlWrapper) {
+      DOMUtils.remove($lzlWrapper);
+      if (typeof this.option.onQuitLzlWrapper == "function") {
+        this.option.onQuitLzlWrapper();
+      }
+    }
+  },
+  async getLzlReplyData(rootReplyID: any, paginationNumber: number) {
     // replace reply list with new replies
     const params = {
       oid: this.$data.oid,
@@ -823,8 +1121,7 @@ export const MobileCommentModule = {
       pn: paginationNumber,
       web_location: 333.788,
     };
-
-    const isLogin = await BilibiliGlobalData.$data.isLogin;
+    const isLogin = await BilibiliGlobalData.isLogin();
     // 已登录就用跨域请求且不带Cookie
     // 未登录就用fetch请求
     const subReplyResponse = await httpx.get(
@@ -838,7 +1135,7 @@ export const MobileCommentModule = {
         anonymous: !isLogin,
       }
     );
-    if (!subReplyResponse.status) {
+    if (!subReplyResponse.isSuccess) {
       log.error(subReplyResponse);
       Qmsg.error("请求异常，获取评论的回复失败");
       return;
@@ -849,102 +1146,9 @@ export const MobileCommentModule = {
       console.error("you should login first", subReplyResponse);
       return;
     }
-    const subReplyData = subReplyJSON.data;
-    subReplyList.innerHTML = this.getSubReplyItems(subReplyData.replies);
+    const subReplyData = subReplyJSON;
 
-    // add page switcher
-    this.addSubReplyPageSwitcher(rootReplyID, subReplyList, subReplyAmount, paginationNumber);
-
-    // scroll to the top of replyItem
-    const replyItem = subReplyList.parentElement.parentElement;
-    replyItem.scrollIntoView({ behavior: "instant" });
-
-    // scroll up a bit more because of the fixed header
-    global.scrollTo(0, document.documentElement.scrollTop - 60);
-  },
-
-  addSubReplyPageSwitcher(rootReplyID: any, subReplyList: any, subReplyAmount: any, currentPageNumber: number) {
-    if (subReplyAmount <= 10) return;
-
-    const pageAmount = Math.ceil(subReplyAmount / 10);
-    const pageSwitcher = DOMUtils.createElement("div", {
-      className: "sub-reply-pagination",
-      innerHTML: /*html*/ `
-          <div class="view-more-pagination">
-            <span class="pagination-page-count">共${pageAmount}页</span>
-            ${currentPageNumber !== 1 ? '<span class="pagination-btn pagination-to-prev-btn">上一页</span>' : ""}
-            ${(() => {
-              // 4 on the left, 4 on the right, then merge
-              const left = [
-                currentPageNumber - 4,
-                currentPageNumber - 3,
-                currentPageNumber - 2,
-                currentPageNumber - 1,
-              ].filter((num) => num >= 1);
-              const right = [
-                currentPageNumber + 1,
-                currentPageNumber + 2,
-                currentPageNumber + 3,
-                currentPageNumber + 4,
-              ].filter((num) => num <= pageAmount);
-              const merge = (<number[]>[]).concat(left, currentPageNumber, right);
-
-              // chosen 5(if able)
-              let chosen;
-              if (currentPageNumber <= 3) chosen = merge.slice(0, 5);
-              else if (currentPageNumber >= pageAmount - 3) chosen = merge.reverse().slice(0, 5).reverse();
-              else chosen = merge.slice(merge.indexOf(currentPageNumber) - 2, merge.indexOf(currentPageNumber) + 3);
-
-              // add first and dots
-              let final = JSON.parse(JSON.stringify(chosen));
-              if (!final.includes(1)) {
-                let front = [1];
-                // @ts-expect-error
-                if (final.at(0) !== 2) front = [1, "..."];
-                // @ts-expect-error
-                final = [].concat(front, final);
-              }
-
-              // add last and dots
-              if (!final.includes(pageAmount)) {
-                let back = [pageAmount];
-                // @ts-expect-error
-                if (final.at(-1) !== pageAmount - 1) back = ["...", pageAmount];
-                // @ts-expect-error
-                final = [].concat(final, back);
-              }
-
-              // assemble to html
-              return final.reduce((acc: string, cur: number | string) => {
-                if (cur === "...") return acc + '<span class="pagination-page-dot">...</span>';
-                if (cur === currentPageNumber)
-                  return acc + /*html*/ `<span class="pagination-page-number current-page">${cur}</span>`;
-                return acc + /*html*/ `<span class="pagination-page-number">${cur}</span>`;
-              }, "");
-            })()}
-            ${currentPageNumber !== pageAmount ? /*html*/ `<span class="pagination-btn pagination-to-next-btn">下一页</span>` : ""}
-          </div>
-        `,
-    });
-
-    // add click event listener
-    const pageSwitcherPrevBtn = pageSwitcher.querySelector(".pagination-to-prev-btn");
-    DOMUtils.on(pageSwitcherPrevBtn, "click", () => {
-      this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber - 1);
-    });
-    const pageSwitcherNextBtn = pageSwitcher.querySelector(".pagination-to-next-btn");
-    DOMUtils.on(pageSwitcherNextBtn, "click", () => {
-      this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, currentPageNumber + 1);
-    });
-    pageSwitcher.querySelectorAll(".pagination-page-number:not(.current-page)")?.forEach(($pageNumber) => {
-      const number = parseInt($pageNumber.textContent);
-      DOMUtils.on($pageNumber, "click", () =>
-        this.loadPaginatedSubReplies(rootReplyID, subReplyList, subReplyAmount, number)
-      );
-    });
-
-    // append page switcher
-    subReplyList.appendChild(pageSwitcher);
+    return subReplyData;
   },
 
   addAnchor() {

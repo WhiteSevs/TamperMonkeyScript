@@ -15,8 +15,8 @@ export const BilibiliUserApi = {
       responseType: "json",
       allowInterceptConfig: false,
     });
-    if (!response.status) {
-      log.error(["获取导航栏用户信息失败，请求异常", response]);
+    if (!response.isSuccess) {
+      log.error("获取导航栏用户信息失败，请求异常", response);
       return;
     }
     const data = utils.toJSON<{
@@ -46,7 +46,7 @@ export const BilibiliUserApi = {
       },
       fetch: true,
     });
-    if (!response.status) {
+    if (!response.isSuccess) {
       return;
     }
     const data = utils.toJSON(response.data.responseText);
@@ -70,7 +70,7 @@ export const BilibiliUserApi = {
       },
       fetch: true,
     });
-    if (!response.status) {
+    if (!response.isSuccess) {
       return;
     }
     const data = utils.toJSON(response.data.responseText);

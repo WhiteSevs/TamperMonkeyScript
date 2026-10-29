@@ -1,13 +1,12 @@
-import { log, utils } from "@/env";
-import Artplayer from "artplayer";
-import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
-import type { Option } from "artplayer";
+import { log } from "@/env";
+import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
+import { ArtPlayerDanmakuCommonOption } from "@/player/ArtPlayerDanmakuCommonOption";
 import {
-  ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
-  artplayerPluginM4SAudioSupport,
-  type ArtPlayerPluginM4SAudioSupportOption,
-  type ArtPlayerPluginM4SAudioSupportResult,
-} from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
+  ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY,
+  artplayerPluginAirborneHelper,
+  type ArtPlayerPluginAirborneHelperOption,
+  type ArtPlayerPluginAirborneHelperResult,
+} from "@/player/plugins/artplayer-plugin-airborneHelper";
 import {
   ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY,
   artplayerPluginBilibiliCCSubTitle,
@@ -15,15 +14,11 @@ import {
   type ArtPlayerPluginBilibiliSubTitleResult,
 } from "@/player/plugins/artplayer-plugin-bilibiliCCSubtitle";
 import {
-  ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
-  artplayerPluginTopToolBar,
-  type ArtPlayerPluginTopToolBarOption,
-  type ArtPlayerPluginTopToolBarResult,
-} from "@/player/plugins/artplayer-plugin-TopToolBar";
-import flvjs from "flv.js";
-import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
-import type { EP_INFO } from "../TypeBangumi";
-import { BlibiliBangumiPlayer } from "../BilibiliBangumiPlayer";
+  ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY,
+  artplayerPluginM4SAudioSupport,
+  type ArtPlayerPluginM4SAudioSupportOption,
+  type ArtPlayerPluginM4SAudioSupportResult,
+} from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
 import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
 import {
   ArtPlayer_PLUGIN_EP_CHOOSE_KEY,
@@ -32,7 +27,6 @@ import {
   type ArtPlayerPluginEpChooseOption,
   type ArtPlayerPluginEpChooseResult,
 } from "@/player/plugins/artplayer-plugin-epChoose";
-import { ArtPlayerCommonOption } from "@/player/ArtPlayerCommonOption";
 import {
   ArtPlayer_PLUGIN_QUALITY_KEY,
   artplayPluginQuality,
@@ -41,14 +35,21 @@ import {
 } from "@/player/plugins/artplayer-plugin-quality";
 import { artplayerPluginToast } from "@/player/plugins/artplayer-plugin-toast";
 import {
-  ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY,
-  artplayerPluginAirborneHelper,
-  type ArtPlayerPluginAirborneHelperOption,
-  type ArtPlayerPluginAirborneHelperResult,
-} from "@/player/plugins/artplayer-plugin-airborneHelper";
+  ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY,
+  artplayerPluginTopToolBar,
+  type ArtPlayerPluginTopToolBarOption,
+  type ArtPlayerPluginTopToolBarResult,
+} from "@/player/plugins/artplayer-plugin-TopToolBar";
 import { artplayerPluginVideoStatistics } from "@/player/plugins/artplayer-plugin-videoStatistics";
-import { ArtPlayerDanmakuCommonOption } from "@/player/ArtPlayerDanmakuCommonOption";
+import { BilibiliLogUtils } from "@/utils/BilibiliLogUtils";
 import { Panel } from "@components/setting/panel";
+import type { Option } from "artplayer";
+import Artplayer from "artplayer";
+import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
+import flvjs from "flv.js";
+import { BlibiliBangumiPlayer } from "../BilibiliBangumiPlayer";
+import type { EP_INFO } from "../TypeBangumi";
+import { ArtPlayerInit } from "@/player/ArtPlayerInit";
 
 export type BilibiliBangumiArtPlayerOption = {
   /** 容器 */
@@ -94,6 +95,7 @@ export type BilibiliBangumiArtPlayerOption = {
   flvTotalSize: number;
   /** flv视频总长度(ms) */
   flvTotalDuration: number;
+  videoView?: ArtPlayerPluginTopToolBarOption["videoView"];
 };
 
 const TAG_FLV = "[flvjs]：";
@@ -325,15 +327,18 @@ export const BilibiliBangumiArtPlayer = {
     if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
       artOption.plugins!.push(
         artplayerPluginTopToolBar({
+          showWrap: true,
+          showTitle: true,
+          showOnlineTotal: true,
+          title: option.videoTitle,
           onlineInfoParams: {
             aid: option.aid,
             cid: option.cid,
             bvid: option.bvid!,
           },
-          title: option.videoTitle,
-          showWrap: true,
-          showTitle: true,
-          showOnlineTotal: true,
+          showRight: false,
+          showRightFollow: false,
+          videoView: option.videoView,
         })
       );
     }
@@ -356,6 +361,7 @@ export const BilibiliBangumiArtPlayer = {
     }
 
     this.$data.art = new Artplayer(artOption);
+    ArtPlayerInit(this.$data.art);
 
     artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
     return this.$data.art;
@@ -450,8 +456,6 @@ export const BilibiliBangumiArtPlayer = {
       let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY] as ArtPlayerPluginTopToolBarResult;
       // 更新数据
       const topToolBarOption = {
-        showRight: true,
-        showRightFollow: true,
         showWrap: true,
         showTitle: true,
         showOnlineTotal: true,
@@ -461,6 +465,9 @@ export const BilibiliBangumiArtPlayer = {
           cid: option.cid,
           bvid: option.bvid!,
         },
+        showRight: false,
+        showRightFollow: false,
+        videoView: option.videoView,
       } as ArtPlayerPluginTopToolBarOption;
       plugin_topToolBar.update(topToolBarOption);
       log.info(`更新顶部标题`, topToolBarOption);

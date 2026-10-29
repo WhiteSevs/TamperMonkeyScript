@@ -84,22 +84,45 @@
 .art-player-top-wrap {
   width: 100%;
 }
-.art-player-top-wrap .art-player-top-title-text {
+.art-player-top-wrap .art-player-video-title-text {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
   max-width: 100%;
 }
+.art-player-top-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.art-player-top-left-container {
+  max-width: 50%;
+}
+.art-player-top-right-container {
+  display: none;
+}
+/* 全屏下才显示 */
+.art-fullscreen .art-player-top-right-container {
+  display: flex;
+  gap: 5px;
+}
+.art-player-top-right-container .art-player-top-right-icon {
+  display: flex;
+}
+.art-player-top-right-container .art-player-top-right-icon span {
+  font-size: 0.7em;
+  display: flex;
+  align-items: flex-start;
+}
 /* 面板隐藏时，顶部toolbar也隐藏 */
 .art-hide-cursor .art-layer-top-wrap {
   transform: translateY(-60px);
 }
-/*.art-layer-top-wrap .art-player-top-wrap {
-}
-.art-layer-top-wrap .art-player-top-title-text {
-}*/
 /* 下面的当前在线观看人数 */
-.art-layer-top-wrap .art-player-top-follow {
+.art-layer-top-wrap .art-player-top-left-title-follow-container {
   margin-top: var(--art-padding);
   gap: var(--layer-top-wrap-follow-text-font-size);
   font-size: var(--layer-top-wrap-follow-text-font-size);
@@ -107,11 +130,11 @@
   align-items: center;
   position: absolute;
 }
-.art-layer-top-wrap .art-player-top-follow .art-player-top-follow-icon {
+.art-layer-top-wrap .art-player-top-left-title-follow-container .art-player-top-left-title-follow-icon {
   width: var(--layer-top-wrap-follow-icon-size);
   height: var(--layer-top-wrap-follow-icon-size);
 }
-.art-layer-top-wrap .art-player-top-follow-text {
+.art-layer-top-wrap .art-player-top-left-title-follow-text {
   text-wrap: nowrap;
 }
 /* 插件-在线观看人数  */

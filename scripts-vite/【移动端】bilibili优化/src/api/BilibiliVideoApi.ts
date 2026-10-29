@@ -35,7 +35,7 @@ export const BilibiliVideoApi = {
       // 是否允许 4K 视频
       fourk: config.fourk ?? 1,
       // 为 1 时可以不登录拉到 64 和 80 清晰度，但是也会限制最高画质为80
-      try_look: (await BilibiliGlobalData.$data.isLogin) ? 0 : 1,
+      try_look: (await BilibiliGlobalData.isLogin()) ? 0 : 1,
       // 该值是用来请求可以在移动端播放的链接的
       platform: config.setPlatformHTML5 ? "html5" : "pc",
     };

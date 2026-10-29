@@ -123,8 +123,14 @@ const Bilibili = {
               to,
               from,
             });
-            if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
+            if (to.hash === "#/seeCommentReply" || from.hash === "#/seeCommentReply") {
               log.info("该路由变化判定为#/seeCommentReply");
+              next();
+              return;
+            }
+            const commentModuleHash = ["#/comment-module", "#/lzl-comment-module"];
+            if (commentModuleHash.includes(to.hash) || commentModuleHash.includes(from.hash)) {
+              log.info("该路由变化判定为#/comment-module");
               next();
               return;
             }
@@ -176,6 +182,11 @@ const Bilibili = {
           });
           if (to["hash"] === "#/seeCommentReply" || from["hash"] === "#/seeCommentReply") {
             log.info("该路由变化判定为#/seeCommentReply，不重载");
+            return;
+          }
+          const commentModuleHash = ["#/comment-module", "#/lzl-comment-module"];
+          if (commentModuleHash.includes(to.hash) || commentModuleHash.includes(from.hash)) {
+            log.info("该路由变化判定为#/comment-module，不重载");
             return;
           }
           Panel.execMenu("bili-listenRouterChange", () => {

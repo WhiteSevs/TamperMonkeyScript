@@ -1,9 +1,8 @@
-import { unsafeWindow } from "ViteGM";
 import { BilibiliData } from "@/data/BlibiliData";
-import { DOMUtils, utils } from "@/env";
+import { DOMUtils } from "@/env";
+import { Panel } from "@components/setting/panel";
 import type { Option } from "artplayer";
 import { ArtPlayerBiliBiliIcon } from "./BilibiliArtPlayerIcon";
-import { Panel } from "@components/setting/panel";
 
 export const ArtPlayerCommonOption = (): Option => {
   const option: Option = {

@@ -12,6 +12,7 @@ import { VueUtils } from "@components/utils/VueUtils";
 import type { Vue2Instance } from "@whitesev/utils/dist/types/src/types/Vue2.js";
 import Qmsg from "qmsg";
 import { BilibiliVideoPlayer } from "./BilibiliVideoPlayer";
+import { unsafeWindow } from "ViteGM";
 
 export const BilibiliVideo = {
   $data: {
@@ -781,6 +782,9 @@ export const BilibiliVideo = {
       addStyle(/*css*/ `
 				.comment-container{
 					position: relative;
+					width: 100%;
+          height: 100%;
+          overflow: auto;
 				}
 				.comment-container .reply-header{
 					position: sticky;
@@ -799,14 +803,15 @@ export const BilibiliVideo = {
 					width: 100dvw;
 					height: 100dvh;
 					background-color: #fff;
-					overflow-x: hidden;
+					overflow: hidden;
+          text-shadow: none;
 				}
 				.close-comment-module-btn{
 					position: fixed;
 					right: 20px;
 					bottom: 20px;
 					z-index: 2001;
-					display: none;
+					display: flex;
 					justify-content: center;
 					align-items: center;
 					width: 40px;
@@ -839,6 +844,40 @@ export const BilibiliVideo = {
           position: relative;
         }
       `);
+      // 新增全屏右侧的评论模块的样式
+      addStyle(/*css*/ `
+        .art-video-player:has(#comment-module-wrapper){
+          --comment-module-w: 35%;
+        }
+        .art-video-player #comment-module-wrapper{
+          height: 100% !important;
+          position: relative;
+          width: var(--comment-module-w) !important;
+          float: right;
+        }
+        .art-video-player #comment-module-wrapper[data-show]{
+          display: block;
+        }
+        /* 其它元素宽度同步 */
+        .art-video-player:has(#comment-module-wrapper[data-show])>*:not([id*="comment-module-wrapper"]){
+          width: calc(100% - var(--comment-module-w)) !important;
+        }
+        /* 当右侧评论区显示时 */
+        .art-video-player:has(#comment-module-wrapper[data-show]){
+          /* 隐藏底部工具栏 弹幕 */
+          & .art-controls-center{
+            display: none !important;
+          }
+        }
+        /* 评论区的图片 */
+        .art-video-player #comment-module-wrapper .image-exhibition .preview-image-container{
+          max-width: 100% !important;
+          width: unset !important;
+        }
+        .art-video-player #comment-module-wrapper .image-exhibition .preview-image-container img{
+          max-width: 100% !important;
+        }
+      `);
     }
     DOMUtils.waitNode<HTMLElement>(".m-video-info", 10000).then(async ($videoInfo) => {
       if (!$videoInfo) {
@@ -850,19 +889,39 @@ export const BilibiliVideo = {
       DOMUtils.remove(".close-comment-module-btn");
       DOMUtils.remove("#comment-module-wrapper");
 
-      const history_hash = "comment-module";
-      // 手势模式
+      const showAttr = "data-show";
       const gestureBack = new GestureBack({
-        hash: history_hash,
+        hash: "comment-module",
         useUrl: true,
-        beforeHistoryBackCallBack(isUrlChange) {
+        win: unsafeWindow,
+        async beforeHistoryBackCallBack(opt) {
           let $viewerClose = $<HTMLElement>(".viewer-button.viewer-close");
-          // 当前是看图模式,仅退出看图
-          if ($viewerClose) {
+          if ($viewerClose && opt.isFromPopStateEvent) {
+            // 路由触发，关闭viewer
+            // 但是这里又会触发viewer的通知路由改变事件
             $viewerClose.click();
+            return {
+              isPreventDefault: true,
+            };
           }
-          if (isUrlChange) {
-            $closeCommentModuleBtn.click();
+          if (opt.hash == "viewer") {
+            return;
+          }
+          if (MobileCommentModule.isLzlShow()) {
+            // 路由触发
+            // 关闭楼中楼
+            MobileCommentModule.exitLzl();
+            return {
+              isPreventDefault: true,
+            };
+          }
+          if (opt.hash == gestureBack.config.hash && opt.isFromPopStateEvent) {
+            // 通过手势返回触发
+            // 隐藏评论区
+            DOMUtils.css($commentModuleWrapper, { display: "" });
+            DOMUtils.removeAttr($commentModuleWrapper, showAttr);
+            // 显示视频简介
+            DOMUtils.show($videoInfo, false);
           }
         },
         onEnter() {
@@ -876,25 +935,22 @@ export const BilibiliVideo = {
         className: "comment-module-show-btn",
         innerHTML: `查看评论`,
       });
-      const $closeCommentModuleBtn = DOMUtils.createElement("span", {
-        className: "close-comment-module-btn",
-        innerHTML: "×",
-      });
       // 显示评论模块 隐藏视频简介
       DOMUtils.on($commentModuleShowBtn, "click", (event) => {
         DOMUtils.preventEvent(event);
         DOMUtils.css($commentModuleWrapper, { display: "block" });
-        DOMUtils.css($closeCommentModuleBtn, { display: "flex" });
+        DOMUtils.attr($commentModuleWrapper, showAttr, "");
         DOMUtils.hide($videoInfo, false);
         gestureBack.enterGestureBackMode();
+      });
+      const $closeCommentModuleBtn = DOMUtils.createElement("span", {
+        className: "close-comment-module-btn",
+        innerHTML: "×",
       });
       // 隐藏评论模块 显示视频简介
       DOMUtils.on($closeCommentModuleBtn, "click", (event) => {
         DOMUtils.preventEvent(event);
-        DOMUtils.css($commentModuleWrapper, { display: "" });
-        DOMUtils.css($closeCommentModuleBtn, { display: "" });
-        DOMUtils.show($videoInfo, false);
-        gestureBack.quitGestureBackMode(false);
+        gestureBack.back();
       });
 
       DOMUtils.append($videoInfo, $commentModuleShowBtn);
@@ -909,15 +965,113 @@ export const BilibiliVideo = {
         log.error(`获取artplayer-container失败，无法插入评论元素`);
         return;
       }
-      const artPlayerHeight = DOMUtils.height($artplayerContainer);
-      if (artPlayerHeight > 100) {
-        DOMUtils.css($commentModuleWrapper, { height: `calc(100dvh - ${artPlayerHeight}px - 11.73333vmin)` });
-      }
+      const renderCommentModuleHeight = () => {
+        const artPlayerHeight = DOMUtils.height($artplayerContainer);
+        if (artPlayerHeight > 100) {
+          DOMUtils.css($commentModuleWrapper, { height: `calc(100dvh - ${artPlayerHeight}px - 11.73333vmin)` });
+        }
+      };
+      renderCommentModuleHeight();
+      BilibiliVideoPlayer.$data.art.on("resize", () => {
+        // 重新更新评论区的高度
+        renderCommentModuleHeight();
+      });
       DOMUtils.after($artplayerContainer, $commentModuleWrapper);
-      // 添加关闭按钮
-      DOMUtils.after($commentModuleWrapper, $closeCommentModuleBtn);
       // 初始化评论模块
-      MobileCommentModule.init($commentModuleWrapper);
+      MobileCommentModule.init($commentModuleWrapper, {
+        onEnterLzlWrapper() {
+          gestureBack.enterGestureBackMode("lzl-comment-module");
+        },
+        onQuitLzlWrapper() {
+          gestureBack.quitGestureBackMode("lzl-comment-module");
+        },
+        onEnterViewer() {
+          gestureBack.enterGestureBackMode("viewer");
+        },
+        onQuitViewer() {
+          gestureBack.quitGestureBackMode("viewer");
+        },
+      });
+      // 添加关闭按钮
+      DOMUtils.append($commentModuleWrapper, $closeCommentModuleBtn);
+
+      // 等待右上角的评论按钮
+      const $commentIcon = await DOMUtils.waitNode(".art-player-top-right-comment", 10000);
+      if ($commentIcon) {
+        let $commentParent: HTMLElement | null = null;
+        let $commentPrev: HTMLElement | null = null;
+        let $commentNext: HTMLElement | null = null;
+        let $artVideoPlayer: HTMLElement | undefined = void 0;
+
+        const clearState = () => {
+          $commentParent = null;
+          $commentPrev = null;
+          $commentNext = null;
+          $commentModuleWrapper.removeAttribute(showAttr);
+        };
+        BilibiliVideoPlayer.$data.art.on("fullscreen", (state) => {
+          if (state) {
+            // 进入全屏
+          } else {
+            // 退出全屏
+            // 那就需要把评论模块移回去
+            if ($artVideoPlayer!.contains($commentModuleWrapper)) {
+              if ($commentPrev) {
+                DOMUtils.after($commentPrev, $commentModuleWrapper);
+              } else if ($commentNext) {
+                DOMUtils.before($commentNext, $commentModuleWrapper);
+              } else if ($commentParent) {
+                DOMUtils.append($commentParent, $commentModuleWrapper);
+              } else {
+                Qmsg.error("无法找到原来的位置", {
+                  parent: $artVideoPlayer!,
+                });
+              }
+            }
+            // 清除状态
+            clearState();
+          }
+        });
+        DOMUtils.on($commentIcon, "click", (event) => {
+          DOMUtils.preventEvent(event);
+          // 把评论模块移过去
+          $artVideoPlayer = $(".art-video-player");
+          if (!$artVideoPlayer) {
+            Qmsg.error("获取art-video-player失败", {
+              parent: $artVideoPlayer,
+            });
+            return;
+          }
+          if (!$artVideoPlayer.contains($commentModuleWrapper)) {
+            // 未添加
+            // 保留它的原始位置
+            if (DOMUtils.prev($commentModuleWrapper)) {
+              $commentParent = null;
+              $commentPrev = DOMUtils.prev($commentModuleWrapper);
+              $commentNext = null;
+            } else if (DOMUtils.next($commentModuleWrapper)) {
+              $commentParent = null;
+              $commentPrev = null;
+              $commentNext = DOMUtils.next($commentModuleWrapper);
+            } else {
+              $commentParent = DOMUtils.parent($commentModuleWrapper);
+              $commentPrev = null;
+              $commentNext = null;
+            }
+            DOMUtils.append($artVideoPlayer, $commentModuleWrapper);
+            $commentModuleWrapper.removeAttribute(showAttr);
+          }
+          // 切换显示状态
+          if ($commentModuleWrapper.hasAttribute(showAttr)) {
+            // 隐藏
+            $commentModuleWrapper.removeAttribute(showAttr);
+          } else {
+            // 显示
+            gestureBack.enterGestureBackMode();
+            $commentModuleWrapper.setAttribute(showAttr, "true");
+          }
+        });
+      }
     });
   },
   /**
@@ -1131,6 +1285,7 @@ export const BilibiliVideo = {
 							</div>
 						`,
         });
+        DOMUtils.remove(".video-desc-wrapper");
         target.appendChild($descWrapper);
       },
     });
