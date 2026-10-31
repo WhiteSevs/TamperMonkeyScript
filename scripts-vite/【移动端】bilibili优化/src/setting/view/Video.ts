@@ -175,6 +175,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
                   void 0,
                   "用于显示当前视频信息的弹窗"
                 ),
+                UISwitch(
+                  "媒体通知",
+                  "artplayer-plugin-video-mediaSession-enable",
+                  true,
+                  void 0,
+                  "在Android的通知栏、锁屏的媒体控制中显示视频标题和封面"
+                ),
               ],
             },
             {
