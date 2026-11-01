@@ -21,6 +21,11 @@ import {
 } from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
 import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
 import {
+  artplayerPluginMediaSession,
+  ArtPlayer_PLUGIN_MEDIA_SESSION_KEY,
+  type ArtPlayerPluginMediaSessionResult,
+} from "@/player/plugins/artplayer-plugin-mediaSession";
+import {
   ArtPlayer_PLUGIN_EP_CHOOSE_KEY,
   artplayerPluginEpChoose,
   GenerateArtPlayerEpTitle,
@@ -58,6 +63,8 @@ export type BilibiliBangumiArtPlayerOption = {
   epList: EP_INFO[];
   /** 视频链接 */
   url?: string | (() => IPromise<string>);
+  /** 视频封面 */
+  poster?: string;
   /** 音频链接数组信息 */
   audioList?: ArtPlayerPluginM4SAudioSupportOption["audioList"];
   /** 画质信息 */
@@ -360,6 +367,15 @@ export const BilibiliBangumiArtPlayer = {
       );
     }
 
+    if (Panel.getValue("artplayer-plugin-bangumi-mediaSession-enable")) {
+      artOption.plugins!.push(
+        artplayerPluginMediaSession({
+          title: option.videoTitle,
+          poster: option.poster,
+        })
+      );
+    }
+
     this.$data.art = new Artplayer(artOption);
     ArtPlayerInit(this.$data.art);
 
@@ -482,6 +498,16 @@ export const BilibiliBangumiArtPlayer = {
         clip_info_list: option.clip_info_list,
       });
       log.info(`更新空降助手信息`, option.clip_info_list);
+    }
+
+    if (Panel.getValue("artplayer-plugin-bangumi-mediaSession-enable")) {
+      // 更新媒体通知信息
+      let plugin_mediaSession = art.plugins[ArtPlayer_PLUGIN_MEDIA_SESSION_KEY] as ArtPlayerPluginMediaSessionResult;
+      plugin_mediaSession.update({
+        title: option.videoTitle,
+        poster: option.poster,
+      });
+      log.info(`更新媒体通知信息`, option.videoTitle);
     }
   },
 };

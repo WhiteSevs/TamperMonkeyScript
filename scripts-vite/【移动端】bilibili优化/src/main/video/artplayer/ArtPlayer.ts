@@ -15,6 +15,11 @@ import {
 } from "@/player/plugins/artplayer-plugin-bilibiliM4SAudioSupport";
 import { ArtPlayerDanmakuOptionHelper } from "@/player/plugins/artplayer-plugin-DanmakuHelper";
 import {
+  artplayerPluginMediaSession,
+  ArtPlayer_PLUGIN_MEDIA_SESSION_KEY,
+  type ArtPlayerPluginMediaSessionResult,
+} from "@/player/plugins/artplayer-plugin-mediaSession";
+import {
   ArtPlayer_PLUGIN_EP_CHOOSE_KEY,
   artplayerPluginEpChoose,
   GenerateArtPlayerEpTitle,
@@ -272,6 +277,15 @@ export const BilibiliVideoArtPlayer = {
       );
     }
 
+    if (Panel.getValue("artplayer-plugin-video-mediaSession-enable")) {
+      artOption.plugins!.push(
+        artplayerPluginMediaSession({
+          title: option.videoTitle,
+          poster: option.poster,
+        })
+      );
+    }
+
     if (Panel.getValue("bili-video-playerAutoPlayVideo")) {
       // 自动播放视频
       // 静音才能自动播放
@@ -391,6 +405,16 @@ export const BilibiliVideoArtPlayer = {
       } as ArtPlayerPluginTopToolBarOption;
       plugin_topToolBar.update(topToolBarOption);
       log.info(`更新顶部标题`, topToolBarOption);
+    }
+
+    if (Panel.getValue("artplayer-plugin-video-mediaSession-enable")) {
+      // 更新媒体通知信息
+      let plugin_mediaSession = art.plugins[ArtPlayer_PLUGIN_MEDIA_SESSION_KEY] as ArtPlayerPluginMediaSessionResult;
+      plugin_mediaSession.update({
+        title: option.videoTitle,
+        poster: option.poster,
+      });
+      log.info(`更新媒体通知信息`, option.videoTitle);
     }
   },
 };

@@ -356,6 +356,7 @@ export const GenerateArtPlayerOption = async (EP_INFO: EP_INFO, EP_LIST: EP_LIST
     bvid: bvid,
     ep_id: ep_id,
     videoTitle: videoTitle,
+    poster: EP_INFO.cover,
     danmukuUrl: `https://${BilibiliApiConfig.web_host}/x/v1/dm/list.so?oid=${cid}`,
     quality: currentVideoQuality,
     clip_info_list: clip_info_list,
