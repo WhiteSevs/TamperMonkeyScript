@@ -15,7 +15,11 @@
   "quoteProps": "as-needed",
   "arrowParens": "always",
   "embeddedLanguageFormatting": "auto",
-  "endOfLine": "lf",
+  // 换行符
+  // windows用crlf
+  // git core.autocrlf=true
+  // 混合开发则用lf git core.autocrlf=input
+  "endOfLine": "crlf",
   "ignorePatterns": [
     "node_modules",
     ".prettierrc",
