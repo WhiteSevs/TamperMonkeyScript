@@ -14,6 +14,15 @@ export const BilibiliData = {
   },
   /** 主题色 */
   theme: "#FB7299",
+  /**
+   * 视频排序
+   *
+   * + `click` 最多播放
+   * + `pubdate` 最新发布
+   * + `stow` 最多收藏
+   * @default "pubdata"
+   */
+  spaceVideoSortByButton: "pubdate" as "click" | "pubdate" | "stow",
 };
 
 export const BilibiliPCData = {

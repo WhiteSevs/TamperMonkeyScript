@@ -1,10 +1,11 @@
 import { BilibiliData } from "@/data/BlibiliData";
-import { $, DOMUtils, log } from "@/env";
+import { $, $$, DOMUtils, log } from "@/env";
 import { VueUtils } from "@components/utils/VueUtils";
 import { BilibiliVideoPlayer, GenerateArtPlayerOption, type VideoInfo } from "../video/BilibiliVideoPlayer";
 import { BilibiliVideoArtPlayer } from "../video/artplayer/ArtPlayer";
 import { Panel } from "@components/setting/panel";
 import type Artplayer from "artplayer";
+import type { VIDEO_EP_LIST } from "../video/TypeVideo";
 
 type PlayListVideoInfo = {
   /** aid */
@@ -188,6 +189,29 @@ export const BilibiliPlayListPlayer = {
           collect: () => $(".video-desc-wrapper .video-info-icon .video-fav-icon+span")?.textContent ?? 0,
           share: () => $(".video-desc-wrapper .video-info-icon .video-share-icon+span")?.textContent ?? 0,
         };
+        artPlayerOption.epList = async () => {
+          const $playList = await DOMUtils.waitNode(BilibiliData.className.playlist + " .playlist-player", 10000);
+          if (!$playList) return;
+          const vueInst = VueUtils.getVue($playList);
+          if (!vueInst) return;
+          const mediaList = vueInst.$store.state.playlist.mediaList;
+          if (!Array.isArray(mediaList)) return;
+          return mediaList.map((item) => {
+            return {
+              aid: item.id,
+              bvid: item.bv_id,
+              cid: item.pages?.[0]?.id,
+              title: item.title,
+              attribute: item.attribute,
+              id: item.id,
+              page: item.page,
+              pages: item.pages,
+              arc: {
+                pic: item.cover,
+              },
+            };
+          }) as VIDEO_EP_LIST[];
+        };
 
         // 初始化artplayer播放器
         if (that.$data.art == null) {
@@ -225,26 +249,42 @@ export const BilibiliPlayListPlayer = {
             if (videoIndex >= mediaList.length - 1) {
               log.info(`播放列表已播放完毕`);
             } else {
-              let $currentVideoCard = $<HTMLElement>(`.video-card[index="${videoIndex}"]`)!;
+              let $currentVideoCard = $<HTMLElement>(`.video-card:has(.playing)`)!;
               let currentVideoCardVueInstance = VueUtils.getVue($currentVideoCard)!;
-              let p = currentVideoCardVueInstance.p;
-              if (p >= currentVideoCardVueInstance.video.page) {
+              let page = currentVideoCardVueInstance.index;
+              const $nextVideo = DOMUtils.next($currentVideoCard);
+              if ($nextVideo) {
                 // 切换到下一个视频卡片
-                let $nextVideoCard = $<HTMLElement>(`.video-card[index="${videoIndex + 1}"]`)!;
-                let nextVideoCardVueInstance = VueUtils.getVue($nextVideoCard)!;
+                let nextVideoCardVueInstance = VueUtils.getVue($nextVideo)!;
                 nextVideoCardVueInstance.changeVideo();
                 log.info(`当前播放列表共：${mediaList.length - 1}个，即将播放下一个视频，第${videoIndex + 2}个`);
               } else {
                 // 切换分集
-                p++;
-                currentVideoCardVueInstance.changeVideo(p);
-                log.info(`当前播放列表共：${mediaList.length - 1}个，即将播放第${videoIndex + 2}-${p}`);
+                page++;
+                currentVideoCardVueInstance.changeVideo(page);
+                log.info(`当前播放列表共：${mediaList.length - 1}个，即将播放第${videoIndex + 2}-${page}`);
               }
             }
           });
         } else {
           // 更新artplayer播放信息
-          await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
+          let isUpdate = false;
+          if (isEpChoose) {
+            // 通过找到对应cid的视频来切换
+            const $videoCardList = $$(".video-card");
+            for (const item of $videoCardList) {
+              const vueInstance = VueUtils.getVue(item);
+              if (vueInstance?.video.pages?.[0]?.id === videoInfo?.cid) {
+                // 找到了
+                vueInstance.changeVideo();
+                isUpdate = true;
+                break;
+              }
+            }
+          }
+          if (!isUpdate) {
+            await BilibiliVideoArtPlayer.update(that.$data.art, artPlayerOption);
+          }
         }
       },
     });

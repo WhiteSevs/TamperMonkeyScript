@@ -2,24 +2,31 @@ import { addStyle } from "@/env";
 import type Artplayer from "artplayer";
 import type { Events, Setting, SettingOption } from "artplayer";
 
+type ArtPlayerEpChooseEpList = {
+  /** 是否是默认的 */
+  isDefault: boolean;
+  /** 视频标题 */
+  title: string;
+  /** 视频的aid，请给aid或bvid */
+  aid?: number | string;
+  /** 视频的bvid，请给aid或bvid */
+  bvid?: string;
+  /** 视频的cid */
+  cid: number;
+  /** 当视频为番剧时存在ep_id */
+  ep_id?: number;
+  /** 选中该集的回调 */
+  onSelect?: (selectOption: SettingOption, index: number) => void;
+}[];
+
 export type ArtPlayerPluginEpChooseOption = {
-  EP_LIST: {
-    /** 是否是默认的 */
-    isDefault: boolean;
-    /** 视频标题 */
-    title: string;
-    /** 视频的aid，请给aid或bvid */
-    aid?: number | string;
-    /** 视频的bvid，请给aid或bvid */
-    bvid?: string;
-    /** 视频的cid */
-    cid: number;
-    /** 当视频为番剧时存在ep_id */
-    ep_id?: number;
-    /** 选中该集的回调 */
-    onSelect?: (selectOption: SettingOption, index: number) => void;
-  }[];
-  /** 是否自动连播 */
+  /**
+   * 分集数据
+   */
+  EP_LIST: ArtPlayerEpChooseEpList | (() => IPromise<ArtPlayerEpChooseEpList>);
+  /**
+   * 是否自动连播
+   */
   automaticBroadcast?: boolean;
 };
 export type ArtPlayerPluginEpChooseResult = {
@@ -29,6 +36,14 @@ export type ArtPlayerPluginEpChooseResult = {
    * @param option
    */
   update(option: ArtPlayerPluginEpChooseOption): void;
+  /**
+   * 播放下一集
+   */
+  playNext(): boolean;
+  /**
+   * 播放上一集
+   */
+  playPrev(): boolean;
 };
 
 const TAG = "[artplayer-plugin-epChoose]：";
@@ -53,9 +68,13 @@ export const GenerateArtPlayerEpTitle = (title: string, title_id?: string | numb
 /**
  * 生成播放器的选集菜单配置项
  */
-export const GenerateArtPlayerEpSetting = (option: ArtPlayerPluginEpChooseOption): Setting => {
+export const GenerateArtPlayerEpSetting = async (option: ArtPlayerPluginEpChooseOption): Promise<Setting> => {
   let tooltip = "";
-  let selector = option.EP_LIST.map((item, itemIndex) => {
+  let ep_list = await option.EP_LIST;
+  if (typeof ep_list === "function") {
+    ep_list = await ep_list();
+  }
+  const selector = ep_list.map((item, itemIndex) => {
     if (item.isDefault) {
       tooltip = item.title;
     }
@@ -68,7 +87,7 @@ export const GenerateArtPlayerEpSetting = (option: ArtPlayerPluginEpChooseOption
   });
   return {
     name: EpChoose.$key.SETTING_KEY,
-    icon: `<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2295" width="24" height="24"><path d="M983.745542 312.673133a510.516437 510.516437 0 0 0-109.673817-162.745211A510.516437 510.516437 0 0 0 511.999823 0.000353 510.516437 510.516437 0 0 0 149.927922 149.927922 510.516437 510.516437 0 0 0 0.000353 511.999823a510.516437 510.516437 0 0 0 149.927569 362.071902A510.516437 510.516437 0 0 0 511.999823 1023.999294a510.516437 510.516437 0 0 0 362.071902-149.927569A510.516437 510.516437 0 0 0 1023.999294 511.999823c0-69.137584-13.488538-136.121238-40.253752-199.32669z m-62.852348 372.029408a443.779955 443.779955 0 0 1-95.05535 140.994061 441.908508 441.908508 0 0 1-313.73209 129.941935c-59.886283 0-118.042361-11.758333-172.667407-34.851274a443.779955 443.779955 0 0 1-141.029372-95.090661 441.908508 441.908508 0 0 1-129.941934-313.696779c0-59.886283 11.758333-118.042361 34.851274-172.667407a443.779955 443.779955 0 0 1 95.09066-141.029371 441.908508 441.908508 0 0 1 313.696779-129.941935c59.886283 0 118.077671 11.758333 172.667408 34.851274a443.779955 443.779955 0 0 1 141.064682 95.090661 441.908508 441.908508 0 0 1 129.941934 313.696778c0 59.886283-11.793643 118.042361-34.851274 172.667408zM388.413744 706.206519l317.792775-211.86185-317.792775-211.861849v423.723699z" p-id="2296"></path></svg>`,
+    icon: /*html*/ `<svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2295" width="24" height="24"><path d="M983.745542 312.673133a510.516437 510.516437 0 0 0-109.673817-162.745211A510.516437 510.516437 0 0 0 511.999823 0.000353 510.516437 510.516437 0 0 0 149.927922 149.927922 510.516437 510.516437 0 0 0 0.000353 511.999823a510.516437 510.516437 0 0 0 149.927569 362.071902A510.516437 510.516437 0 0 0 511.999823 1023.999294a510.516437 510.516437 0 0 0 362.071902-149.927569A510.516437 510.516437 0 0 0 1023.999294 511.999823c0-69.137584-13.488538-136.121238-40.253752-199.32669z m-62.852348 372.029408a443.779955 443.779955 0 0 1-95.05535 140.994061 441.908508 441.908508 0 0 1-313.73209 129.941935c-59.886283 0-118.042361-11.758333-172.667407-34.851274a443.779955 443.779955 0 0 1-141.029372-95.090661 441.908508 441.908508 0 0 1-129.941934-313.696779c0-59.886283 11.758333-118.042361 34.851274-172.667407a443.779955 443.779955 0 0 1 95.09066-141.029371 441.908508 441.908508 0 0 1 313.696779-129.941935c59.886283 0 118.077671 11.758333 172.667408 34.851274a443.779955 443.779955 0 0 1 141.064682 95.090661 441.908508 441.908508 0 0 1 129.941934 313.696778c0 59.886283-11.793643 118.042361-34.851274 172.667408zM388.413744 706.206519l317.792775-211.86185-317.792775-211.861849v423.723699z" p-id="2296"></path></svg>`,
     html: "选集",
     selector: selector,
     tooltip: tooltip,
@@ -79,19 +98,45 @@ export const GenerateArtPlayerEpSetting = (option: ArtPlayerPluginEpChooseOption
       return item.html;
     },
     mounted(panel, item) {
+      if (selector.length <= 1) {
+        panel.style.display = "none";
+      } else {
+        panel.style.display = "";
+      }
       panel.setAttribute("data-plugin", EpChoose.$key.SETTING_KEY);
     },
     /**
      * 播放下一集
      */
     playNext() {
-      let findIndex = this.selector!.findIndex((item) => item.default);
-      if (findIndex !== -1 && findIndex + 1 < this.selector!.length - 1) {
+      // @ts-expect-error
+      const selector: any[] = this.seletor!;
+      let findIndex = selector.findIndex((item) => item.default);
+      if (findIndex !== -1 && findIndex + 1 < selector.length - 1) {
         findIndex += 1;
         // @ts-ignore
-        this.onSelect(this.selector![findIndex]);
+        this.onSelect(selector[findIndex]);
+        return true;
       } else {
         console.warn(TAG + "当前播放列表已无下一集");
+        return false;
+      }
+    },
+    /**
+     * 播放上一集
+     */
+    playPrev() {
+      // @ts-expect-error
+      const selector: any[] = this.seletor!;
+      let findIndex = selector.findIndex((item) => item.default);
+      if (findIndex !== -1 && findIndex - 1 >= 0) {
+        findIndex -= 1;
+        // @ts-ignore
+        this.onSelect(selector[findIndex]);
+        return true;
+      } else {
+        console.warn(TAG + "当前播放列表已无上一集");
+        return false;
       }
     },
   };
@@ -130,6 +175,7 @@ const EpChoose = {
   },
   $data: {
     art: null as any as Artplayer,
+    option: null as any as ArtPlayerPluginEpChooseOption,
   },
   /**
    * 重置环境变量
@@ -143,9 +189,10 @@ const EpChoose = {
    * 初始化
    * @param option
    */
-  init(art: Artplayer, option: ArtPlayerPluginEpChooseOption) {
+  async init(art: Artplayer, option: ArtPlayerPluginEpChooseOption) {
     this.resetEnv();
     this.$data.art = art;
+    this.$data.option = option;
     EpChooseEvent.unbind(art);
 
     if (option.automaticBroadcast) {
@@ -163,22 +210,16 @@ const EpChoose = {
 			}
 			`);
     }
-    this.update(option);
+    await this.update(option);
   },
   /**
    * 更新
    * @param option
    */
-  update(option: ArtPlayerPluginEpChooseOption) {
+  async update(option: ArtPlayerPluginEpChooseOption) {
     EpChooseEvent.unbind(this.$data.art);
-    if (option.EP_LIST == null) {
-      return;
-    }
-    if (option.EP_LIST.length === 0) {
-      return;
-    }
     // 先判断setting中是否存在该配置
-    let setting = GenerateArtPlayerEpSetting(option);
+    const setting = await GenerateArtPlayerEpSetting(option);
     if (this.$data.art.setting.find(this.$key.SETTING_KEY)) {
       // 已有该菜单，更新
       this.$data.art.setting.update(setting);
@@ -202,6 +243,22 @@ export const artplayerPluginEpChoose = (option: ArtPlayerPluginEpChooseOption) =
       name: EpChoose.$key.PLUGIN_KEY,
       update(option: ArtPlayerPluginEpChooseOption) {
         EpChoose.update(option);
+      },
+      playNext() {
+        const settingInst = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
+        if (!settingInst) {
+          console.error(TAG + "获取插件实例失败");
+          return false;
+        }
+        return settingInst.playNext();
+      },
+      playPrev() {
+        const settingInst = EpChoose.$data.art.setting.find(EpChoose.$key.SETTING_KEY);
+        if (!settingInst) {
+          console.error(TAG + "获取插件实例失败");
+          return false;
+        }
+        return settingInst.playPrev();
       },
     };
   };

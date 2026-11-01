@@ -55,6 +55,7 @@ import flvjs from "flv.js";
 import { BlibiliBangumiPlayer } from "../BilibiliBangumiPlayer";
 import type { EP_INFO } from "../TypeBangumi";
 import { ArtPlayerInit } from "@/player/ArtPlayerInit";
+import { BilibiliVideoApi } from "@/api/BilibiliVideoApi";
 
 export type BilibiliBangumiArtPlayerOption = {
   /** 容器 */
@@ -114,19 +115,56 @@ const TAG_FLV = "[flvjs]：";
 const generateBangumiVideoSelectSetting = (
   option: BilibiliBangumiArtPlayerOption
 ): ArtPlayerPluginEpChooseOption["EP_LIST"] => {
-  return option.epList.map((item) => {
-    return {
-      isDefault: item.ep_id === option.ep_id && item.aid === option.aid && item.cid === option.cid,
-      title: GenerateArtPlayerEpTitle(item.long_title, item.title),
-      aid: item.aid,
-      bvid: item.bvid,
-      cid: item.cid,
-      ep_id: item.ep_id,
-      onSelect(selectItem, index) {
-        BlibiliBangumiPlayer.updateArtPlayerVideoInfo(item, option.epList);
-      },
-    };
-  });
+  return async () => {
+    let epList = option.epList.length ? option.epList : [];
+    if (option.epList.length == 0) {
+      // api获取分p数据，因为页面上可能不显示分p信息
+      const defaultEpInfo: EP_INFO[] = [
+        // @ts-expect-error
+        {
+          ep_id: option.ep_id as number,
+          aid: option.aid as number,
+          cid: option.cid as number,
+          long_title: option.videoTitle || "",
+          title: option.videoTitle || "",
+          bvid: option.bvid || "",
+        },
+      ];
+      epList = defaultEpInfo;
+      // const videoView = await BilibiliVideoApi.view({
+      //   aid: option.aid,
+      //   bvid: option.bvid!,
+      // });
+      // if (videoView && Array.isArray(videoView.pages) && videoView.pages.length > 0) {
+      //   epList = videoView.pages.map((it) => {
+      //     // @ts-expect-error
+      //     return {
+      //       ep_id: option.ep_id as number,
+      //       aid: option.aid as number,
+      //       cid: it.cid as number,
+      //       long_title: it.part || "",
+      //       title: it.part || "",
+      //       bvid: option.bvid || "",
+      //     };
+      //   });
+      // } else {
+      //   epList = defaultEpInfo;
+      // }
+    }
+    return epList.map((item) => {
+      return {
+        isDefault: item.ep_id === option.ep_id && item.aid === option.aid && item.cid === option.cid,
+        title: GenerateArtPlayerEpTitle(item.long_title, item.title),
+        aid: item.aid,
+        bvid: item.bvid,
+        cid: item.cid,
+        ep_id: item.ep_id,
+        onSelect(selectItem, index) {
+          BlibiliBangumiPlayer.updateArtPlayerVideoInfo(item, option.epList);
+        },
+      };
+    });
+  };
 };
 
 export const BilibiliBangumiArtPlayer = {
@@ -411,7 +449,7 @@ export const BilibiliBangumiArtPlayer = {
    */
   updatePluginInfo(art: Artplayer, option: BilibiliBangumiArtPlayerOption) {
     // 更新画质
-    let plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY] as ArtPlayerPluginQualityResult;
+    const plugin_quality = art.plugins[ArtPlayer_PLUGIN_QUALITY_KEY] as ArtPlayerPluginQualityResult;
     plugin_quality.update({
       from: BilibiliBangumiArtPlayer.$data.from,
       qualityList: option.quality,
@@ -431,7 +469,7 @@ export const BilibiliBangumiArtPlayer = {
 
     if (Panel.getValue("artplayer-plugin-bangumi-m4sAudioSupport-enable")) {
       // 更新音频
-      let plugin_m4sAudioSupport = art.plugins[
+      const plugin_m4sAudioSupport = art.plugins[
         ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
       ] as ArtPlayerPluginM4SAudioSupportResult;
       plugin_m4sAudioSupport.update({
@@ -442,7 +480,7 @@ export const BilibiliBangumiArtPlayer = {
     }
     if (Panel.getValue("artplayer-plugin-bangumi-epChoose-enable")) {
       // 更新选集信息
-      let plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY] as ArtPlayerPluginEpChooseResult;
+      const plugin_epChoose = art.plugins[ArtPlayer_PLUGIN_EP_CHOOSE_KEY] as ArtPlayerPluginEpChooseResult;
       plugin_epChoose.update({
         EP_LIST: generateBangumiVideoSelectSetting(option),
         automaticBroadcast: true,
@@ -452,7 +490,7 @@ export const BilibiliBangumiArtPlayer = {
 
     if (Panel.getValue("artplayer-plugin-bangumi-cc-subtitle-enable")) {
       // 更新字幕
-      let plugin_bilibiliCCSubTitle = art.plugins[
+      const plugin_bilibiliCCSubTitle = art.plugins[
         ArtPlayer_PLUGIN_BILIBILI_CC_SUBTITLE_KEY
       ] as ArtPlayerPluginBilibiliSubTitleResult;
       // 配置字幕数据
@@ -469,7 +507,7 @@ export const BilibiliBangumiArtPlayer = {
     if (Panel.getValue("artplayer-plugin-bangumi-toptoolbar-enable")) {
       // 更新顶部标题
       // 更新顶部在线观看人数来源
-      let plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY] as ArtPlayerPluginTopToolBarResult;
+      const plugin_topToolBar = art.plugins[ArtPlayer_PLUGIN_TOP_TOOLBAR_KEY] as ArtPlayerPluginTopToolBarResult;
       // 更新数据
       const topToolBarOption = {
         showWrap: true,
@@ -491,7 +529,7 @@ export const BilibiliBangumiArtPlayer = {
 
     if (Panel.getValue("artplayer-plugin-bangumi-airborneHelper-enable")) {
       // 更新空降助手信息
-      let plugin_airborneHelper = art.plugins[
+      const plugin_airborneHelper = art.plugins[
         ArtPlayer_PLUGIN_AIRBORNE_HELPER_KEY
       ] as ArtPlayerPluginAirborneHelperResult;
       plugin_airborneHelper.update({
@@ -502,7 +540,7 @@ export const BilibiliBangumiArtPlayer = {
 
     if (Panel.getValue("artplayer-plugin-bangumi-mediaSession-enable")) {
       // 更新媒体通知信息
-      let plugin_mediaSession = art.plugins[ArtPlayer_PLUGIN_MEDIA_SESSION_KEY] as ArtPlayerPluginMediaSessionResult;
+      const plugin_mediaSession = art.plugins[ArtPlayer_PLUGIN_MEDIA_SESSION_KEY] as ArtPlayerPluginMediaSessionResult;
       plugin_mediaSession.update({
         title: option.videoTitle,
         poster: option.poster,

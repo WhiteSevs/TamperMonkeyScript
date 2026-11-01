@@ -591,3 +591,19 @@ declare interface BilibiliUserNavInfoType {
    */
   is_jury: boolean;
 }
+
+declare type BilibiliApiParamsAidAndBvid =
+  | {
+      /** 视频的av号 */
+      aid: string | number;
+    }
+  | {
+      /** 视频的bv号 */
+      bvid: string;
+    }
+  | {
+      /** 视频的av号 */
+      aid: string | number;
+      /** 视频的bv号 */
+      bvid: string;
+    };

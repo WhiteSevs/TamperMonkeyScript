@@ -47,12 +47,14 @@ import artplayerPluginDanmuku from "artplayer-plugin-danmuku";
 import { BilibiliVideoPlayer } from "../BilibiliVideoPlayer";
 import type { VIDEO_EP_LIST } from "../TypeVideo";
 import { ArtPlayerInit } from "@/player/ArtPlayerInit";
+import { BilibiliRouter } from "@/router/BilibiliRouter";
+import { BilibiliPlayListPlayer } from "@/main/playlist/BilibiliPlayListPlayer";
 
 export interface BilibiliVideoArtPlayerOption {
   /** 容器 */
   container: HTMLDivElement | string;
   /** 选集信息 */
-  epList?: VIDEO_EP_LIST[];
+  epList?: IPFunction<IPromise<VIDEO_EP_LIST[] | undefined>>;
   /** 视频链接 */
   url?: string | (() => IPromise<string>);
   poster?: string;
@@ -83,57 +85,106 @@ export interface BilibiliVideoArtPlayerOption {
 const generateVideoSelectSetting = (option: BilibiliVideoArtPlayerOption): ArtPlayerPluginEpChooseOption["EP_LIST"] => {
   // 如果选集只有1集
   // 那么从分p中进行选取
-  let epList = option.epList || [];
-  if (epList.length === 1) {
-    let parentEp = epList[0];
-    return parentEp.pages.map((pageInfo) => {
-      return {
-        isDefault: pageInfo.cid === option.cid,
-        title: pageInfo.part,
-        aid: option.aid,
-        bvid: option.bvid,
-        cid: pageInfo.cid,
-        onSelect(selectOption, index) {
-          // 先更新为当前的cid
-          parentEp.cid = pageInfo.cid;
-          BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+  return async () => {
+    let epList = (await option.epList) || [];
+    if (typeof epList === "function") {
+      epList = (await epList()) || [];
+    }
+    if (epList.length <= 1) {
+      let parentEp = epList[0];
+      if (!parentEp) {
+        parentEp = {
+          pages: [
+            // @ts-expect-error
             {
-              aid: option.aid as number,
-              bvid: option.bvid,
-              cid: pageInfo.cid,
-              pic: pageInfo.first_frame || "",
-              title: pageInfo.part,
-              epList: option.epList || [],
+              cid: option.cid as number,
+              part: option.videoTitle || "",
+              first_frame: option.poster || "",
             },
-            true
-          );
-        },
-      };
-    });
-  } else {
-    return epList.map((epInfo) => {
-      return {
-        isDefault: epInfo.aid === option.aid && epInfo.cid === option.cid,
-        title: GenerateArtPlayerEpTitle(epInfo.title),
-        aid: epInfo.aid,
-        bvid: epInfo.bvid,
-        cid: epInfo.cid,
-        onSelect(selectItem, index) {
-          BilibiliVideoPlayer.updateArtPlayerVideoInfo(
-            {
-              aid: epInfo.aid,
-              bvid: epInfo.bvid,
-              cid: epInfo.cid,
-              pic: epInfo.arc.pic,
-              title: epInfo.title,
-              epList: option.epList || [],
-            },
-            true
-          );
-        },
-      };
-    });
-  }
+          ],
+        };
+      }
+      return parentEp.pages.map((it) => {
+        return {
+          isDefault: it.cid === option.cid,
+          title: it.part,
+          aid: option.aid,
+          bvid: option.bvid,
+          cid: it.cid,
+          onSelect(selectOption, index) {
+            // 先更新为当前的cid
+            parentEp.cid = it.cid;
+            if (BilibiliRouter.isPlayList()) {
+              BilibiliPlayListPlayer.updateArtPlayerVideoInfo(
+                {
+                  aid: option.aid as number,
+                  bvid: option.bvid,
+                  cid: it.cid,
+                  pic: it.first_frame || "",
+                  title: it.part,
+                  // @ts-expect-error
+                  epList: option.epList || [],
+                },
+                true
+              );
+            } else {
+              BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+                {
+                  aid: option.aid as number,
+                  bvid: option.bvid,
+                  cid: it.cid,
+                  pic: it.first_frame || "",
+                  title: it.part,
+                  // @ts-expect-error
+                  epList: option.epList || [],
+                },
+                true
+              );
+            }
+          },
+        };
+      });
+    } else {
+      return epList.map((it) => {
+        return {
+          isDefault: it.aid === option.aid && it.cid === option.cid,
+          title: GenerateArtPlayerEpTitle(it.title),
+          aid: it.aid,
+          bvid: it.bvid,
+          cid: it.cid,
+          onSelect(selectItem, index) {
+            if (BilibiliRouter.isPlayList()) {
+              BilibiliPlayListPlayer.updateArtPlayerVideoInfo(
+                {
+                  aid: it.aid,
+                  bvid: it.bvid,
+                  cid: it.cid,
+                  pic: it.arc.pic,
+                  title: it.title,
+                  // @ts-expect-error
+                  epList: option.epList || [],
+                },
+                true
+              );
+            } else {
+              BilibiliVideoPlayer.updateArtPlayerVideoInfo(
+                {
+                  aid: it.aid,
+                  bvid: it.bvid,
+                  cid: it.cid,
+                  pic: it.arc.pic,
+                  title: it.title,
+                  // @ts-expect-error
+                  epList: option.epList || [],
+                },
+                true
+              );
+            }
+          },
+        };
+      });
+    }
+  };
 };
 
 export const BilibiliVideoArtPlayer = {
@@ -352,11 +403,12 @@ export const BilibiliVideoArtPlayer = {
       let plugin_m4sAudioSupport = art.plugins[
         ArtPlayer_PLUGIN_M4S_AUDIO_SUPPORT_KEY
       ] as ArtPlayerPluginM4SAudioSupportResult;
+      const audioList = option.audioList || [];
       plugin_m4sAudioSupport.update({
         from: "video",
-        audioList: option.audioList || [],
+        audioList: audioList,
       });
-      log.info(`更新音频`, option.audioList);
+      log.info(`更新音频`, audioList);
     }
 
     if (Panel.getValue("artplayer-plugin-video-epChoose-enable")) {

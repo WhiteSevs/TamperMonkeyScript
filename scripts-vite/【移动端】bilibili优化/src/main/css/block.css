@@ -101,10 +101,15 @@
 }
 
 /* 播放列表 */
-#app .playlist > .open-app-wp {
+#app .playlist > .open-app-wp,
+/* 视频下面的 打开App，流畅又高清 */
+#app .playlist .m-open-app:has(.main-open) {
   display: none !important;
 }
 /* 修复因屏蔽了广告导致的往上偏移 */
 #app .playlist > .open-app-wp + div {
   padding-top: 56.25%;
+}
+#app .playlist:has(.m-open-app .main-open) .play-info {
+  margin-top: calc(11.73333vmin + 56.25%);
 }

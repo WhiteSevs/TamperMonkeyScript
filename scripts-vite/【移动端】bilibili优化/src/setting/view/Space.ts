@@ -1,6 +1,7 @@
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { UISwitch } from "@components/setting/components/ui-switch";
+import { UISelect } from "@components/setting/panel-components";
 
 export const SettingUISpace: PopsPanelContentConfig = {
   id: "panel-space",
@@ -27,6 +28,13 @@ export const SettingUISpace: PopsPanelContentConfig = {
                   true,
                   void 0,
                   "修复视频|动态的正确跳转，避免跳转404"
+                ),
+                UISwitch(
+                  "新增视频排序按钮",
+                  "bili-space-addVideoSortButton",
+                  true,
+                  void 0,
+                  "在个人空间视频列表中新增排序按钮（默认按最新发布排序）"
                 ),
               ],
             },

@@ -5,26 +5,39 @@ import Qmsg from "qmsg";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliApiRequestCheck } from "./BilibiliApiRequestCheck";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
+import { unsafeWindow } from "ViteGM";
+import type { TypeBilibiliVideoView } from "../../types/video-view";
 
 export const BilibiliVideoApi = {
+  /**
+   * 获取视频详细信息，avid或bvid必须给一个
+   */
+  async view(config: BilibiliApiParamsAidAndBvid) {
+    const searchParamsData = {};
+    BilibiliApiRequestCheck.mergeAidOrBvidSearchParamsData(searchParamsData, config);
+    const response = await httpx.get(
+      `https://${BilibiliApiConfig.web_host}/x/web-interface/wbi/view?` + utils.toSearchParamsStr(searchParamsData),
+      {
+        responseType: "json",
+        fetch: true,
+      }
+    );
+    if (!response.isSuccess) {
+      return;
+    }
+    const data = utils.toJSON(response.data.responseText);
+    if (data["code"] !== 0) {
+      return;
+    }
+    return data["data"] as TypeBilibiliVideoView;
+  },
   /**
    * 获取视频播放地址，avid或bvid必须给一个
    * + /x/player/playurl
    * @param config
    * @param extraParams 额外参数，一般用于hook network参数内的判断
    */
-  async playUrl(
-    config:
-      | (BilibliPlayUrlCommonConfig & {
-          /** 视频的av号 */
-          aid: string;
-        })
-      | (BilibliPlayUrlCommonConfig & {
-          /** 视频的bv号 */
-          bvid: string;
-        }),
-    extraParams?: any
-  ) {
+  async playUrl(config: BilibliPlayUrlCommonConfig & BilibiliApiParamsAidAndBvid, extraParams?: any) {
     const searchParamsData = {
       cid: config.cid,
       qn: config.qn ?? VideoQualityNameMap["1080P60 高帧率"],
@@ -50,7 +63,7 @@ export const BilibiliVideoApi = {
         fetch: true,
       }
     );
-    if (!response.status) {
+    if (!response.isSuccess) {
       return;
     }
     const data = utils.toJSON(response.data.responseText);
@@ -85,7 +98,7 @@ export const BilibiliVideoApi = {
         fetch: true,
       }
     );
-    if (!response.status) {
+    if (!response.isSuccess) {
       return;
     }
     const data = utils.toJSON(response.data.responseText);
@@ -122,7 +135,7 @@ export const BilibiliVideoApi = {
         fetch: true,
       }
     );
-    if (!response.status) {
+    if (!response.isSuccess) {
       return false;
     }
     const data = utils.toJSON(response.data.responseText);
@@ -150,3 +163,7 @@ export const BilibiliVideoApi = {
     return false;
   },
 };
+
+if (import.meta.hot) {
+  Reflect.set(unsafeWindow, "BilibiliVideoApi", BilibiliVideoApi);
+}

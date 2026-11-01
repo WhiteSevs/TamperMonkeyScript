@@ -14,6 +14,7 @@ import { unsafeWindow } from "ViteGM";
 import { BilibiliVideoArtPlayer, type BilibiliVideoArtPlayerOption } from "./artplayer/ArtPlayer";
 import artPlayerCSS from "./artplayer/index.css?raw";
 import type { VIDEO_EP_LIST } from "./TypeVideo";
+import { BilibiliRouter } from "@/router/BilibiliRouter";
 
 export type VideoInfo = {
   /** 视频的bvid */

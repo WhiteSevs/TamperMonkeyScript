@@ -1,15 +1,23 @@
 import { BilibiliUserApi } from "@/api/BilibiliUserApi";
+import { utils } from "@components/env.base";
 import md5 from "md5";
 
 /**
- * @param {any} params
+ * @param {string|object|URLSearchParams|URL} params
  */
-export const wbi = async (params) => {
+export const searchParamsToWbiStr = async (params) => {
   // ref: https://socialsisteryi.github.io/bilibili-API-collect/docs/misc/sign/wbi.html
   /**
-   * @param {any} params
+   * @param {string|object|URLSearchParams|URL} params
    */
   async function getWbiQueryString(params) {
+    if(params instanceof URL){
+      params = utils.searchParamStrToObj(params.searchParams);
+    }else if(params instanceof URLSearchParams){
+      params = utils.searchParamStrToObj(params);
+    }else if(typeof params === "string"){
+      params = utils.searchParamStrToObj(new URLSearchParams(params));
+    }
     // get origin key
     const response = await BilibiliUserApi.nav(false);
     if (!response) {
@@ -35,6 +43,7 @@ export const wbi = async (params) => {
     const query = Object.keys(params)
       .sort() // sort properties by key
       .map((key) => {
+        // @ts-ignore
         const value = params[key].toString().replace(/[!'()*]/g, ""); // remove characters !'()* in value
         return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
       })

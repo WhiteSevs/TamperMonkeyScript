@@ -1,6 +1,6 @@
 import { BilibiliQrCodeLogin } from "@/account/BilibiliQrCodeLogin";
 import { httpx, log, utils } from "@/env";
-import { wbi } from "@/lib/wbi";
+import { searchParamsToWbiStr } from "@/lib/wbi";
 import { BilibiliApiConfig } from "./BilibiliApiConfig";
 import { BilibiliApiResponseCheck } from "./BilibiliApiResponseCheck";
 
@@ -356,7 +356,7 @@ export const BilibiliSearchApi = {
       area: config.area.toLowerCase(),
       access_key: BilibiliQrCodeLogin.getAccessToken(),
     };
-    const url = `https://${config.host}/x/web-interface/search/type?${await wbi(searchParamsData)}`;
+    const url = `https://${config.host}/x/web-interface/search/type?${await searchParamsToWbiStr(searchParamsData)}`;
     const response = await httpx.get(url, {
       fetch: false,
       headers: {

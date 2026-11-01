@@ -7,7 +7,7 @@ import Qmsg from "qmsg";
 import Viewer from "viewerjs";
 import { unsafeWindow } from "ViteGM";
 import { b2a } from "./b2a";
-import { wbi } from "./wbi";
+import { searchParamsToWbiStr } from "./wbi";
 
 // patch for 'unsafeWindow is not defined'
 const global = typeof unsafeWindow === "undefined" ? window : unsafeWindow;
@@ -563,7 +563,7 @@ export const MobileCommentModule = {
     // 未登录就用fetch请求
 
     const fetchResult = await httpx.get(
-      `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await wbi(params)}`,
+      `https://${BilibiliApiConfig.web_host}/x/v2/reply/wbi/main?${await searchParamsToWbiStr(params)}`,
       {
         allowInterceptConfig: false,
         fetch: !isLogin,

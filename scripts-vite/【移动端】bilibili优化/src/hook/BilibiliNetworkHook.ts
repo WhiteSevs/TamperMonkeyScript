@@ -1,12 +1,16 @@
 import { BilibiliApiConfig } from "@/api/BilibiliApiConfig";
+import { BilibiliApiResponseCheck } from "@/api/BilibiliApiResponseCheck";
 import { BilibiliCDNProxy } from "@/api/BilibiliCDNProxy";
+import { BilibiliData } from "@/data/BlibiliData";
 import { log, utils } from "@/env";
+import { searchParamsToWbiStr } from "@/lib/wbi";
 import { BilibiliPlayerToast } from "@/player/BilibiliPlayerToast";
 import { BilibiliRouter } from "@/router/BilibiliRouter";
 import { VideoQualityNameMap } from "@/video-info/VideoDict";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import type { UtilsAjaxHookResult } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
+import Qmsg from "qmsg";
 
 export const XhrHook = {
   _ajaxHooker_: null as null | UtilsAjaxHookResult,
@@ -25,12 +29,19 @@ export const BilibiliNetworkHook = {
     is_hook_video_playurl: false,
     is_hook_bangumi_html5: false,
     is_hook_live_playurl: false,
+    is_hook_space_video_sort: false,
   },
   init() {
     if (BilibiliRouter.isLive()) {
       Panel.execMenuOnce("bili-live-cdn-hook", () => {
         this.hook_live_playurl();
       });
+    } else if (BilibiliRouter.isSpace()) {
+      if (Panel.getValue("bili-space-addVideoSortButton")) {
+        Panel.onceExec("bili-space-video-sort-hook", () => {
+          this.hook_space_video_sort();
+        });
+      }
     }
   },
   /**
@@ -206,6 +217,43 @@ export const BilibiliNetworkHook = {
         playUrlInst.hostname.endsWith(".bilivideo.com")
       ) {
         request.url = BilibiliCDNProxy.replaceLiveVideoCDN(url);
+      }
+    });
+  },
+  /**
+   * 个人空间视频排序
+   */
+  hook_space_video_sort() {
+    if (this.$flag.is_hook_space_video_sort) {
+      return;
+    }
+    this.$flag.is_hook_space_video_sort = true;
+    XhrHook.ajaxHooker.hook(async (request) => {
+      // if (!Panel.getValue("bili-live-cdn-hook")) return;
+      if (request.url.startsWith("data:")) {
+        return;
+      }
+      if (!BilibiliRouter.isSpace()) {
+        return;
+      }
+      const url = CommonUtil.fixUrl(request.url);
+      const urlInst = new URL(url);
+      const pathname = urlInst.pathname;
+      if (pathname.startsWith("/x/space/wbi/arc/search")) {
+        let order = BilibiliData.spaceVideoSortByButton;
+        urlInst.searchParams.set("platform", "web");
+        urlInst.searchParams.set("order", order);
+        urlInst.searchParams.delete("w_rid");
+
+        urlInst.search = (await searchParamsToWbiStr(urlInst.searchParams))!;
+        request.url = urlInst.toString();
+        request.response = (res) => {
+          const data = (<any>res).json || utils.toJSON(res.responseText);
+          if (!BilibiliApiResponseCheck.isWebApiSuccess(data)) {
+            log.error(data);
+            Qmsg.error(data["message"] || "拉取视频列表失败");
+          }
+        };
       }
     });
   },
