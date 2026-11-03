@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.27
+// @version      2026.11.3
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -14,7 +14,7 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
 // @connect      *
 // @connect      www.toutiao.com
 // @grant        GM_addValueChangeListener

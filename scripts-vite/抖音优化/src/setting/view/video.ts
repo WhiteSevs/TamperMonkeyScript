@@ -637,7 +637,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "只会显示过滤规则命中的视频"
                 ),
                 UISwitch(
-                  "新增 {...} 按钮",
+                  "添加 {...} 按钮",
                   "shieldVideo-add-parseVideoInfoButton",
                   true,
                   void 0,

@@ -160,6 +160,9 @@ export const DouYinVideoPlayer = {
       result.push(DouYinVideoBlock_BottomToolbar_videoInfo.blockVideoInfoWrap());
       // 底部播放器组件
       result.push(DouYinVideoBlock_BottomToolbar_PlayerComponents.blockBottomVideoToolBar());
+      // 右上角的消息
+      result.push(DouYinVideoBlock.blockMessage());
+
       result.push(
         addStyle(/*css*/ `
 			/* 视频全屏 */
@@ -1247,39 +1250,48 @@ export const DouYinVideoPlayer = {
      */
     const addDownloadButton = () => {
       const downloadButtonClassName = "gm-video-download-btn";
-      const createButton = () => {
-        const $btn = DOMUtils.createElement("xg-icon", {
+      const createButton = (isDyPlayer: boolean) => {
+        const $btn = DOMUtils.createElement(isDyPlayer ? "dy-icon" : "xg-icon", {
           className: downloadButtonClassName,
           innerHTML: /*html*/ `
-        <div class="xgplayer-icon" style="
-    display: flex;
-">
-          <span role="img" class="semi-icon semi-icon-default">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" style="font-size: 1.2em;">
-              <path fill="currentColor" d="M28,22v6H4v-6H2v8h28V22H28z M17,19.33L17,5h-2v14.33L11.59,15.91l-1.41,1.41l6,6 l6-6l-1.41-1.41L17,19.33z"/>
-            </svg>
-          </span>
-        </div>
-        <div class="xg-tips">下载${
-          DouYinVideoPlayerShortCut.shortCut.hasOption("dy-video-shortcut-parseVideo")
-            ? /*html*/ `<span class="shortcutKey" style="    vertical-align: baseline;
-    color: var(--color-bg-toast);
-    background: #fff;
-    border: 1px solid #fff;
-    border-radius: 3px;
-    justify-content: center;
-    align-items: center;
-    padding: 0 3px;
-    margin: 0 5px;
-    font-family: PingFang SC, DFPKingGothicGB-Medium, sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 21px;
-    display: inline-flex;">${DouYinVideoPlayerShortCut.shortCut.getShowText("dy-video-shortcut-parseVideo", "")}</span>`
-            : ""
-        }</div>
+          <div class="xgplayer-icon ${isDyPlayer ? "douyin-player-icon" : ""}" style="display: flex;">
+            <span role="img" class="semi-icon semi-icon-default">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" style="font-size: 1.2em;">
+                <path fill="currentColor" d="M28,22v6H4v-6H2v8h28V22H28z M17,19.33L17,5h-2v14.33L11.59,15.91l-1.41,1.41l6,6 l6-6l-1.41-1.41L17,19.33z"/>
+              </svg>
+            </span>
+          </div>
+          <div class="xg-tips">下载${
+            DouYinVideoPlayerShortCut.shortCut.hasOption("dy-video-shortcut-parseVideo")
+              ? /*html*/ `<span class="shortcutKey" style="
+              vertical-align: baseline;
+              color: var(--color-bg-toast);
+              background: #fff;
+              border: 1px solid #fff;
+              border-radius: 3px;
+              justify-content: center;
+              align-items: center;
+              padding: 0 3px;
+              margin: 0 5px;
+              font-family: PingFang SC, DFPKingGothicGB-Medium, sans-serif;
+              font-size: 13px;
+              font-weight: 500;
+              line-height: 21px;
+              display: inline-flex;">${DouYinVideoPlayerShortCut.shortCut.getShowText("dy-video-shortcut-parseVideo", "")}</span>`
+              : ""
+          }</div>
 				`,
         });
+        if (isDyPlayer) {
+          const $tips = $btn.querySelector<HTMLElement>(".xg-tips")!;
+          // $tips.className = "douyin-playerTips";
+          $tips.remove();
+          const $icon = $btn.querySelector<HTMLElement>(".xgplayer-icon")!;
+          $btn.style.display = "flex";
+          $btn.style.alignItems = "center";
+          $icon.style.height = "auto";
+          $icon.style.lineHeight = "unset";
+        }
         return $btn;
       };
 
@@ -1288,16 +1300,33 @@ export const DouYinVideoPlayer = {
           return;
         }
         // 普通视频
-        $$<HTMLElement>(`.basePlayerContainer xg-right-grid:not(:has(.${downloadButtonClassName}))`).forEach(
-          ($xgRightGrid) => {
-            const $btn = createButton();
+        $$<HTMLElement>(
+          `.basePlayerContainer xg-right-grid:not(:has(>:first-child[class*="${downloadButtonClassName}"]))`
+        ).forEach(($xgRightGrid) => {
+          let $btn = $xgRightGrid.querySelector<HTMLElement>("." + downloadButtonClassName);
+          if (!$btn) {
+            $btn = createButton(true);
             DOMUtils.on($btn, "click", async (event) => {
               DOMUtils.preventEvent(event);
-              await onClick($btn);
+              await onClick($btn!);
             });
-            DOMUtils.prepend($xgRightGrid, $btn);
           }
-        );
+          DOMUtils.prepend($xgRightGrid, $btn);
+        });
+        // 新版
+        $$<HTMLElement>(
+          `.basePlayerContainer .douyin-player-controls-right:not(:has(>:first-child[class*="${downloadButtonClassName}"]))`
+        ).forEach(($playerControlsRight) => {
+          let $btn = $playerControlsRight.querySelector<HTMLElement>("." + downloadButtonClassName);
+          if (!$btn) {
+            $btn = createButton(true);
+            DOMUtils.on($btn, "click", async (event) => {
+              DOMUtils.preventEvent(event);
+              await onClick($btn!);
+            });
+          }
+          DOMUtils.prepend($playerControlsRight, $btn);
+        });
       });
       const observer = utils.mutationObserver(document, {
         config: {
@@ -1899,7 +1928,8 @@ export const DouYinVideoPlayer = {
     log.info(`移除video的bottom偏移`);
     return addStyle(/*css*/ `
 			div:has( > div > pace-island > #video-info-wrap ),
-			xg-video-container.xg-video-container{
+			xg-video-container.xg-video-container,
+      .douyin-player-video-container{
 				bottom: 0 !important;
 			}
 		`);
@@ -1924,7 +1954,8 @@ export const DouYinVideoPlayer = {
     if (!allowValue.includes(value)) return;
     log.info(`自定义video object-fit`);
     return addStyle(/*css*/ `
-		.xgplayer video {
+		.xgplayer video,
+    .douyin-player video {
 			object-fit: ${value};
 		}
 		`);

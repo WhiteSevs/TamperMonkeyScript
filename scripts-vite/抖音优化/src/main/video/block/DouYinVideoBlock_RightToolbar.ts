@@ -114,7 +114,11 @@ export const DouYinVideoBlock_RightToolbar = {
     return addBlockCSS(
       'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
       // 仅有边框的情况
-      'a[href*="live.douyin.com"] + div[style*="absolute"]:empty'
+      'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
+      ".LivePlayer_PreCreatePlayer",
+      ".LivePlayer_Preview",
+      // 仅有边框的情况
+      'div[style*="absolute"]:has(>.isSmallWindow)'
     );
   },
   /**

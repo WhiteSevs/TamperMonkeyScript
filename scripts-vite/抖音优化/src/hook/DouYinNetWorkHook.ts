@@ -59,21 +59,110 @@ export const DouYinNetWorkHook = {
   },
   /**
    * 篡改显示视频清晰度，让其显示最高清晰度
-   *
-   * (仅非登录时生效)
    */
   hookVideoQuality() {
     log.info(`篡改显示视频清晰度，让其显示最高清晰度`);
-    const origin_hardwareConcurrency = navigator.hardwareConcurrency;
-    // 伪装高配置
-    Object.defineProperty(navigator, "hardwareConcurrency", {
-      get: () => 16,
-      configurable: true,
-    });
-    Object.defineProperty(navigator, "deviceMemory", {
-      get: () => 64,
-      configurable: true,
-    });
+
+    const FAKE_RENDERER = "NVIDIA GeForce RTX 4080/PCIe/SSE2";
+    const FAKE_VENDOR = "NVIDIA Corporation";
+
+    // ---------------------------------------------------------------------------
+    // 1) MediaCapabilities.decodingInfo —— 播放器最常用：问"这分辨率+编码能流畅解吗"
+    //    我们让所有带 video 的查询都返回 supported/smooth/powerEfficient = true
+    // ---------------------------------------------------------------------------
+    if (unsafeWindow.MediaCapabilities && unsafeWindow.MediaCapabilities.prototype.decodingInfo) {
+      const orig = unsafeWindow.MediaCapabilities.prototype.decodingInfo;
+      // @ts-expect-error
+      unsafeWindow.MediaCapabilities.prototype.decodingInfo = function (cfg) {
+        if (cfg && cfg.video) {
+          return Promise.resolve({ supported: true, smooth: true, powerEfficient: true });
+        }
+        return orig.call(this, cfg);
+      };
+    }
+
+    // ---------------------------------------------------------------------------
+    // 2) 硬件画像：CPU 核数 / 内存 —— 部分播放器据此打"设备档位"
+    // ---------------------------------------------------------------------------
+    try {
+      Object.defineProperty(unsafeWindow.navigator, "hardwareConcurrency", {
+        configurable: true,
+        get() {
+          return 16;
+        },
+      });
+    } catch (e) {
+      log.error("hardwareConcurrency 伪装失败", (<Error>e).message);
+    }
+
+    try {
+      Object.defineProperty(unsafeWindow.navigator, "deviceMemory", {
+        configurable: true,
+        get() {
+          return 64;
+        },
+      });
+    } catch (e) {
+      log.error("deviceMemory 伪装失败", (<Error>e).message);
+    }
+
+    // ---------------------------------------------------------------------------
+    // 3) WebGL 显卡型号 —— 播放器可能读 GPU 字符串做黑名单/白名单判断
+    //    覆盖标准 RENDERER(0x1F01)/VENDOR(0x1F00) 与 debug_renderer_info 两种取法
+    // ---------------------------------------------------------------------------
+    function wrapGetParameter(proto: WebGLRenderingContext | WebGL2RenderingContext) {
+      if (!proto || !proto.getParameter) return;
+      const orig = proto.getParameter;
+      proto.getParameter = function (pname) {
+        try {
+          const ext = this.getExtension && this.getExtension("WEBGL_debug_renderer_info");
+          if (ext) {
+            if (pname === ext.UNMASKED_RENDERER_WEBGL) {
+              return FAKE_RENDERER;
+            }
+            if (pname === ext.UNMASKED_VENDOR_WEBGL) {
+              return FAKE_VENDOR;
+            }
+          }
+          if (pname === 0x1f01) {
+            return FAKE_RENDERER;
+          }
+          if (pname === 0x1f00) {
+            return FAKE_VENDOR;
+          }
+        } catch {
+          /* ignore */
+        }
+        return orig.call(this, pname);
+      };
+    }
+    if (unsafeWindow.WebGLRenderingContext) wrapGetParameter(unsafeWindow.WebGLRenderingContext.prototype);
+    if (unsafeWindow.WebGL2RenderingContext) wrapGetParameter(unsafeWindow.WebGL2RenderingContext.prototype);
+
+    // ---------------------------------------------------------------------------
+    // 4) canPlayType / MediaSource.isTypeSupported —— 播放器可能先问"这编码能不能播"
+    // ---------------------------------------------------------------------------
+    function patchCanPlay(proto: HTMLMediaElement) {
+      if (!proto || !proto.canPlayType) return;
+      const orig = proto.canPlayType;
+      proto.canPlayType = function (type) {
+        if (/hev|hvc|av0|av1|vp0|mp4/i.test(type)) {
+          return "probably";
+        }
+        return orig.call(this, type);
+      };
+    }
+    patchCanPlay(unsafeWindow.HTMLMediaElement && unsafeWindow.HTMLMediaElement.prototype);
+
+    if (unsafeWindow.MediaSource && unsafeWindow.MediaSource.isTypeSupported) {
+      const orig = unsafeWindow.MediaSource.isTypeSupported;
+      unsafeWindow.MediaSource.isTypeSupported = function (type) {
+        if (/hev|hvc|av0|av1|vp0|mp4/i.test(type)) {
+          return true;
+        }
+        return orig.call(this, type);
+      };
+    }
     const localAbTestKey = Object.keys(unsafeWindow.localStorage).find((it) => {
       return it.startsWith("__tea_sdk_ab_version_");
     });

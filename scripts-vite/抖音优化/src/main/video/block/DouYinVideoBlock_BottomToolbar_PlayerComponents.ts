@@ -111,7 +111,8 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
       ".xgplayer-time",
       // 在搜索页面下它会被强制flex !important
       // 这里要提高优先级
-      ".search-result-card .xgplayer[id^='oK_'] xg-controls.xgplayer-controls xg-left-grid.xg-left-grid .xgplayer-play+xg-icon.xgplayer-time"
+      ".search-result-card .xgplayer[id^='oK_'] xg-controls.xgplayer-controls xg-left-grid.xg-left-grid .xgplayer-play+xg-icon.xgplayer-time",
+      ".douyin-player-controls .douyin-player-time"
     );
   },
   /**
@@ -128,7 +129,10 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     // 弹幕
     // .basePlayerContainer > div.danmu
     log.info("【屏蔽】底部视频工具栏的弹幕容器");
-    return addBlockCSS('xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]');
+    return addBlockCSS(
+      'xg-controls xg-inner-controls .danmakuContainer[data-e2e="danmaku-container"]',
+      ".douyin-player-controls .danmakuContainer"
+    );
   },
   /**
    * 【屏蔽】AI笔记
@@ -146,7 +150,8 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
       ".xgplayer-autoplay-setting",
       // 直播视频的
       '[data-e2e="feed-live"] xg-controls xg-right-grid .pluginContainer',
-      ".douyin-player-controls .douyin-player-controls-right slot:last-child:not([data-index])"
+      ".douyin-player-controls .douyin-player-controls-right slot:last-child:not([data-index])",
+      ".douyin-player-autoplay-setting"
     );
   },
   /**
@@ -154,35 +159,35 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
    */
   clearScreen() {
     log.info(`【屏蔽】清屏`);
-    return addBlockCSS(".xgplayer-immersive-switch-setting");
+    return addBlockCSS(".xgplayer-immersive-switch-setting", ".douyin-player-immersive-switch-setting");
   },
   /**
    * 【屏蔽】清晰度
    */
   playclarity() {
     log.info(`【屏蔽】清晰度`);
-    return addBlockCSS(".xgplayer-playclarity-setting");
+    return addBlockCSS(".xgplayer-playclarity-setting", ".douyin-player-playclarity-setting");
   },
   /**
    * 【屏蔽】倍速
    */
   playback() {
     log.info(`【屏蔽】倍速`);
-    return addBlockCSS(".xgplayer-playback-setting");
+    return addBlockCSS(".xgplayer-playback-setting", ".douyin-player-playback-setting");
   },
   /**
    * 【屏蔽】稍后再看
    */
   watchLater() {
     log.info(`【屏蔽】稍后再看`);
-    return addBlockCSS(".xgplayer-watch-later");
+    return addBlockCSS(".xgplayer-watch-later", ".douyin-player-watch-later");
   },
   /**
    * 【屏蔽】小窗模式
    */
   miniMode() {
     log.info(`【屏蔽】小窗模式`);
-    return addBlockCSS(".xgplayer-pip");
+    return addBlockCSS(".xgplayer-pip", ".douyin-player-inpicture");
   },
   /**
    * 【屏蔽】音量
@@ -196,13 +201,13 @@ export const DouYinVideoBlock_BottomToolbar_PlayerComponents = {
    */
   pageFullScreen() {
     log.info(`【屏蔽】网页全屏`);
-    return addBlockCSS(".xgplayer-page-full-screen");
+    return addBlockCSS(".xgplayer-page-full-screen", ".douyin-player-page-full-screen");
   },
   /**
    * 【屏蔽】进入全屏
    */
   fullScreen() {
     log.info(`【屏蔽】进入全屏`);
-    return addBlockCSS(".xgplayer-fullscreen");
+    return addBlockCSS(".xgplayer-fullscreen", ".douyin-player-fullscreen");
   },
 };

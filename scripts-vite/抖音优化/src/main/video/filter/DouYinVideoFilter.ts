@@ -651,11 +651,11 @@ export const DouYinVideoFilter = {
     /**
      * 创建解析按钮
      */
-    const createButton = () => {
-      return DOMUtils.createElement("xg-icon", {
+    const createButton = (isDyPlayer: boolean) => {
+      const $btn = DOMUtils.createElement(isDyPlayer ? "dy-icon" : "xg-icon", {
         className: "gm-video-filter-parse-btn",
         innerHTML: /*html*/ `
-        <div class="xgplayer-icon">
+        <div class="xgplayer-icon ${isDyPlayer ? "douyin-player-icon" : ""}">
           <span role="img" class="semi-icon semi-icon-default">
             <svg
               viewBox="0 0 32 32"
@@ -679,16 +679,33 @@ export const DouYinVideoFilter = {
         <div class="xg-tips">解析信息</div>
 				`,
       });
+
+      if (isDyPlayer) {
+        const $tips = $btn.querySelector<HTMLElement>(".xg-tips")!;
+        // $tips.className = "douyin-playerTips";
+        $tips.remove();
+        const $icon = $btn.querySelector<HTMLElement>(".xgplayer-icon")!;
+        $btn.style.display = "flex";
+        $btn.style.alignItems = "center";
+        $icon.style.height = "auto";
+        $icon.style.lineHeight = "unset";
+      }
+
+      return $btn;
     };
     const lockFn = new utils.LockFunction(() => {
       if (DouYinRouter.isLive()) {
         return;
       }
+      let enableVideoDonloadBtn = Panel.getValue("dy-video-downloader-addDownloadButton");
       // 普通视频
-      $$<HTMLElement>(".basePlayerContainer xg-right-grid:not(:has(.gm-video-filter-parse-btn))").forEach(
-        ($xgRightGrid) => {
-          const $gmFilterParseBtn = createButton();
-          DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
+      $$<HTMLElement>(
+        `.basePlayerContainer xg-right-grid:not(:has(>${enableVideoDonloadBtn ? ":nth-child(2)" : ":first-child"}[class*='gm-video-filter-parse-btn']))`
+      ).forEach(($xgRightGrid) => {
+        let $btn = $xgRightGrid.querySelector<HTMLElement>(".gm-video-filter-parse-btn");
+        if (!$btn) {
+          $btn = createButton(false);
+          DOMUtils.on($btn, "click", async (event) => {
             DOMUtils.preventEvent(event);
             const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer");
             if (!$basePlayerContainer) {
@@ -697,9 +714,38 @@ export const DouYinVideoFilter = {
             }
             await onClick($basePlayerContainer);
           });
-          DOMUtils.prepend($xgRightGrid, $gmFilterParseBtn);
         }
-      );
+        if (enableVideoDonloadBtn) {
+          const $downloadBtn = $xgRightGrid.querySelector<HTMLElement>(".gm-video-download-btn")!;
+          DOMUtils.after($downloadBtn, $btn);
+        } else {
+          DOMUtils.prepend($xgRightGrid, $btn);
+        }
+      });
+      // 新版
+      $$<HTMLElement>(
+        `.basePlayerContainer .douyin-player-controls-right:not(:has(>${enableVideoDonloadBtn ? ":nth-child(2)" : ":first-child"}[class*='gm-video-filter-parse-btn']))`
+      ).forEach(($xgRightGrid) => {
+        let $btn = $xgRightGrid.querySelector<HTMLElement>(".gm-video-filter-parse-btn");
+        if (!$btn) {
+          $btn = createButton(true);
+          DOMUtils.on($btn, "click", async (event) => {
+            DOMUtils.preventEvent(event);
+            const $basePlayerContainer = $xgRightGrid.closest<HTMLElement>(".basePlayerContainer");
+            if (!$basePlayerContainer) {
+              Qmsg.error("获取.basePlayerContainer失败");
+              return;
+            }
+            await onClick($basePlayerContainer);
+          });
+        }
+        if (enableVideoDonloadBtn) {
+          const $downloadBtn = $xgRightGrid.querySelector<HTMLElement>(".gm-video-download-btn")!;
+          DOMUtils.after($downloadBtn, $btn);
+        } else {
+          DOMUtils.prepend($xgRightGrid, $btn);
+        }
+      });
       // 直播间
       [
         ...Array.from($$<HTMLElement>('[data-e2e="feed-live"] xg-right-grid:not(:has(.gm-video-filter-parse-btn))')),
@@ -710,7 +756,7 @@ export const DouYinVideoFilter = {
         if (!utils.isVisible($xgRightGrid, false)) {
           return;
         }
-        const $gmFilterParseBtn = createButton();
+        const $gmFilterParseBtn = createButton(false);
         DOMUtils.on($gmFilterParseBtn, "click", async (event) => {
           DOMUtils.preventEvent(event);
           const $liveContainer = $xgRightGrid.closest<HTMLElement>('[data-e2e="feed-live"]');
