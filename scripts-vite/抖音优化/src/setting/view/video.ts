@@ -111,6 +111,13 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "[移动端专用]修改评论区为中间弹出而非右侧区域"
                 ),
                 UISwitch(
+                  "竖屏评论区上下分屏",
+                  "dy-video-portraitCommentSplit",
+                  false,
+                  void 0,
+                  "需同时开启「手机模式」和「评论区移到中间」。打开评论区后视频占上方40%，评论区占下方60%"
+                ),
+                UISwitch(
                   "修复进度条",
                   "repairProgressBar",
                   false,
