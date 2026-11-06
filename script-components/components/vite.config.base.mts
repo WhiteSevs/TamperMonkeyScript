@@ -343,7 +343,7 @@ const GenerateUserConfig = async (option: {
    */
   const externalRequireConfig = {
     CoverUMD: {
-      local: GetLib("CoverUMD", true),
+      local: () => GetLib("CoverUMD", true),
     },
     "@whitesev/utils": {
       cdn: cdn.jsdelivrFastly("Utils", isMinify ? "dist/index.umd.min.js" : "dist/index.umd.js"),
@@ -366,13 +366,13 @@ const GenerateUserConfig = async (option: {
       local: `file:///${rootUtils.getAbsolutePath(`./../../lib/Qmsg/dist/index.umd.${isMinify ? "min." : ""}js`)}`,
     },
     showdown: {
-      local: GetLib("showdown", true),
+      local: () => GetLib("showdown", true),
     },
     "Element-Plus": {
-      cdn: (async () => {
+      cdn: async () => {
         const url = await GetLib("element-plus", false);
         return isMinify ? url : url.replace("min.js", "js");
-      })(),
+      },
       local: `file:///${rootUtils.getAbsolutePath(`./../../lib/Element-Plus/index.full.${isMinify ? "min." : ""}js`)}`,
     },
     viewerjs: {
@@ -380,13 +380,13 @@ const GenerateUserConfig = async (option: {
     },
     "crypto-js": {
       requireMatch: "/lib/CryptoJS/index.js",
-      local: GetLib("Crypto-JS", true),
+      local: () => GetLib("Crypto-JS", true),
       importName: "crypto-js",
-      cdn: GetLib("Crypto-JS", false),
+      cdn: () => GetLib("Crypto-JS", false),
     },
     "网盘链接识别-图标": {
       requireMatch: encodeURIComponent("网盘链接识别-图标.js"),
-      local: GetLib("网盘链接识别-图标", true),
+      local: () => GetLib("网盘链接识别-图标", true),
     },
   };
   /**
@@ -452,10 +452,13 @@ const GenerateUserConfig = async (option: {
         {},
         await (async () => {
           const result = {};
-          for (const [key, value] of Object.entries(externalRequireConfig)) {
-            if ("cdn" in value) {
-              const libName = "importName" in value ? value.importName : key;
-              Reflect.set(result, libName, await value.cdn);
+          if (isBuild) {
+            for (const [key, value] of Object.entries(externalRequireConfig)) {
+              if ("cdn" in value) {
+                const libName = "importName" in value ? value.importName : key;
+                const libPath = typeof value.cdn === "function" ? await value.cdn() : value.cdn;
+                Reflect.set(result, libName, libPath);
+              }
             }
           }
           return result;
@@ -499,14 +502,18 @@ const GenerateUserConfig = async (option: {
     build: {
       metaLocalFileName: option.monkeyOption?.build?.metaLocalFileName ?? true,
       // 本地映射
+      // @require
       externalLocalRequire: Object.assign(
         {},
         await (async () => {
           let result = {};
-          for (const [key, value] of Object.entries(externalRequireConfig)) {
-            if ("local" in value) {
-              const libName = "requireMatch" in value ? value.requireMatch : key;
-              Reflect.set(result, libName, await value.local);
+          if (isBuild) {
+            for (const [key, value] of Object.entries(externalRequireConfig)) {
+              if ("local" in value) {
+                const libName = "requireMatch" in value ? value.requireMatch : key;
+                const libPath = typeof value.local === "function" ? await value.local() : value.local;
+                Reflect.set(result, libName, libPath);
+              }
             }
           }
           return result;
@@ -604,10 +611,11 @@ const GenerateUserConfig = async (option: {
     BaseUserConfig = viteUtils.assign(BaseUserConfig, option.userConfig, true);
   }
 
-  // 完善油猴配置
+  // 补全resource
   if (defaultMonkeyOption.userscript!.resource == null) {
     defaultMonkeyOption.userscript!.resource = {};
   }
+  // 补全require
   if (!Array.isArray(defaultMonkeyOption!.userscript!.require)) {
     defaultMonkeyOption.userscript!.require = [];
   }
@@ -691,7 +699,7 @@ const GenerateUserConfig = async (option: {
     );
 
     // 添加vue的油猴配置
-    const elementPlus_cdn = await externalRequireConfig["Element-Plus"].cdn;
+    const elementPlus_cdn = await externalRequireConfig["Element-Plus"].cdn();
     const VueMonkeyOption: Partial<__MonkeyOption__> = {
       userscript: {
         resource: {
@@ -730,9 +738,10 @@ const GenerateUserConfig = async (option: {
   defaultMonkeyOption.userscript!.version = VERSION;
   // 设置构建的文件名
   defaultMonkeyOption.build!.fileName = isMinify ? MIN_FILE_NAME : FILE_NAME;
-  // 添加@require
-  defaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
-
+  // 添加@require CoverUMD在首位
+  if (isBuild) {
+    defaultMonkeyOption.userscript!.require!.splice(0, 0, await GetLib("CoverUMD"));
+  }
   // 其它脚本管理器的Api引用
   const otherGrant = defaultSuperMonkeyOption.userscript.otherGrant;
   if (Array.isArray(otherGrant)) {
