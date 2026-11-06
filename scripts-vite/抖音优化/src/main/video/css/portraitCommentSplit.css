@@ -1,0 +1,42 @@
+/* 仅在竖屏窗口、评论区打开且分屏功能启用时生效 */
+@media screen and (orientation: portrait) {
+  .dy-portrait-comment-split-active {
+    --dy-portrait-player-height: 40%;
+    --dy-portrait-comment-height: 60%;
+  }
+
+  .dy-portrait-comment-split-active .playerContainer {
+    width: 100% !important;
+    height: var(--dy-portrait-player-height) !important;
+    max-height: var(--dy-portrait-player-height) !important;
+    min-height: 0 !important;
+  }
+
+  .dy-portrait-comment-split-active .playerContainer .basePlayerContainer,
+  .dy-portrait-comment-split-active .playerContainer .xgplayer {
+    height: 100% !important;
+    max-height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .dy-portrait-comment-split-active .playerContainer video {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+  }
+
+  .dy-portrait-comment-split-active #videoSideCard:has(#relatedVideoCard),
+  .dy-portrait-comment-split-active #videoSideBar:has(#relatedVideoCard) {
+    position: absolute !important;
+    width: 100% !important;
+    height: var(--dy-portrait-comment-height) !important;
+    max-height: var(--dy-portrait-comment-height) !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    min-height: 0 !important;
+  }
+}
