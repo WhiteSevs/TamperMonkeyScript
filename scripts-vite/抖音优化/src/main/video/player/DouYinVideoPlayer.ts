@@ -401,7 +401,7 @@ export const DouYinVideoPlayer = {
     ];
   },
   /**
-   * 选择视频清晰度
+   * 选择视频清晰度(画质)
    *
    * "Win32", "Windows" 限制hardwareConcurrency > 8 才有超清2k、4k的视频
    *
@@ -602,9 +602,9 @@ export const DouYinVideoPlayer = {
      * @param value
      */
     const setVideoQuality = function (value: any) {
-      const currentValue = unsafeWindow.sessionStorage.getItem(QualitySessionKey);
-      if (currentValue && typeof currentValue === "object") {
-        if (currentValue["gearName"] === value["gearName"]) {
+      const localQualityConfig = unsafeWindow.sessionStorage.getItem(QualitySessionKey);
+      if (typeof localQualityConfig === "object" && localQualityConfig) {
+        if (localQualityConfig["gearName"] === value["gearName"]) {
           // 已相同
           return;
         }
@@ -615,12 +615,13 @@ export const DouYinVideoPlayer = {
       if (choose.gearName === "无") {
         return;
       }
+
       const intervalId = setInterval(() => {
         setVideoQuality(choose);
       }, 200);
       setTimeout(() => {
         clearInterval(intervalId);
-      }, 5 * 1000);
+      }, 1 * 1000);
       log.success("设置当前视频的清晰度: " + choose.gearName);
     } else {
       log.error("该清晰度不存在: " + mode);
@@ -641,9 +642,12 @@ export const DouYinVideoPlayer = {
     const setRate = function (value: VideoPlayerRate = "1") {
       unsafeWindow.sessionStorage.setItem(Definition_Key, value);
       let isSuccess = false;
-      const $$playbackSetting = $$<HTMLLIElement>("xg-icon.xgplayer-playback-setting");
+      const $$playbackSetting = [
+        ...$$<HTMLLIElement>("xg-icon.xgplayer-playback-setting"),
+        ...$$<HTMLElement>(".douyin-player-playback-setting"),
+      ];
       if (!$$playbackSetting.length) {
-        log.error("未找到播放倍速设置按钮");
+        Qmsg.error("未找到倍速按钮元素");
         return;
       }
       $$playbackSetting.forEach(($playbackSetting) => {
@@ -998,6 +1002,7 @@ export const DouYinVideoPlayer = {
         height: window.innerHeight > 550 ? "550px" : "80vh",
         drag: true,
         dragLimit: true,
+        only: true,
         style: /*css*/ `
           .dy-link-info-wrapper,
           .dy-link-download-wrapper{

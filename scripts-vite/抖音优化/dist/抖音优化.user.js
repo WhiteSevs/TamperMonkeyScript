@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.11.3
+// @version      2026.11.6
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -5750,9 +5750,9 @@
       return addBlockCSS(
         'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
         'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
-        ".LivePlayer_PreCreatePlayer",
+        "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
         ".LivePlayer_Preview",
-        'div[style*="absolute"]:has(>.isSmallWindow)'
+        '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
       );
     },
     blockUserLiveFlashingAvatar() {
@@ -10132,9 +10132,9 @@
         },
       ].find((item) => item.gearType === mode);
       const setVideoQuality = function (value) {
-        const currentValue = _unsafeWindow.sessionStorage.getItem(QualitySessionKey);
-        if (currentValue && typeof currentValue === "object") {
-          if (currentValue["gearName"] === value["gearName"]) return;
+        const localQualityConfig = _unsafeWindow.sessionStorage.getItem(QualitySessionKey);
+        if (typeof localQualityConfig === "object" && localQualityConfig) {
+          if (localQualityConfig["gearName"] === value["gearName"]) return;
         }
         _unsafeWindow.sessionStorage.setItem(
           QualitySessionKey,
@@ -10148,7 +10148,7 @@
         }, 200);
         setTimeout(() => {
           clearInterval(intervalId);
-        }, 5e3);
+        }, 1e3);
         log.success("设置当前视频的清晰度: " + choose.gearName);
       } else log.error("该清晰度不存在: " + mode);
     },
@@ -10157,9 +10157,12 @@
       const setRate = function (value = "1") {
         _unsafeWindow.sessionStorage.setItem(Definition_Key, value);
         let isSuccess = false;
-        const $$playbackSetting = $$("xg-icon.xgplayer-playback-setting");
+        const $$playbackSetting = [
+          ...$$("xg-icon.xgplayer-playback-setting"),
+          ...$$(".douyin-player-playback-setting"),
+        ];
         if (!$$playbackSetting.length) {
-          log.error("未找到播放倍速设置按钮");
+          qmsg.default.error("未找到倍速按钮元素");
           return;
         }
         $$playbackSetting.forEach(($playbackSetting) => {
@@ -10365,6 +10368,7 @@
           height: window.innerHeight > 550 ? "550px" : "80vh",
           drag: true,
           dragLimit: true,
+          only: true,
           style: `
           .dy-link-info-wrapper,
           .dy-link-download-wrapper{
@@ -14789,13 +14793,13 @@
             ],
           },
           {
-            type: "deepMenu",
             text: "布局屏蔽-鼠标悬浮提示",
+            type: "deepMenu",
             afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
             views: [
               {
                 type: "container",
-                text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
+                text: AutoOpenOrClose.text() + "<br>视频区域-右侧工具栏",
                 views: [
                   UISwitch("进入作者主页", "dy-video-mouseHoverTip-rightToolBar-enterUserHome", false),
                   UISwitch("关注", "dy-video-mouseHoverTip-rightToolBar-follow"),

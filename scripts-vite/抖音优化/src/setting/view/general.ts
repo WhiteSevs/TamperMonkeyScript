@@ -436,13 +436,13 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
           ],
         },
         {
-          type: "deepMenu",
           text: "布局屏蔽-鼠标悬浮提示",
+          type: "deepMenu",
           afterEnterDeepMenuCallBack: AutoOpenOrClose.afterEnterDeepMenuCallBack,
           views: [
             {
               type: "container",
-              text: AutoOpenOrClose.text + "<br>视频区域-右侧工具栏",
+              text: AutoOpenOrClose.text() + "<br>视频区域-右侧工具栏",
               views: [
                 UISwitch("进入作者主页", "dy-video-mouseHoverTip-rightToolBar-enterUserHome", false),
                 UISwitch("关注", "dy-video-mouseHoverTip-rightToolBar-follow"),
