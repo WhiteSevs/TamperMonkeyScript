@@ -3,6 +3,7 @@ import splitCSS from "../css/portraitCommentSplit.css?raw";
 
 const ROOT_SELECTOR = '#sliderVideo[data-e2e="feed-active-video"], ' + '#slideMode[data-e2e="feed-active-video"]';
 const SIDE_CARD_SELECTOR = "#videoSideCard, #videoSideBar";
+const RELEVANT_SELECTOR = "#sliderVideo, #slideMode, #videoSideCard, #videoSideBar, #relatedVideoCard";
 const ACTIVE_CLASS_NAME = "dy-portrait-comment-split-active";
 
 /**
@@ -45,7 +46,9 @@ export const DouYinVideoPortraitCommentSplit = {
 
       for (const $root of document.querySelectorAll<HTMLElement>(ROOT_SELECTOR)) {
         const shouldSplit = isPortrait && getOpenedCommentPanel($root) != null;
-        $root.classList.toggle(ACTIVE_CLASS_NAME, shouldSplit);
+        if ($root.classList.contains(ACTIVE_CLASS_NAME) !== shouldSplit) {
+          $root.classList.toggle(ACTIVE_CLASS_NAME, shouldSplit);
+        }
         if (shouldSplit) nextActiveRoots.add($root);
       }
 
@@ -55,23 +58,79 @@ export const DouYinVideoPortraitCommentSplit = {
       activeRoots = nextActiveRoots;
     };
 
+    let frameId: number | null = null;
+    let settleTimerId: number | null = null;
+    const scheduleUpdate = () => {
+      if (frameId === null) {
+        frameId = window.requestAnimationFrame(() => {
+          frameId = null;
+          update();
+        });
+      }
+      // 评论面板可能带有 150ms 展开动画，动画结束后再检查一次。
+      if (settleTimerId !== null) window.clearTimeout(settleTimerId);
+      settleTimerId = window.setTimeout(() => {
+        settleTimerId = null;
+        update();
+      }, 180);
+    };
+
+    const containsRelevantElement = (node: Node) => {
+      if (node.nodeType !== 1) return false;
+      const $element = node as Element;
+      return $element.matches(RELEVANT_SELECTOR) || $element.querySelector(RELEVANT_SELECTOR) != null;
+    };
+    const observer = new MutationObserver((mutations) => {
+      const hasRelevantChange = mutations.some((mutation) => {
+        const $target = mutation.target as Element;
+        if (mutation.type === "attributes") {
+          // 忽略播放器进度条等频繁变化的样式属性。
+          return $target.matches(RELEVANT_SELECTOR);
+        }
+        if ($target.matches(RELEVANT_SELECTOR) || $target.closest(SIDE_CARD_SELECTOR)) return true;
+        return [...mutation.addedNodes, ...mutation.removedNodes].some(containsRelevantElement);
+      });
+      if (hasRelevantChange) scheduleUpdate();
+    });
+    const startObserver = () => {
+      if (!document.documentElement) return;
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["class", "style", "data-e2e", "aria-hidden"],
+      });
+      scheduleUpdate();
+    };
+    const onClick = (event: MouseEvent) => {
+      const $target = event.target;
+      if ($target instanceof Element && $target.closest(RELEVANT_SELECTOR)) scheduleUpdate();
+    };
     const onVisibilityChange = () => {
-      if (!document.hidden) update();
+      if (!document.hidden) scheduleUpdate();
     };
 
     update();
-    // 抖音使用动态路由和 React 节点，定期检查评论面板的展开与收起。
-    const intervalId = window.setInterval(update, 1000);
-    window.addEventListener("resize", update, { passive: true });
-    window.addEventListener("pageshow", update, { passive: true });
+    // 以 DOM 变化触发为主，低频轮询只用于页面样式变化等兜底场景。
+    const intervalId = window.setInterval(update, 3000);
+    if (document.documentElement) startObserver();
+    else document.addEventListener("DOMContentLoaded", startObserver, { once: true });
+    document.addEventListener("click", onClick, true);
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
+    window.addEventListener("pageshow", scheduleUpdate, { passive: true });
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return [
       $style,
       () => {
+        observer.disconnect();
+        document.removeEventListener("DOMContentLoaded", startObserver);
+        document.removeEventListener("click", onClick, true);
         window.clearInterval(intervalId);
-        window.removeEventListener("resize", update);
-        window.removeEventListener("pageshow", update);
+        if (frameId !== null) window.cancelAnimationFrame(frameId);
+        if (settleTimerId !== null) window.clearTimeout(settleTimerId);
+        window.removeEventListener("resize", scheduleUpdate);
+        window.removeEventListener("pageshow", scheduleUpdate);
         document.removeEventListener("visibilitychange", onVisibilityChange);
         for (const $root of activeRoots) $root.classList.remove(ACTIVE_CLASS_NAME);
         activeRoots.clear();
