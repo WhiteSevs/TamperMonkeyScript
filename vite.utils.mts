@@ -86,16 +86,24 @@ export class ViteUtils {
       };
       /** 依赖包 */
       dependencies: {
-        "@element-plus/icons-vue": string;
         "@mgdn/bvid": string;
-        "@types/md5": string;
+        "@whitesev/data-paging": string;
         "@whitesev/domutils": string;
         "@whitesev/pops": string;
         "@whitesev/utils": string;
+        artplayer: string;
+        "artplayer-plugin-danmuku": string;
+        "crypto-js": string;
+        "element-plus": string;
+        "flv.js": string;
+        "highlight.js": string;
         i18next: string;
         md5: string;
+        moduleraid: string;
+        otpauth: string;
         pinia: string;
         qmsg: string;
+        "s2t-chinese": string;
         viewerjs: string;
         vue: string;
         "vue-demi": string;
@@ -104,15 +112,24 @@ export class ViteUtils {
       };
       /** dev 依赖包 */
       devDependencies: {
+        "@element-plus/icons-vue": string;
+        "@types/crypto-js": string;
+        "@types/md5": string;
         "@types/node": string;
         "@vitejs/plugin-vue": string;
-        "element-plus": string;
+        oxfmt: string;
+        oxlint: string;
+        picocolors: string;
+        rollup: string;
+        "simple-git": string;
         typescript: string;
         "unplugin-auto-import": string;
         "unplugin-element-plus": string;
         "unplugin-icons": string;
         "unplugin-vue-components": string;
         vite: string;
+        "vite-plugin-env-command": string;
+        "vite-plugin-mkcert": string;
         "vite-plugin-monkey": string;
         "vue-tsc": string;
         [key: string]: string;
