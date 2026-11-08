@@ -590,16 +590,18 @@ const Panel = {
    * 自动判断菜单是否启用，如果启用，执行回调，如果不启用，执行卸载函数
    *
    * 但是只有`once=true`时才会监听值改变并触发`callback`，如果已执行`callback`后再通过开关改为false时，这时候是不会执行卸载函数的
-   * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
+   * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是`与`关系，如果想使用`或`关系，请使用`isCheckKeyExecWithOr=true`
    * @param callback 回调
    * @param isReverse 逆反判断菜单启用，默认false
    * @param once 是否是只执行一次，默认false
+   * @param isCheckKeyExecWithOr 是否使用`或`关系判断菜单是否启用，默认false
    */
   async execMenu<T = any>(
     key: string | string[],
     callback: (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult,
     isReverse: boolean = false,
-    once: boolean = false
+    once: boolean = false,
+    isCheckKeyExecWithOr: boolean = false
   ) {
     return await this.exec<T>(
       key,
@@ -607,19 +609,26 @@ const Panel = {
         return await callback(...args);
       },
       (keyList) => {
-        const execFlag = keyList.every((__key__) => {
-          let flag = !!this.getValue(__key__);
-          const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(__key__);
+        let execFlag = false;
+
+        const checkKeyExec = (key: string) => {
+          let flag = !!this.getValue(key);
+          const disabled = Panel.$data.contentConfigInitDisabledKeys.includes(key);
           if (disabled) {
             // 被禁用
             flag = false;
-            log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+            log.warn(`.execMenu${once ? "Once" : ""} ${key} 被禁用`);
           }
           if (isReverse) {
             flag = !flag;
           }
           return flag;
-        });
+        };
+        if (isCheckKeyExecWithOr) {
+          execFlag = keyList.some(checkKeyExec);
+        } else {
+          execFlag = keyList.every(checkKeyExec);
+        }
         return execFlag;
       },
       once
@@ -629,18 +638,20 @@ const Panel = {
    * 自动判断菜单是否启用，然后执行回调，只会执行一次
    *
    * 它会自动监听值改变（设置中的修改），改变后如果未执行，则执行一次
-   * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是与关系
+   * @param key 判断的键，如果是字符串列表，那么它们的判断处理方式是`与`关系，如果想使用`或`关系，请使用`isCheckKeyExecWithOr=true`
    * @param callback 回调
    * @param isReverse 逆反判断菜单启用，默认false
    * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果该回调为监听Router改变，请设置该值false，否则会反复触发此回调进行多次监听Router
+   * @param isCheckKeyExecWithOr 是否使用`或`关系判断菜单是否启用，默认false
    */
   async execMenuOnce<T = any>(
     key: string | string[],
     callback: (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult,
     isReverse: boolean = false,
-    listenUrlChange: boolean = false
+    listenUrlChange: boolean = false,
+    isCheckKeyExecWithOr: boolean = false
   ) {
-    const result = await this.execMenu<T>(key, callback, isReverse, true);
+    const result = await this.execMenu<T>(key, callback, isReverse, true, isCheckKeyExecWithOr);
     if (listenUrlChange) {
       if (result) {
         // result可能是新的返回值或者是旧的存储的返回值
@@ -657,21 +668,23 @@ const Panel = {
   },
   /**
    * 执行多个菜单，当所有菜单都执行时，执行相应的回调，只要有任意一个菜单未执行，那么执行该回调的卸载函数
-   * @param menus 需要执行的菜单项
-   * @param allExecCallback 当menus都执行时调用的回调函数
+   * @param keyList 判断的键，如果是字符串列表，那么它们的判断处理方式是`与`关系，如果想使用`或`关系，请使用`isCheckKeyExecWithOr=true`
+   * @param allExecCallback 当keyList都执行时调用的回调函数
    * @param isReverse 逆反判断菜单启用，默认false
    * @param once 是否是只执行一次，默认false
    * @param listenUrlChange 监听url改变，重载菜单执行，默认为false，注意，如果该回调为监听Router改变，请设置该值false，否则会反复触发此回调进行多次监听Router
+   * @param isCheckKeyExecWithOr 是否使用或关系判断菜单是否启用，默认false
    */
   async execMoreMenu<T = any>(
-    menus: [string, (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult][],
+    keyList: [string, (option: ExecMenuCallBackOption<T>) => PanelMenuExecMenuResult][],
     allExecCallback: () => PanelMenuExecMenuResult,
     isReverse: boolean = false,
     once: boolean = false,
-    listenUrlChange: boolean = false
+    listenUrlChange: boolean = false,
+    isCheckKeyExecWithOr: boolean = false
   ) {
     const results = await Promise.all(
-      menus.map(async ([key, callback]) => {
+      keyList.map(async ([key, callback]) => {
         const menuResult = await this.execMenu<T>(
           key,
           (...args) => {
@@ -679,13 +692,14 @@ const Panel = {
             return result;
           },
           isReverse,
-          once
+          once,
+          isCheckKeyExecWithOr
         );
         return menuResult;
       })
     );
     const panelMenuResultsHandler = new PanelMenuResultsHandler({
-      keyList: menus.map(([key]) => key),
+      keyList: keyList.map(([key]) => key),
       getValue: (key) => {
         const value = this.getValue<boolean>(key);
         return Boolean(value);
