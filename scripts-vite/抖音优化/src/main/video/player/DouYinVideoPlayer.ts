@@ -21,7 +21,6 @@ import { DouYinVideoElementAutoHide, DouYinVideoElementAutoHideInjectAttr } from
 import { DouYinVideoFilter } from "../filter/DouYinVideoFilter";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
-import { DouYinVideoPortraitCommentSplit } from "./DouYinVideoPortraitCommentSplit";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
 import type { VideoQualityMap } from "@/main/live/DouYinLive";
 import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
@@ -43,9 +42,6 @@ export const DouYinVideoPlayer = {
     DouYinVideoPlayerBlockMouseHoverTip.init();
     Panel.execMenuOnce("changeCommentToBottom", () => {
       return this.changeCommentToBottom();
-    });
-    Panel.execMenuOnce(["mobileMode", "changeCommentToBottom", "dy-video-portraitCommentSplit"], () => {
-      return DouYinVideoPortraitCommentSplit.init();
     });
     Panel.execMenuOnce("fullScreen", (config) => {
       return this.fullScreen(config.value);
