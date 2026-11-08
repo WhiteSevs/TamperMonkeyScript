@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SearchEnginePlus
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.10.23
+// @version      2026.11.8
 // @author       WhiteSevs
 // @description  搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing
 // @license      GPL-3.0-only
@@ -19,8 +19,8 @@
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.10/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
 // @connect      www.baidu.com
 // @connect      cn.bing.com
 // @connect      www.bing.com
@@ -436,15 +436,21 @@
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) configList = [configList];
-      let index = this.$data.contentConfig.keys().length;
-      this.$data.contentConfig.set(index, configList);
+      const __configList = typeof configList === "function" ? configList : () => configList;
+      const index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, __configList);
     },
     getAllContentConfig() {
-      return this.$data.contentConfig.values().flat();
+      return this.$data.contentConfig
+        .values()
+        .map((it) => {
+          return typeof it === "function" ? it() : it;
+        })
+        .flat();
     },
     getConfig(index = 0) {
-      return this.$data.contentConfig.get(index) ?? [];
+      const __configList = (this.$data.contentConfig.get(index) ?? (() => []))();
+      return Array.isArray(__configList) ? __configList : [__configList];
     },
     getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
@@ -1716,9 +1722,11 @@
                       return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
-                }, 2500);
-                if ($findDeepMenu) $findDeepMenu.click();
-                else {
+                }, 5e3);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                  await utils$1.sleep(500);
+                } else {
                   qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
@@ -1739,7 +1747,7 @@
                       );
                     }
                   );
-                }, 2500);
+                }, 5e3);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
@@ -2969,10 +2977,46 @@
         }
       );
       BaiduSearchResult.init();
+      domUtils.onReady(() => {
+        Panel.execMenuOnce("baidu-search-firstResultOfficial", () => {
+          return this.firstResultOfficial();
+        });
+      });
     },
     removeAds() {
       log.info(`移除广告`);
-      return addBlockCSSWithEnd("#top-ad", '#content_left .result-op[tpl="uer_feedback"]');
+      return addBlockCSSWithEnd(
+        "#top-ad",
+        '#content_left .result-op[tpl="uer_feedback"]',
+        "#content_left > div:has(.tenon_pc_material)"
+      );
+    },
+    async firstResultOfficial() {
+      log.info(`首个结果优先显示「官方」`);
+      const lockFn = new utils$1.LockFunction(async () => {
+        const $official = await domUtils.waitNode(
+          '#content_left>div:has([class^="suffix-icon"] a[href*="aiqicha.baidu.com/feedback/official?"])',
+          1e4
+        );
+        if ($official) {
+          const $contentLeft = $official.closest("#content_left");
+          if ($contentLeft) domUtils.prepend($contentLeft, $official);
+          else qmsg.default.error("未找到#content_left");
+        }
+      });
+      const observer = utils$1.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      return () => {
+        observer.disconnect();
+      };
     },
     removeRightPanel() {
       log.info(`移除右侧栏`);
@@ -4021,16 +4065,11 @@
     init() {
       let isInit = false;
       domUtils
-        .on(
-          window,
-          "urlchange",
-          () => {
-            if (isInit) log.info("url change => reload!!!");
-            isInit = true;
-            this.run();
-          },
-          { capture: true }
-        )
+        .on(window, "urlchange", () => {
+          if (isInit) log.info("url change => reload!!!");
+          isInit = true;
+          this.run();
+        })
         .emit();
     },
     run() {
@@ -4350,7 +4389,10 @@
       {
         type: "container",
         text: "功能",
-        views: [UISwitch("精简首页", "baidu-search-home-simplifyTheHomepage", true)],
+        views: [
+          UISwitch("精简首页", "baidu-search-home-simplifyTheHomepage", true),
+          UISwitch("首个结果优先显示「官方」", "baidu-search-firstResultOfficial", true),
+        ],
       },
       {
         text: "屏蔽",

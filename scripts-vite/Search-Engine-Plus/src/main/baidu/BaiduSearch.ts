@@ -1,6 +1,7 @@
 import { log, utils } from "@/env";
-import { addBlockCSSWithEnd, addStyleWithEnd } from "@components/env.base";
+import { addBlockCSSWithEnd, addStyleWithEnd, DOMUtils } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
+import Qmsg from "qmsg";
 import { BaiduSearchResult } from "./BaiduSearchResult";
 
 export const BaiduSearch = {
@@ -45,6 +46,12 @@ export const BaiduSearch = {
       }
     );
     BaiduSearchResult.init();
+
+    DOMUtils.onReady(() => {
+      Panel.execMenuOnce("baidu-search-firstResultOfficial", () => {
+        return this.firstResultOfficial();
+      });
+    });
   },
   /**
    * 移除广告
@@ -54,8 +61,43 @@ export const BaiduSearch = {
     return addBlockCSSWithEnd(
       "#top-ad",
       // 用户反馈
-      '#content_left .result-op[tpl="uer_feedback"]'
+      '#content_left .result-op[tpl="uer_feedback"]',
+      // 品牌广告
+      "#content_left > div:has(.tenon_pc_material)"
     );
+  },
+  /**
+   * 首个结果优先显示「官方」
+   */
+  async firstResultOfficial() {
+    log.info(`首个结果优先显示「官方」`);
+    const lockFn = new utils.LockFunction(async () => {
+      const $official = await DOMUtils.waitNode(
+        '#content_left>div:has([class^="suffix-icon"] a[href*="aiqicha.baidu.com/feedback/official?"])',
+        10000
+      );
+      if ($official) {
+        const $contentLeft = $official.closest<HTMLElement>("#content_left")!;
+        if ($contentLeft) {
+          DOMUtils.prepend($contentLeft, $official);
+        } else {
+          Qmsg.error("未找到#content_left");
+        }
+      }
+    });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+    return () => {
+      observer.disconnect();
+    };
   },
   /**
    * 移除右侧栏

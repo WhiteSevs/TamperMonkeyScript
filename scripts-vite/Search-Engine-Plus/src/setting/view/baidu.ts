@@ -11,7 +11,10 @@ export const Component_Baidu: PopsPanelContentConfig = {
     {
       type: "container",
       text: "功能",
-      views: [UISwitch("精简首页", "baidu-search-home-simplifyTheHomepage", true)],
+      views: [
+        UISwitch("精简首页", "baidu-search-home-simplifyTheHomepage", true),
+        UISwitch("首个结果优先显示「官方」", "baidu-search-firstResultOfficial", true),
+      ],
     },
     {
       text: "屏蔽",

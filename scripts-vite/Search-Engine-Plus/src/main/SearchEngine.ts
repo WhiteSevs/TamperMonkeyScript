@@ -7,18 +7,13 @@ import { Google } from "./google/Google";
 export const SearchEngine = {
   init() {
     let isInit = false;
-    DOMUtils.on(
-      window,
-      "urlchange",
-      () => {
-        if (isInit) {
-          log.info("url change => reload!!!");
-        }
-        isInit = true;
-        this.run();
-      },
-      { capture: true }
-    ).emit();
+    DOMUtils.on(window, "urlchange", () => {
+      if (isInit) {
+        log.info("url change => reload!!!");
+      }
+      isInit = true;
+      this.run();
+    }).emit();
   },
   run() {
     if (SearchEngineRouter.isBaidu()) {
