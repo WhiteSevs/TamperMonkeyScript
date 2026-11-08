@@ -21,9 +21,12 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
+// @connect      *
+// @connect      baidu.com
 // @connect      www.baidu.com
 // @connect      cn.bing.com
 // @connect      www.bing.com
+// @connect      haoma.baidu.com
 // @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText
@@ -1342,28 +1345,32 @@
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    async execMenu(key, callback, isReverse = false, once = false) {
+    async execMenu(key, callback, isReverse = false, once = false, isCheckKeyExecWithOr = false) {
       return await this.exec(
         key,
         async (...args) => {
           return await callback(...args);
         },
         (keyList) => {
-          return keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
+          let execFlag = false;
+          const checkKeyExec = (key) => {
+            let flag = !!this.getValue(key);
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(key)) {
               flag = false;
-              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+              log.warn(`.execMenu${once ? "Once" : ""} ${key} 被禁用`);
             }
             if (isReverse) flag = !flag;
             return flag;
-          });
+          };
+          if (isCheckKeyExecWithOr) execFlag = keyList.some(checkKeyExec);
+          else execFlag = keyList.every(checkKeyExec);
+          return execFlag;
         },
         once
       );
     },
-    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = await this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false, isCheckKeyExecWithOr = false) {
+      const result = await this.execMenu(key, callback, isReverse, true, isCheckKeyExecWithOr);
       if (listenUrlChange) {
         if (result) {
           const urlChangeCallback = () => {
@@ -1375,21 +1382,29 @@
       }
       return result;
     },
-    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+    async execMoreMenu(
+      keyList,
+      allExecCallback,
+      isReverse = false,
+      once = false,
+      listenUrlChange = false,
+      isCheckKeyExecWithOr = false
+    ) {
       const results = await Promise.all(
-        menus.map(async ([key, callback]) => {
+        keyList.map(async ([key, callback]) => {
           return await this.execMenu(
             key,
             (...args) => {
               return callback(...args);
             },
             isReverse,
-            once
+            once,
+            isCheckKeyExecWithOr
           );
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
-        keyList: menus.map(([key]) => key),
+        keyList: keyList.map(([key]) => key),
         getValue: (key) => {
           const value = this.getValue(key);
           return Boolean(value);
@@ -2088,10 +2103,20 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
-      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
-      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
-      else qmsg.default.error("其它错误", { consoleLogContent: true });
+      const toastConfig = { consoleLogContent: true };
+      if (data.type === "onabort") qmsg.default.warning("请求取消", toastConfig);
+      else if (data.type === "onerror") {
+        const errorString = data.response.error;
+        if (typeof errorString == "string" && utils$1.isNotNull(errorString)) {
+          if (errorString.includes("@connect list"))
+            qmsg.default.error("请将该域名添加至@connect: " + data.resolveOption.requestOption.url, {
+              ...toastConfig,
+              timeout: 5e3,
+            });
+          else qmsg.default.error(errorString, toastConfig);
+        } else qmsg.default.error("请求异常", toastConfig);
+      } else if (data.type === "ontimeout") qmsg.default.error("请求超时", toastConfig);
+      else qmsg.default.error("其它错误", toastConfig);
       return data;
     }
   );
@@ -2757,6 +2782,92 @@
       }
     }
   };
+  var RequestQueue = class {
+    queue = [];
+    activeCount = 0;
+    maxConcurrent;
+    waitTime;
+    consumers = new Set();
+    constructor(options) {
+      this.maxConcurrent = options.maxConcurrent;
+      this.waitTime = options.waitTime ?? 0;
+    }
+    subscribe(task) {
+      let resolve;
+      let reject;
+      const promise = new Promise((res, rej) => {
+        resolve = res;
+        reject = rej;
+      });
+      const wrappedTask = async () => {
+        try {
+          const result = await task();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      this.queue.push(wrappedTask);
+      this.consume();
+      return promise;
+    }
+    consume() {
+      while (this.activeCount < this.maxConcurrent && this.queue.length > 0) {
+        const task = this.queue.shift();
+        this.activeCount++;
+        const consumerPromise = (async () => {
+          try {
+            if (this.waitTime > 0) await this.delay(this.waitTime);
+            await task();
+          } catch (error) {
+            console.error("请求执行出错:", error);
+          } finally {
+            this.activeCount--;
+            this.consume();
+          }
+        })();
+        this.consumers.add(consumerPromise);
+        consumerPromise.finally(() => this.consumers.delete(consumerPromise));
+      }
+    }
+    async drain() {
+      while (this.queue.length > 0 || this.activeCount > 0)
+        if (this.consumers.size > 0) await Promise.race(this.consumers);
+        else await this.delay(0);
+    }
+    delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+  };
+  var queue = new RequestQueue({
+    maxConcurrent: 1,
+    waitTime: 500,
+  });
+  var WebsiteCheck = {
+    async baiduHaoma(url) {
+      return await queue.subscribe(async () => {
+        const response = await httpx.post("https://haoma.baidu.com/haoma/business/domain/landpage", {
+          data: { url },
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8",
+            Origin: "https://cloud.baidu.com",
+            Referer: `https://cloud.baidu.com/product-s/website-security?s=${url}`,
+          },
+        });
+        if (!response.isSuccess) return;
+        const data = utils$1.toJSON(response.data.responseText);
+        if (data.code != 200) {
+          log.error(response);
+          qmsg.default.error(data.message || "未知错误");
+          return;
+        }
+        return {
+          isHttp: utils$1.isNull(data.data.ssl_expires),
+          domain: data.data.domain,
+        };
+      });
+    },
+  };
   var BaiduSearchResult = {
     init() {
       Panel.execMenuOnce(
@@ -2769,14 +2880,17 @@
         (config) => {
           const [enable, redirect, addFavicon, markUnsafeLink] = config.value;
           if (!enable) return;
-          if (!redirect && !addFavicon && !markUnsafeLink) return;
-          return this.searchResultOptimization({
-            removeAds: !!Panel.getValue("baidu-search-removeAds"),
-            redirect,
-            addFavicon,
-            markUnsafeLink,
-          });
-        }
+          if (redirect || addFavicon || markUnsafeLink)
+            return this.searchResultOptimization({
+              removeAds: !!Panel.getValue("baidu-search-removeAds"),
+              redirect,
+              addFavicon,
+              markUnsafeLink,
+            });
+        },
+        void 0,
+        void 0,
+        true
       );
     },
     searchResultOptimization(config) {
@@ -2886,20 +3000,25 @@
               );
             } catch {}
           }
-          if (config.markUnsafeLink) {
-            if ($title.href.startsWith("http://") && !$title.href.includes("baidu.com/")) {
-              domUtils.prepend(
-                $title,
-                `
+          if (config.markUnsafeLink)
+            try {
+              const realInst = new URL(realLink);
+              if (realInst.protocol == "http:" && !realInst.hostname.endsWith("baidu.com")) {
+                const haomaResult = await WebsiteCheck.baiduHaoma(realLink);
+                if (haomaResult && haomaResult.isHttp) {
+                  domUtils.prepend(
+                    $title,
+                    `
                 <svg class="extra-gm-icon" viewBox="0 0 1102 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" style="margin-right: 4px;float: left;"><path d="M1079.847385 767.133538l-389.513847-690.845538c-62.621538-101.651692-215.197538-101.769846-277.858461 0l-389.513846 690.806154c-64 103.896615 13.469538 235.441231 138.870154 235.441231H940.898462c125.282462 0 202.909538-131.426462 138.909538-235.401847zM551.384615 877.843692c-35.603692 0-64.590769-27.963077-64.590769-62.345846 0-34.343385 28.987077-62.306462 64.590769-62.306461 35.603692 0 64.590769 27.963077 64.59077 62.306461 0 34.382769-28.987077 62.345846-64.59077 62.345846z m64.59077-249.304615c0 34.343385-28.987077 62.306462-64.59077 62.306461-35.603692 0-64.590769-27.963077-64.590769-62.345846V316.849231c0-34.382769 28.987077-62.345846 64.590769-62.345846 35.603692 0 64.590769 27.963077 64.59077 62.345846v311.650461z" fill="#ED4662" p-id="6187"></path></svg>
               `
-              );
-              domUtils.css($title, {
-                color: "#ecb3b3 !important",
-                "text-decoration": "line-through !important",
-              });
-            }
-          }
+                  );
+                  domUtils.css($title, {
+                    color: "#ecb3b3 !important",
+                    "text-decoration": "line-through !important",
+                  });
+                }
+              }
+            } catch {}
         });
       });
       const observer = utils$1.mutationObserver(document, {
@@ -2952,12 +3071,18 @@
       Panel.execMenuOnce("baidu-search-removeSelectTextDialog", () => {
         return this.removeSelectTextDialog();
       });
-      Panel.execMenuOnce(["baidu-search-showOptimization-enable", "baidu-search-showOptimization-mode"], (config) => {
-        const [enable, mode] = config.value;
-        if (!enable) return;
-        if (utils$1.isNull(mode)) return;
-        return this.searchResultShowOptimization(mode);
-      });
+      Panel.execMenuOnce(
+        ["baidu-search-showOptimization-enable", "baidu-search-showOptimization-mode"],
+        (config) => {
+          const [enable, mode] = config.value;
+          if (!enable) return;
+          if (utils$1.isNull(mode)) return;
+          return this.searchResultShowOptimization(mode);
+        },
+        void 0,
+        void 0,
+        true
+      );
       Panel.execMenuOnce(
         [
           "baidu-search-ownBackgroundImage-enable",
@@ -2974,7 +3099,10 @@
             url,
             opacity,
           });
-        }
+        },
+        void 0,
+        void 0,
+        true
       );
       BaiduSearchResult.init();
       domUtils.onReady(() => {
@@ -3432,12 +3560,18 @@
       Panel.execMenuOnce("bing-search-removeBottomRightCopyright", () => {
         return this.removeBottomRightCopyright();
       });
-      Panel.execMenuOnce(["bing-search-showOptimization-enable", "bing-search-showOptimization-mode"], (config) => {
-        const [enable, mode] = config.value;
-        if (!enable) return;
-        if (utils$1.isNull(mode)) return;
-        return this.searchResultShowOptimization(mode);
-      });
+      Panel.execMenuOnce(
+        ["bing-search-showOptimization-enable", "bing-search-showOptimization-mode"],
+        (config) => {
+          const [enable, mode] = config.value;
+          if (!enable) return;
+          if (utils$1.isNull(mode)) return;
+          return this.searchResultShowOptimization(mode);
+        },
+        void 0,
+        void 0,
+        true
+      );
       Panel.execMenuOnce(
         [
           "bing-search-ownBackgroundImage-enable",
@@ -3454,7 +3588,10 @@
             url,
             opacity,
           });
-        }
+        },
+        void 0,
+        void 0,
+        true
       );
       Panel.execMenuOnce("bing-search-removeResultYouMayLikeSearch", () => {
         return this.removeResultYouMayLikeSearch();
@@ -3770,7 +3907,10 @@
           if (!enable) return;
           if (!openBlank) return;
           return this.searchResultOptimization({ openBlank });
-        }
+        },
+        void 0,
+        void 0,
+        true
       );
     },
     searchResultOptimization(config) {
@@ -3822,12 +3962,18 @@
       Panel.execMenuOnce("google-search-removeQuestions", () => {
         return this.removeQuestions();
       });
-      Panel.execMenuOnce(["google-search-showOptimization-enable", "google-search-showOptimization-mode"], (config) => {
-        const [enable, mode] = config.value;
-        if (!enable) return;
-        if (utils$1.isNull(mode)) return;
-        return this.searchResultShowOptimization(mode);
-      });
+      Panel.execMenuOnce(
+        ["google-search-showOptimization-enable", "google-search-showOptimization-mode"],
+        (config) => {
+          const [enable, mode] = config.value;
+          if (!enable) return;
+          if (utils$1.isNull(mode)) return;
+          return this.searchResultShowOptimization(mode);
+        },
+        void 0,
+        void 0,
+        true
+      );
       Panel.execMenuOnce(
         [
           "google-search-ownBackgroundImage-enable",
@@ -3844,13 +3990,43 @@
             url,
             opacity,
           });
-        }
+        },
+        void 0,
+        void 0,
+        true
       );
       GoogleSearchResult.init();
     },
     removeAds() {
       log.info(`移除广告`);
-      return addBlockCSS("#bottomads");
+      const result = [addBlockCSS("#bottomads", "#b_results > .b_algo:has(.MRkD9SUpy4)")];
+      const lockFn = new utils$1.LockFunction(() => {
+        for (const $el of $$("#b_results > .b_algo:has(.b_caption)")) {
+          const $caption = $el.querySelector(".b_caption > p");
+          if ($caption) {
+            if (
+              getComputedStyle($caption, "::before").content.includes(
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAALCAYAAACOAvbOAAABzklEQVR4AYxTTUsCURQ9DCiCSmGZK93oTvcuJJTwJ6gU7sRdmyDxj7gpUSikheBC0X24EBQkUARRFCFbhC60BA1zmLi3ZmBGxR6c+965X4e5854g7Virz5mUvr+T6vU6R0VxKS2/+nyWTT6fl6rVKtNsNiv1++o4BzRGwN9qNptIp9OMh9wT3t9eUSqVmGcyOeQenzEcDjl7Mpmg0+mg1WpxfDAYoFKp8Jl6UC9O1BhFbDwew2w2IxQKIXJ5heubWyQSCebkI9jtdmw2G5TLZQQCAUSjUY47HA74/X4+U57b7dbI/FJFjKjBYIDFYtkLvV6P1WoFl8sFj8dDJTtBOev1eiumEtuK7nDQCHu9HorFIgqFAkMQBNDoZE47TUpbrhKjr9ImaLnT6UQ8HkckElHGRqOTEQ6HEYvFcHriwMf8W1WuEqMxqqJ7yHw+58vQbrfR7XYVEE+lUhiNRlzZfpnxLhsWE0UR0+kUVqtV9h/c6TJ5vV74fD4FxE0mE9ceHetwfnHGZ9mwGAnRT7XZbLL/4L5YLNBoNFCr1RQQpz77JsRi9H7ouhqNxoMihxJ0Oh329WExGkUwGMR/F12kZDLJb41qZdDbIz/Fd/X6AQAA//9+UU30AAAABklEQVQDAKyqGbrVhObvAAAAAElFTkSuQmCC"
+              )
+            )
+              $el.remove();
+          }
+        }
+      });
+      const observer = utils$1.mutationObserver(document, {
+        config: {
+          subtree: true,
+          childList: true,
+        },
+        immediate: true,
+        callback: () => {
+          lockFn.run();
+        },
+      });
+      result.push(() => {
+        observer.disconnect();
+      });
+      return result;
     },
     removeAIOverview() {
       log.info(`移除AI概览`);
@@ -4460,7 +4636,13 @@
           UISwitch("启用", "baidu-search-optimizationResult-enable", true, void 0, "开启后下面的功能才会生效"),
           UISwitch("链接重定向", "baidu-search-optimizationResult-redirect", true),
           UISwitch("添加favicon", "baidu-search-optimizationResult-addFavicon", true),
-          UISwitch("标识非安全的链接", "baidu-search-optimizationResult-markUnsafeLink", true),
+          UISwitch(
+            "标识非安全的链接",
+            "baidu-search-optimizationResult-markUnsafeLink",
+            true,
+            void 0,
+            "开启「链接重定向」后会更准确"
+          ),
         ],
       },
     ],

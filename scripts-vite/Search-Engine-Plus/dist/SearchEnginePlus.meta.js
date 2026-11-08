@@ -21,9 +21,12 @@
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
+// @connect      *
+// @connect      baidu.com
 // @connect      www.baidu.com
 // @connect      cn.bing.com
 // @connect      www.bing.com
+// @connect      haoma.baidu.com
 // @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
 // @grant        GM_getResourceText

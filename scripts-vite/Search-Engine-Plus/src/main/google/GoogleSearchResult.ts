@@ -10,7 +10,10 @@ export const GoogleSearchResult = {
         if (!enable) return;
         if (!openBlank) return;
         return this.searchResultOptimization({ openBlank });
-      }
+      },
+      void 0,
+      void 0,
+      true
     );
   },
   /**

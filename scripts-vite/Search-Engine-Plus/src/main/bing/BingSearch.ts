@@ -46,12 +46,18 @@ export const BingSearch = {
     Panel.execMenuOnce("bing-search-removeBottomRightCopyright", () => {
       return this.removeBottomRightCopyright();
     });
-    Panel.execMenuOnce(["bing-search-showOptimization-enable", "bing-search-showOptimization-mode"], (config) => {
-      const [enable, mode] = config.value;
-      if (!enable) return;
-      if (utils.isNull(mode)) return;
-      return this.searchResultShowOptimization(mode);
-    });
+    Panel.execMenuOnce(
+      ["bing-search-showOptimization-enable", "bing-search-showOptimization-mode"],
+      (config) => {
+        const [enable, mode] = config.value;
+        if (!enable) return;
+        if (utils.isNull(mode)) return;
+        return this.searchResultShowOptimization(mode);
+      },
+      void 0,
+      void 0,
+      true
+    );
     Panel.execMenuOnce(
       [
         "bing-search-ownBackgroundImage-enable",
@@ -68,7 +74,10 @@ export const BingSearch = {
           url,
           opacity,
         });
-      }
+      },
+      void 0,
+      void 0,
+      true
     );
     Panel.execMenuOnce("bing-search-removeResultYouMayLikeSearch", () => {
       return this.removeResultYouMayLikeSearch();

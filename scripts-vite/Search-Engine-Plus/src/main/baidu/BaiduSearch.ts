@@ -21,12 +21,18 @@ export const BaiduSearch = {
     Panel.execMenuOnce("baidu-search-removeSelectTextDialog", () => {
       return this.removeSelectTextDialog();
     });
-    Panel.execMenuOnce(["baidu-search-showOptimization-enable", "baidu-search-showOptimization-mode"], (config) => {
-      const [enable, mode] = config.value;
-      if (!enable) return;
-      if (utils.isNull(mode)) return;
-      return this.searchResultShowOptimization(mode);
-    });
+    Panel.execMenuOnce(
+      ["baidu-search-showOptimization-enable", "baidu-search-showOptimization-mode"],
+      (config) => {
+        const [enable, mode] = config.value;
+        if (!enable) return;
+        if (utils.isNull(mode)) return;
+        return this.searchResultShowOptimization(mode);
+      },
+      void 0,
+      void 0,
+      true
+    );
     Panel.execMenuOnce(
       [
         "baidu-search-ownBackgroundImage-enable",
@@ -43,7 +49,10 @@ export const BaiduSearch = {
           url,
           opacity,
         });
-      }
+      },
+      void 0,
+      void 0,
+      true
     );
     BaiduSearchResult.init();
 

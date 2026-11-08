@@ -1,5 +1,5 @@
 import { addStyle, log, utils } from "@/env";
-import { addBlockCSS } from "@components/env.base";
+import { $$, addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 import { GoogleSearchResult } from "./GoogleSearchResult";
 
@@ -20,12 +20,18 @@ export const GoogleSearch = {
     Panel.execMenuOnce("google-search-removeQuestions", () => {
       return this.removeQuestions();
     });
-    Panel.execMenuOnce(["google-search-showOptimization-enable", "google-search-showOptimization-mode"], (config) => {
-      const [enable, mode] = config.value;
-      if (!enable) return;
-      if (utils.isNull(mode)) return;
-      return this.searchResultShowOptimization(mode);
-    });
+    Panel.execMenuOnce(
+      ["google-search-showOptimization-enable", "google-search-showOptimization-mode"],
+      (config) => {
+        const [enable, mode] = config.value;
+        if (!enable) return;
+        if (utils.isNull(mode)) return;
+        return this.searchResultShowOptimization(mode);
+      },
+      void 0,
+      void 0,
+      true
+    );
     Panel.execMenuOnce(
       [
         "google-search-ownBackgroundImage-enable",
@@ -42,7 +48,10 @@ export const GoogleSearch = {
           url,
           opacity,
         });
-      }
+      },
+      void 0,
+      void 0,
+      true
     );
     GoogleSearchResult.init();
   },
@@ -51,7 +60,36 @@ export const GoogleSearch = {
    */
   removeAds() {
     log.info(`移除广告`);
-    return addBlockCSS("#bottomads");
+    const result: any[] = [addBlockCSS("#bottomads", "#b_results > .b_algo:has(.MRkD9SUpy4)")];
+    const lockFn = new utils.LockFunction(() => {
+      for (const $el of $$("#b_results > .b_algo:has(.b_caption)")) {
+        const $caption = $el.querySelector<HTMLElement>(".b_caption > p");
+        if ($caption) {
+          const beforeContent = getComputedStyle($caption, "::before").content;
+          if (
+            beforeContent.includes(
+              "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABsAAAALCAYAAACOAvbOAAABzklEQVR4AYxTTUsCURQ9DCiCSmGZK93oTvcuJJTwJ6gU7sRdmyDxj7gpUSikheBC0X24EBQkUARRFCFbhC60BA1zmLi3ZmBGxR6c+965X4e5854g7Virz5mUvr+T6vU6R0VxKS2/+nyWTT6fl6rVKtNsNiv1++o4BzRGwN9qNptIp9OMh9wT3t9eUSqVmGcyOeQenzEcDjl7Mpmg0+mg1WpxfDAYoFKp8Jl6UC9O1BhFbDwew2w2IxQKIXJ5heubWyQSCebkI9jtdmw2G5TLZQQCAUSjUY47HA74/X4+U57b7dbI/FJFjKjBYIDFYtkLvV6P1WoFl8sFj8dDJTtBOev1eiumEtuK7nDQCHu9HorFIgqFAkMQBNDoZE47TUpbrhKjr9ImaLnT6UQ8HkckElHGRqOTEQ6HEYvFcHriwMf8W1WuEqMxqqJ7yHw+58vQbrfR7XYVEE+lUhiNRlzZfpnxLhsWE0UR0+kUVqtV9h/c6TJ5vV74fD4FxE0mE9ceHetwfnHGZ9mwGAnRT7XZbLL/4L5YLNBoNFCr1RQQpz77JsRi9H7ouhqNxoMihxJ0Oh329WExGkUwGMR/F12kZDLJb41qZdDbIz/Fd/X6AQAA//9+UU30AAAABklEQVQDAKyqGbrVhObvAAAAAElFTkSuQmCC"
+            )
+          ) {
+            $el.remove();
+          }
+        }
+      }
+    });
+    const observer = utils.mutationObserver(document, {
+      config: {
+        subtree: true,
+        childList: true,
+      },
+      immediate: true,
+      callback: () => {
+        lockFn.run();
+      },
+    });
+    result.push(() => {
+      observer.disconnect();
+    });
+    return result;
   },
   /**
    * 移除AI概览

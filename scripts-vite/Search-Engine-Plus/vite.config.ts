@@ -12,7 +12,7 @@ const userConfig = await GenerateUserConfig({
     userscript: {
       name: "SearchEnginePlus",
       // GM_xmlhttpRequest允许访问的域
-      connect: ["www.baidu.com", "cn.bing.com", "www.bing.com"],
+      connect: ["*", "baidu.com", "www.baidu.com", "cn.bing.com", "www.bing.com", "haoma.baidu.com"],
       // 脚本描述
       description: "搜索页面优化，包含以下搜索引擎：百度搜索、谷歌、Bing",
       // 脚本图标
