@@ -12,7 +12,7 @@ import {
   unsafeWindow,
 } from "ViteGM";
 import Qmsg from "qmsg";
-import type { QmsgPosition } from "qmsg/dist/src/types/config.js";
+import type { QmsgConfig, QmsgPosition } from "qmsg/dist/src/types/config.js";
 import { createApp } from "vue";
 import { GM_RESOURCE_MAPPING } from "./GM_Resource_Mapping";
 import { Panel } from "./setting/panel";
@@ -144,20 +144,34 @@ httpx.interceptors.request.use((data) => {
 httpx.interceptors.response.use(
   (response) => {
     if (DEBUG) {
-      log.info("[Httpx-HttpxRequest.response] 响应结果", { response });
+      log.info("[Httpx-HttpxRequest.response] 响应结果", { response, data: response.response });
     }
     return response;
   },
   (data) => {
     log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
+    const toastConfig: Partial<QmsgConfig> = { consoleLogContent: true };
     if (data.type === "onabort") {
-      Qmsg.warning("请求取消", { consoleLogContent: true });
+      Qmsg.warning("请求取消", toastConfig);
     } else if (data.type === "onerror") {
-      Qmsg.error("请求异常", { consoleLogContent: true });
+      const errorString = data.response.error;
+      if (typeof errorString == "string" && utils.isNotNull(errorString)) {
+        if (errorString.includes("@connect list")) {
+          // Refused to connect to "xxx": This domain is not a part of the @connect list
+          Qmsg.error("请将该域名添加至@connect: " + data.resolveOption.requestOption.url, {
+            ...toastConfig,
+            timeout: 5000,
+          });
+        } else {
+          Qmsg.error(errorString, toastConfig);
+        }
+      } else {
+        Qmsg.error("请求异常", toastConfig);
+      }
     } else if (data.type === "ontimeout") {
-      Qmsg.error("请求超时", { consoleLogContent: true });
+      Qmsg.error("请求超时", toastConfig);
     } else {
-      Qmsg.error("其它错误", { consoleLogContent: true });
+      Qmsg.error("其它错误", toastConfig);
     }
     return data;
   }
