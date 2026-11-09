@@ -41,8 +41,8 @@ export const DouYinVideoPlayer = {
       DouYinVideoPlayerShortCut.init();
     });
     DouYinVideoPlayerBlockMouseHoverTip.init();
-    Panel.execMenuOnce("dy-video-commentLayout", () => {
-      return DouYinVideoPortraitCommentSplit.init();
+    Panel.onceExec("dy-video-commentLayout", () => {
+      DouYinVideoPortraitCommentSplit.init();
     });
     Panel.execMenuOnce("fullScreen", (config) => {
       return this.fullScreen(config.value);

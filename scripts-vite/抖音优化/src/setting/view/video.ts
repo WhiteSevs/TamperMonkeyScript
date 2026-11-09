@@ -104,7 +104,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                 ),
                 UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
                 UISelect<string>(
-                  "评论区布局",
+                  "评论与章节布局",
                   "dy-video-commentLayout",
                   "auto",
                   [
@@ -113,7 +113,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                     { text: "右侧", value: "right" },
                   ],
                   void 0,
-                  "打开评论区后可从页面按钮切换；搜索结果内嵌视频保持右侧布局。与手机模式无关"
+                  "评论、章节要点等视频侧栏共用该布局；搜索结果内嵌视频保持右侧。与手机模式无关"
                 ),
                 UISwitch(
                   "修复进度条",

@@ -1,4 +1,5 @@
-/* 评论区展开且选中下方布局时，覆盖抖音原生的右侧布局。 */
+/* 页面级偏好让新挂载的章节面板直接出现在下方，无需等待 JS 判断可见性。 */
+html.dy-video-layout-bottom :is(#sliderVideo, #slideMode),
 .dy-comment-layout-bottom {
   --dy-comment-player-height: 40%;
   --dy-comment-panel-height: 60%;
@@ -9,10 +10,10 @@
   height: var(--dy-comment-player-height) !important;
   max-height: var(--dy-comment-player-height) !important;
   min-height: 0 !important;
+  transition: none !important;
 }
 
-.dy-comment-layout-bottom .playerContainer .basePlayerContainer,
-.dy-comment-layout-bottom .playerContainer .xgplayer {
+.dy-comment-layout-bottom .playerContainer :is(.basePlayerContainer, .xgplayer) {
   height: 100% !important;
   max-height: 100% !important;
   min-height: 0 !important;
@@ -26,8 +27,7 @@
   object-fit: contain !important;
 }
 
-.dy-comment-layout-bottom #videoSideCard:has(#relatedVideoCard),
-.dy-comment-layout-bottom #videoSideBar:has(#relatedVideoCard) {
+.dy-comment-layout-bottom :is(#videoSideCard, #videoSideBar):has(#relatedVideoCard) {
   position: absolute !important;
   width: 100% !important;
   height: var(--dy-comment-panel-height) !important;
@@ -38,6 +38,24 @@
   top: auto !important;
   bottom: 0 !important;
   background-color: rgba(0, 0, 0, 0.9);
+}
+
+/* 仅在新侧栏挂载期取消宽度过渡；之后仍能按原生方式关闭。 */
+.dy-comment-layout-prewarming :is(#videoSideCard, #videoSideBar):has(#relatedVideoCard) {
+  transition: none !important;
+}
+
+:is(.dy-chapter-layout-open, html.dy-video-layout-bottom :is(#sliderVideo, #slideMode)) #chapterVideoSideCard {
+  position: absolute !important;
+  width: 100% !important;
+  height: var(--dy-comment-panel-height) !important;
+  max-height: var(--dy-comment-panel-height) !important;
+  min-height: 0 !important;
+  top: auto !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 3 !important;
+  /* 保留原生 left、transform 和关闭动画。 */
 }
 
 .dy-comment-layout-bottom > .dy-layout-picker {

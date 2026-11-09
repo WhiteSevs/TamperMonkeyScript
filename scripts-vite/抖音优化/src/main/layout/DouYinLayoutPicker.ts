@@ -21,7 +21,7 @@ export const createLayoutPicker = (key: string) => {
   const $picker = document.createElement("details");
   $picker.className = "dy-layout-picker";
   const $trigger = document.createElement("summary");
-  $trigger.title = "切换评论或聊天区域的位置";
+  $trigger.title = "切换评论、章节或聊天区域的位置";
   const $menu = document.createElement("div");
   $menu.className = "dy-layout-picker-menu";
 
