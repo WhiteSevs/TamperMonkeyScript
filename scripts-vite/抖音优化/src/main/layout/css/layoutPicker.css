@@ -1,0 +1,53 @@
+.dy-layout-picker {
+  position: absolute;
+  z-index: 9999;
+  top: 9px;
+  right: 52px;
+  color: #fff;
+  font: 12px/1.4 sans-serif;
+  pointer-events: auto;
+}
+
+.dy-layout-picker > summary {
+  display: block;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 7px;
+  background: rgba(26, 26, 32, 0.88);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.dy-layout-picker > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dy-layout-picker-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 90px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #24252e;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.dy-layout-picker-menu button {
+  width: 100%;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #eee;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dy-layout-picker-menu button:hover,
+.dy-layout-picker-menu button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.14);
+}

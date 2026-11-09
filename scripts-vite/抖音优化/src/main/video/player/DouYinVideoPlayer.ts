@@ -41,10 +41,7 @@ export const DouYinVideoPlayer = {
       DouYinVideoPlayerShortCut.init();
     });
     DouYinVideoPlayerBlockMouseHoverTip.init();
-    Panel.execMenuOnce("changeCommentToBottom", () => {
-      return this.changeCommentToBottom();
-    });
-    Panel.execMenuOnce(["mobileMode", "changeCommentToBottom", "dy-video-portraitCommentSplit"], () => {
+    Panel.execMenuOnce("dy-video-commentLayout", () => {
       return DouYinVideoPortraitCommentSplit.init();
     });
     Panel.execMenuOnce("fullScreen", (config) => {
@@ -366,43 +363,6 @@ export const DouYinVideoPlayer = {
       }
     );
     return listener.off;
-  },
-  /**
-   * 评论区移到中间
-   */
-  changeCommentToBottom() {
-    log.info("评论区移到中间");
-    return [
-      /* 2024.5.27 dy更名videoSideBar=>videoSideCard */
-      addStyle(/*css*/ `
-      /* 竖屏样式 */
-      @media screen and (orientation: portrait) {
-        #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
-        #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
-          display: none !important;
-        }
-        /* 左侧的视频宽度撑满 */
-        #sliderVideo[data-e2e] .playerContainer,
-        #slideMode[data-e2e] .playerContainer{
-          width: 100% !important;
-        }
-        /* 右侧的评论区宽度撑满，position使用absolute */
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
-          width: 100%;
-          height: 75%;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.9);
-          transition: height .15s linear !important;
-          position: absolute;
-        }
-      }
-		`),
-    ];
   },
   /**
    * 选择视频清晰度(画质)
@@ -1776,7 +1736,7 @@ export const DouYinVideoPlayer = {
    */
   rightToolBarAutoHide() {
     log.info(`自动隐藏右侧工具栏`);
-    const result = DouYinVideoElementAutoHide("dy-video-titleInfoAutoHide-delayTime", [
+    const result = DouYinVideoElementAutoHide("dy-video-rightToolBarAutoHide-delayTime", [
       ".positionBox",
       // 直播
       '[data-e2e="feed-live"] .douyin-player > div:has(svg path[d="M13.556 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM19.778 17.778a1.778 1.778 0 1 1-3.556 0 1.778 1.778 0 0 1 3.556 0zM24.222 19.556a1.778 1.778 0 1 0 0-3.556 1.778 1.778 0 0 0 0 3.556z"])',

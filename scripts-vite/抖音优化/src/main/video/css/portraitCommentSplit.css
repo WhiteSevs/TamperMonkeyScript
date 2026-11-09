@@ -1,42 +1,45 @@
-/* 仅在竖屏窗口、评论区打开且分屏功能启用时生效 */
-@media screen and (orientation: portrait) {
-  .dy-portrait-comment-split-active {
-    --dy-portrait-player-height: 40%;
-    --dy-portrait-comment-height: 60%;
-  }
+/* 评论区展开且选中下方布局时，覆盖抖音原生的右侧布局。 */
+.dy-comment-layout-bottom {
+  --dy-comment-player-height: 40%;
+  --dy-comment-panel-height: 60%;
+}
 
-  .dy-portrait-comment-split-active .playerContainer {
-    width: 100% !important;
-    height: var(--dy-portrait-player-height) !important;
-    max-height: var(--dy-portrait-player-height) !important;
-    min-height: 0 !important;
-  }
+.dy-comment-layout-bottom .playerContainer {
+  width: 100% !important;
+  height: var(--dy-comment-player-height) !important;
+  max-height: var(--dy-comment-player-height) !important;
+  min-height: 0 !important;
+}
 
-  .dy-portrait-comment-split-active .playerContainer .basePlayerContainer,
-  .dy-portrait-comment-split-active .playerContainer .xgplayer {
-    height: 100% !important;
-    max-height: 100% !important;
-    min-height: 0 !important;
-  }
+.dy-comment-layout-bottom .playerContainer .basePlayerContainer,
+.dy-comment-layout-bottom .playerContainer .xgplayer {
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+}
 
-  .dy-portrait-comment-split-active .playerContainer video {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain !important;
-  }
+.dy-comment-layout-bottom .playerContainer video {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
 
-  .dy-portrait-comment-split-active #videoSideCard:has(#relatedVideoCard),
-  .dy-portrait-comment-split-active #videoSideBar:has(#relatedVideoCard) {
-    position: absolute !important;
-    width: 100% !important;
-    height: var(--dy-portrait-comment-height) !important;
-    max-height: var(--dy-portrait-comment-height) !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    min-height: 0 !important;
-  }
+.dy-comment-layout-bottom #videoSideCard:has(#relatedVideoCard),
+.dy-comment-layout-bottom #videoSideBar:has(#relatedVideoCard) {
+  position: absolute !important;
+  width: 100% !important;
+  height: var(--dy-comment-panel-height) !important;
+  max-height: var(--dy-comment-panel-height) !important;
+  min-height: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: auto !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.dy-comment-layout-bottom > .dy-layout-picker {
+  top: calc(var(--dy-comment-player-height) + 9px);
 }

@@ -81,12 +81,12 @@ export const DouYinVideoElementAutoHide = (
         clearTimeout(timeId);
         if (delayTime.value === 0) {
           // 默认隐藏的，强制显示
-          $el.setAttribute(opacityShowAttrName, "");
+          if (!$el.hasAttribute(opacityShowAttrName)) $el.setAttribute(opacityShowAttrName, "");
         } else {
           // 移除隐藏
-          $el.removeAttribute(opacityHideAttrName);
+          if ($el.hasAttribute(opacityHideAttrName)) $el.removeAttribute(opacityHideAttrName);
           // 添加强制显示
-          $el.setAttribute(opacityShowAttrName, "");
+          if (!$el.hasAttribute(opacityShowAttrName)) $el.setAttribute(opacityShowAttrName, "");
         }
       };
       /**
@@ -99,22 +99,42 @@ export const DouYinVideoElementAutoHide = (
           }, delayTime.value);
           return;
         }
+        // 光标停在工具栏上时保持可见，避免准备点击评论按钮时闪退。
+        if ($el.matches(":hover")) return;
         if (delayTime.value === 0) {
           // 这个是默认隐藏，移除显示的
-          $el.removeAttribute(opacityShowAttrName);
+          if ($el.hasAttribute(opacityShowAttrName)) $el.removeAttribute(opacityShowAttrName);
         } else {
           // 隐藏
-          $el.setAttribute(opacityHideAttrName, "");
+          if (!$el.hasAttribute(opacityHideAttrName)) $el.setAttribute(opacityHideAttrName, "");
           // 移除强制显示
-          $el.removeAttribute(opacityShowAttrName);
+          if ($el.hasAttribute(opacityShowAttrName)) $el.removeAttribute(opacityShowAttrName);
         }
       };
-      // const showListener = DOMUtils.on($el, ["mouseenter", "touchstart"], () => {
-      //   show();
-      // });
-      // const hideListener = DOMUtils.on($el, ["mouseleave", "touchend", "touchcancel"], () => {
-      //   hide();
-      // });
+      // 光标从视频移向点赞/评论工具栏时，持续刷新隐藏倒计时。
+      // 只监听所属播放器，不监听整个 document，也限制触发频率。
+      const $player = $el.closest<HTMLElement>(
+        '#sliderVideo, #slideMode, [data-e2e="video-detail"], .douyin-player, .playerContainer'
+      );
+      let lastMove = 0;
+      const onPointerMove = () => {
+        const now = Date.now();
+        if (now - lastMove < 150) return;
+        lastMove = now;
+        show();
+        hide(true);
+      };
+      const onPointerEnter = () => {
+        lastMove = 0;
+        onPointerMove();
+      };
+      const onPointerLeave = () => {
+        show();
+        hide(true);
+      };
+      $player?.addEventListener("pointermove", onPointerMove, { passive: true });
+      $el.addEventListener("pointerenter", onPointerEnter);
+      $el.addEventListener("pointerleave", onPointerLeave);
       const interObserver = new IntersectionObserver(
         (entries) => {
           const intersection = entries[0];
@@ -136,25 +156,35 @@ export const DouYinVideoElementAutoHide = (
       interObserver.observe($el);
 
       result.push(() => {
-        // showListener.off();
-        // hideListener.off();
+        clearTimeout(timeId);
+        $player?.removeEventListener("pointermove", onPointerMove);
+        $el.removeEventListener("pointerenter", onPointerEnter);
+        $el.removeEventListener("pointerleave", onPointerLeave);
         interObserver.unobserve($el);
         interObserver.disconnect();
       });
     });
   });
+  // 直播聊天的频繁 DOM 更新不需要每次都重新扫描视频控件。
+  let scanTimer: number | null = null;
+  const scheduleScan = () => {
+    if (scanTimer !== null) return;
+    scanTimer = window.setTimeout(() => {
+      scanTimer = null;
+      lockFn.run();
+    }, 250);
+  };
   const observer = utils.mutationObserver(document.body || document.documentElement, {
     config: {
       subtree: true,
       childList: true,
     },
     immediate: true,
-    callback: () => {
-      lockFn.run();
-    },
+    callback: scheduleScan,
   });
 
   result.push(() => {
+    if (scanTimer !== null) window.clearTimeout(scanTimer);
     observer?.disconnect();
   });
 

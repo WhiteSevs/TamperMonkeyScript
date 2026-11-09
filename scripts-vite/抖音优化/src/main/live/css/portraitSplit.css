@@ -1,0 +1,78 @@
+/* 直播聊天区仅调整现有容器的布局，不移动视频/聊天节点。 */
+@media screen {
+  #ContainerBackgroundLayout.dy-live-layout-bottom {
+    --dy-live-top-height: 55%;
+    flex-direction: column !important;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-bottom > #LeftBackgroundLayout {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: var(--dy-live-top-height) !important;
+    min-height: 0 !important;
+    flex: 0 0 var(--dy-live-top-height) !important;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-bottom #PlayerLayout {
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-bottom > #RightBackgroundLayout {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: calc(100% - var(--dy-live-top-height)) !important;
+    min-height: 0 !important;
+    flex: 1 1 0 !important;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-bottom #chatroom {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-active.dy-live-chat-collapsed > #LeftBackgroundLayout {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-active.dy-live-chat-collapsed > #RightBackgroundLayout {
+    display: none !important;
+  }
+
+  #ContainerBackgroundLayout > .dy-live-chat-controls {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    position: absolute !important;
+    z-index: 9999;
+    top: 8px;
+    right: 12px;
+  }
+
+  .dy-live-chat-controls > .dy-layout-picker {
+    position: relative;
+    top: auto;
+    right: auto;
+  }
+
+  .dy-live-chat-controls > .dy-live-chat-toggle {
+    display: block;
+    padding: 5px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 8px;
+    background: rgba(24, 25, 32, 0.86);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  #ContainerBackgroundLayout.dy-live-layout-bottom > .dy-live-chat-controls-bottom {
+    top: calc(var(--dy-live-top-height) + 8px);
+  }
+}

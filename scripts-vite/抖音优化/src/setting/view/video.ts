@@ -103,19 +103,17 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "隐藏右侧工具栏、底部信息栏等"
                 ),
                 UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
-                UISwitch(
-                  "评论区移到中间",
-                  "changeCommentToBottom",
-                  true,
+                UISelect<string>(
+                  "评论区布局",
+                  "dy-video-commentLayout",
+                  "auto",
+                  [
+                    { text: "自动（竖屏下方，横屏右侧）", value: "auto" },
+                    { text: "下方", value: "bottom" },
+                    { text: "右侧", value: "right" },
+                  ],
                   void 0,
-                  "[移动端专用]修改评论区为中间弹出而非右侧区域"
-                ),
-                UISwitch(
-                  "竖屏评论区上下分屏",
-                  "dy-video-portraitCommentSplit",
-                  false,
-                  void 0,
-                  "需同时开启「手机模式」和「评论区移到中间」。打开评论区后视频占上方40%，评论区占下方60%"
+                  "打开评论区后可从页面按钮切换；搜索结果内嵌视频保持右侧布局。与手机模式无关"
                 ),
                 UISwitch(
                   "修复进度条",

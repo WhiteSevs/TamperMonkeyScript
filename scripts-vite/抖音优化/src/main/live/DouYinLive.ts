@@ -6,6 +6,7 @@ import { ReactUtils } from "@components/utils/ReactUtils";
 import Qmsg from "qmsg";
 import { DouYinVideoPlayer } from "../video/player/DouYinVideoPlayer";
 import { DouYinLiveBlock } from "./DouYinLiveBlock";
+import { DouYinLivePortraitSplit } from "./DouYinLivePortraitSplit";
 import { DouYinLiveDanmaku } from "./DouYinLiveDanmaku";
 import { DouYinLiveShortCut } from "./DouYinLiveShortCut";
 import { DouYinLivePlayer } from "./player/DouYinLivePlayer";
@@ -65,6 +66,10 @@ export const DouYinLive = {
     DouYinLiveShortCut.init();
     DouYinLiveDanmaku.init();
     DouYinLivePlayer.init();
+    // 三态布局是配置值而不是开关；切换配置时只更新布局，不能重新挂载并清理旧实例。
+    Panel.onceExec("dy-live-layout-controller", () => {
+      DouYinLivePortraitSplit.init();
+    });
     // Panel.execMenu("live-unlockImageQuality", () => {
     // 	this.unlockImageQuality();
     // });

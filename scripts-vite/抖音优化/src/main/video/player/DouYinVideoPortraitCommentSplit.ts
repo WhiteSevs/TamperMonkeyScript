@@ -1,21 +1,27 @@
 import { addStyle, log } from "@/env";
+import { Panel } from "@components/setting/panel";
+import { createLayoutPicker, getLayoutMode, resolveLayoutMode } from "@/main/layout/DouYinLayoutPicker";
+import { DouYinRouter } from "@/router/DouYinRouter";
+import pickerCSS from "@/main/layout/css/layoutPicker.css?raw";
 import splitCSS from "../css/portraitCommentSplit.css?raw";
 
 const ROOT_SELECTOR = '#sliderVideo[data-e2e="feed-active-video"], ' + '#slideMode[data-e2e="feed-active-video"]';
 const SIDE_CARD_SELECTOR = "#videoSideCard, #videoSideBar";
 const RELEVANT_SELECTOR = "#sliderVideo, #slideMode, #videoSideCard, #videoSideBar, #relatedVideoCard";
-const ACTIVE_CLASS_NAME = "dy-portrait-comment-split-active";
+const BOTTOM_CLASS = "dy-comment-layout-bottom";
+const LAYOUT_KEY = "dy-video-commentLayout";
+const SEARCH_PATH_PATTERN = /(?:^|\/)search(?:\/|$)/;
 
 /**
- * 手机模式下将已展开的评论区和视频上下分屏。
+ * 视频评论区自动/下方/右侧布局。搜索结果的内嵌视频保持原生右侧布局。
  *
  * 不移动 video 节点，以免触发播放器重新加载；关闭评论区时恢复原始布局。
  */
 export const DouYinVideoPortraitCommentSplit = {
   init() {
-    log.info("启用竖屏评论区上下分屏");
-    const $style = addStyle(splitCSS);
-    let activeRoots = new Set<HTMLElement>();
+    log.info("启用视频评论区布局切换");
+    const styles = [addStyle(splitCSS), addStyle(pickerCSS)];
+    const pickers = new Map<HTMLElement, ReturnType<typeof createLayoutPicker>>();
 
     const getOpenedCommentPanel = ($root: HTMLElement) => {
       const $player = $root.querySelector<HTMLElement>(".playerContainer");
@@ -40,26 +46,44 @@ export const DouYinVideoPortraitCommentSplit = {
       return null;
     };
 
+    const isInlineSearch = () =>
+        SEARCH_PATH_PATTERN.test(window.location.pathname) ||
+        document.querySelector("#search-body-container, #search-result-container") != null;
+
+    const isUnsupportedPage = () => DouYinRouter.isLive() || isInlineSearch();
+    const clearPicker = ($root: HTMLElement) => {
+      $root.classList.remove(BOTTOM_CLASS);
+      pickers.get($root)?.destroy();
+      pickers.delete($root);
+    };
+
     const update = () => {
-      const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+      const skip = isUnsupportedPage();
+      const bottom = resolveLayoutMode(getLayoutMode(LAYOUT_KEY)) === "bottom";
       const nextActiveRoots = new Set<HTMLElement>();
 
-      for (const $root of document.querySelectorAll<HTMLElement>(ROOT_SELECTOR)) {
-        const shouldSplit = isPortrait && getOpenedCommentPanel($root) != null;
-        if ($root.classList.contains(ACTIVE_CLASS_NAME) !== shouldSplit) {
-          $root.classList.toggle(ACTIVE_CLASS_NAME, shouldSplit);
+      if (!skip) for (const $root of document.querySelectorAll<HTMLElement>(ROOT_SELECTOR)) {
+        if (!getOpenedCommentPanel($root)) continue;
+        $root.classList.toggle(BOTTOM_CLASS, bottom);
+        let picker = pickers.get($root);
+        if (!picker?.element.isConnected) {
+          picker?.destroy();
+          picker = createLayoutPicker(LAYOUT_KEY);
+          $root.appendChild(picker.element);
+          pickers.set($root, picker);
         }
-        if (shouldSplit) nextActiveRoots.add($root);
+        picker.update();
+        nextActiveRoots.add($root);
       }
 
-      for (const $root of activeRoots) {
-        if (!nextActiveRoots.has($root)) $root.classList.remove(ACTIVE_CLASS_NAME);
+      for (const $root of pickers.keys()) {
+        if (!nextActiveRoots.has($root)) clearPicker($root);
       }
-      activeRoots = nextActiveRoots;
     };
 
     let frameId: number | null = null;
     let settleTimerId: number | null = null;
+    let observerSuspended = false;
     const scheduleUpdate = () => {
       if (frameId === null) {
         frameId = window.requestAnimationFrame(() => {
@@ -81,6 +105,13 @@ export const DouYinVideoPortraitCommentSplit = {
       return $element.matches(RELEVANT_SELECTOR) || $element.querySelector(RELEVANT_SELECTOR) != null;
     };
     const observer = new MutationObserver((mutations) => {
+      // 从视频页切换到直播间时，直播聊天室的频繁更新不应触发视频布局检测。
+      if (isUnsupportedPage()) {
+        observer.disconnect();
+        observerSuspended = true;
+        scheduleUpdate();
+        return;
+      }
       const hasRelevantChange = mutations.some((mutation) => {
         const $target = mutation.target as Element;
         if (mutation.type === "attributes") {
@@ -93,13 +124,14 @@ export const DouYinVideoPortraitCommentSplit = {
       if (hasRelevantChange) scheduleUpdate();
     });
     const startObserver = () => {
-      if (!document.documentElement) return;
+      if (!document.documentElement || isUnsupportedPage()) return;
       observer.observe(document.documentElement, {
         childList: true,
         subtree: true,
         attributes: true,
         attributeFilter: ["class", "style", "data-e2e", "aria-hidden"],
       });
+      observerSuspended = false;
       scheduleUpdate();
     };
     const onClick = (event: MouseEvent) => {
@@ -112,16 +144,27 @@ export const DouYinVideoPortraitCommentSplit = {
 
     update();
     // 以 DOM 变化触发为主，低频轮询只用于页面样式变化等兜底场景。
-    const intervalId = window.setInterval(update, 3000);
+    const intervalId = window.setInterval(() => {
+      if (isUnsupportedPage()) {
+        if (!observerSuspended) {
+          observer.disconnect();
+          observerSuspended = true;
+        }
+      } else if (observerSuspended) {
+        startObserver();
+      }
+      update();
+    }, 3000);
     if (document.documentElement) startObserver();
     else document.addEventListener("DOMContentLoaded", startObserver, { once: true });
     document.addEventListener("click", onClick, true);
     window.addEventListener("resize", scheduleUpdate, { passive: true });
     window.addEventListener("pageshow", scheduleUpdate, { passive: true });
     document.addEventListener("visibilitychange", onVisibilityChange);
+    const modeListenerId = Panel.addValueChangeListener(LAYOUT_KEY, scheduleUpdate);
 
     return [
-      $style,
+      ...styles,
       () => {
         observer.disconnect();
         document.removeEventListener("DOMContentLoaded", startObserver);
@@ -132,8 +175,8 @@ export const DouYinVideoPortraitCommentSplit = {
         window.removeEventListener("resize", scheduleUpdate);
         window.removeEventListener("pageshow", scheduleUpdate);
         document.removeEventListener("visibilitychange", onVisibilityChange);
-        for (const $root of activeRoots) $root.classList.remove(ACTIVE_CLASS_NAME);
-        activeRoots.clear();
+        Panel.removeValueChangeListener(modeListenerId);
+        for (const $root of pickers.keys()) clearPicker($root);
       },
     ];
   },
