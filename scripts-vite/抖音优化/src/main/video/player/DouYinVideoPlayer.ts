@@ -36,7 +36,9 @@ export const DouYinVideoPlayer = {
       DouYinVideoPlayerShortCut.init();
     });
     DouYinVideoPlayerBlockMouseHoverTip.init();
-    DouYinVideoMobileMode.init();
+    Panel.execMenuOnce("changeCommentToBottom", () => {
+      return this.changeCommentToBottom();
+    });
     Panel.execMenuOnce("fullScreen", (config) => {
       return this.fullScreen(config.value);
     });
