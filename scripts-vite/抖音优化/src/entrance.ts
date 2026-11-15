@@ -18,6 +18,7 @@ import { PanelRecommendConfig } from "./setting/view/recommend";
 import { PanelFollowrConfig } from "./setting/view/follow";
 import { PanelHotConfig } from "./setting/view/hot";
 import { PanelChatConfig } from "./setting/view/chat";
+import { ApiConfig } from "./api/ApiConfig";
 
 // pc
 PanelContent.addContentConfig([
@@ -57,3 +58,4 @@ if (MDouYinRouter.isMDouYin()) {
 } else {
   DouYin.init();
 }
+ApiConfig;

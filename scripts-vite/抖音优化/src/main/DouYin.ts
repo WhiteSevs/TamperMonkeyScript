@@ -28,7 +28,7 @@ import { DyChat } from "./chat/DyChat";
 
 export const DouYin = {
   init() {
-    if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
+    if (!(DouYinRouter.isIndex() || DouYinRouter.isLive()) || DouYinRouter.isLiveUCenter()) {
       // 当前仅主站和直播页面支持
       log.error(`当前仅主站和直播页面支持${CommonUtil.isTopWindow() ? "" : "（iframe）"}`);
       return;
@@ -71,6 +71,7 @@ export const DouYin = {
     Panel.execMenuOnce("dy-chat-autoKeepTheSparkAlive", () => {
       return DyChat.autoKeepTheSparkAlive();
     });
+    log.info(location.href);
     if (DouYinRouter.isLive()) {
       log.info("Router: 直播");
       DouYinLive.init();

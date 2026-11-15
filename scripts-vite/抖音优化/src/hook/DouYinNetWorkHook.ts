@@ -1,4 +1,5 @@
-import { log, utils } from "@/env";
+import { ApiConfig } from "@/api/ApiConfig";
+import { httpx, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 import { CommonUtil } from "@components/utils/CommonUtil";
 import { unsafeWindow } from "ViteGM";
@@ -14,6 +15,9 @@ export const DouYinNetWorkHook = {
   init() {
     Panel.execMenuOnce("dy-hook-higher-quality", () => {
       return this.hookVideoQuality();
+    });
+    Panel.execMenuOnce("dy-hook-recommend-no-user-profile", () => {
+      return this.hookRecommendNoUserProfile();
     });
   },
   /**
@@ -205,6 +209,56 @@ export const DouYinNetWorkHook = {
             };
           }
           response.responseText = JSON.stringify(data);
+        };
+      }
+    });
+  },
+  /**
+   * 劫持拉取的推荐视频请求，让它不带用户画像来拉取数据
+   */
+  hookRecommendNoUserProfile() {
+    log.info(`劫持拉取的推荐视频请求`);
+    let ttwid: string | undefined = undefined;
+    const refreshTtwidCount = 5;
+    let currentRequestCount = 5;
+    this.ajaxHooker.hook(async (request) => {
+      const url = CommonUtil.fixUrl(request.url);
+      const urlInst = new URL(url);
+      if (urlInst.pathname.startsWith("/aweme/v1/web/tab/feed")) {
+        if (currentRequestCount >= refreshTtwidCount) {
+          // 重新获取ttwid
+          ttwid = await ApiConfig.getTtwid();
+          currentRequestCount = 0;
+          log.success("new ttwid: " + ttwid);
+        }
+        if (!ttwid) {
+          return;
+        }
+        currentRequestCount++;
+
+        const recommendResponsePromise = httpx.get(url, {
+          anonymous: true,
+          headers: {
+            "User-Agent": utils.getRandomPCUA(),
+            Referer: "https://www.douyin.com/?recommend=1",
+            Accept: "*/*",
+            Cookie: "ttwid=" + ttwid,
+          },
+        });
+        request.response = async (response) => {
+          const recommendResponse = await recommendResponsePromise;
+          if (!recommendResponse.isSuccess) {
+            return;
+          }
+          const dataText = recommendResponse.data.responseText || "";
+          if (utils.isNull(dataText)) {
+            log.error("ttwid 返回空 body（被风控）");
+            return;
+          }
+          const data = utils.toJSON(dataText);
+          if (data.status_code === 0 && data.aweme_list) {
+            response.responseText = dataText;
+          }
         };
       }
     });

@@ -1,42 +1,22 @@
-/* 仅在竖屏窗口、评论区打开且分屏功能启用时生效 */
 @media screen and (orientation: portrait) {
-  .dy-portrait-comment-split-active {
-    --dy-portrait-player-height: 40%;
-    --dy-portrait-comment-height: 60%;
+  #sliderVideo[data-e2e="feed-active-video"],
+  #slideMode[data-e2e="feed-active-video"] {
+    --comment-height: 60%;
   }
-
-  .dy-portrait-comment-split-active .playerContainer {
-    width: 100% !important;
-    height: var(--dy-portrait-player-height) !important;
-    max-height: var(--dy-portrait-player-height) !important;
-    min-height: 0 !important;
+  /* 当前观看的视频 */
+  [data-e2e="feed-active-video"]:has([data-comment-show]) .playerContainer {
+    height: calc(100% - var(--comment-height)) !important;
   }
-
-  .dy-portrait-comment-split-active .playerContainer .basePlayerContainer,
-  .dy-portrait-comment-split-active .playerContainer .xgplayer {
-    height: 100% !important;
-    max-height: 100% !important;
-    min-height: 0 !important;
-  }
-
-  .dy-portrait-comment-split-active .playerContainer video {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain !important;
-  }
-
-  .dy-portrait-comment-split-active #videoSideCard:has(#relatedVideoCard),
-  .dy-portrait-comment-split-active #videoSideBar:has(#relatedVideoCard) {
-    position: absolute !important;
-    width: 100% !important;
-    height: var(--dy-portrait-comment-height) !important;
-    max-height: var(--dy-portrait-comment-height) !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    bottom: 0 !important;
-    min-height: 0 !important;
+}
+/* 如果是小屏，则屏蔽以下组件 */
+@media screen and (orientation: portrait) and (max-height: 1024px) {
+  /* 评论区打开状态 */
+  [data-e2e="feed-active-video"]:has([data-comment-show]) {
+    /* 右侧工具栏 */
+    & .playerContainer .positionBox,
+    /* 底部信息区域 */
+    & .playerContainer .player-position-box-bottom {
+      display: none !important;
+    }
   }
 }

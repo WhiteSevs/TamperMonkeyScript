@@ -102,35 +102,6 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   void 0,
                   "隐藏右侧工具栏、底部信息栏等"
                 ),
-                UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
-                UISwitch(
-                  "评论区移到中间",
-                  "changeCommentToBottom",
-                  true,
-                  void 0,
-                  "[移动端专用]修改评论区为中间弹出而非右侧区域"
-                ),
-                UISwitch(
-                  "竖屏评论区上下分屏",
-                  "dy-video-portraitCommentSplit",
-                  false,
-                  void 0,
-                  "需同时开启「手机模式」和「评论区移到中间」。打开评论区后视频占上方40%，评论区占下方60%"
-                ),
-                UISwitch(
-                  "修复进度条",
-                  "repairProgressBar",
-                  false,
-                  void 0,
-                  "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
-                ),
-                UISwitch(
-                  "手势返回关闭评论区",
-                  "dy-video-gestureBackCloseComment",
-                  false,
-                  void 0,
-                  "浏览器手势返回时关闭评论区"
-                ),
                 UISwitch(
                   "监听并关闭【长时间无操作，已暂停播放】弹窗",
                   "dy-video-waitToRemovePauseDialog",
@@ -211,6 +182,40 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
               type: "container",
               text: "",
               views: [
+                {
+                  type: "deepMenu",
+                  text: "手机模式",
+                  views: [
+                    {
+                      type: "container",
+                      text: "",
+                      views: [
+                        UISwitch("启用", "mobileMode", false, void 0),
+                        UISwitch(
+                          "自适应评论区",
+                          "changeCommentToBottom",
+                          true,
+                          void 0,
+                          "自动根据浏览器的显示调整评论区的位置"
+                        ),
+                        UISwitch(
+                          "修复进度条",
+                          "repairProgressBar",
+                          false,
+                          void 0,
+                          "修复移动端不能点击拖拽和定位进度的问题"
+                        ),
+                        UISwitch(
+                          "手势返回关闭评论区",
+                          "dy-video-gestureBackCloseComment",
+                          false,
+                          void 0,
+                          "浏览器手势返回时关闭评论区"
+                        ),
+                      ],
+                    },
+                  ],
+                },
                 {
                   type: "deepMenu",
                   text: "解析下载",

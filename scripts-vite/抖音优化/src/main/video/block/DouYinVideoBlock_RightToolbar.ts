@@ -111,15 +111,22 @@ export const DouYinVideoBlock_RightToolbar = {
    */
   blockUserLiveSmallWindow() {
     log.info(`【屏蔽】直播小窗`);
-    return addBlockCSS(
-      'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
-      // 仅有边框的情况
-      'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
-      "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
-      ".LivePlayer_Preview",
-      // 仅有边框的情况
-      '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
-    );
+    return [
+      addBlockCSS(
+        'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
+        // 仅有边框的情况
+        'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
+        "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
+        ".LivePlayer_Preview",
+        // 仅有边框的情况
+        '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
+      ),
+      addStyle(/*css*/ `
+        [data-e2e="feed-live"] .LivePlayer_Preview{
+          display: block !important;
+        }
+      `),
+    ];
   },
   /**
    * 【屏蔽】右侧直播时闪烁的头像

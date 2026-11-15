@@ -13,6 +13,9 @@ export const DouYinRouter = {
   isLive(href?: string) {
     return RouterUtil.hostName("live.douyin.com").r() || this.isFollowLive(href) || this.isRootLive(href);
   },
+  isLiveUCenter() {
+    return this.isLive() && RouterUtil.builder().pathnameStartsWith("/ucenter/").r();
+  },
   /**
    * 创作者中心
    */

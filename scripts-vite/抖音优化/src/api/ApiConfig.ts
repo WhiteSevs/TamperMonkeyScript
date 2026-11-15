@@ -1,4 +1,4 @@
-import { utils } from "@/env";
+import { httpx, log, utils } from "@/env";
 import { unsafeWindow } from "ViteGM";
 
 export const ApiConfig = {
@@ -49,6 +49,30 @@ export const ApiConfig = {
    */
   getSecUserId() {
     return utils.toJSON(unsafeWindow.localStorage.getItem("user_info"))["uid"];
+  },
+  /**
+   * ttwid
+   */
+  async getTtwid() {
+    const response = await httpx.post("https://ttwid.bytedance.com/ttwid/union/register/", {
+      anonymous: true,
+      headers: { "Content-Type": "application/json", "User-Agent": utils.getRandomPCUA() },
+      data: {
+        region: "cn",
+        aid: 1768,
+        needFid: false,
+        service: "www.ixigua.com",
+        migrate_info: { ticket: "", source: "node" },
+        cbUrlProtocol: "https",
+        union: true,
+      },
+    });
+    const ttwidMatcher = /ttwid=([^;\r\n]+)/i.exec(response.data.responseHeaders || "");
+    if (!ttwidMatcher) {
+      log.error("ttwid 注册失败");
+      return;
+    }
+    return ttwidMatcher[1];
   },
 };
 

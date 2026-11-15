@@ -1,30 +1,25 @@
 import { $, $$, DOMUtils, addStyle, log, pops, utils } from "@/env";
 import { DouYinElement } from "@/main/DouYinElement";
 import { DouYinRouter } from "@/router/DouYinRouter";
+import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 import { DouYinUtils } from "@/utils/DouYinUtils";
 import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
-import { GestureBack } from "@components/utils/GestureBack";
 import { ReactUtils } from "@components/utils/ReactUtils";
 import type { ReactFiberNode } from "@whitesev/utils/dist/types/src/types/React.js";
 import Qmsg from "qmsg";
 import { GM_download, unsafeWindow } from "ViteGM";
 import type { DouYinVideoAwemeInfoWithDOM, DouYinVideoConversionInfo } from "../../../../types/DouYinVideoType";
-import { DouYin } from "../../DouYin";
-import { DouYinGestureBackHashConfig } from "../../DouYinGestureBackConfig";
 import { DouYinVideoBlock } from "../block/DouYinVideoBlock";
 import { DouYinVideoBlock_BottomToolbar_PlayerComponents } from "../block/DouYinVideoBlock_BottomToolbar_PlayerComponents";
 import { DouYinVideoBlock_BottomToolbar_videoInfo } from "../block/DouYinVideoBlock_BottomToolbar_videoInfo";
 import { DouYinVideoBlock_RightToolbar } from "../block/DouYinVideoBlock_RightToolbar";
-import MobileCSS from "../css/mobile.css?raw";
 import { DouYinVideoElementAutoHide, DouYinVideoElementAutoHideInjectAttr } from "../DouYinVideoElementAutoHide";
 import { DouYinVideoFilter } from "../filter/DouYinVideoFilter";
 import { DouYinVideoFilterBase } from "../filter/DouYinVideoFilterBase";
+import { DouYinVideoMobileMode } from "./DouYinVideoMobileMode";
 import { DouYinVideoPlayerBlockMouseHoverTip } from "./DouYinVideoPlayerBlockMouseHoverTip";
-import { DouYinVideoPortraitCommentSplit } from "./DouYinVideoPortraitCommentSplit";
 import { DouYinVideoPlayerShortCut } from "./DouYinVideoPlayerShortCut";
-import type { VideoQualityMap } from "@/main/live/DouYinLive";
-import { DouYinElementUtil } from "@/utils/DouYinElementUtil";
 
 /**
  * 视频播放器的播放速度
@@ -41,12 +36,7 @@ export const DouYinVideoPlayer = {
       DouYinVideoPlayerShortCut.init();
     });
     DouYinVideoPlayerBlockMouseHoverTip.init();
-    Panel.execMenuOnce("changeCommentToBottom", () => {
-      return this.changeCommentToBottom();
-    });
-    Panel.execMenuOnce(["mobileMode", "changeCommentToBottom", "dy-video-portraitCommentSplit"], () => {
-      return DouYinVideoPortraitCommentSplit.init();
-    });
+    DouYinVideoMobileMode.init();
     Panel.execMenuOnce("fullScreen", (config) => {
       return this.fullScreen(config.value);
     });
@@ -89,16 +79,6 @@ export const DouYinVideoPlayer = {
     Panel.execMenuOnce(["dy-video-bgColor-enable", "dy-video-changeBackgroundColor"], (option) => {
       return this.changeBackgroundColor(option.value[1]);
     });
-    Panel.execMenuOnce("repairProgressBar", () => {
-      const result: HTMLStyleElement[] = [];
-      Panel.onceExec("repairProgressBar", () => {
-        result.push(...this.repairVideoProgressBar());
-      });
-      return result;
-    });
-    Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
-      return this.gestureBackCloseComment();
-    });
     Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
       return this.removeStyleBottom();
     });
@@ -124,9 +104,6 @@ export const DouYinVideoPlayer = {
       DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
       Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
         return this.waitToRemovePauseDialog();
-      });
-      Panel.execMenuOnce("mobileMode", () => {
-        return this.mobileMode();
       });
       Panel.execMenuOnce("dy-video-autoHideBottomControls", (config) => {
         return this.autoHideBottomControls(config.value);
@@ -366,43 +343,6 @@ export const DouYinVideoPlayer = {
       }
     );
     return listener.off;
-  },
-  /**
-   * 评论区移到中间
-   */
-  changeCommentToBottom() {
-    log.info("评论区移到中间");
-    return [
-      /* 2024.5.27 dy更名videoSideBar=>videoSideCard */
-      addStyle(/*css*/ `
-      /* 竖屏样式 */
-      @media screen and (orientation: portrait) {
-        #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
-        #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
-          display: none !important;
-        }
-        /* 左侧的视频宽度撑满 */
-        #sliderVideo[data-e2e] .playerContainer,
-        #slideMode[data-e2e] .playerContainer{
-          width: 100% !important;
-        }
-        /* 右侧的评论区宽度撑满，position使用absolute */
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
-          width: 100%;
-          height: 75%;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.9);
-          transition: height .15s linear !important;
-          position: absolute;
-        }
-      }
-		`),
-    ];
   },
   /**
    * 选择视频清晰度(画质)
@@ -1314,7 +1254,7 @@ export const DouYinVideoPlayer = {
         ).forEach(($xgRightGrid) => {
           let $btn = $xgRightGrid.querySelector<HTMLElement>("." + downloadButtonClassName);
           if (!$btn) {
-            $btn = createButton(true);
+            $btn = createButton(false);
             DOMUtils.on($btn, "click", async (event) => {
               DOMUtils.preventEvent(event);
               await onClick($btn!);
@@ -1597,113 +1537,6 @@ export const DouYinVideoPlayer = {
     return [result.off];
   },
   /**
-   * 手机模式
-   */
-  mobileMode() {
-    log.info("启用手机模式");
-    const result: HTMLStyleElement[] = [];
-    DouYin.initialScale();
-    /* 屏蔽底部视频工具栏右侧的?帮助反馈按钮 */
-    result.push(addBlockCSS("img#douyin-temp-sidebar")!, addStyle(MobileCSS));
-    Panel.onceExec("repairProgressBar", () => {
-      result.push(...this.repairVideoProgressBar());
-    });
-    if (DouYinRouter.isVideo()) {
-      result.push(
-        addStyle(/*css*/ `
-        #douyin-right-container .parent-route-container [data-e2e="video-detail"]{
-          min-width: unset !important;
-          padding: 0 10px;
-
-          & .basePlayerContainer{
-             min-width: unset !important;
-          }
-          & [data-e2e="detail-video-info"] > div{
-            flex-flow: wrap;
-          }
-        }
-      `)
-      );
-    }
-    return result;
-  },
-  /**
-   * 修复进度条按钮
-   */
-  repairVideoProgressBar() {
-    log.info("修复进度条按钮");
-    const result: any[] = [
-      addStyle(/*css*/ `
-			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-      @media screen and (max-width: 600px) and (orientation: portrait),
-        screen and (max-height: 600px) and (orientation: landscape) {
-        xg-outer,
-        xg-inners {
-          pointer-events: none;
-        }
-      }
-			`),
-    ];
-    const mobileMode = Panel.getDynamicValue("mobileMode");
-    const repairProgressBar = Panel.getDynamicValue("repairProgressBar");
-    result.push(mobileMode.destory, repairProgressBar.destory);
-    /**
-     * 检测是否启用
-     */
-    const checkEnable = () => {
-      return mobileMode.value || repairProgressBar.value;
-    };
-    const isMobile = () => {
-      if (DouYinUtils.isVerticalScreen()) {
-        // 竖屏
-        return window.innerWidth <= 600;
-      } else {
-        // 横屏
-        return window.innerHeight <= 600;
-      }
-    };
-    DOMUtils.onReady(() => {
-      // 让拖拽进度条的按钮拖拽时修改进度条高度
-      DOMUtils.on(
-        document.body,
-        "touchstart",
-        "xg-progress",
-        (event, $click) => {
-          if (!checkEnable()) return;
-          if (!isMobile()) return;
-          const $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
-          if ($xg_outer) {
-            $xg_outer.style.height = "6px";
-          }
-        },
-        {
-          capture: true,
-          overrideTarget: false,
-        }
-      );
-      // 让拖拽进度条的按钮拖拽时修改进度条高度
-      DOMUtils.on(
-        document.body,
-        "touchend",
-        "xg-progress",
-        (event, $click) => {
-          if (!checkEnable()) return;
-          if (!isMobile()) return;
-          const $xg_outer = $click.querySelector<HTMLElement>("xg-outer");
-          if ($xg_outer) {
-            $xg_outer.style.height = "";
-          }
-        },
-        {
-          capture: true,
-          overrideTarget: false,
-        }
-      );
-    });
-
-    return result;
-  },
-  /**
    * 修改视频背景颜色
    * @param color 颜色
    */
@@ -1789,78 +1622,6 @@ export const DouYinVideoPlayer = {
 		  `)
     );
     return result;
-  },
-  /**
-   * 手势返回关闭评论区
-   */
-  gestureBackCloseComment() {
-    log.info(`手势返回关闭评论区`);
-    const gestureback = new GestureBack({
-      hash: DouYinGestureBackHashConfig.videoCommentDrawer,
-      useUrl: true,
-      beforeHistoryBackCallBack(isUrlChange) {
-        if (isUrlChange) {
-          closeComment();
-        }
-      },
-    });
-
-    const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
-    /**
-     * 关闭评论区
-     */
-    function closeComment() {
-      const $close = $<HTMLElement>($closeSelector);
-      if ($close) {
-        const rect = utils.getReactInstance($close);
-        if (rect) {
-          const fn = rect.reactProps?.onClick;
-          if (typeof fn === "function") {
-            fn();
-          } else {
-            Qmsg.error("调用关闭评论区按钮的onClick函数失败");
-          }
-        } else {
-          Qmsg.error("获取关闭评论区按钮react信息失败");
-        }
-      } else {
-        Qmsg.error("未找到关闭评论区的按钮");
-      }
-    }
-
-    const result1 = DOMUtils.on(
-      document,
-      "click",
-      `.xgplayer div[data-e2e="feed-comment-icon"]`,
-      () => {
-        log.info(`手势 => 打开评论区`);
-        DOMUtils.waitNode($closeSelector, 10000).then(($el) => {
-          if (!$el) {
-            return;
-          }
-          log.info(`手势 => 评论区出现`);
-          gestureback.enterGestureBackMode();
-        });
-      },
-      {
-        capture: true,
-        overrideTarget: false,
-      }
-    );
-    const result2 = DOMUtils.on(
-      document,
-      "click",
-      $closeSelector,
-      () => {
-        log.info(`手势 => 关闭评论区`);
-        gestureback.quitGestureBackMode();
-      },
-      {
-        capture: true,
-        overrideTarget: false,
-      }
-    );
-    return [result1.off, result2.off];
   },
   /**
    * 信息区域

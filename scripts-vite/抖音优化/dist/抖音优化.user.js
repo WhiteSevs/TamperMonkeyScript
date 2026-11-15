@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.11.6
+// @version      2026.11.15
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -1336,28 +1336,32 @@
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    async execMenu(key, callback, isReverse = false, once = false) {
+    async execMenu(key, callback, isReverse = false, once = false, isCheckKeyExecWithOr = false) {
       return await this.exec(
         key,
         async (...args) => {
           return await callback(...args);
         },
         (keyList) => {
-          return keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
+          let execFlag = false;
+          const checkKeyExec = (key) => {
+            let flag = !!this.getValue(key);
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(key)) {
               flag = false;
-              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+              log.warn(`.execMenu${once ? "Once" : ""} ${key} 被禁用`);
             }
             if (isReverse) flag = !flag;
             return flag;
-          });
+          };
+          if (isCheckKeyExecWithOr) execFlag = keyList.some(checkKeyExec);
+          else execFlag = keyList.every(checkKeyExec);
+          return execFlag;
         },
         once
       );
     },
-    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = await this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false, isCheckKeyExecWithOr = false) {
+      const result = await this.execMenu(key, callback, isReverse, true, isCheckKeyExecWithOr);
       if (listenUrlChange) {
         if (result) {
           const urlChangeCallback = () => {
@@ -1369,21 +1373,29 @@
       }
       return result;
     },
-    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+    async execMoreMenu(
+      keyList,
+      allExecCallback,
+      isReverse = false,
+      once = false,
+      listenUrlChange = false,
+      isCheckKeyExecWithOr = false
+    ) {
       const results = await Promise.all(
-        menus.map(async ([key, callback]) => {
+        keyList.map(async ([key, callback]) => {
           return await this.execMenu(
             key,
             (...args) => {
               return callback(...args);
             },
             isReverse,
-            once
+            once,
+            isCheckKeyExecWithOr
           );
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
-        keyList: menus.map(([key]) => key),
+        keyList: keyList.map(([key]) => key),
         getValue: (key) => {
           const value = this.getValue(key);
           return Boolean(value);
@@ -2082,10 +2094,20 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
-      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
-      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
-      else qmsg.default.error("其它错误", { consoleLogContent: true });
+      const toastConfig = { consoleLogContent: true };
+      if (data.type === "onabort") qmsg.default.warning("请求取消", toastConfig);
+      else if (data.type === "onerror") {
+        const errorString = data.response.error;
+        if (typeof errorString == "string" && utils$1.isNotNull(errorString)) {
+          if (errorString.includes("@connect list"))
+            qmsg.default.error("请将该域名添加至@connect: " + data.resolveOption.requestOption.url, {
+              ...toastConfig,
+              timeout: 5e3,
+            });
+          else qmsg.default.error(errorString, toastConfig);
+        } else qmsg.default.error("请求异常", toastConfig);
+      } else if (data.type === "ontimeout") qmsg.default.error("请求超时", toastConfig);
+      else qmsg.default.error("其它错误", toastConfig);
       return data;
     }
   );
@@ -2117,6 +2139,70 @@
   }
   new utils$1.DocumentCookieHandler();
   var _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
+  var ApiConfig = {
+    BASE_URL: "https://www.douyin.com/",
+    getCommonData() {
+      return {
+        aid: 6383,
+        channel: "channel_pc_web",
+        device_platform: "webapp",
+        pc_client_type: 1,
+        pc_libra_divert: "Windows",
+        version_code: 170400,
+        version_name: "17.4.0",
+        cookie_enabled: true,
+        screen_width: window.outerWidth,
+        screen_height: window.outerHeight,
+        browser_language: "zh-CN",
+        browser_platform: "Win32",
+        browser_name: "Edge",
+        browser_version: "132.0.0.0",
+        browser_online: true,
+        engine_name: "Blink",
+        engine_version: "132.0.0.0",
+        os_name: "Windows",
+        os_version: 10,
+        cpu_core_num: 16,
+        device_memory: 8,
+        platform: "PC",
+        effective_type: "4g",
+        round_trip_time: 250,
+      };
+    },
+    getWebId() {
+      return utils$1.toJSON(_unsafeWindow.localStorage.getItem("SysInfo"))["webid"];
+    },
+    getSecUserId() {
+      return utils$1.toJSON(_unsafeWindow.localStorage.getItem("user_info"))["uid"];
+    },
+    async getTtwid() {
+      const response = await httpx.post("https://ttwid.bytedance.com/ttwid/union/register/", {
+        anonymous: true,
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": utils$1.getRandomPCUA(),
+        },
+        data: {
+          region: "cn",
+          aid: 1768,
+          needFid: false,
+          service: "www.ixigua.com",
+          migrate_info: {
+            ticket: "",
+            source: "node",
+          },
+          cbUrlProtocol: "https",
+          union: true,
+        },
+      });
+      const ttwidMatcher = /ttwid=([^;\r\n]+)/i.exec(response.data.responseHeaders || "");
+      if (!ttwidMatcher) {
+        log.error("ttwid 注册失败");
+        return;
+      }
+      return ttwidMatcher[1];
+    },
+  };
   var DouYinNetWorkHook = {
     __ajaxHooker: null,
     get ajaxHooker() {
@@ -2126,6 +2212,9 @@
     init() {
       Panel.execMenuOnce("dy-hook-higher-quality", () => {
         return this.hookVideoQuality();
+      });
+      Panel.execMenuOnce("dy-hook-recommend-no-user-profile", () => {
+        return this.hookRecommendNoUserProfile();
       });
     },
     hookUserNoLoginResponse() {
@@ -2259,6 +2348,44 @@
             }
             response.responseText = JSON.stringify(data);
           };
+      });
+    },
+    hookRecommendNoUserProfile() {
+      log.info(`劫持拉取的推荐视频请求`);
+      let ttwid = void 0;
+      const refreshTtwidCount = 5;
+      let currentRequestCount = 5;
+      this.ajaxHooker.hook(async (request) => {
+        const url = CommonUtil.fixUrl(request.url);
+        if (new URL(url).pathname.startsWith("/aweme/v1/web/tab/feed")) {
+          if (currentRequestCount >= refreshTtwidCount) {
+            ttwid = await ApiConfig.getTtwid();
+            currentRequestCount = 0;
+            log.success("new ttwid: " + ttwid);
+          }
+          if (!ttwid) return;
+          currentRequestCount++;
+          const recommendResponsePromise = httpx.get(url, {
+            anonymous: true,
+            headers: {
+              "User-Agent": utils$1.getRandomPCUA(),
+              Referer: "https://www.douyin.com/?recommend=1",
+              Accept: "*/*",
+              Cookie: "ttwid=" + ttwid,
+            },
+          });
+          request.response = async (response) => {
+            const recommendResponse = await recommendResponsePromise;
+            if (!recommendResponse.isSuccess) return;
+            const dataText = recommendResponse.data.responseText || "";
+            if (utils$1.isNull(dataText)) {
+              log.error("ttwid 返回空 body（被风控）");
+              return;
+            }
+            const data = utils$1.toJSON(dataText);
+            if (data.status_code === 0 && data.aweme_list) response.responseText = dataText;
+          };
+        }
       });
     },
   };
@@ -2772,6 +2899,9 @@
     },
     isLive(href) {
       return RouterUtil.hostName("live.douyin.com").r() || this.isFollowLive(href) || this.isRootLive(href);
+    },
+    isLiveUCenter() {
+      return this.isLive() && RouterUtil.builder().pathnameStartsWith("/ucenter/").r();
     },
     isCreator(href) {
       return RouterUtil.hostName("creator.douyin.com").r();
@@ -4889,114 +5019,6 @@
       return '[id^="living_player_container"] .douyin-player .douyin-player-controls-right svg:has(>path[d="M7.5 10a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V10zm3 4.5v-2h1.499V11h2v2.5a1 1 0 0 1-1 1H10.5zM20 11h-2v2.498a1 1 0 0 0 1 1h2.5v-2H20V11zm0 8.5h1.5v-2H19a1 1 0 0 0-1 1V21h2v-1.5zM12 21v-1.498h-1.5v-2H13a1 1 0 0 1 1 1V21h-2z"])';
     },
   };
-  var GestureBack = class {
-    isQuiting = false;
-    isEntering = false;
-    pushCount = 0;
-    config;
-    constructor(config) {
-      this.config = config;
-      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
-      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
-      this.popStateEvent = this.popStateEvent.bind(this);
-      if (this.config.hash.trim() == "") throw new Error("hash不能为空");
-      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime))
-        this.config.backDelayTime = 150;
-      if (this.config.win == null) this.config.win = self;
-    }
-    popStateEvent(event) {
-      domUtils.preventEvent(event);
-      if (this.isEntering) return;
-      if (this.isQuiting) return;
-      this.quitGestureBackMode(void 0, true);
-    }
-    fixHash(hash) {
-      if (!hash.startsWith("#")) {
-        if (!hash.startsWith("/")) hash = "/" + hash;
-        hash = "#" + hash;
-      } else if (!hash.startsWith("#/")) hash = hash.replace(/^#/, "#/");
-      return hash;
-    }
-    async enterGestureBackMode(hash) {
-      try {
-        this.isEntering = true;
-        const isAddPushRecord = hash != null;
-        log.success(isAddPushRecord ? "追加手势记录 " + hash : "进入手势模式");
-        let pushUrl = hash ?? this.config.hash;
-        pushUrl = this.fixHash(pushUrl);
-        if (this.config.useUrl)
-          pushUrl =
-            this.config.win.location.origin +
-            this.config.win.location.pathname +
-            this.config.win.location.search +
-            pushUrl;
-        this.config.win.history.pushState({}, "", pushUrl);
-        if (isAddPushRecord) {
-          await _whitesev_utils.default.sleep(this.config.backDelayTime || 150);
-          return;
-        }
-        domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
-        log.success("监听popstate事件");
-        domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
-        if (typeof this.config.onEnter == "function") this.config.onEnter();
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.isEntering = false;
-      }
-    }
-    async quitGestureBackMode(hash = this.config.hash, isFromPopStateEvent = false) {
-      try {
-        this.isQuiting = true;
-        if (typeof this.config.beforeHistoryBackCallBack === "function") {
-          const result = await this.config.beforeHistoryBackCallBack({
-            hash,
-            isFromPopStateEvent,
-          });
-          if (typeof result == "object" && result) {
-            if (result.isPreventDefault) {
-              log.info("取消手势退出");
-              return;
-            }
-          }
-        }
-        log.success("开始检测并退出手势模式");
-        let maxDate = Date.now() + 5e3;
-        hash = this.fixHash(hash);
-        while (1) {
-          if (Date.now() > maxDate) {
-            log.error("未知情况，history.back()失败，无法退出手势模式");
-            break;
-          }
-          if (this.config.win.location.hash == hash) {
-            this.back();
-            log.info("history.back()");
-            await _whitesev_utils.default.sleep(this.config.backDelayTime);
-          } else break;
-        }
-        const configFixHash = this.fixHash(this.config.hash);
-        if (hash != configFixHash) return;
-        log.success("移除popstate事件");
-        domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
-        if (typeof this.config.afterHistoryBackCallBack === "function")
-          await this.config.afterHistoryBackCallBack({
-            hash,
-            isFromPopStateEvent,
-          });
-        if (typeof this.config.onEnter == "function") this.config.onQuite();
-        log.success("成功完整退出手势模式");
-      } catch (e) {
-        console.error(e);
-      } finally {
-        this.isQuiting = false;
-      }
-    }
-    back() {
-      if (this.config.win.location.hash == "") return false;
-      this.config.win.history.back();
-      return true;
-    }
-  };
   var DouYinVideoBlock_BottomToolbar_PlayerComponents = {
     init() {
       Panel.execMenuOnce("shieldBottomVideoToolBar", () => {
@@ -5747,13 +5769,20 @@
     },
     blockUserLiveSmallWindow() {
       log.info(`【屏蔽】直播小窗`);
-      return addBlockCSS(
-        'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
-        'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
-        "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
-        ".LivePlayer_Preview",
-        '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
-      );
+      return [
+        addBlockCSS(
+          'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
+          'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
+          "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
+          ".LivePlayer_Preview",
+          '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
+        ),
+        addStyle(`
+        [data-e2e="feed-live"] .LivePlayer_Preview{
+          display: block !important;
+        }
+      `),
+      ];
     },
     blockUserLiveFlashingAvatar() {
       log.info(`【屏蔽】右侧直播时闪烁的头像`);
@@ -6012,8 +6041,6 @@
       );
     },
   };
-  var mobile_default$1 =
-    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\r\n    [id^="douyin-header-menu"] {\r\n    display: none !important;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: calc(100dvw - 20px) !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100dvh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: round(nearest, 100dvh, 1px) !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n  /* 推荐视频的高度适配 */\r\n  #slidelist .page-recommend-container {\r\n    margin-top: 8px !important;\r\n    margin-bottom: 4px !important;\r\n  }\r\n  /* 网页全屏下的推荐视频的高度适配 */\r\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\r\n    margin: 0px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮不换行显示 */\r\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r\n    flex-wrap: nowrap;\r\n    white-space: nowrap;\r\n    overflow: auto;\r\n    align-items: start;\r\n    justify-content: start;\r\n    margin: 0px;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
   var DouYinVideoElementAutoHideInjectAttr = "data-is-inject-mouse-hide";
   var DouYinVideoElementAutoHide = (delayTimeKey, selectors, opacityIsImportant = true) => {
     const opacityShowAttrName = "data-opacity-show";
@@ -9426,6 +9453,353 @@
       };
     },
   };
+  var GestureBack = class {
+    isQuiting = false;
+    isEntering = false;
+    pushCount = 0;
+    config;
+    constructor(config) {
+      this.config = config;
+      this.enterGestureBackMode = this.enterGestureBackMode.bind(this);
+      this.quitGestureBackMode = this.quitGestureBackMode.bind(this);
+      this.popStateEvent = this.popStateEvent.bind(this);
+      if (this.config.hash.trim() == "") throw new Error("hash不能为空");
+      if (typeof this.config.backDelayTime !== "number" || isNaN(this.config.backDelayTime))
+        this.config.backDelayTime = 150;
+      if (this.config.win == null) this.config.win = self;
+    }
+    popStateEvent(event) {
+      domUtils.preventEvent(event);
+      if (this.isEntering) return;
+      if (this.isQuiting) return;
+      this.quitGestureBackMode(void 0, true);
+    }
+    fixHash(hash) {
+      if (!hash.startsWith("#")) {
+        if (!hash.startsWith("/")) hash = "/" + hash;
+        hash = "#" + hash;
+      } else if (!hash.startsWith("#/")) hash = hash.replace(/^#/, "#/");
+      return hash;
+    }
+    async enterGestureBackMode(hash) {
+      try {
+        this.isEntering = true;
+        const isAddPushRecord = hash != null;
+        log.success(isAddPushRecord ? "追加手势记录 " + hash : "进入手势模式");
+        let pushUrl = hash ?? this.config.hash;
+        pushUrl = this.fixHash(pushUrl);
+        if (this.config.useUrl)
+          pushUrl =
+            this.config.win.location.origin +
+            this.config.win.location.pathname +
+            this.config.win.location.search +
+            pushUrl;
+        this.config.win.history.pushState({}, "", pushUrl);
+        if (isAddPushRecord) {
+          await _whitesev_utils.default.sleep(this.config.backDelayTime || 150);
+          return;
+        }
+        domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        log.success("监听popstate事件");
+        domUtils.on(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        if (typeof this.config.onEnter == "function") this.config.onEnter();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.isEntering = false;
+      }
+    }
+    async quitGestureBackMode(hash = this.config.hash, isFromPopStateEvent = false) {
+      try {
+        this.isQuiting = true;
+        if (typeof this.config.beforeHistoryBackCallBack === "function") {
+          const result = await this.config.beforeHistoryBackCallBack({
+            hash,
+            isFromPopStateEvent,
+          });
+          if (typeof result == "object" && result) {
+            if (result.isPreventDefault) {
+              log.info("取消手势退出");
+              return;
+            }
+          }
+        }
+        log.success("开始检测并退出手势模式");
+        let maxDate = Date.now() + 5e3;
+        hash = this.fixHash(hash);
+        while (1) {
+          if (Date.now() > maxDate) {
+            log.error("未知情况，history.back()失败，无法退出手势模式");
+            break;
+          }
+          if (this.config.win.location.hash == hash) {
+            this.back();
+            log.info("history.back()");
+            await _whitesev_utils.default.sleep(this.config.backDelayTime);
+          } else break;
+        }
+        const configFixHash = this.fixHash(this.config.hash);
+        if (hash != configFixHash) return;
+        log.success("移除popstate事件");
+        domUtils.off(this.config.win, "popstate", this.popStateEvent, { capture: true });
+        if (typeof this.config.afterHistoryBackCallBack === "function")
+          await this.config.afterHistoryBackCallBack({
+            hash,
+            isFromPopStateEvent,
+          });
+        if (typeof this.config.onEnter == "function") this.config.onQuite();
+        log.success("成功完整退出手势模式");
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.isQuiting = false;
+      }
+    }
+    back() {
+      if (this.config.win.location.hash == "") return false;
+      this.config.win.history.back();
+      return true;
+    }
+  };
+  var mobile_default$1 =
+    '/* 竖屏且高度小于550px */\r\n@media screen and (max-width: 550px) and (orientation: portrait) {\r\n  /* 右侧工具栏放大 */\r\n  .basePlayerContainer .positionBox {\r\n    bottom: 80px !important;\r\n    padding-right: 5px !important;\r\n    scale: unset !important;\r\n    transform: scale3d(1.12, 1.12, 1.12) !important;\r\n  }\r\n  /* 右侧工具栏的svg再放大 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(1.12, 1.12, 1.12);\r\n  }\r\n  /* 重置关注按钮的scale */\r\n  .basePlayerContainer .positionBox .dy-tip-container div[data-e2e="feed-follow-icon"] svg {\r\n    scale: unset !important;\r\n  }\r\n\r\n  /* 调整顶部搜索框的宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]) {\r\n    width: 150px;\r\n    padding-right: 0;\r\n    max-width: unset;\r\n    flex: 1;\r\n  }\r\n  /* 搜索框获取焦点时隐藏右侧的菜单 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]:has(input[data-e2e="searchbar-input"]:focus)\r\n    [id^="douyin-header-menu"] {\r\n    display: none !important;\r\n  }\r\n  /* 搜索框获取焦点时自动放大宽度 */\r\n  #douyin-header\r\n    div[data-click="doubleClick"]\r\n    > div[data-click="doubleClick"]\r\n    > div:has(input[data-e2e="searchbar-input"]:focus) {\r\n    width: 100vw;\r\n    width: 100dvw;\r\n  }\r\n  /* 搜索页面 搜索详情的宽度、视频结果列表的宽度 */\r\n  #search-content-area > div,\r\n  #search-content-area > div div:has(+ #search-result-container),\r\n  #search-content-area > div #search-result-container {\r\n    width: 100%;\r\n    width: -webkit-fill-available;\r\n    width: -moz-available;\r\n  }\r\n  /* 搜索页面 视频右侧的工具栏缩小 */\r\n  #search-content-area .basePlayerContainer .positionBox {\r\n    bottom: 28px !important;\r\n    transform: scale3d(0.6, 0.6, 0.6) !important;\r\n  }\r\n  /* 搜索页面 搜索出的用户信息换行 */\r\n  #search-content-area #search-result-container ul[data-e2e="scroll-list"] li .search-result-card > div > div {\r\n    flex-wrap: wrap;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 综合、视频、用户、直播的超出宽度换行 */\r\n  #search-content-area div:has(> div > div > span[data-key="general"]) {\r\n    overflow: auto;\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) {\r\n    gap: 10px;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项弹窗修复 */\r\n  #search-content-area div:has(> div > span[data-key="general"]) {\r\n    position: unset !important;\r\n  }\r\n  /* 搜索页面 搜索结果筛选选项 */\r\n  #search-content-area div:has(> span[data-key="general"]) > * {\r\n    white-space: nowrap !important;\r\n    width: auto !important;\r\n    width: fit-content !important;\r\n    margin-left: 0px !important;\r\n    margin-right: 0px !important;\r\n  }\r\n  /* 去除设置min-width超出浏览器宽度的问题 */\r\n  body {\r\n    min-width: 100% !important;\r\n  }\r\n  /* 去除设置width导致顶部工具栏超出浏览器宽度的问题 */\r\n  #douyin-right-container #douyin-header {\r\n    width: 100%;\r\n  }\r\n  /* 去除设置 */\r\n  #douyin-right-container #douyin-header > div[data-click="doubleClick"] {\r\n    min-width: 100%;\r\n  }\r\n\r\n  /* /video/xxx页面 */\r\n  /* 点赞、评论、分享偏移 */\r\n  div[data-e2e="video-detail"] .leftContainer .basePlayerContainer .positionBox {\r\n    padding-right: 30px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮 */\r\n  div[data-e2e="video-detail"] .leftContainer .xgplayer.xgplayer-pc .xg-right-grid {\r\n    margin-right: 35px !important;\r\n  }\r\n  /* 评论区全屏 */\r\n  div[data-e2e="video-detail"] .leftContainer > div:has(.comment-mainContent[data-e2e="comment-list"]),\r\n  div[data-e2e="video-detail"] .leftContainer > div > div:has(.comment-mainContent[data-e2e="comment-list"]) {\r\n    width: calc(100dvw - 20px) !important;\r\n  }\r\n\r\n  /* 设置视频区域的高度 */\r\n  #slidelist {\r\n    width: 100%;\r\n    height: calc(100dvh - var(--header-height)) !important;\r\n  }\r\n  /* 修正网页全屏下的视频高度 */\r\n  #slidelist[class*="isCssFullScreen"] {\r\n    height: round(nearest, 100dvh, 1px) !important;\r\n  }\r\n  /* 去除视频区域右侧偏移 */\r\n  .is-mobile-pc div[data-e2e="slideList"] {\r\n    padding-right: 0px !important;\r\n  }\r\n  /* 推荐视频的高度适配 */\r\n  #slidelist .page-recommend-container {\r\n    margin-top: 8px !important;\r\n    margin-bottom: 4px !important;\r\n  }\r\n  /* 网页全屏下的推荐视频的高度适配 */\r\n  #slidelist[class*="isCssFullScreen"] .page-recommend-container {\r\n    margin: 0px !important;\r\n  }\r\n  /* 底部工具栏右侧的按钮不换行显示 */\r\n  #slidelist .page-recommend-container xg-right-grid.xg-right-grid {\r\n    flex-wrap: nowrap;\r\n    white-space: nowrap;\r\n    overflow: auto;\r\n    align-items: start;\r\n    justify-content: start;\r\n    margin: 0px;\r\n  }\r\n}\r\n\r\n/* 横屏且高度小于550px */\r\n@media screen and (max-height: 550px) and (orientation: landscape) {\r\n  /* 右侧工具栏缩小 */\r\n  .basePlayerContainer .positionBox {\r\n    transform: scale(0.95) !important;\r\n    bottom: 42px !important;\r\n    padding-right: 10px !important;\r\n  }\r\n  /* 右侧工具栏的svg再缩小 */\r\n  .basePlayerContainer .positionBox svg {\r\n    transform: scale3d(0.95, 0.95, 0.95);\r\n  }\r\n  /* 修复全屏下不显示视频底部的控制栏 */\r\n  .isCssFullScreen [data-e2e="slideList"] {\r\n    min-height: auto !important;\r\n  }\r\n}\r\n';
+  var portraitCommentSplit_default =
+    '@media screen and (orientation: portrait) {\r\n  #sliderVideo[data-e2e="feed-active-video"],\r\n  #slideMode[data-e2e="feed-active-video"] {\r\n    --comment-height: 60%;\r\n  }\r\n  /* 当前观看的视频 */\r\n  [data-e2e="feed-active-video"]:has([data-comment-show]) .playerContainer {\r\n    height: calc(100% - var(--comment-height)) !important;\r\n  }\r\n}\r\n/* 如果是小屏，则屏蔽以下组件 */\r\n@media screen and (orientation: portrait) and (max-height: 1024px) {\r\n  /* 评论区打开状态 */\r\n  [data-e2e="feed-active-video"]:has([data-comment-show]) {\r\n    /* 右侧工具栏 */\r\n    & .playerContainer .positionBox,\r\n    /* 底部信息区域 */\r\n    & .playerContainer .player-position-box-bottom {\r\n      display: none !important;\r\n    }\r\n  }\r\n}\r\n';
+  var DouYinVideoMobileMode = {
+    init() {
+      Panel.execMenuOnce(["mobileMode", "changeCommentToBottom"], (config) => {
+        return this.changeCommentToBottom();
+      });
+      Panel.execMenuOnce(["mobileMode", "dy-video-gestureBackCloseComment"], () => {
+        return this.gestureBackCloseComment();
+      });
+      Panel.execMenuOnce(["mobileMode", "repairProgressBar"], () => {
+        const result = [];
+        Panel.onceExec("repairProgressBar", () => {
+          result.push(...this.repairVideoProgressBar());
+        });
+        return result;
+      });
+      domUtils.onReady(() => {
+        Panel.execMenuOnce("mobileMode", () => {
+          return this.mobileMode();
+        });
+      });
+    },
+    mobileMode() {
+      log.info("启用手机模式");
+      const result = [];
+      DouYin.initialScale();
+      result.push(addBlockCSS("img#douyin-temp-sidebar"), addStyle(mobile_default$1));
+      Panel.onceExec("repairProgressBar", () => {
+        result.push(...this.repairVideoProgressBar());
+      });
+      if (DouYinRouter.isVideo())
+        result.push(
+          addStyle(`
+            #douyin-right-container .parent-route-container [data-e2e="video-detail"]{
+              min-width: unset !important;
+              padding: 0 10px;
+    
+              & .basePlayerContainer{
+                 min-width: unset !important;
+              }
+              & [data-e2e="detail-video-info"] > div{
+                flex-flow: wrap;
+              }
+            }
+          `)
+        );
+      return result;
+    },
+    changeCommentToBottom() {
+      log.info("自适应评论区");
+      const results = [
+        addStyle(`
+      /* 竖屏样式 */
+      @media screen and (orientation: portrait) {
+         #sliderVideo[data-e2e="feed-active-video"],
+         #slideMode[data-e2e="feed-active-video"]{
+          --comment-height: 75%;
+         }
+        #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
+        #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
+          display: none !important;
+        }
+        /* 左侧的视频宽度撑满 */
+        #sliderVideo[data-e2e] .playerContainer,
+        #slideMode[data-e2e] .playerContainer{
+          width: 100% !important;
+        }
+        /* 右侧的评论区宽度撑满，position使用absolute */
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
+        #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
+        #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
+          width: 100%;
+          height: var(--comment-height);
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.9);
+          transition: height .15s linear !important;
+          position: absolute;
+        }
+      }
+		`),
+        addStyle(portraitCommentSplit_default),
+      ];
+      const lockFn = new utils$1.LockFunction(async () => {
+        if (DouYinUtils.isVerticalScreen()) return;
+        const $comment = $('[data-e2e="feed-active-video"] #videoSideCard');
+        if (!$comment) return;
+        const width = domUtils.width($comment, true);
+        const opacity = domUtils.css($comment, "opacity");
+        if (width && opacity != "0") $comment.setAttribute("data-comment-show", "");
+        else $comment.removeAttribute("data-comment-show");
+      }, 100);
+      const observer = utils$1.mutationObserver(document, {
+        config: {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ["class"],
+        },
+        immediate: true,
+        callback: (mutations) => {
+          lockFn.run(mutations);
+        },
+      });
+      const visibilityChangeListener = domUtils.on(document, "visibilitychange", () => {
+        if (!document.hidden) lockFn.run();
+      });
+      const pageChangeListener = domUtils.on(
+        window,
+        ["resize", "pageshow"],
+        () => {
+          lockFn.run();
+        },
+        { passive: true }
+      );
+      results.push(() => {
+        observer.disconnect();
+        visibilityChangeListener.off();
+        pageChangeListener.off();
+      });
+      return results;
+    },
+    gestureBackCloseComment() {
+      log.info(`手势返回关闭评论区`);
+      const gestureback = new GestureBack({
+        hash: DouYinGestureBackHashConfig.videoCommentDrawer,
+        useUrl: true,
+        beforeHistoryBackCallBack(isUrlChange) {
+          if (isUrlChange) closeComment();
+        },
+      });
+      const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
+      function closeComment() {
+        const $close = $($closeSelector);
+        if ($close) {
+          const rect = utils$1.getReactInstance($close);
+          if (rect) {
+            const fn = rect.reactProps?.onClick;
+            if (typeof fn === "function") fn();
+            else qmsg.default.error("调用关闭评论区按钮的onClick函数失败");
+          } else qmsg.default.error("获取关闭评论区按钮react信息失败");
+        } else qmsg.default.error("未找到关闭评论区的按钮");
+      }
+      const result1 = domUtils.on(
+        document,
+        "click",
+        `.xgplayer div[data-e2e="feed-comment-icon"]`,
+        () => {
+          log.info(`手势 => 打开评论区`);
+          domUtils.waitNode($closeSelector, 1e4).then(($el) => {
+            if (!$el) return;
+            log.info(`手势 => 评论区出现`);
+            gestureback.enterGestureBackMode();
+          });
+        },
+        {
+          capture: true,
+          overrideTarget: false,
+        }
+      );
+      const result2 = domUtils.on(
+        document,
+        "click",
+        $closeSelector,
+        () => {
+          log.info(`手势 => 关闭评论区`);
+          gestureback.quitGestureBackMode();
+        },
+        {
+          capture: true,
+          overrideTarget: false,
+        }
+      );
+      return [result1.off, result2.off];
+    },
+    repairVideoProgressBar() {
+      log.info("修复进度条按钮");
+      const result = [
+        addStyle(`
+          /* 禁止触发touch事件，因为会影响到按钮点击不到 */
+          @media screen and (max-width: 600px) and (orientation: portrait),
+            screen and (max-height: 600px) and (orientation: landscape) {
+            xg-outer,
+            xg-inners {
+              pointer-events: none;
+            }
+          }
+          `),
+      ];
+      const mobileMode = Panel.getDynamicValue("mobileMode");
+      const repairProgressBar = Panel.getDynamicValue("repairProgressBar");
+      result.push(mobileMode.destory, repairProgressBar.destory);
+      const checkEnable = () => {
+        return mobileMode.value || repairProgressBar.value;
+      };
+      const isMobile = () => {
+        if (DouYinUtils.isVerticalScreen()) return window.innerWidth <= 600;
+        else return window.innerHeight <= 600;
+      };
+      domUtils.onReady(() => {
+        domUtils.on(
+          document.body,
+          "touchstart",
+          "xg-progress",
+          (event, $click) => {
+            if (!checkEnable()) return;
+            if (!isMobile()) return;
+            const $xg_outer = $click.querySelector("xg-outer");
+            if ($xg_outer) $xg_outer.style.height = "6px";
+          },
+          {
+            capture: true,
+            overrideTarget: false,
+          }
+        );
+        domUtils.on(
+          document.body,
+          "touchend",
+          "xg-progress",
+          (event, $click) => {
+            if (!checkEnable()) return;
+            if (!isMobile()) return;
+            const $xg_outer = $click.querySelector("xg-outer");
+            if ($xg_outer) $xg_outer.style.height = "";
+          },
+          {
+            capture: true,
+            overrideTarget: false,
+          }
+        );
+      });
+      return result;
+    },
+  };
   var DouYinVideoPlayerBlockMouseHoverTip = {
     init() {
       DouYinVideoPlayerBlockMouseHoverTip_RightToolBar.init();
@@ -9671,9 +10045,7 @@
         DouYinVideoPlayerShortCut.init();
       });
       DouYinVideoPlayerBlockMouseHoverTip.init();
-      Panel.execMenuOnce("changeCommentToBottom", () => {
-        return this.changeCommentToBottom();
-      });
+      DouYinVideoMobileMode.init();
       Panel.execMenuOnce("fullScreen", (config) => {
         return this.fullScreen(config.value);
       });
@@ -9709,16 +10081,6 @@
       Panel.execMenuOnce(["dy-video-bgColor-enable", "dy-video-changeBackgroundColor"], (option) => {
         return this.changeBackgroundColor(option.value[1]);
       });
-      Panel.execMenuOnce("repairProgressBar", () => {
-        const result = [];
-        Panel.onceExec("repairProgressBar", () => {
-          result.push(...this.repairVideoProgressBar());
-        });
-        return result;
-      });
-      Panel.execMenuOnce("dy-video-gestureBackCloseComment", () => {
-        return this.gestureBackCloseComment();
-      });
       Panel.execMenuOnce("dy-video-removeStyle-bottom", () => {
         return this.removeStyleBottom();
       });
@@ -9744,9 +10106,6 @@
         DouYinVideoPlayer.chooseQuality(Panel.getValue("chooseVideoDefinition"));
         Panel.execMenuOnce("dy-video-waitToRemovePauseDialog", () => {
           return this.waitToRemovePauseDialog();
-        });
-        Panel.execMenuOnce("mobileMode", () => {
-          return this.mobileMode();
         });
         Panel.execMenuOnce("dy-video-autoHideBottomControls", (config) => {
           return this.autoHideBottomControls(config.value);
@@ -9912,39 +10271,6 @@
           overrideTarget: false,
         }
       ).off;
-    },
-    changeCommentToBottom() {
-      log.info("评论区移到中间");
-      return [
-        addStyle(`
-      /* 竖屏样式 */
-      @media screen and (orientation: portrait) {
-        #sliderVideo[data-e2e="feed-video"] #videoSideBar #relatedVideoCard,
-        #sliderVideo[data-e2e="feed-video"] #videoSideCard #relatedVideoCard{
-          display: none !important;
-        }
-        /* 左侧的视频宽度撑满 */
-        #sliderVideo[data-e2e] .playerContainer,
-        #slideMode[data-e2e] .playerContainer{
-          width: 100% !important;
-        }
-        /* 右侧的评论区宽度撑满，position使用absolute */
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideBar:has(#relatedVideoCard),
-        #sliderVideo[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard),
-        #slideMode[data-e2e="feed-active-video"] #videoSideCard:has(#relatedVideoCard){
-          width: 100%;
-          height: 75%;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(0, 0, 0, 0.9);
-          transition: height .15s linear !important;
-          position: absolute;
-        }
-      }
-		`),
-      ];
     },
     chooseQuality(mode = 0) {
       log.info("选择视频清晰度: " + mode);
@@ -10626,7 +10952,7 @@
           ).forEach(($xgRightGrid) => {
             let $btn = $xgRightGrid.querySelector(".gm-video-download-btn");
             if (!$btn) {
-              $btn = createButton(true);
+              $btn = createButton(false);
               domUtils.on($btn, "click", async (event) => {
                 domUtils.preventEvent(event);
                 await onClick($btn);
@@ -10875,90 +11201,6 @@
         ).off,
       ];
     },
-    mobileMode() {
-      log.info("启用手机模式");
-      const result = [];
-      DouYin.initialScale();
-      result.push(addBlockCSS("img#douyin-temp-sidebar"), addStyle(mobile_default$1));
-      Panel.onceExec("repairProgressBar", () => {
-        result.push(...this.repairVideoProgressBar());
-      });
-      if (DouYinRouter.isVideo())
-        result.push(
-          addStyle(`
-        #douyin-right-container .parent-route-container [data-e2e="video-detail"]{
-          min-width: unset !important;
-          padding: 0 10px;
-
-          & .basePlayerContainer{
-             min-width: unset !important;
-          }
-          & [data-e2e="detail-video-info"] > div{
-            flex-flow: wrap;
-          }
-        }
-      `)
-        );
-      return result;
-    },
-    repairVideoProgressBar() {
-      log.info("修复进度条按钮");
-      const result = [
-        addStyle(`
-			/* 禁止触发touch事件，因为会影响到按钮点击不到 */
-      @media screen and (max-width: 600px) and (orientation: portrait),
-        screen and (max-height: 600px) and (orientation: landscape) {
-        xg-outer,
-        xg-inners {
-          pointer-events: none;
-        }
-      }
-			`),
-      ];
-      const mobileMode = Panel.getDynamicValue("mobileMode");
-      const repairProgressBar = Panel.getDynamicValue("repairProgressBar");
-      result.push(mobileMode.destory, repairProgressBar.destory);
-      const checkEnable = () => {
-        return mobileMode.value || repairProgressBar.value;
-      };
-      const isMobile = () => {
-        if (DouYinUtils.isVerticalScreen()) return window.innerWidth <= 600;
-        else return window.innerHeight <= 600;
-      };
-      domUtils.onReady(() => {
-        domUtils.on(
-          document.body,
-          "touchstart",
-          "xg-progress",
-          (event, $click) => {
-            if (!checkEnable()) return;
-            if (!isMobile()) return;
-            const $xg_outer = $click.querySelector("xg-outer");
-            if ($xg_outer) $xg_outer.style.height = "6px";
-          },
-          {
-            capture: true,
-            overrideTarget: false,
-          }
-        );
-        domUtils.on(
-          document.body,
-          "touchend",
-          "xg-progress",
-          (event, $click) => {
-            if (!checkEnable()) return;
-            if (!isMobile()) return;
-            const $xg_outer = $click.querySelector("xg-outer");
-            if ($xg_outer) $xg_outer.style.height = "";
-          },
-          {
-            capture: true,
-            overrideTarget: false,
-          }
-        );
-      });
-      return result;
-    },
     changeBackgroundColor(color) {
       log.info("修改视频背景颜色");
       return addStyle(`
@@ -11029,59 +11271,6 @@
 		  `)
       );
       return result;
-    },
-    gestureBackCloseComment() {
-      log.info(`手势返回关闭评论区`);
-      const gestureback = new GestureBack({
-        hash: DouYinGestureBackHashConfig.videoCommentDrawer,
-        useUrl: true,
-        beforeHistoryBackCallBack(isUrlChange) {
-          if (isUrlChange) closeComment();
-        },
-      });
-      const $closeSelector = `#relatedVideoCard .semi-tabs + div svg:has(path[d="M22.133 23.776a1.342 1.342 0 1 0 1.898-1.898l-4.112-4.113 4.112-4.112a1.342 1.342 0 0 0-1.898-1.898l-4.112 4.112-4.113-4.112a1.342 1.342 0 1 0-1.898 1.898l4.113 4.112-4.113 4.113a1.342 1.342 0 0 0 1.898 1.898l4.113-4.113 4.112 4.113z"])`;
-      function closeComment() {
-        const $close = $($closeSelector);
-        if ($close) {
-          const rect = utils$1.getReactInstance($close);
-          if (rect) {
-            const fn = rect.reactProps?.onClick;
-            if (typeof fn === "function") fn();
-            else qmsg.default.error("调用关闭评论区按钮的onClick函数失败");
-          } else qmsg.default.error("获取关闭评论区按钮react信息失败");
-        } else qmsg.default.error("未找到关闭评论区的按钮");
-      }
-      const result1 = domUtils.on(
-        document,
-        "click",
-        `.xgplayer div[data-e2e="feed-comment-icon"]`,
-        () => {
-          log.info(`手势 => 打开评论区`);
-          domUtils.waitNode($closeSelector, 1e4).then(($el) => {
-            if (!$el) return;
-            log.info(`手势 => 评论区出现`);
-            gestureback.enterGestureBackMode();
-          });
-        },
-        {
-          capture: true,
-          overrideTarget: false,
-        }
-      );
-      const result2 = domUtils.on(
-        document,
-        "click",
-        $closeSelector,
-        () => {
-          log.info(`手势 => 关闭评论区`);
-          gestureback.quitGestureBackMode();
-        },
-        {
-          capture: true,
-          overrideTarget: false,
-        }
-      );
-      return [result1.off, result2.off];
     },
     waitToRemovePauseDialog() {
       log.info("监听信息区域【长时间无操作，已暂停播放】弹窗");
@@ -13602,7 +13791,7 @@
   };
   var DouYin = {
     init() {
-      if (!(DouYinRouter.isIndex() || DouYinRouter.isLive())) {
+      if (!(DouYinRouter.isIndex() || DouYinRouter.isLive()) || DouYinRouter.isLiveUCenter()) {
         log.error(`当前仅主站和直播页面支持${CommonUtil.isTopWindow() ? "" : "（iframe）"}`);
         return;
       }
@@ -13641,6 +13830,7 @@
       Panel.execMenuOnce("dy-chat-autoKeepTheSparkAlive", () => {
         return DyChat.autoKeepTheSparkAlive();
       });
+      log.info(location.href);
       if (DouYinRouter.isLive()) {
         log.info("Router: 直播");
         DouYinLive.init();
@@ -14917,28 +15107,6 @@
                     void 0,
                     "隐藏右侧工具栏、底部信息栏等"
                   ),
-                  UISwitch("手机模式", "mobileMode", false, void 0, "放大文字和图标"),
-                  UISwitch(
-                    "评论区移到中间",
-                    "changeCommentToBottom",
-                    true,
-                    void 0,
-                    "[移动端专用]修改评论区为中间弹出而非右侧区域"
-                  ),
-                  UISwitch(
-                    "修复进度条",
-                    "repairProgressBar",
-                    false,
-                    void 0,
-                    "修复移动端不能点击拖拽和定位进度的问题（仅移动端使用）"
-                  ),
-                  UISwitch(
-                    "手势返回关闭评论区",
-                    "dy-video-gestureBackCloseComment",
-                    false,
-                    void 0,
-                    "浏览器手势返回时关闭评论区"
-                  ),
                   UISwitch(
                     "监听并关闭【长时间无操作，已暂停播放】弹窗",
                     "dy-video-waitToRemovePauseDialog",
@@ -15019,6 +15187,40 @@
                 type: "container",
                 text: "",
                 views: [
+                  {
+                    type: "deepMenu",
+                    text: "手机模式",
+                    views: [
+                      {
+                        type: "container",
+                        text: "",
+                        views: [
+                          UISwitch("启用", "mobileMode", false, void 0),
+                          UISwitch(
+                            "自适应评论区",
+                            "changeCommentToBottom",
+                            true,
+                            void 0,
+                            "自动根据浏览器的显示调整评论区的位置"
+                          ),
+                          UISwitch(
+                            "修复进度条",
+                            "repairProgressBar",
+                            false,
+                            void 0,
+                            "修复移动端不能点击拖拽和定位进度的问题"
+                          ),
+                          UISwitch(
+                            "手势返回关闭评论区",
+                            "dy-video-gestureBackCloseComment",
+                            false,
+                            void 0,
+                            "浏览器手势返回时关闭评论区"
+                          ),
+                        ],
+                      },
+                    ],
+                  },
                   {
                     type: "deepMenu",
                     text: "解析下载",
@@ -16573,6 +16775,13 @@
             "注意：请勿和推荐页面自带的<code>连播</code>功能同时使用"
           ),
           UISwitch("禁用视频满意评价", "dy-recommend-disableVideoSatisfaction"),
+          UISwitch(
+            "[beta] 随机用户画像",
+            "dy-hook-recommend-no-user-profile",
+            void 0,
+            void 0,
+            "用随机的用户画像去拉取推荐视频"
+          ),
         ],
       },
     ],
