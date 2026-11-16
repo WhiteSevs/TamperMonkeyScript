@@ -120,6 +120,13 @@ const SettingUIVideo: PopsPanelContentConfig = {
                 ),
                 UISwitch("自动播放视频", "bili-video-playerAutoPlayVideo", false, void 0, ""),
                 UISwitch("自动进入全屏", "bili-video-playerAutoPlayVideoFullScreen", false, void 0, ""),
+                UISwitch(
+                  "全屏自动旋转屏幕",
+                  "bili-video-playerAutoOrientation",
+                  true,
+                  void 0,
+                  "横屏视频进入全屏时将自动旋转屏幕"
+                ),
               ],
             },
             {

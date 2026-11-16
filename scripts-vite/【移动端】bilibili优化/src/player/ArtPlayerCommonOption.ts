@@ -60,6 +60,8 @@ export const ArtPlayerCommonOption = (): Option => {
     lock: true,
     /** 是否在移动端添加长按视频快进功能 */
     fastForward: true,
+    /** 是否在移动端自动旋转屏幕*/
+    autoOrientation: false,
     /** 播放器颜色主题 */
     theme: BilibiliData.theme,
     /** 播放器语言 */

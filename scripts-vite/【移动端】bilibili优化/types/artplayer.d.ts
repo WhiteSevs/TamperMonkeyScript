@@ -1,130 +1,134 @@
-declare interface Selector {
-  /**
-   * Whether the default is selected
-   */
-  default?: boolean;
+import type Artplayer from "artplayer";
 
-  /**
-   * Html string of selector
-   */
-  html: string | HTMLElement;
+declare module "artplayer" {
+  export interface Selector {
+    /**
+     * Whether the default is selected
+     */
+    default?: boolean;
 
-  /**
-   * Value of selector item
-   */
-  value?: string | number;
+    /**
+     * Html string of selector
+     */
+    html: string | HTMLElement;
 
-  /**
-   * Allow custom properties
-   */
-  [key: string]: any;
-}
+    /**
+     * Value of selector item
+     */
+    value?: string | number;
 
-declare interface Component {
-  /**
-   * Component self-increasing id
-   */
-  readonly id: number;
+    /**
+     * Allow custom properties
+     */
+    [key: string]: any;
+  }
 
-  /**
-   * Component parent name
-   */
-  readonly name: string | undefined;
+  export interface Component {
+    /**
+     * Component self-increasing id
+     */
+    readonly id: number;
 
-  /**
-   * Component parent element
-   */
-  readonly $parent: HTMLElement | undefined;
+    /**
+     * Component parent name
+     */
+    readonly name: string | undefined;
 
-  /**
-   * Whether to show component parent
-   */
-  get show(): boolean;
+    /**
+     * Component parent element
+     */
+    readonly $parent: HTMLElement | undefined;
 
-  /**
-   * Whether to show component parent
-   */
-  set show(state: boolean);
+    /**
+     * Whether to show component parent
+     */
+    get show(): boolean;
 
-  /**
-   * Toggle the component parent
-   */
-  toggle: () => void;
+    /**
+     * Whether to show component parent
+     */
+    set show(state: boolean);
 
-  /**
-   * Dynamic add a component
-   */
-  add: (option: ComponentOption | ((art: Artplayer) => ComponentOption)) => HTMLElement | undefined;
+    /**
+     * Toggle the component parent
+     */
+    toggle: () => void;
 
-  /**
-   * Dynamic remove a component by name
-   */
-  remove: (name: string) => void;
+    /**
+     * Dynamic add a component
+     */
+    add: (option: ComponentOption | ((art: Artplayer) => ComponentOption)) => HTMLElement | undefined;
 
-  /**
-   * Dynamic update a component
-   */
-  update: (option: ComponentOption) => HTMLElement | undefined;
-}
+    /**
+     * Dynamic remove a component by name
+     */
+    remove: (name: string) => void;
 
-declare interface ComponentOption {
-  /**
-   * Html string or html element of component
-   */
-  html?: string | HTMLElement;
+    /**
+     * Dynamic update a component
+     */
+    update: (option: ComponentOption) => HTMLElement | undefined;
+  }
 
-  /**
-   * Whether to disable component
-   */
-  disable?: boolean;
+  export interface ComponentOption {
+    /**
+     * Html string or html element of component
+     */
+    html?: string | HTMLElement;
 
-  /**
-   * Unique name for component
-   */
-  name?: string;
+    /**
+     * Whether to disable component
+     */
+    disable?: boolean;
 
-  /**
-   * Component sort index
-   */
-  index?: number;
+    /**
+     * Unique name for component
+     */
+    name?: string;
 
-  /**
-   * Component style object
-   */
-  style?: Partial<CSSStyleDeclaration>;
+    /**
+     * Component sort index
+     */
+    index?: number;
 
-  /**
-   * Component click event
-   */
-  click?: (this: import("artplayer").default, component: Component, event: Event) => void;
+    /**
+     * Component style object
+     */
+    style?: Partial<CSSStyleDeclaration>;
 
-  /**
-   * When the component was mounted
-   */
-  mounted?: (this: import("artplayer").default, element: HTMLElement) => void;
+    /**
+     * Component click event
+     */
+    click?: (this: import("artplayer").default, component: Component, event: Event) => void;
 
-  /**
-   * When the component was before unmount
-   */
-  beforeUnmount?: (this: import("artplayer").default, element: HTMLElement) => void;
+    /**
+     * When the component was mounted
+     */
+    mounted?: (this: import("artplayer").default, element: HTMLElement) => void;
 
-  /**
-   * Component tooltip, use in controls
-   */
-  tooltip?: string;
+    /**
+     * When the component was before unmount
+     */
+    beforeUnmount?: (this: import("artplayer").default, element: HTMLElement) => void;
 
-  /**
-   * Component position, use in controls
-   */
-  position?: "top" | "left" | "right" | (string & Record<never, never>);
+    /**
+     * Component tooltip, use in controls
+     */
+    tooltip?: string;
 
-  /**
-   * Custom selector list, use in controls
-   */
-  selector?: Selector[];
+    /**
+     * Component position, use in controls
+     */
+    position?: "top" | "left" | "right" | (string & Record<never, never>);
 
-  /**
-   * When selector item click, use in controls
-   */
-  onSelect?: (this: import("artplayer").default, selector: Selector, element: HTMLElement, event: Event) => void;
+    /**
+     * Custom selector list, use in controls
+     */
+    selector?: Selector[];
+
+    /**
+     * When selector item click, use in controls
+     */
+    onSelect?: (this: import("artplayer").default, selector: Selector, element: HTMLElement, event: Event) => void;
+  }
 }

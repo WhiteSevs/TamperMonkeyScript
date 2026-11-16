@@ -539,16 +539,6 @@ export const BilibiliVideoPlayer = {
           // 初始化
           // 强制初始化音量为1
           that.$data.art.volume = 1;
-          that.$data.art.once("ready", () => {
-            Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
-              log.info(`自动进入全屏`);
-              that.$data.art.fullscreen = true;
-              that.$data.art.once("fullscreenError", () => {
-                log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
-                that.$data.art.fullscreenWeb = true;
-              });
-            });
-          });
         } else {
           // 检测页面中的artplayer是否还存在
           const $artContainer = $<HTMLElement>(".artplayer-container");
