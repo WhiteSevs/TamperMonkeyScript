@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【移动端】bilibili优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.11.1
+// @version      2026.11.16
 // @author       WhiteSevs
 // @description  阻止跳转App、App端推荐视频流、解锁视频画质(番剧解锁需配合其它插件)、美化显示、去广告等
 // @license      GPL-3.0-only
@@ -4728,7 +4728,7 @@
     },
   };
   var player_default =
-    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-video-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n.art-player-top-container {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  width: 100%;\r\n  overflow-x: auto;\r\n  white-space: nowrap;\r\n}\r\n.art-player-top-left-container {\r\n  max-width: 50%;\r\n}\r\n.art-player-top-right-container {\r\n  display: none;\r\n}\r\n/* 全屏下才显示 */\r\n.art-fullscreen .art-player-top-right-container {\r\n  display: flex;\r\n  gap: 5px;\r\n}\r\n.art-player-top-right-container .art-player-top-right-icon {\r\n  display: flex;\r\n}\r\n.art-player-top-right-container .art-player-top-right-icon span {\r\n  font-size: 0.7em;\r\n  display: flex;\r\n  align-items: flex-start;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-left-title-follow-container {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-left-title-follow-container .art-player-top-left-title-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-left-title-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
+    "/* 设置播放器基础宽高 */\r\n#artplayer {\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n/* 通用隐藏class */\r\n.art-video-player .art-common-hide {\r\n  display: none !important;\r\n}\r\n/* 设置播放器基础宽高 */\r\n.art-video-player:not(.art-auto-orientation) {\r\n  width: 100% !important;\r\n}\r\n/* 播放时隐藏进度条 */\r\n.art-hide-cursor .art-progress {\r\n  display: none !important;\r\n}\r\n/* 不知道为什么背景模糊了 */\r\n.art-video-player.art-backdrop .art-settings {\r\n  backdrop-filter: unset !important;\r\n}\r\n/* 底部的设置菜单当前选中的提示文字设置文字溢出省略号 */\r\n.art-settings .art-setting-item .art-setting-item-right-tooltip {\r\n  max-width: 100px;\r\n  text-overflow: ellipsis;\r\n  white-space: nowrap;\r\n  overflow: hidden;\r\n}\r\n\r\n/* 竖屏 宽度小于400px */\r\n@media (orientation: portrait) and (max-width: 400px) {\r\n  /* 修正小屏下宽度溢出 */\r\n  .art-controls .art-control {\r\n    max-width: 60px;\r\n    white-space: pre-wrap;\r\n  }\r\n}\r\n\r\n/* 竖屏 宽度小于550px */\r\n@media (orientation: portrait) and (max-width: 550px) {\r\n  /* 隐藏 弹幕设置按钮 */\r\n  .artplayer-plugin-danmuku .apd-config ,\r\n    /* 隐藏 弹幕输入框 */\r\n	.artplayer-plugin-danmuku .apd-emitter {\r\n    display: none !important;\r\n  }\r\n  /* 弹幕库靠右对齐 */\r\n  .artplayer-plugin-danmuku {\r\n    justify-content: right;\r\n  }\r\n}\r\n/* 横屏 */\r\n@media (orientation: landscape) {\r\n  /* 限制弹幕输入框的最大宽度 */\r\n  .artplayer-plugin-danmuku .apd-emitter {\r\n    max-width: 260px;\r\n  }\r\n}\r\n\r\n/* 插件-在线观看人数  */\r\n.art-lock .art-layer-top-wrap {\r\n  /* 启用了锁定功能，隐藏底部控制栏，所以这个也同步 */\r\n  display: none !important;\r\n}\r\n.art-layer-top-wrap {\r\n  --layer-top-wrap-follow-text-font-size: 0.8em;\r\n  --layer-top-wrap-follow-icon-size: 1em;\r\n  width: 100%;\r\n  position: absolute;\r\n  top: 0px;\r\n  right: 0px;\r\n  color: #fff;\r\n  display: -webkit-box;\r\n  display: -ms-flexbox;\r\n  display: flex;\r\n  left: 0;\r\n  -webkit-transition: all 0.2s ease-in-out;\r\n  transition: all 0.2s ease-in-out;\r\n  width: 100%;\r\n  background: linear-gradient(to bottom, #000, transparent);\r\n  padding: 10px calc(var(--art-padding));\r\n  z-index: 60;\r\n}\r\n.art-player-top-wrap {\r\n  width: 100%;\r\n}\r\n.art-player-top-wrap .art-player-video-title-text {\r\n  white-space: nowrap;\r\n  text-overflow: ellipsis;\r\n  overflow: hidden;\r\n  max-width: 100%;\r\n}\r\n.art-player-top-container {\r\n  display: flex;\r\n  align-items: center;\r\n  justify-content: space-between;\r\n  width: 100%;\r\n  overflow-x: auto;\r\n  white-space: nowrap;\r\n}\r\n.art-player-top-left-container {\r\n  max-width: 50%;\r\n}\r\n.art-player-top-right-container {\r\n  display: none;\r\n}\r\n/* 全屏下才显示 */\r\n.art-fullscreen .art-player-top-right-container {\r\n  display: flex;\r\n  gap: 5px;\r\n}\r\n.art-player-top-right-container .art-player-top-right-icon {\r\n  display: flex;\r\n}\r\n.art-player-top-right-container .art-player-top-right-icon span {\r\n  font-size: 0.7em;\r\n  display: flex;\r\n  align-items: flex-start;\r\n}\r\n/* 面板隐藏时，顶部toolbar也隐藏 */\r\n.art-hide-cursor .art-layer-top-wrap {\r\n  transform: translateY(-60px);\r\n}\r\n/* 下面的当前在线观看人数 */\r\n.art-layer-top-wrap .art-player-top-left-title-follow-container {\r\n  margin-top: var(--art-padding);\r\n  gap: var(--layer-top-wrap-follow-text-font-size);\r\n  font-size: var(--layer-top-wrap-follow-text-font-size);\r\n  display: flex;\r\n  align-items: center;\r\n  position: absolute;\r\n}\r\n.art-layer-top-wrap .art-player-top-left-title-follow-container .art-player-top-left-title-follow-icon {\r\n  width: var(--layer-top-wrap-follow-icon-size);\r\n  height: var(--layer-top-wrap-follow-icon-size);\r\n}\r\n.art-layer-top-wrap .art-player-top-left-title-follow-text {\r\n  text-wrap: nowrap;\r\n}\r\n/* 插件-在线观看人数  */\r\n\r\n/* 插件-锁定 */\r\n.art-video-player .art-layers .art-layer.art-layer-lock {\r\n  /* 放在右边 */\r\n  right: 0;\r\n  left: calc(100% - 20px - var(--art-lock-size) - var(--art-lock-left-size));\r\n}\r\n/* 插件-锁定 */\r\n";
   var VideoSoundQualityCode = {
     30216: "64K",
     30232: "132K",
@@ -4777,6 +4777,7 @@
       airplay: true,
       lock: true,
       fastForward: true,
+      autoOrientation: false,
       theme: BilibiliData.theme,
       lang: navigator.language.toLowerCase(),
       moreVideoAttr: { crossOrigin: "anonymous" },
@@ -6796,6 +6797,89 @@
     art.on("video:seeked", () => {
       if (!art.playing) art.template.$poster.style.display = "none";
     });
+    const isEnableAutoOrientation = () => {
+      return Boolean(Panel.getValue("bili-video-playerAutoOrientation", true));
+    };
+    const isLandscapeVideo = () => {
+      const $video = art.video || art.template?.$video;
+      if (!$video) return false;
+      const videoWidth = $video.videoWidth || 0;
+      const videoHeight = $video.videoHeight || 0;
+      if (!videoWidth || !videoHeight) return false;
+      return videoWidth / videoHeight > 1.3;
+    };
+    const getScreenOrientation = () => {
+      return typeof screen !== "undefined" ? screen.orientation : void 0;
+    };
+    const lockLandscapeIfNeeded = () => {
+      if (!isEnableAutoOrientation()) return;
+      if (!isLandscapeVideo()) return;
+      const orientation = getScreenOrientation();
+      if (typeof orientation?.lock === "function")
+        orientation
+          .lock("landscape")
+          .then(() => {
+            log.info("全屏自动锁定横屏成功");
+          })
+          .catch(() => {});
+    };
+    const unlockOrientation = () => {
+      try {
+        const orientation = getScreenOrientation();
+        if (typeof orientation?.unlock === "function") orientation.unlock();
+      } catch {}
+    };
+    const rotateWebFullscreenIfNeeded = (state) => {
+      const $player = art.template?.$player;
+      if (!$player) return;
+      const autoOrientationTime = artplayer.default.AUTO_ORIENTATION_TIME || 200;
+      if (state) {
+        if (!isEnableAutoOrientation() || !isLandscapeVideo()) return;
+        setTimeout(() => {
+          if (!art.fullscreenWeb) return;
+          const curW = document.documentElement.clientWidth;
+          const curH = document.documentElement.clientHeight;
+          if (curW < curH && !$player.classList.contains("art-auto-orientation")) {
+            $player.style.width = `${curH}px`;
+            $player.style.height = `${curW}px`;
+            $player.style.transformOrigin = "0 0";
+            $player.style.transform = `rotate(90deg) translate(0, -${curW}px)`;
+            $player.classList.add("art-auto-orientation");
+            Reflect.set(art, "isRotate", true);
+            art.emit("resize");
+          }
+        }, autoOrientationTime);
+      } else if ($player.classList.contains("art-auto-orientation")) {
+        $player.style.width = "";
+        $player.style.height = "";
+        $player.style.transformOrigin = "";
+        $player.style.transform = "";
+        $player.classList.remove("art-auto-orientation");
+        Reflect.set(art, "isRotate", false);
+        art.emit("resize");
+      }
+    };
+    art.on("fullscreen", (state) => {
+      if (state) {
+        lockLandscapeIfNeeded();
+        setTimeout(() => {
+          if (art.fullscreen) lockLandscapeIfNeeded();
+        }, 300);
+      } else unlockOrientation();
+    });
+    art.on("fullscreenWeb", (state) => {
+      rotateWebFullscreenIfNeeded(state);
+    });
+    art.on("video:loadedmetadata", () => {
+      if (art.fullscreen) {
+        if (isEnableAutoOrientation() && isLandscapeVideo()) lockLandscapeIfNeeded();
+        else unlockOrientation();
+      }
+      if (art.fullscreenWeb) rotateWebFullscreenIfNeeded(isEnableAutoOrientation() && isLandscapeVideo());
+    });
+    art.on("destroy", () => {
+      unlockOrientation();
+    });
   };
   var BilibiliPlayListPlayer = {
     $flag: { isWatchVideoChange: false },
@@ -6874,16 +6958,6 @@
             if (art) that.$data.art = art;
             else return;
             that.$data.art.volume = 1;
-            that.$data.art.once("ready", () => {
-              Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
-                log.info(`自动进入全屏`);
-                that.$data.art.fullscreen = true;
-                that.$data.art.once("fullscreenError", () => {
-                  log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
-                  that.$data.art.fullscreenWeb = true;
-                });
-              });
-            });
             that.$data.art.on("video:ended", () => {
               log.info("视频播放结束，自动下一集");
               let $controlPanel = $(BilibiliData.className.playlist + " .control-panel");
@@ -7141,6 +7215,25 @@
       }
       this.$data.art = new artplayer.default(artOption);
       ArtPlayerInit(this.$data.art);
+      this.$data.art.once("video:play", () => {
+        Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
+          if (this.$data.art.fullscreen || this.$data.art.fullscreenWeb) return;
+          log.info(`自动进入全屏`);
+          const onFullscreenError = () => {
+            log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
+            this.$data.art.fullscreenWeb = true;
+          };
+          const cleanupFullscreenError = (state) => {
+            if (state) {
+              this.$data.art.off("fullscreenError", onFullscreenError);
+              this.$data.art.off("fullscreen", cleanupFullscreenError);
+            }
+          };
+          this.$data.art.once("fullscreenError", onFullscreenError);
+          this.$data.art.on("fullscreen", cleanupFullscreenError);
+          this.$data.art.fullscreen = true;
+        });
+      });
       artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
       return this.$data.art;
     },
@@ -7559,16 +7652,6 @@
               return;
             }
             that.$data.art.volume = 1;
-            that.$data.art.once("ready", () => {
-              Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
-                log.info(`自动进入全屏`);
-                that.$data.art.fullscreen = true;
-                that.$data.art.once("fullscreenError", () => {
-                  log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
-                  that.$data.art.fullscreenWeb = true;
-                });
-              });
-            });
           } else {
             const $artContainer = $(".artplayer-container");
             if ($artContainer && !$artContainer.contains(that.$data.art.template.$container)) {
@@ -14100,6 +14183,13 @@
                   ),
                   UISwitch("自动播放视频", "bili-video-playerAutoPlayVideo", false, void 0, ""),
                   UISwitch("自动进入全屏", "bili-video-playerAutoPlayVideoFullScreen", false, void 0, ""),
+                  UISwitch(
+                    "全屏自动旋转屏幕",
+                    "bili-video-playerAutoOrientation",
+                    true,
+                    void 0,
+                    "横屏视频进入全屏时将自动旋转屏幕"
+                  ),
                 ],
               },
               {

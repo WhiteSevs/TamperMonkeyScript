@@ -346,6 +346,27 @@ export const BilibiliVideoArtPlayer = {
 
     this.$data.art = new Artplayer(artOption);
     ArtPlayerInit(this.$data.art);
+    this.$data.art.once("video:play", () => {
+      Panel.execMenu("bili-video-playerAutoPlayVideoFullScreen", async () => {
+        if (this.$data.art.fullscreen || this.$data.art.fullscreenWeb) {
+          return;
+        }
+        log.info(`自动进入全屏`);
+        const onFullscreenError = () => {
+          log.warn("未成功进入全屏，需要用户交互操作，使用网页全屏代替");
+          this.$data.art.fullscreenWeb = true;
+        };
+        const cleanupFullscreenError = (state: boolean) => {
+          if (state) {
+            this.$data.art.off("fullscreenError", onFullscreenError);
+            this.$data.art.off("fullscreen", cleanupFullscreenError);
+          }
+        };
+        this.$data.art.once("fullscreenError", onFullscreenError);
+        this.$data.art.on("fullscreen", cleanupFullscreenError);
+        this.$data.art.fullscreen = true;
+      });
+    });
 
     artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
     return this.$data.art;

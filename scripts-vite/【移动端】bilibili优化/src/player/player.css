@@ -8,7 +8,7 @@
   display: none !important;
 }
 /* 设置播放器基础宽高 */
-.art-video-player {
+.art-video-player:not(.art-auto-orientation) {
   width: 100% !important;
 }
 /* 播放时隐藏进度条 */
