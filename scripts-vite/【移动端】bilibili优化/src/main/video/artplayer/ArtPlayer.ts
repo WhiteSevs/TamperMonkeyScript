@@ -345,7 +345,7 @@ export const BilibiliVideoArtPlayer = {
     }
 
     this.$data.art = new Artplayer(artOption);
-    ArtPlayerInit(this.$data.art);
+    ArtPlayerInit(this.$data.art, "bangumi");
 
     artPlayerDanmakuOptionHelper.onConfigChange(this.$data.art);
     return this.$data.art;

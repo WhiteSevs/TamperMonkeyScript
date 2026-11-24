@@ -1,11 +1,11 @@
 import { BilibiliData } from "@/data/BlibiliData";
 import { $, $$, DOMUtils, log } from "@/env";
-import { VueUtils } from "@components/utils/VueUtils";
-import { BilibiliVideoPlayer, GenerateArtPlayerOption, type VideoInfo } from "../video/BilibiliVideoPlayer";
-import { BilibiliVideoArtPlayer } from "../video/artplayer/ArtPlayer";
 import { Panel } from "@components/setting/panel";
+import { VueUtils } from "@components/utils/VueUtils";
 import type Artplayer from "artplayer";
+import { GenerateArtPlayerOption, type VideoInfo } from "../video/BilibiliVideoPlayer";
 import type { VIDEO_EP_LIST } from "../video/TypeVideo";
+import { BilibiliVideoArtPlayer } from "../video/artplayer/ArtPlayer";
 
 type PlayListVideoInfo = {
   /** aid */
