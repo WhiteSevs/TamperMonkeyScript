@@ -4,7 +4,7 @@ import { unsafeWindow } from "ViteGM";
 /**
  * artplayer初始化后调用
  */
-export const ArtPlayerInit = (art: Artplayer) => {
+export const ArtPlayerInit = (art: Artplayer, from: "video" | "bangumi") => {
   if (import.meta.hot) {
     Reflect.set(unsafeWindow, "art", art);
   }

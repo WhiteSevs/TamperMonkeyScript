@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         小红书优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.9.25.19
+// @version      2026.11.24
 // @author       WhiteSevs
 // @description  屏蔽登录弹窗、屏蔽广告、优化评论浏览、优化图片浏览、允许复制、禁止唤醒App、禁止唤醒弹窗、修复正确跳转等
 // @license      GPL-3.0-only
@@ -9,12 +9,12 @@
 // @supportURL   https://github.com/WhiteSevs/TamperMonkeyScript/issues
 // @match        *://www.xiaohongshu.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.13.1/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.8/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.9/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.2/dist/index.umd.js
-// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.14.0/dist/viewer.js
-// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.12.0/dist/viewer.min.css
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.js
+// @resource     ViewerCSS  https://fastly.jsdelivr.net/npm/viewerjs@1.15.2/dist/viewer.min.css
 // @connect      edith.xiaohongshu.com
 // @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
@@ -333,6 +333,7 @@
       }
     },
     toStr(data, space = 2) {
+      if (typeof data === "string" || data == null) return data;
       const undefinedReplacedStr = `__undefined__placeholder__replaced__str__` + performance.now();
       return JSON.stringify(
         data,
@@ -422,6 +423,7 @@
     isHTML: true,
     autoClose: true,
     showClose: false,
+    isTextWrap: true,
     consoleLogContent(qmsgInst) {
       const qmsgType = qmsgInst.setting.type;
       if (qmsgType === "loading") return false;
@@ -485,10 +487,20 @@
     },
     (data) => {
       log.error("[Httpx-HttpxRequest.response] 响应错误", { data });
-      if (data.type === "onabort") qmsg.default.warning("请求取消", { consoleLogContent: true });
-      else if (data.type === "onerror") qmsg.default.error("请求异常", { consoleLogContent: true });
-      else if (data.type === "ontimeout") qmsg.default.error("请求超时", { consoleLogContent: true });
-      else qmsg.default.error("其它错误", { consoleLogContent: true });
+      const toastConfig = { consoleLogContent: true };
+      if (data.type === "onabort") qmsg.default.warning("请求取消", toastConfig);
+      else if (data.type === "onerror") {
+        const errorString = data.response.error;
+        if (typeof errorString == "string" && utils.isNotNull(errorString)) {
+          if (errorString.includes("@connect list"))
+            qmsg.default.error("请将该域名添加至@connect: " + data.resolveOption.requestOption.url, {
+              ...toastConfig,
+              timeout: 5e3,
+            });
+          else qmsg.default.error(errorString, toastConfig);
+        } else qmsg.default.error("请求异常", toastConfig);
+      } else if (data.type === "ontimeout") qmsg.default.error("请求超时", toastConfig);
+      else qmsg.default.error("其它错误", toastConfig);
       return data;
     }
   );
@@ -583,15 +595,21 @@
       __defaultBottomContentConfig: [],
     },
     addContentConfig(configList) {
-      if (!Array.isArray(configList)) configList = [configList];
-      let index = this.$data.contentConfig.keys().length;
-      this.$data.contentConfig.set(index, configList);
+      const __configList = typeof configList === "function" ? configList : () => configList;
+      const index = this.$data.contentConfig.keys().length;
+      this.$data.contentConfig.set(index, __configList);
     },
     getAllContentConfig() {
-      return this.$data.contentConfig.values().flat();
+      return this.$data.contentConfig
+        .values()
+        .map((it) => {
+          return typeof it === "function" ? it() : it;
+        })
+        .flat();
     },
     getConfig(index = 0) {
-      return this.$data.contentConfig.get(index) ?? [];
+      const __configList = (this.$data.contentConfig.get(index) ?? (() => []))();
+      return Array.isArray(__configList) ? __configList : [__configList];
     },
     getDefaultBottomContentConfig(config) {
       if (this.$data.__defaultBottomContentConfig.length) return this.$data.__defaultBottomContentConfig;
@@ -1482,28 +1500,32 @@
       this.$data.onceExecMenuData.set(storageKey, result);
       return result;
     },
-    async execMenu(key, callback, isReverse = false, once = false) {
+    async execMenu(key, callback, isReverse = false, once = false, isCheckKeyExecWithOr = false) {
       return await this.exec(
         key,
         async (...args) => {
           return await callback(...args);
         },
         (keyList) => {
-          return keyList.every((__key__) => {
-            let flag = !!this.getValue(__key__);
-            if (Panel.$data.contentConfigInitDisabledKeys.includes(__key__)) {
+          let execFlag = false;
+          const checkKeyExec = (key) => {
+            let flag = !!this.getValue(key);
+            if (Panel.$data.contentConfigInitDisabledKeys.includes(key)) {
               flag = false;
-              log.warn(`.execMenu${once ? "Once" : ""} ${__key__} 被禁用`);
+              log.warn(`.execMenu${once ? "Once" : ""} ${key} 被禁用`);
             }
             if (isReverse) flag = !flag;
             return flag;
-          });
+          };
+          if (isCheckKeyExecWithOr) execFlag = keyList.some(checkKeyExec);
+          else execFlag = keyList.every(checkKeyExec);
+          return execFlag;
         },
         once
       );
     },
-    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false) {
-      const result = await this.execMenu(key, callback, isReverse, true);
+    async execMenuOnce(key, callback, isReverse = false, listenUrlChange = false, isCheckKeyExecWithOr = false) {
+      const result = await this.execMenu(key, callback, isReverse, true, isCheckKeyExecWithOr);
       if (listenUrlChange) {
         if (result) {
           const urlChangeCallback = () => {
@@ -1515,21 +1537,29 @@
       }
       return result;
     },
-    async execMoreMenu(menus, allExecCallback, isReverse = false, once = false, listenUrlChange = false) {
+    async execMoreMenu(
+      keyList,
+      allExecCallback,
+      isReverse = false,
+      once = false,
+      listenUrlChange = false,
+      isCheckKeyExecWithOr = false
+    ) {
       const results = await Promise.all(
-        menus.map(async ([key, callback]) => {
+        keyList.map(async ([key, callback]) => {
           return await this.execMenu(
             key,
             (...args) => {
               return callback(...args);
             },
             isReverse,
-            once
+            once,
+            isCheckKeyExecWithOr
           );
         })
       );
       const panelMenuResultsHandler = new PanelMenuResultsHandler({
-        keyList: menus.map(([key]) => key),
+        keyList: keyList.map(([key]) => key),
         getValue: (key) => {
           const value = this.getValue(key);
           return Boolean(value);
@@ -1862,9 +1892,11 @@
                       return typeof viewConfig === "object" && viewConfig != null && viewConfig.text === target.name;
                     }
                   );
-                }, 2500);
-                if ($findDeepMenu) $findDeepMenu.click();
-                else {
+                }, 5e3);
+                if ($findDeepMenu) {
+                  $findDeepMenu.click();
+                  await utils.sleep(500);
+                } else {
                   qmsg.default.error(translateCallback("未找到对应的二级菜单"));
                   return {
                     isFind: true,
@@ -1885,7 +1917,7 @@
                       );
                     }
                   );
-                }, 2500);
+                }, 5e3);
                 if ($findTargetMenu) {
                   scrollToElementAndListen($findTargetMenu);
                   const $fold = $findTargetMenu.closest(`.pops-panel-forms-fold[data-fold-enable]`);
@@ -2143,6 +2175,10 @@
       type: "same",
     };
     __searchParams = { value: new Set() };
+    __hash = {
+      value: void 0,
+      type: "same",
+    };
     otherInstResultWithOr = false;
     constructor(href) {
       if (typeof href === "string") this.href(href);
@@ -2383,9 +2419,43 @@
       });
       return this;
     }
+    hash(hash) {
+      this.__hash = {
+        value: hash,
+        type: "same",
+      };
+      return this;
+    }
+    hashStartsWith(hash) {
+      this.__hash = {
+        value: hash,
+        type: "startsWith",
+      };
+      return this;
+    }
+    hashEndsWith(hash) {
+      this.__hash = {
+        value: hash,
+        type: "endsWith",
+      };
+      return this;
+    }
+    hashIncludes(hash) {
+      this.__hash = {
+        value: hash,
+        type: "includes",
+      };
+    }
+    hashMatch(hash) {
+      this.__hash = {
+        value: hash,
+        type: "match",
+      };
+      return this;
+    }
     build() {
       if (!this.__host.value) throw new TypeError("host or hostName should be required");
-      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`;
+      let url = `${this.__protocol.value || "https"}://${this.__host.value}${this.__pathname.value || "/"}`.trim();
       if (this.__searchParams.value.size > 0) {
         const searhList = [];
         this.__searchParams.value.forEach((it) => {
@@ -2396,7 +2466,13 @@
             searhList.push(`${encodeURIComponent(it.name)}=${encodeURIComponent(value)}`);
           }
         });
-        if (searhList.length) url += `?${searhList.join("&")}`;
+        if (!url.endsWith("?")) url += "?";
+        if (searhList.length) url += searhList.join("&");
+      }
+      if (typeof this.__hash.value === "string") {
+        const hash = this.__hash.value.trim();
+        if (!url.endsWith("#") && !hash.startsWith("#")) url += "#";
+        url += hash;
       }
       return url;
     }
@@ -2409,91 +2485,47 @@
     r() {
       if (this.otherInstResultWithOr) return this.otherInstResultWithOr;
       const urlInst = new URL(this.__href);
+      const check = (name, dataFn) => {
+        const data = typeof dataFn === "function" ? dataFn() : dataFn;
+        if (data.value) {
+          const urlInstValue = urlInst[name];
+          if (typeof urlInstValue !== "string") return false;
+          if (data.type === "same") {
+            if (typeof data.value === "string") return urlInstValue === data.value.toString();
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "startsWith") {
+            if (typeof data.value === "string") return urlInstValue.startsWith(data.value.toString());
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "endsWith") {
+            if (typeof data.value === "string") return urlInstValue.endsWith(data.value.toString());
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "includes") {
+            if (typeof data.value === "string") return urlInstValue.includes(data.value.toString());
+            else throw new TypeError(`${name} value should be string by type ${data.type}`);
+          } else if (data.type === "match") {
+            if (data.value instanceof RegExp) return data.value.test(urlInstValue);
+            else if (
+              typeof data.value === "string" ||
+              typeof data.value === "number" ||
+              typeof data.value === "boolean"
+            )
+              return urlInstValue.match(data.value.toString());
+            else throw new TypeError(`${name} value should be RegExp or string by type ${data.type}`);
+          } else throw new TypeError(`${name} type should be same,startsWith,endsWith,includes,match`);
+        } else return true;
+      };
       return [
         () => {
-          if (this.__origin.value) {
-            if (this.__origin.type === "same") {
-              if (typeof this.__origin.value === "string") return urlInst.origin === this.__origin.value;
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "startsWith") {
-              if (typeof this.__origin.value === "string") return urlInst.origin.startsWith(this.__origin.value);
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "endsWith") {
-              if (typeof this.__origin.value === "string") return urlInst.origin.endsWith(this.__origin.value);
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "includes") {
-              if (typeof this.__origin.value === "string") return urlInst.origin.includes(this.__origin.value);
-              else throw new TypeError("origin value should be string by type " + this.__origin.type);
-            } else if (this.__origin.type === "match") {
-              if (this.__origin.value instanceof RegExp) return this.__origin.value.test(urlInst.origin);
-              else if (typeof this.__origin.value === "string") return urlInst.origin.match(this.__origin.value);
-              else throw new TypeError("origin value should be RegExp or string by type " + this.__origin.type);
-            } else throw new TypeError("origin type should be same or startsWith or endsWith or includes or match");
-          } else return true;
+          return check("origin", this.__origin);
         },
         () => {
-          if (this.__protocol.value) {
-            if (this.__protocol.type === "same") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol === this.__protocol.value;
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "startsWith") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol.startsWith(this.__protocol.value);
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "endsWith") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol.endsWith(this.__protocol.value);
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "includes") {
-              if (typeof this.__protocol.value === "string") return urlInst.protocol.includes(this.__protocol.value);
-              else throw new TypeError("protocol value should be string by type " + this.__protocol.type);
-            } else if (this.__protocol.type === "match") {
-              if (this.__protocol.value instanceof RegExp) return this.__protocol.value.test(urlInst.protocol);
-              else if (typeof this.__protocol.value === "string") return urlInst.protocol.match(this.__protocol.value);
-              else throw new TypeError("protocol value should be RegExp or string by type " + this.__protocol.type);
-            } else throw new TypeError("protocol type should be same,startsWith,endsWith,includes,match");
-          } else return true;
+          return check("protocol", this.__protocol);
         },
         () => {
-          if (this.__host.value) {
-            const host = this.__host.hasPort ? urlInst.host : urlInst.hostname;
-            if (this.__host.type === "same") {
-              if (typeof this.__host.value === "string") return this.__host.value === host;
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "startsWith") {
-              if (typeof this.__host.value === "string") return host.startsWith(this.__host.value);
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "endsWith") {
-              if (typeof this.__host.value === "string") return host.endsWith(this.__host.value);
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "includes") {
-              if (typeof this.__host.value === "string") return host.includes(this.__host.value);
-              else throw new TypeError("host value should be string by type " + this.__host.type);
-            } else if (this.__host.type === "match") {
-              if (this.__host.value instanceof RegExp) return this.__host.value.test(host);
-              else if (typeof this.__host.value === "string") return host.match(this.__host.value);
-              else throw new TypeError("host value should be RegExp or string by type " + this.__host.type);
-            } else throw new TypeError("host type should be same,startsWith,endsWith,includes,match");
-          } else return true;
+          return check(this.__host.hasPort ? "host" : "hostname", this.__host);
         },
         () => {
-          if (this.__pathname.value) {
-            if (this.__pathname.type === "same") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname === this.__pathname.value;
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "startsWith") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname.startsWith(this.__pathname.value);
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "endsWith") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname.endsWith(this.__pathname.value);
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "includes") {
-              if (typeof this.__pathname.value === "string") return urlInst.pathname.includes(this.__pathname.value);
-              else throw new TypeError("pathname value should be string by type " + this.__pathname.type);
-            } else if (this.__pathname.type === "match") {
-              if (this.__pathname.value instanceof RegExp) return this.__pathname.value.test(urlInst.pathname);
-              else if (typeof this.__pathname.value === "string") return urlInst.pathname.match(this.__pathname.value);
-              else throw new TypeError("pathname value should be RegExp or string by type " + this.__pathname.type);
-            } else throw new TypeError("pathname type should be same,startsWith,endsWith,includes,match");
-          } else return true;
+          return check("pathname", this.__pathname);
         },
         () => {
           let flag = true;
@@ -2592,6 +2624,9 @@
           }
           return flag;
         },
+        () => {
+          return check("hash", this.__hash);
+        },
       ].every((it) => it());
     }
   };
@@ -2613,6 +2648,9 @@
     },
     protocol(protocol, href) {
       return RouterUtil.builder(href).protocol(protocol);
+    },
+    hash(hash, href) {
+      return RouterUtil.builder(href).hash(hash);
     },
     builder(href) {
       return new RouterBuilder(href);
@@ -3134,7 +3172,7 @@
     },
   };
   var block_default$1 =
-    "/* 底部的App内打开 */\n.bottom-button-box,\n/* 顶部的打开看看 */\n.nav-bar-box {\n  display: none !important;\n}\n";
+    "/* 底部的App内打开 */\r\n.bottom-button-box,\r\n/* 顶部的打开看看 */\r\n.nav-bar-box {\r\n  display: none !important;\r\n}\r\n";
   var M_XHSArticleBlock = {
     allowCopy() {
       log.info("允许复制");
@@ -3566,7 +3604,7 @@
     },
   };
   var block_default =
-    "/* 用户主页 */\n/* 底部的-App内打开 */\n.launch-app-container.bottom-bar,\n/* 顶部的-打开看看 */\n.main-container > .scroll-view-container > .launch-app-container:first-child,\n/* 底部的-打开小红书看更多精彩内容 */\n.bottom-launch-app-tip.show-bottom-bar,\n/* 首页-顶部横幅 */\n#app .launch-app-container,\n/* 笔记-顶部横幅 */\n.note-view-container .nav-bar-box-expand ,\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\n/* 404页面 顶部的打开看看 */\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\n/* 404页面 底部的-App内打开 */\n.not-found-container #fmp {\n  display: none !important;\n}\n";
+    "/* 用户主页 */\r\n/* 底部的-App内打开 */\r\n.launch-app-container.bottom-bar,\r\n/* 顶部的-打开看看 */\r\n.main-container > .scroll-view-container > .launch-app-container:first-child,\r\n/* 底部的-打开小红书看更多精彩内容 */\r\n.bottom-launch-app-tip.show-bottom-bar,\r\n/* 首页-顶部横幅 */\r\n#app .launch-app-container,\r\n/* 笔记-顶部横幅 */\r\n.note-view-container .nav-bar-box-expand ,\r\n.note-view-container .nav-bar-box-expand+.placeholder-expand,\r\n/* 404页面 顶部的打开看看 */\r\n.not-found-container .nav-bar-box-expand:has(.share-info-box):has(.launch-btn),\r\n/* 404页面 底部的-App内打开 */\r\n.not-found-container #fmp {\r\n  display: none !important;\r\n}\r\n";
   var M_XHSHome = {
     init() {
       domUtils.onReady(() => {
@@ -6158,6 +6196,155 @@
       },
     ],
   };
+  var XHSVideoPlaybackRates = [0.5, 0.75, 1, 1.5, 2];
+  var XHSVideo = {
+    getKeys(isMobile = false) {
+      const prefix = isMobile ? "little-red-book" : "pc-xhs";
+      return {
+        enable: `${prefix}-video-default-playback-rate-enable`,
+        rate: `${prefix}-video-default-playback-rate`,
+      };
+    },
+    init(isMobile = false) {
+      const keys = this.getKeys(isMobile);
+      Panel.execMenuOnce(keys.enable, () => {
+        return this.useDefaultPlaybackRate(keys.rate);
+      });
+    },
+    useDefaultPlaybackRate(rateKey) {
+      const states = new WeakMap();
+      const getRate = () => {
+        const rate = Number(Panel.getValue(rateKey, 1.5));
+        return XHSVideoPlaybackRates.includes(rate) ? rate : 1.5;
+      };
+      const getState = (video) => {
+        const source = [
+          video.getAttribute("src") || "",
+          video.currentSrc || "",
+          ...Array.from(video.querySelectorAll("source")).map((node) => node.getAttribute("src") || ""),
+        ].join("\n");
+        let state = states.get(video);
+        if (!state || state.source !== source) {
+          state = {
+            source,
+            applied: false,
+            menu: null,
+            manual: false,
+            applying: false,
+          };
+          states.set(video, state);
+        }
+        return state;
+      };
+      const applyRate = (video, rate, force = false) => {
+        const state = getState(video);
+        if (state.applying || (!force && state.manual)) return;
+        const player = video.closest(".xgplayer");
+        if (player && player.querySelector("video") !== video) return;
+        const menu = player?.querySelector(".xgplayer-playbackrate") ?? null;
+        if (!force && state.applied && state.menu === menu) return;
+        const item =
+          menu &&
+          Array.from(menu.querySelectorAll("li[cname]")).find((node) => Number(node.getAttribute("cname")) === rate);
+        const isWebCodecs = video.getAttribute("usewcs") === "1";
+        if (isWebCodecs && !item) return;
+        state.applying = true;
+        try {
+          if (item) item.click();
+          if (!isWebCodecs) {
+            video.defaultPlaybackRate = rate;
+            video.playbackRate = rate;
+          }
+          state.applied = true;
+          state.menu = menu;
+          if (force) state.manual = false;
+        } catch (error) {
+          log.warn("设置视频默认倍速失败", error);
+        } finally {
+          state.applying = false;
+        }
+      };
+      const lockFn = new utils.LockFunction(async () => {
+        const rate = getRate();
+        $$("video").forEach(($video) => applyRate($video, rate, false));
+      });
+      const observer = utils.mutationObserver(document, {
+        config: {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ["src", "usewcs"],
+        },
+        immediate: true,
+        callback: (records) => {
+          const selector = "video, source, .xgplayer-playbackrate";
+          if (
+            records.some(
+              (record) =>
+                record.type === "attributes" ||
+                record.target.closest?.(".xgplayer-playbackrate") ||
+                Array.from(record.addedNodes).some((node) => {
+                  if (node.nodeType !== 1) return false;
+                  const element = node;
+                  return element.matches(selector) || element.querySelector(selector);
+                })
+            )
+          )
+            lockFn.run();
+        },
+      });
+      const mediaListener = domUtils.on(
+        document,
+        ["loadstart", "loadedmetadata", "canplay", "play"],
+        (evt) => {
+          const video = evt.target;
+          if (video?.tagName !== "VIDEO") return;
+          if (evt.type === "loadstart") states.delete(video);
+          applyRate(video, getRate());
+        },
+        true
+      );
+      const menuClickListener = domUtils.on(
+        document,
+        "click",
+        (evt) => {
+          const item = evt.target?.closest?.(".xgplayer-playbackrate li[cname]");
+          if (!item) return;
+          const video = item.closest(".xgplayer")?.querySelector("video");
+          if (!video) return;
+          const state = getState(video);
+          if (!state.applying) {
+            state.manual = true;
+            state.menu = item.closest(".xgplayer-playbackrate");
+          }
+        },
+        true
+      );
+      return () => {
+        observer.disconnect();
+        mediaListener.off();
+        menuClickListener.off();
+        $$("video").forEach(($video) => applyRate($video, 1, true));
+      };
+    },
+  };
+  var getVideoSettingViews = (isMobile = false) => {
+    const keys = XHSVideo.getKeys(isMobile);
+    return [
+      UISwitch("启用视频默认倍速", keys.enable, false, void 0, "新视频自动使用默认倍速；关闭后恢复1倍速"),
+      UISelect(
+        "视频默认倍速",
+        keys.rate,
+        1.5,
+        XHSVideoPlaybackRates.map((value) => ({
+          value,
+          text: `${value}倍速`,
+        })),
+        void 0,
+        "修改后立即生效；播放器中手动选择的倍速会保留到切换视频"
+      ),
+    ];
+  };
   var MSettingUI_Notes = {
     id: "little-red-book-panel-config-note",
     title: "笔记",
@@ -6174,6 +6361,7 @@
                 text: "",
                 type: "container",
                 views: [
+                  ...getVideoSettingViews(true),
                   UISwitch(
                     "优化视频描述",
                     "little-red-book-optimizeVideoNoteDesc",
@@ -6260,6 +6448,11 @@
             "注：需要开启<code>通用</code>-<code>劫持/拦截</code>-<code>劫持Vue</code>"
           ),
         ],
+      },
+      {
+        type: "container",
+        text: "视频播放",
+        views: getVideoSettingViews(),
       },
       {
         text: "笔记宽屏",
@@ -6642,6 +6835,7 @@
     },
   });
   var start = () => {
+    XHSVideo.init(isMobile);
     if (isMobile) {
       log.info("自动判定为移动端");
       MenuRegister.delete("pc_setting");

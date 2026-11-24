@@ -12,6 +12,7 @@ import { MSettingUI_Notes } from "./setting/m-view/m-note";
 import { SettingUI_Article } from "./setting/view/article";
 import { SettingUI_General } from "./setting/view/general";
 import { SettingUI_Search } from "./setting/view/search";
+import { XHSVideo } from "./video/XHSVideo";
 
 // 修复一下Qmsg的loading图标问题
 addStyle(/*css*/ `
@@ -107,6 +108,7 @@ MenuRegister.add({
 });
 
 const start = () => {
+  XHSVideo.init(isMobile);
   if (isMobile) {
     log.info("自动判定为移动端");
     MenuRegister.delete("pc_setting");
