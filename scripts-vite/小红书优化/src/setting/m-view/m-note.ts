@@ -1,5 +1,6 @@
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
 import { UISwitch } from "@components/setting/components/ui-switch";
+import { getVideoSettingViews } from "../common/video";
 
 const MSettingUI_Notes: PopsPanelContentConfig = {
   id: "little-red-book-panel-config-note",
@@ -17,6 +18,7 @@ const MSettingUI_Notes: PopsPanelContentConfig = {
               text: "",
               type: "container",
               views: [
+                ...getVideoSettingViews(true),
                 UISwitch(
                   "优化视频描述",
                   "little-red-book-optimizeVideoNoteDesc",

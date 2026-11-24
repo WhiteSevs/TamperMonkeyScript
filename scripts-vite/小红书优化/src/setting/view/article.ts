@@ -2,6 +2,7 @@ import { $, log } from "@/env";
 import { UISlider } from "@components/setting/components/ui-slider";
 import { UISwitch } from "@components/setting/components/ui-switch";
 import type { PopsPanelContentConfig } from "@whitesev/pops/dist/types/src/components/panel/types/index.js";
+import { getVideoSettingViews } from "../common/video";
 
 export const SettingUI_Article: PopsPanelContentConfig = {
   id: "xhs-panel-config-article",
@@ -19,6 +20,11 @@ export const SettingUI_Article: PopsPanelContentConfig = {
           "注：需要开启<code>通用</code>-<code>劫持/拦截</code>-<code>劫持Vue</code>"
         ),
       ],
+    },
+    {
+      type: "container",
+      text: "视频播放",
+      views: getVideoSettingViews(),
     },
     {
       text: "笔记宽屏",
