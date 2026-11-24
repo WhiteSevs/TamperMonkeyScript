@@ -6,6 +6,7 @@ import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { addStyle, log, MenuRegister, utils } from "./env";
 import { M_XHS } from "./m-main/M_XHS";
 import { XHS } from "./main/XHS";
+import { XHSVideo } from "./video/XHSVideo";
 import { MSettingUI_General } from "./setting/m-view/m-general";
 import { MSettingUI_Home } from "./setting/m-view/m-home";
 import { MSettingUI_Notes } from "./setting/m-view/m-note";
@@ -107,6 +108,7 @@ MenuRegister.add({
 });
 
 const start = () => {
+  XHSVideo.init(isMobile);
   if (isMobile) {
     log.info("自动判定为移动端");
     MenuRegister.delete("pc_setting");
