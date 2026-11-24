@@ -2,7 +2,7 @@ import type { HttpxHeaders, HttpxMethod, HttpxStatus } from "./Httpx";
 
 export declare type UtilsAjaxHookType = "xhr" | "fetch";
 
-/** 请求的response配置 */
+/** 相应的response配置 */
 export declare interface UtilsAjaxHookResponseOptions {
   /**
    * （重定向后的）Url
@@ -13,17 +13,45 @@ export declare interface UtilsAjaxHookResponseOptions {
    */
   status: HttpxStatus;
   /**
+   * 响应码内容
+   */
+  statusText?: string;
+  /**
    * 响应头
    */
   responseHeaders: HttpxHeaders;
   /**
-   * 响应内容
+   * （请求是xhr）响应内容
    */
   response?: string | Blob | ArrayBuffer | XMLDocument | FormData;
   /**
-   * 响应内容文本
+   * （请求是xhr）响应内容文本
    */
   responseText?: string;
+  /**
+   * （请求是xhr）响应内容XML
+   */
+  responseXML?: XMLDocument;
+  /**
+   * （请求是fetch）响应内容
+   */
+  arrayBuffer?: ArrayBuffer;
+  /**
+   * （请求是fetch）响应内容
+   */
+  blob?: Blob;
+  /**
+   * （请求是fetch）响应内容
+   */
+  formData?: FormData;
+  /**
+   * （请求是fetch）响应内容
+   */
+  json?: object;
+  /**
+   * （请求是fetch）响应内容
+   */
+  text?: string;
 }
 
 /**
