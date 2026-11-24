@@ -1,4 +1,4 @@
-import { log } from "@/env";
+import { $$, DOMUtils, log, utils } from "@/env";
 import { Panel } from "@components/setting/panel";
 
 export const XHSVideoPlaybackRates = [0.5, 0.75, 1, 1.5, 2];
@@ -22,13 +22,12 @@ export const XHSVideo = {
   },
   init(isMobile = false) {
     const keys = this.getKeys(isMobile);
-    Panel.execMenuOnce(keys.enable, () => this.useDefaultPlaybackRate(keys.rate));
+    Panel.execMenuOnce(keys.enable, () => {
+      return this.useDefaultPlaybackRate(keys.rate);
+    });
   },
   useDefaultPlaybackRate(rateKey: string) {
     const states = new WeakMap<HTMLVideoElement, VideoRateState>();
-    const mediaEvents = ["loadstart", "loadedmetadata", "canplay", "play"];
-    let active = true;
-    let scanQueued = false;
     const getRate = () => {
       const rate = Number(Panel.getValue(rateKey, 1.5));
       return XHSVideoPlaybackRates.includes(rate) ? rate : 1.5;
@@ -78,69 +77,69 @@ export const XHSVideo = {
         state.applying = false;
       }
     };
-    const scan = (force = false) => {
-      if (!active) return;
+    const lockFn = new utils.LockFunction(async () => {
       const rate = getRate();
-      document.querySelectorAll("video").forEach((video) => applyRate(video, rate, force));
-    };
-    const scheduleScan = () => {
-      if (!active || scanQueued) return;
-      scanQueued = true;
-      queueMicrotask(() => {
-        scanQueued = false;
-        scan();
-      });
-    };
-    const onMediaEvent = (event: Event) => {
-      const video = event.target as HTMLVideoElement | null;
-      if (!active || video?.tagName !== "VIDEO") return;
-      if (event.type === "loadstart") states.delete(video);
-      applyRate(video, getRate());
-    };
-    const onMenuClick = (event: MouseEvent) => {
-      const item = (event.target as Element | null)?.closest?.(".xgplayer-playbackrate li[cname]");
-      if (!item) return;
-      const video = item.closest(".xgplayer")?.querySelector("video");
-      if (!video) return;
-      const state = getState(video);
-      if (!state.applying) {
-        state.manual = true;
-        state.menu = item.closest<HTMLElement>(".xgplayer-playbackrate");
-      }
-    };
-    const observer = new MutationObserver((records) => {
-      const selector = "video, source, .xgplayer-playbackrate";
-      if (
-        records.some(
-          (record) =>
-            record.type === "attributes" ||
-            (record.target as Element).closest?.(".xgplayer-playbackrate") ||
-            Array.from(record.addedNodes).some((node) => {
-              if (node.nodeType !== 1) return false;
-              const element = node as Element;
-              return element.matches(selector) || element.querySelector(selector);
-            })
-        )
-      )
-        scheduleScan();
+      $$("video").forEach(($video) => applyRate($video, rate, false));
     });
-    observer.observe(document, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["src", "usewcs"],
+    const observer = utils.mutationObserver(document, {
+      config: {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["src", "usewcs"],
+      },
+      immediate: true,
+      callback: (records) => {
+        const selector = "video, source, .xgplayer-playbackrate";
+        if (
+          records.some(
+            (record) =>
+              record.type === "attributes" ||
+              (record.target as Element).closest?.(".xgplayer-playbackrate") ||
+              Array.from(record.addedNodes).some((node) => {
+                if (node.nodeType !== 1) return false;
+                const element = node as Element;
+                return element.matches(selector) || element.querySelector(selector);
+              })
+          )
+        ) {
+          lockFn.run();
+        }
+      },
     });
-    mediaEvents.forEach((name) => document.addEventListener(name, onMediaEvent, true));
-    document.addEventListener("click", onMenuClick, true);
-    const rateListener = Panel.addValueChangeListener(rateKey, () => scan(true));
-    scan();
+
+    const mediaListener = DOMUtils.on(
+      document,
+      ["loadstart", "loadedmetadata", "canplay", "play"],
+      (evt) => {
+        const video = evt.target as HTMLVideoElement | null;
+        if (video?.tagName !== "VIDEO") return;
+        if (evt.type === "loadstart") states.delete(video);
+        applyRate(video, getRate());
+      },
+      true
+    );
+    const menuClickListener = DOMUtils.on(
+      document,
+      "click",
+      (evt) => {
+        const item = (evt.target as Element | null)?.closest?.(".xgplayer-playbackrate li[cname]");
+        if (!item) return;
+        const video = item.closest(".xgplayer")?.querySelector("video");
+        if (!video) return;
+        const state = getState(video);
+        if (!state.applying) {
+          state.manual = true;
+          state.menu = item.closest<HTMLElement>(".xgplayer-playbackrate");
+        }
+      },
+      true
+    );
     return () => {
-      active = false;
       observer.disconnect();
-      mediaEvents.forEach((name) => document.removeEventListener(name, onMediaEvent, true));
-      document.removeEventListener("click", onMenuClick, true);
-      Panel.removeValueChangeListener(rateListener);
-      document.querySelectorAll("video").forEach((video) => applyRate(video, 1, true));
+      mediaListener.off();
+      menuClickListener.off();
+      $$("video").forEach(($video) => applyRate($video, 1, true));
     };
   },
 };

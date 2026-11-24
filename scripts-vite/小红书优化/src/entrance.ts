@@ -6,13 +6,13 @@ import { GM_deleteValue, GM_getValue, GM_setValue } from "ViteGM";
 import { addStyle, log, MenuRegister, utils } from "./env";
 import { M_XHS } from "./m-main/M_XHS";
 import { XHS } from "./main/XHS";
-import { XHSVideo } from "./video/XHSVideo";
 import { MSettingUI_General } from "./setting/m-view/m-general";
 import { MSettingUI_Home } from "./setting/m-view/m-home";
 import { MSettingUI_Notes } from "./setting/m-view/m-note";
 import { SettingUI_Article } from "./setting/view/article";
 import { SettingUI_General } from "./setting/view/general";
 import { SettingUI_Search } from "./setting/view/search";
+import { XHSVideo } from "./video/XHSVideo";
 
 // 修复一下Qmsg的loading图标问题
 addStyle(/*css*/ `
