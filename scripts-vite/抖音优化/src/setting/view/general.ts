@@ -196,6 +196,7 @@ export const PanelGeneralConfig: PopsPanelContentConfig = {
                   void 0,
                   "当地址栏改变时，功能重载，建议开启"
                 ),
+                UISwitch("[beta] 禁止上报观看记录", "dy-video-disableReportPlayRecord"),
                 UISwitch("移除某些Cookie", "dy-cookie-remove__ac__", false, void 0, "阻止触发验证弹窗（maybe）"),
                 UISwitch(
                   "新标签页打开搜索结果",

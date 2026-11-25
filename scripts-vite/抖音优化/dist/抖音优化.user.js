@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.11.15
+// @version      2026.11.25
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.2/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.3/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
@@ -2216,6 +2216,9 @@
       Panel.execMenuOnce("dy-hook-recommend-no-user-profile", () => {
         return this.hookRecommendNoUserProfile();
       });
+      Panel.execMenuOnce("dy-video-disableReportPlayRecord", () => {
+        return this.disableReportPlayRecord();
+      });
     },
     hookUserNoLoginResponse() {
       this.ajaxHooker.hook((request) => {
@@ -2387,6 +2390,78 @@
           };
         }
       });
+    },
+    disableReportPlayRecord() {
+      log.info(`[beta] 禁止上报观看记录`);
+      const RULES = [
+        {
+          id: "history_write",
+          label: "观看历史写入",
+          re: /\/aweme\/v1\/web\/history\/write\//,
+          fake: '{"status_code":0,"BaseResp":{"StatusCode":0}}',
+        },
+        {
+          id: "play_progress",
+          label: "播放进度上报",
+          re: /\/aweme\/v1\/web\/play\/progress\//,
+          fake: '{"status_code":0}',
+        },
+        {
+          id: "aweme_stats",
+          label: "播放统计上报",
+          re: /\/aweme\/v2\/web\/aweme\/stats\//,
+          fake: '{"status_code":0}',
+        },
+        {
+          id: "mcs_events",
+          label: "MCS 行为埋点",
+          re: /^https?:\/\/mcs\.zijieapi\.com\/list/,
+          fake: '{"e":0,"sc":1,"tc":1}',
+        },
+        {
+          id: "monitor_browser",
+          label: "前端监控上报",
+          re: /^https?:\/\/mon\.zijieapi\.com\/monitor_browser\/collect\//,
+          fake: "",
+        },
+        {
+          id: "page_turn",
+          label: "翻页行为上报",
+          re: /\/aweme\/v1\/web\/page\/turn\/offline/,
+          fake: '{"status_code":0}',
+        },
+      ];
+      const matchRule = function (url) {
+        if (!url) return;
+        const urlFixed = typeof url == "string" ? CommonUtil.fixUrl(url) : url.toString();
+        for (const item of RULES) {
+          if (!item.re.test(urlFixed)) continue;
+          return item;
+        }
+      };
+      const { remove } = this.ajaxHooker.hook((request) => {
+        const ret = matchRule(request.url);
+        if (ret) {
+          request.abort = true;
+          request.response = (response) => {
+            response.responseText = ret.fake;
+            response.text = ret.fake;
+          };
+        }
+      });
+      const nav = _unsafeWindow.navigator;
+      const origBeacon = nav.sendBeacon;
+      if (typeof origBeacon === "function")
+        nav.sendBeacon = function (url) {
+          try {
+            if (matchRule(url)) return true;
+          } catch {}
+          return origBeacon.apply(nav, arguments);
+        };
+      return () => {
+        remove();
+        nav.sendBeacon = origBeacon;
+      };
     },
   };
   var RouterBuilder = class RouterBuilder {
@@ -14761,6 +14836,7 @@
                     void 0,
                     "当地址栏改变时，功能重载，建议开启"
                   ),
+                  UISwitch("[beta] 禁止上报观看记录", "dy-video-disableReportPlayRecord"),
                   UISwitch("移除某些Cookie", "dy-cookie-remove__ac__", false, void 0, "阻止触发验证弹窗（maybe）"),
                   UISwitch(
                     "新标签页打开搜索结果",

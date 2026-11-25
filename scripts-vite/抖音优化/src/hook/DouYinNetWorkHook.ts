@@ -19,6 +19,9 @@ export const DouYinNetWorkHook = {
     Panel.execMenuOnce("dy-hook-recommend-no-user-profile", () => {
       return this.hookRecommendNoUserProfile();
     });
+    Panel.execMenuOnce("dy-video-disableReportPlayRecord", () => {
+      return this.disableReportPlayRecord();
+    });
   },
   /**
    * 篡改未登录时的响应结果
@@ -262,5 +265,93 @@ export const DouYinNetWorkHook = {
         };
       }
     });
+  },
+  /**
+   * [beta] 禁止上报观看记录
+   */
+  disableReportPlayRecord() {
+    log.info(`[beta] 禁止上报观看记录`);
+    const RULES = [
+      {
+        id: "history_write",
+        label: "观看历史写入",
+        re: /\/aweme\/v1\/web\/history\/write\//,
+        // 实测请求体: author_id=xxx&aweme_id=xxx&pre_item_id=xxx&pre_item_seen=0
+        fake: '{"status_code":0,"BaseResp":{"StatusCode":0}}',
+      },
+      {
+        id: "play_progress",
+        label: "播放进度上报",
+        re: /\/aweme\/v1\/web\/play\/progress\//,
+        // 实测请求体: item_duration=205200&item_id=xxx&item_progress=3421 （毫秒）
+        fake: '{"status_code":0}',
+      },
+      {
+        id: "aweme_stats",
+        label: "播放统计上报",
+        re: /\/aweme\/v2\/web\/aweme\/stats\//,
+        // 实测请求体: aweme_type=0&item_id=xxx&play_delta=1&source=0
+        fake: '{"status_code":0}',
+      },
+      {
+        id: "mcs_events",
+        label: "MCS 行为埋点",
+        re: /^https?:\/\/mcs\.zijieapi\.com\/list/,
+        // 实测含 _be_active（页面活跃时长）、browser_sys_info（设备指纹）、AB 分桶等
+        fake: '{"e":0,"sc":1,"tc":1}',
+      },
+      {
+        id: "monitor_browser",
+        label: "前端监控上报",
+        re: /^https?:\/\/mon\.zijieapi\.com\/monitor_browser\/collect\//,
+        fake: "",
+      },
+      {
+        id: "page_turn",
+        label: "翻页行为上报",
+        re: /\/aweme\/v1\/web\/page\/turn\/offline/,
+        fake: '{"status_code":0}',
+      },
+    ];
+    const matchRule = function (url: string | URL) {
+      if (!url) return;
+      const urlFixed = typeof url == "string" ? CommonUtil.fixUrl(url) : url.toString();
+      for (const item of RULES) {
+        if (!item.re.test(urlFixed)) continue;
+        return item;
+      }
+      return;
+    };
+
+    const { remove } = this.ajaxHooker.hook((request) => {
+      const ret = matchRule(request.url);
+      if (ret) {
+        request.abort = true;
+        request.response = (response) => {
+          response.responseText = ret.fake;
+          response.text = ret.fake;
+        };
+      }
+    });
+
+    const nav = unsafeWindow.navigator;
+    const origBeacon = nav.sendBeacon;
+    if (typeof origBeacon === "function") {
+      nav.sendBeacon = function (url) {
+        try {
+          const rule = matchRule(url);
+          if (rule) {
+            return true;
+          }
+        } catch {}
+        // @ts-expect-error
+        return origBeacon.apply(nav, arguments);
+      };
+    }
+
+    return () => {
+      remove();
+      nav.sendBeacon = origBeacon;
+    };
   },
 };
