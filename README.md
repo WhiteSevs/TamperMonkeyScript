@@ -85,12 +85,6 @@ Tampermonkey 为了顺应 Chrome 的 Manifest V3 要求，在 v5.0.0 版本中�
   pnpm run build:all-new
   ```
 
-## 兼容事项
-
-- has 的语法兼容性，[:has()兼容性查看 Chrome 最低 105](https://caniuse.com/css-has)
-- 优先使用`vw`或`vh`，`dvw`和`dvh`[兼容性查看 Chrome 最低 108，华为鸿蒙才 90 多](https://caniuse.com/mdn-css_types_length_viewport_percentage_units_dynamic)
-- CSS 嵌套语法最好不要用，[Nesting 兼容性查看 Chrome 最低 120](https://caniuse.com/css-nesting)
-
 ## 插件`vite-plugin-mkcert`的使用事项
 
 如果想要局域网其它设备信任该证书，需要把`%USERPROFILE%\.vite-plugin-mkcert`下的`rootCA.pem`安装到该设备中
