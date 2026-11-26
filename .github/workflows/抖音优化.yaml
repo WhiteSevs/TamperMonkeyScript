@@ -4,10 +4,10 @@ on:
   push:
     branches: ["master"]
     paths:
-      - "packages/抖音优化/**"
+      - "scripts-vite/抖音优化/**"
       - ".github/workflows/抖音优化.yaml"
-      - "!packages/抖音优化/README.md"
-      - "!packages/抖音优化/dist/*"
+      - "!scripts-vite/抖音优化/README.md"
+      - "!scripts-vite/抖音优化/dist/*"
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
 
       - name: 构建
         run: |
-          cd ./packages/抖音优化
+          cd ./scripts-vite/抖音优化
           echo "当前目录："$(pwd)
           pnpm install
           pnpm run build
@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: 抖音优化
-          path: ./packages/抖音优化/dist
+          path: ./scripts-vite/抖音优化/dist
