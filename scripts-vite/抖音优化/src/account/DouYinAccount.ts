@@ -152,7 +152,7 @@ export const DouYinAccount = {
         },
         immediate: true,
         callback: () => {
-          lockFn.run();
+          lockFn.idleRun();
         },
       });
       result.push(() => {
@@ -173,7 +173,7 @@ export const DouYinAccount = {
           },
           immediate: true,
           callback: () => {
-            lockFn.run();
+            lockFn.idleRun();
           },
         });
       });
@@ -207,7 +207,7 @@ export const DouYinAccount = {
           },
           immediate: true,
           callback: () => {
-            lockFn.run();
+            lockFn.idleRun();
           },
         });
       });
@@ -288,7 +288,7 @@ export const DouYinAccount = {
       },
       immediate: true,
       callback: () => {
-        lockFn.run();
+        lockFn.idleRun();
       },
     });
 
@@ -325,7 +325,7 @@ export const DouYinAccount = {
       },
       immediate: true,
       callback: () => {
-        lockFn.run();
+        lockFn.idleRun();
       },
     });
     return [

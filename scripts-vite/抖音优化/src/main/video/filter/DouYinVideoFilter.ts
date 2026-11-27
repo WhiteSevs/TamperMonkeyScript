@@ -15,11 +15,7 @@ import type { PopsPanelSelectMultipleConfig } from "@whitesev/pops/dist/types/sr
 import Utils from "@whitesev/utils";
 import type { UtilsAjaxHookRequestOptions } from "@whitesev/utils/dist/types/src/types/ajaxHooker.js";
 import Qmsg from "qmsg";
-import type {
-  DouYinVideoAwemeInfoVideoExtraWithNetWork,
-  DouYinVideoAwemeInfoWithNetWork,
-  DouYinVideoConversionInfo,
-} from "../../../../types/DouYinVideoType";
+import type { DouYinVideoAwemeInfoWithNetWork, DouYinVideoConversionInfo } from "../../../../types/DouYinVideoType";
 import { DouYinVideoFilterBase } from "./DouYinVideoFilterBase";
 
 type DouYinVideoFilterRuleOptionScope =
@@ -776,7 +772,7 @@ export const DouYinVideoFilter = {
       },
       immediate: true,
       callback: () => {
-        lockFn.run();
+        lockFn.idleRun();
       },
     });
     return [

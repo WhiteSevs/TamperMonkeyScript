@@ -75,7 +75,7 @@ export const PanelVideoConfig: PopsPanelContentConfig = {
                   "dy-hook-higher-quality",
                   true,
                   void 0,
-                  "(仅非登录时生效)开启后将强制显示超清2k、超清4k的画质选项"
+                  "(不一定生效)显示超清2k、超清4k的画质选项，但是可能会造成卡顿"
                 ),
                 UISelect(
                   "沉浸模式",

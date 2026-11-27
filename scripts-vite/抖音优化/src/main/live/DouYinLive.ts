@@ -422,7 +422,7 @@ export const DouYinLive = {
       },
       immediate: true,
       callback() {
-        lockFn.run();
+        lockFn.idleRun();
       },
     });
     return [
@@ -754,7 +754,7 @@ export const DouYinLive = {
       },
       immediate: true,
       callback: () => {
-        lockFn.run();
+        lockFn.idleRun();
       },
     });
     return [
