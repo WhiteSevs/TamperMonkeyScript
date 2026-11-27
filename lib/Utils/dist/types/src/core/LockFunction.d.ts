@@ -2,7 +2,8 @@ export declare class LockFunction<K extends (...args: any[]) => any | Promise<an
     #private;
     lock: () => void;
     unlock: () => void;
-    run: (...args: any[]) => Promise<void>;
+    run: <R = any>(...args: any[]) => Promise<R>;
+    idleRun: <R = any>(...args: any[]) => Promise<R>;
     isLock: () => boolean;
     /**
      * @param callback 需要执行的函数

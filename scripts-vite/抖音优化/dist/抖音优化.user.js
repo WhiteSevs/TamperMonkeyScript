@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         抖音优化
 // @namespace    https://github.com/WhiteSevs/TamperMonkeyScript
-// @version      2026.11.25
+// @version      2026.11.27
 // @author       WhiteSevs
 // @description  视频过滤，包括广告、直播或自定义规则，屏蔽登录弹窗、自定义视频清晰度、禁止自动播放、自动进入全屏、双击进入全屏、屏蔽弹幕和礼物特效、手机模式、自定义视频和评论区背景色等
 // @license      GPL-3.0-only
@@ -11,7 +11,7 @@
 // @match        *://*.iesdouyin.com/*
 // @exclude      *://creator.douyin.com/*
 // @require      https://fastly.jsdelivr.net/gh/WhiteSevs/TamperMonkeyScript@86be74b83fca4fa47521cded28377b35e1d7d2ac/lib/CoverUMD/index.js
-// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.3/dist/index.umd.js
+// @require      https://fastly.jsdelivr.net/npm/@whitesev/utils@2.15.4/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/domutils@2.0.12/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/@whitesev/pops@4.2.11/dist/index.umd.js
 // @require      https://fastly.jsdelivr.net/npm/qmsg@1.7.4/dist/index.umd.js
@@ -2132,6 +2132,7 @@
   CommonUtil.addBlockCSSWithEnd.bind(CommonUtil);
   var $ = _whitesev_domutils.default.selector.bind(_whitesev_domutils.default);
   var $$ = _whitesev_domutils.default.selectorAll.bind(_whitesev_domutils.default);
+  _whitesev_domutils.default.remove.bind(_whitesev_domutils.default);
   var cookieManager = new utils$1.CookieManagerService({ baseCookieHandler: "GM_cookie" });
   if (!cookieManager.isSupportGM_cookie) {
     if (cookieManager.isSupportCookieStore) cookieManager.setOptions({ baseCookieHandler: "cookieStore" });
@@ -3396,7 +3397,7 @@
           },
           immediate: true,
           callback: () => {
-            lockFn.run();
+            lockFn.idleRun();
           },
         });
         result.push(() => {
@@ -3416,7 +3417,7 @@
             },
             immediate: true,
             callback: () => {
-              lockFn.run();
+              lockFn.idleRun();
             },
           });
         });
@@ -3444,7 +3445,7 @@
             },
             immediate: true,
             callback: () => {
-              lockFn.run();
+              lockFn.idleRun();
             },
           });
         });
@@ -3507,7 +3508,7 @@
         },
         immediate: true,
         callback: () => {
-          lockFn.run();
+          lockFn.idleRun();
         },
       });
       return [
@@ -3537,7 +3538,7 @@
         },
         immediate: true,
         callback: () => {
-          lockFn.run();
+          lockFn.idleRun();
         },
       });
       return [
@@ -5849,7 +5850,7 @@
           'a[href*="live.douyin.com"] + div[style*="absolute"]:has(#slider-card[data-e2e="feed-live"] a[href*="live.douyin.com"])',
           'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
           "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
-          ".LivePlayer_Preview",
+          '[data-e2e="feed-active-video"] .LivePlayer_Preview',
           '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
         ),
         addStyle(`
@@ -9037,7 +9038,7 @@
         },
         immediate: true,
         callback: () => {
-          lockFn.run();
+          lockFn.idleRun();
         },
       });
       return [
@@ -12643,7 +12644,7 @@
         },
         immediate: true,
         callback() {
-          lockFn.run();
+          lockFn.idleRun();
         },
       });
       return [
@@ -12868,7 +12869,7 @@
         },
         immediate: true,
         callback: () => {
-          lockFn.run();
+          lockFn.idleRun();
         },
       });
       return [
@@ -15156,7 +15157,7 @@
                     "dy-hook-higher-quality",
                     true,
                     void 0,
-                    "(仅非登录时生效)开启后将强制显示超清2k、超清4k的画质选项"
+                    "(不一定生效)显示超清2k、超清4k的画质选项，但是可能会造成卡顿"
                   ),
                   UISelect(
                     "沉浸模式",

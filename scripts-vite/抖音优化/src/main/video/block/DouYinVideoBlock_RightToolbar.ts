@@ -1,4 +1,5 @@
 import { addStyle, log } from "@/env";
+import { DouYinRouter } from "@/router/DouYinRouter";
 import { addBlockCSS } from "@components/env.base";
 import { Panel } from "@components/setting/panel";
 
@@ -117,7 +118,7 @@ export const DouYinVideoBlock_RightToolbar = {
         // 仅有边框的情况
         'a[href*="live.douyin.com"] + div[style*="absolute"]:empty',
         "body > .__pre_create_player__ .LivePlayer_PreCreatePlayer",
-        ".LivePlayer_Preview",
+        '[data-e2e="feed-active-video"] .LivePlayer_Preview',
         // 仅有边框的情况
         '[data-e2e="feed-active-video"] a[href*="live.douyin.com/"]+[style*="absolute"]'
       ),

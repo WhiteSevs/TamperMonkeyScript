@@ -966,6 +966,8 @@ declare class Utils {
         let lock = new Utils.LockFunction(()=>{console.log(1)}),true) -- 异步操作
         await lock.run();
         > 1
+        await lock.idleRun();
+        > 1
        **/
     LockFunction: typeof LockFunction;
     /**

@@ -100,7 +100,7 @@ Qmsg.config({
   },
 });
 
-/* 配置pops的默认选项 */
+// 配置pops的默认选项
 __pops__.GlobalConfig.setGlobalConfig({
   zIndex: () => {
     return getPageMaxZIndex();
@@ -227,6 +227,10 @@ const $ = DOMUtils.selector.bind(DOMUtils);
  * 多组元素选择器
  */
 const $$ = DOMUtils.selectorAll.bind(DOMUtils);
+/**
+ * 移除元素
+ */
+const $r = DOMUtils.remove.bind(DOMUtils);
 
 /**
  * Vue的根元素的id
@@ -245,14 +249,14 @@ const MountVue = async function (rootComponent: any, plugins: any[] = []) {
   const $mount = DOMUtils.createElement("div", {
     id: VUE_ROOT_ID,
   });
-  /* 注册图标组件 */
+  // 注册图标组件
   if (import.meta.env.DEV) {
     const ElementPlusIconsVue = await import("@element-plus/icons-vue");
     for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
       app.component(key, component);
     }
   } else {
-    /* ElementPlusIconsVue是var定义的，不在window上 */
+    // ElementPlusIconsVue是var定义的，不在window上
     // @ts-ignore
     if (ElementPlusIconsVue != null) {
       // @ts-ignore
@@ -306,6 +310,7 @@ if (import.meta.env.DEV) {
 export {
   $,
   $$,
+  $r,
   addStyle,
   addStyleWithEnd,
   AnyTouch,

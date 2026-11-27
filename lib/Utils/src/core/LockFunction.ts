@@ -5,7 +5,8 @@ export class LockFunction<K extends (...args: any[]) => any | Promise<any> | voi
   #timeId: number | undefined = void 0;
   lock: () => void;
   unlock: () => void;
-  run: (...args: any[]) => Promise<void>;
+  run: <R = any>(...args: any[]) => Promise<R>;
+  idleRun: <R = any>(...args: any[]) => Promise<R>;
   isLock: () => boolean;
   /**
    * @param callback 需要执行的函数
@@ -55,8 +56,31 @@ export class LockFunction<K extends (...args: any[]) => any | Promise<any> | voi
         return;
       }
       that.lock();
-      await that.#callback.apply(this, args);
+      const result = await that.#callback.apply(this, args);
       that.unlock();
+      return result;
+    };
+    /**
+     * （空闲）执行
+     */
+    this.idleRun = async function (...args: any[]) {
+      if (that.isLock()) {
+        return;
+      }
+      const result2 = await new Promise<any>((resolve) => {
+        if (typeof requestIdleCallback == "function") {
+          requestIdleCallback(() => {
+            const result = that.run(...args);
+            resolve(result);
+          });
+        } else {
+          setTimeout(() => {
+            const result = that.run(...args);
+            resolve(result);
+          }, 0);
+        }
+      });
+      return result2;
     };
   }
 }
