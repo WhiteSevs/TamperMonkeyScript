@@ -54,15 +54,15 @@ scripts-vite/抖音优化/
 
 命名习惯：
 
-| 对象 | 约定 | 例子 |
-| --- | --- | --- |
-| 业务类 / 模块文件 | PascalCase，前缀带上站点或业务名，避免跨包重名 | `DouYinVideoPlayer.ts`、`XHSArticleFilterBase.ts` |
-| 移动端 | 目录 `m-main`，类名前缀 `M` 或 `M_` | `m-main/MDouYin.ts`、`M_XHSArticle.ts` |
-| 屏蔽逻辑 | 与主逻辑同名 + `Block` 后缀 | `DouYinVideoBlock.ts`、`XHSBlock.ts` |
-| 屏蔽样式 | 固定叫 `css/block.css`；其它样式按用途命名 | `css/mobile.css`、`css/portraitCommentSplit.css` |
-| 设置分组 | 小写开头的语义名 | `setting/view/video.ts`、`setting/view/general.ts` |
-| 包名 | kebab-case 英文 | `douyin`、`xiaohongshu-script` |
-| 目录名 | 中文脚本名（与面板标题、`@name` 一致） | `抖音优化/` |
+| 对象              | 约定                                           | 例子                                               |
+| ----------------- | ---------------------------------------------- | -------------------------------------------------- |
+| 业务类 / 模块文件 | PascalCase，前缀带上站点或业务名，避免跨包重名 | `DouYinVideoPlayer.ts`、`XHSArticleFilterBase.ts`  |
+| 移动端            | 目录 `m-main`，类名前缀 `M` 或 `M_`            | `m-main/MDouYin.ts`、`M_XHSArticle.ts`             |
+| 屏蔽逻辑          | 与主逻辑同名 + `Block` 后缀                    | `DouYinVideoBlock.ts`、`XHSBlock.ts`               |
+| 屏蔽样式          | 固定叫 `css/block.css`；其它样式按用途命名     | `css/mobile.css`、`css/portraitCommentSplit.css`   |
+| 设置分组          | 小写开头的语义名                               | `setting/view/video.ts`、`setting/view/general.ts` |
+| 包名              | kebab-case 英文                                | `douyin`、`xiaohongshu-script`                     |
+| 目录名            | 中文脚本名（与面板标题、`@name` 一致）         | `抖音优化/`                                        |
 
 一个功能通常落在三件套里——**主逻辑 + `Block` + `css/block.css`**，由主逻辑用 `addStyle(blockCSS)` / `Panel.execMenuOnce` 挂载。
 
@@ -106,7 +106,7 @@ export const DouYin = {
 ```ts
 // 形态 A：同步装配 + 分支初始化（PC/移动端分叉）
 PanelContent.addContentConfig([PanelGeneralConfig, PanelVideoConfig /* ... */]);
-PanelMenu.addMenuOption({ key: "show_pops_m_panel_setting", text: "⚙ 移动端设置", /* ... */ });
+PanelMenu.addMenuOption({ key: "show_pops_m_panel_setting", text: "⚙ 移动端设置" /* ... */ });
 Panel.init();
 if (MDouYinRouter.isMDouYin()) MDouYin.init();
 else DouYin.init();
@@ -114,7 +114,9 @@ else DouYin.init();
 
 ```ts
 // 形态 B：async 包装 + 顶层 await
-const entrance = async () => { /* ... */ };
+const entrance = async () => {
+  /* ... */
+};
 await entrance();
 ```
 
@@ -147,12 +149,12 @@ listenRouterChange() {
 
 ### 4.1 路径别名
 
-| 别名 | 指向 | 用途 |
-| --- | --- | --- |
-| `@/*` | 包内 `src/*` | 业务代码互相引用 |
-| `@components/*` | `script-components/components/src/*` | 共享组件 |
-| `@lib/*` | 仓库根 `lib/*` | 随包引入的第三方库（少用） |
-| `ViteGM` | `vite-plugin-monkey` 虚拟模块 | `unsafeWindow`、`GM_*`、`monkeyWindow` |
+| 别名            | 指向                                 | 用途                                   |
+| --------------- | ------------------------------------ | -------------------------------------- |
+| `@/*`           | 包内 `src/*`                         | 业务代码互相引用                       |
+| `@components/*` | `script-components/components/src/*` | 共享组件                               |
+| `@lib/*`        | 仓库根 `lib/*`                       | 随包引入的第三方库（少用）             |
+| `ViteGM`        | `vite-plugin-monkey` 虚拟模块        | `unsafeWindow`、`GM_*`、`monkeyWindow` |
 
 **GM API 一律从 `ViteGM` 导入**，不要依赖全局变量：
 
@@ -168,7 +170,19 @@ import { GM_getValue, GM_setValue, unsafeWindow } from "ViteGM";
 import { SCRIPT_NAME } from "@components/env.base";
 const _SCRIPT_NAME_ = SCRIPT_NAME || "抖音优化";
 
-export { utils, DOMUtils, log, MenuRegister, httpx, addStyle, pops, $, $$, MountVue, cookieManager } from "@components/env.base";
+export {
+  utils,
+  DOMUtils,
+  log,
+  MenuRegister,
+  httpx,
+  addStyle,
+  pops,
+  $,
+  $$,
+  MountVue,
+  cookieManager,
+} from "@components/env.base";
 export { _SCRIPT_NAME_ as SCRIPT_NAME };
 ```
 
@@ -261,20 +275,20 @@ isIndex(href?: string) {
 
 `log` 与 `Qmsg` 分工明确：
 
-| 场景 | 用法 |
-| --- | --- |
-| 调试/流程信息 | `log.info(...)`、`log.success(...)` |
-| 异常但可继续 | `log.error(...)` + `Qmsg.error("中文提示")`，然后 `return` |
-| 未适配页面 | `log.warn("子router: " + window.location.href)` |
-| 面向用户的操作结果 | `Qmsg.success / warning / error / loading` |
+| 场景               | 用法                                                       |
+| ------------------ | ---------------------------------------------------------- |
+| 调试/流程信息      | `log.info(...)`、`log.success(...)`                        |
+| 异常但可继续       | `log.error(...)` + `Qmsg.error("中文提示")`，然后 `return` |
+| 未适配页面         | `log.warn("子router: " + window.location.href)`            |
+| 面向用户的操作结果 | `Qmsg.success / warning / error / loading`                 |
 
 请求/接口失败的固定三段式（几乎每个 `api/*.ts` 都这样写）：
 
 ```ts
 if (!response.status) {
-  log.error(response);        // 对象整体打印，便于排查
+  log.error(response); // 对象整体打印，便于排查
   Qmsg.error("获取视频配置失败");
-  return;                     // 返回 undefined 表示失败
+  return; // 返回 undefined 表示失败
 }
 ```
 
@@ -322,7 +336,7 @@ DOMUtils.remove($el);
 export const PanelVideoConfig: PopsPanelContentConfig = {
   id: "panel-config-video",
   title: "视频",
-  views: [{ text: "", type: "container", views: [{ text: "功能", type: "deepMenu", views: [ /* ... */ ] }] }],
+  views: [{ text: "", type: "container", views: [{ text: "功能", type: "deepMenu", views: [/* ... */] }] }],
 };
 ```
 
@@ -368,7 +382,11 @@ export const DouYinAwemeApi = {
       fetch: true,
       allowInterceptConfig: false,
     });
-    if (!response.status) { log.error(response); Qmsg.error("获取视频配置失败"); return; }
+    if (!response.status) {
+      log.error(response);
+      Qmsg.error("获取视频配置失败");
+      return;
+    }
     const data = utils.toJSON(response.data.responseText);
     if (!ApiResponseCheck.isSuccess(data)) return;
     return data;
@@ -422,15 +440,15 @@ export const DouYinAwemeApi = {
 
 在**目标包目录内**执行（不要为了改一个脚本在根目录跑全量构建）：
 
-| 命令 | 作用 |
-| --- | --- |
-| `pnpm dev` | `vue-tsc --noEmit && vite --force`，本地热更（含 mkcert 证书） |
-| `pnpm build` | 格式化 → 类型检查 → `vite build` → 产物格式化 |
-| `pnpm build:min` | 同上 + `--minify` |
-| `pnpm build:all` | 普通 + 压缩两版（`--no-empty-outDir`） |
-| `pnpm build:all-new` | 同上，并强制生成新版本号 |
-| `pnpm build:watch` / `build:no-cache` / `preview` | 监听构建 / 清 pnpm 缓存后构建 / 本地预览 |
-| `pnpm format` / `format:dist` | 只格式化源码 / 只格式化产物 |
+| 命令                                              | 作用                                                           |
+| ------------------------------------------------- | -------------------------------------------------------------- |
+| `pnpm dev`                                        | `vue-tsc --noEmit && vite --force`，本地热更（含 mkcert 证书） |
+| `pnpm build`                                      | 格式化 → 类型检查 → `vite build` → 产物格式化                  |
+| `pnpm build:min`                                  | 同上 + `--minify`                                              |
+| `pnpm build:all`                                  | 普通 + 压缩两版（`--no-empty-outDir`）                         |
+| `pnpm build:all-new`                              | 同上，并强制生成新版本号                                       |
+| `pnpm build:watch` / `build:no-cache` / `preview` | 监听构建 / 清 pnpm 缓存后构建 / 本地预览                       |
+| `pnpm format` / `format:dist`                     | 只格式化源码 / 只格式化产物                                    |
 
 ### 13.4 版本号与产物
 
@@ -446,7 +464,8 @@ export const DouYinAwemeApi = {
 - 主开发分支是 `dev`，PR 目标为 `dev`；`master` 用于发布。
 - 不要提交：`node_modules`、`*.meta.local.user.js`、`pnpm-lock.yaml`（根已忽略，仅在需要锁定依赖时才特殊处理）、编辑器目录。
 - 提交前自查：`pnpm run format` 是否已跑过、`vue-tsc` 是否通过、新增设置项是否在 README/描述里同步。
-- PR时不要提交`dist`和测试项
+- PR提交前先与远程仓库进行同步，解决冲突后再进行提交。
+- PR的文件不要包含`dist`构建的文件目录和测试项。
 
 ---
 
